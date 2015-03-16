@@ -563,6 +563,70 @@ You can see the demo post :doc:`here <ipython-notebook-demo>`.
 Deployment
 ----------
 
+At this point, I'm assuming your Git repository is initialized but
+nothing has been commited yet. If this is not the case, you should
+consider starting a fresh repository, unless you really know what
+you are doing.
+
+Since we're using a Github User / Organization page, the output of
+the site must be pushed to the ``master`` branch. But we still need
+to track our sources. So first we create a ``source`` branch. Note
+that by default, Nikola assumes the branch to be named ``deploy``, 
+but I find that kind of confusing.
+
+.. code-block:: console
+
+   $ git checkout -b source
+
+.. code-block:: python
+
+   # For user.github.io OR organization.github.io pages, the DEPLOY branch
+   # MUST be 'master', and 'gh-pages' for other repositories.
+   GITHUB_SOURCE_BRANCH = 'source'
+   GITHUB_DEPLOY_BRANCH = 'master'
+   
+   # The name of the remote where you wish to push to, using github_deploy.
+   # GITHUB_REMOTE_NAME = 'origin'
+
+Now, let's track and commit the relevant source files, which so far is 
+just `posts/`, `images/`, `conf.py`.
+
+.. code-block:: console
+
+  $ echo .DS_Store >> .gitignore
+  $ echo .ipynb_checkpoints >> .gitignore
+  $ git add conf.py images/ posts/
+  $ git commit -a -m 'initial commit'
+
+And we should push it to Github:
+
+.. code-block:: console
+
+   $ git push origin source
+   Counting objects: 40, done.
+   Delta compression using up to 4 threads.
+   Compressing objects: 100% (21/21), done.
+   Writing objects: 100% (21/21), 2.64 MiB | 264.00 KiB/s, done.
+   Total 21 (delta 2), reused 0 (delta 0)
+   To https://github.com/ltiao/ltiao.github.io.git
+    * [new branch]      source -> source
+
+We're also ready to deploy to Github Pages:
+
+.. code-block:: console
+
+   $ nikola github_deploy
+   Scanning posts.....done!
+   Scanning posts.....done!
+   [2015-03-16T13:05:50Z] INFO: github_deploy: ==> ['ghp-import', '-n', '-m', u'Nikola auto commit.\n\nSource commit: 708c86073cf740997166eacfdb65851acfa74b9d\nNikola version: 7.3.1', '-p', '-r', u'origin', '-b', u'master', u'output']
+   Counting objects: 144, done.
+   Delta compression using up to 4 threads.
+   Compressing objects: 100% (70/70), done.
+   Writing objects: 100% (143/143), 5.24 MiB | 570.00 KiB/s, done.
+   Total 143 (delta 69), reused 143 (delta 69)
+   To https://github.com/ltiao/ltiao.github.io.git
+      f8605ee..e159dec  master -> master
+
 Theme Customization
 -------------------
 

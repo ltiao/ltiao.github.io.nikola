@@ -128,7 +128,7 @@ NAVIGATION_LINKS = {
 }
 
 # Name of the theme to use.
-THEME = "ipython"
+THEME = "tiao"
 
 # Below this point, everything is optional
 
@@ -391,8 +391,8 @@ REDIRECTIONS = []
 
 # For user.github.io OR organization.github.io pages, the DEPLOY branch
 # MUST be 'master', and 'gh-pages' for other repositories.
-# GITHUB_SOURCE_BRANCH = 'master'
-# GITHUB_DEPLOY_BRANCH = 'gh-pages'
+GITHUB_SOURCE_BRANCH = 'source'
+GITHUB_DEPLOY_BRANCH = 'master'
 
 # The name of the remote where you wish to push to, using github_deploy.
 # GITHUB_REMOTE_NAME = 'origin'
@@ -809,16 +809,16 @@ MathJax.Hub.Config({
 # </form>
 # <!-- End of custom search -->
 # """ % SITE_URL
-#
+
 # If you prefer a Google search form, here's an example that should just work:
-# SEARCH_FORM = """
-# <!-- Custom search with Google-->
-# <form id="search" action="//www.google.com/search" method="get" class="navbar-form pull-left">
-# <input type="hidden" name="q" value="site:%s" />
-# <input type="text" name="q" maxlength="255" results="0" placeholder="Search"/>
-# </form>
-# <!-- End of custom search -->
-#""" % SITE_URL
+SEARCH_FORM = """
+<!-- Custom search with Google-->
+<form id="search" action="//www.google.com/search" method="get" class="navbar-form pull-left">
+<input type="hidden" name="q" value="site:%s" />
+<input type="text" name="q" maxlength="255" results="0" placeholder="Search"/>
+</form>
+<!-- End of custom search -->
+""" % SITE_URL
 
 # Use content distribution networks for jQuery, twitter-bootstrap css and js,
 # and html5shiv (for older versions of Internet Explorer)

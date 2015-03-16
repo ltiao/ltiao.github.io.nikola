@@ -563,9 +563,252 @@ You can see the demo post :doc:`here <ipython-notebook-demo>`.
 Deployment
 ----------
 
+At this point, I'm assuming your Git repository is initialized but
+nothing has been commited yet. If this is not the case, you should
+consider starting a fresh repository, unless you really know what
+you are doing.
+
+Since we're using a Github User / Organization page, the output of
+the site must be pushed to the ``master`` branch. But we still need
+to track our sources. So first we create a ``source`` branch. Note
+that by default, Nikola assumes the branch to be named ``deploy``, 
+but I find that kind of confusing.
+
+.. code-block:: console
+
+   $ git checkout -b source
+
+.. code-block:: python
+
+   # For user.github.io OR organization.github.io pages, the DEPLOY branch
+   # MUST be 'master', and 'gh-pages' for other repositories.
+   GITHUB_SOURCE_BRANCH = 'source'
+   GITHUB_DEPLOY_BRANCH = 'master'
+   
+   # The name of the remote where you wish to push to, using github_deploy.
+   # GITHUB_REMOTE_NAME = 'origin'
+
+Now, let's track and commit the relevant source files, which so far is 
+just `posts/`, `images/`, `conf.py`.
+
+.. code-block:: console
+
+  $ echo .DS_Store >> .gitignore
+  $ echo .ipynb_checkpoints >> .gitignore
+  $ git add conf.py images/ posts/
+  $ git commit -a -m 'initial commit'
+
+And we should push it to Github:
+
+.. code-block:: console
+
+   $ git push origin source
+   Counting objects: 40, done.
+   Delta compression using up to 4 threads.
+   Compressing objects: 100% (21/21), done.
+   Writing objects: 100% (21/21), 2.64 MiB | 264.00 KiB/s, done.
+   Total 21 (delta 2), reused 0 (delta 0)
+   To https://github.com/ltiao/ltiao.github.io.git
+    * [new branch]      source -> source
+
+We're also ready to deploy to Github Pages:
+
+.. code-block:: console
+
+   $ nikola github_deploy
+   Scanning posts.....done!
+   Scanning posts.....done!
+   [2015-03-16T13:05:50Z] INFO: github_deploy: ==> ['ghp-import', '-n', '-m', u'Nikola auto commit.\n\nSource commit: 708c86073cf740997166eacfdb65851acfa74b9d\nNikola version: 7.3.1', '-p', '-r', u'origin', '-b', u'master', u'output']
+   Counting objects: 144, done.
+   Delta compression using up to 4 threads.
+   Compressing objects: 100% (70/70), done.
+   Writing objects: 100% (143/143), 5.24 MiB | 570.00 KiB/s, done.
+   Total 143 (delta 69), reused 143 (delta 69)
+   To https://github.com/ltiao/ltiao.github.io.git
+      f8605ee..e159dec  master -> master
+
+.. Caution::
+
+   The ``nikola github_deploy`` doesn't seem to generate the required thumbnails
+   for the **thumbnail** directive.
+
 Theme Customization
 -------------------
 
+This is optional, but since I want to be able to distribute
+my custom theme, and also reuse it in other projects, I created 
+a new repository on Github, and chose the ``Sass`` option for the
+``.gitignore`` file. Next I clone it into ``<site_root>/themes``.
+
+Now, let's create a new theme based on ``ipython`` using the 
+Bootswatch theme ``yeti`` (which is basically the default Foundation
+look implemented in Bootstrap.)
+
+.. code-block:: console
+
+   $ nikola help bootswatch_theme
+   Purpose: given a swatch name from bootswatch.com and a parent theme, creates a custom theme
+   Usage:   nikola bootswatch_theme [options] 
+
+   Options:
+     -n ARG, --name=ARG        New theme name (default: custom)
+     -s ARG                    Name of the swatch from bootswatch.com.
+     -p ARG, --parent=ARG      Parent theme name (default: bootstrap3)
+
+   $ nikola bootswatch_theme --name=tiao --parent=ipython -s yeti
+
+.. Caution::
+
+   You're likely to encounter the exception::
+
+     SSLError: hostname 'bootswatch.com' doesn't match either of 'ssl2000.cloudflare.com', 'cloudflare.com', '*.cloudflare.com'
+
+   The quick fix if you're desperate to get up and running is to add the keyword
+   argument ``verify=False`` to the call to the ``get`` method on `line 100`_ of 
+   ``bootswatch_theme.py``. But for the sake of security, you'd better wait for
+   this to be fixed.
+
+.. Note:: I'd much prefer it if we could specify a Bootswatch theme in
+   the configuration file since it wouldn't be too difficult to support.
+   As it is, we must create a custom theme if we want to use a different
+   Bootswatch theme.
+
+Now we can set our theme to ``tiao``.
+
+.. code-block:: python
+
+   THEME = 'tiao'
+
+and we should now see a ``yeti`` version of our site.
+
+.. thumbnail
+
+I don't think navigation bars are well-suited personal websites and blogs,
+and that's the main thing I want to address with my custom theme.
+
+To do this, we must modify the base template ``base.tmpl``. Let's first copy
+it from the parent and take it from there. You'll note that ``ipython`` does 
+not actually have a ``base.tmpl``, it uses its parent's, namely ``bootstrap3-jinja``.
+
+.. code-block:: console
+
+   $ ls themes/ipython/templates/
+   base_helper.tmpl  index.tmpl    post.tmpl
+ 
+   $ cat themes/ipython/parent
+   bootstrap3-jinja
+
+   $ mkdir themes/tiao/templates
+   
+   $ cp $WORKON_HOME/<venv_name>/lib/python2.7/site-packages/nikola/data/themes/bootstrap3-jinja/templates/base.tmpl themes/tiao/templates/base.tmpl
+
+Now we replace every between ``<!-- Menubar --> ... <!-- End of Menubar -->`` with
+
+.. code-block:: html
+
+   <div class="container">
+       <div class="page-header">
+           <ul class="nav nav-pills pull-right">
+               {% if search_form %}
+               <li>{{ search_form }}</li>
+               {% endif %}
+               {% block belowtitle %}
+               {% if translations|length > 1 %}
+                   <li>{{ base.html_translations() }}</li>
+               {% endif %}
+               {% endblock %}
+               {% if show_sourcelink %}
+                   {% block sourcelink %}{% endblock %}
+               {% endif %}
+               {{ template_hooks['menu_alt']() }}
+           </ul>
+           <a  href="{{ abs_link(_link("root", None, lang)) }}">
+               {% if logo_url %}
+                   <img src="{{ logo_url }}" alt="{{ blog_title }}" id="logo">
+               {% endif %}    
+               <h2 class="text-muted">
+               {% if show_blog_title %}
+                   <span id="blog-title"><strong>{{ blog_title }}</strong></span>
+               {% endif %}
+               </h2>
+           </a>
+       </div> <!-- ./page-header -->
+   </div> <!-- ./container -->
+
+We also replace the body by
+
+.. code-block:: html
+
+   <div class="container" id="content" role="main">
+       <div class="row">
+           <div class="col-sm-3 col-md-2">
+               <ul class="nav nav-pills nav-stacked">
+                   {{ base.html_navigation_links() }}
+                   {{ template_hooks['menu']() }}
+               </ul>
+           </div> <!-- ./col -->
+           <div class="col-sm-9 col-md-10">
+               <div class="body-content">
+                   <!--Body content-->
+                   <div class="row">
+                       {{ template_hooks['page_header']() }}
+                       {% block content %}{% endblock %}
+                   </div>
+                   <!--End of body content-->
+               </div>
+           </div> <!-- ./col -->
+       </div> <!-- ./row -->  
+   </div> <!-- ./container --> 
+
+   <footer>
+       <div class="container">
+           {{ content_footer }}
+           {{ template_hooks['page_footer']() }}
+       </div>
+   </footer>
+
+and lastly create ``assets/css/custom.css``, add
+
+.. code-block:: css
+
+   html {
+     position: relative;
+     min-height: 100%;
+   } 
+
+   body {
+     margin-top: 5px;
+     /* Margin bottom by footer height */
+     margin-bottom: 60px;
+   } 
+
+   .footer {
+     position: absolute;
+     bottom: 0;
+     width: 100%;
+     /* Set the fixed height of the footer here */
+     height: 60px;
+     background-color: #f5f5f5;
+   } 
+
+   .footer .text-muted {
+     margin: 20px 0;
+   }
+
+What this does is summarized below: 
+
+1. Created a page header in place of the navigation bar
+2. Reduce the top margin to 5 pixels
+3. Created a sidebar to contain all the navigation links, i.e. the main menu.
+4. Created navigation pills, pulled to the right on the page header,
+   which contains the search form, source link and translation links, i.e. the alt menu.
+5. Stick the footer to the bottom, loosely based on the Bootstrap `Sticky footer example`_
+   and its corresponding `CSS file`_.
+
+.. _CSS file: http://getbootstrap.com/examples/sticky-footer/sticky-footer.css
+.. _Sticky footer example: http://getbootstrap.com/examples/sticky-footer/
+.. _line 100: https://github.com/getnikola/nikola/blob/
+   d00b46b96db95c864ddb6386b278cbc8b72a3686/nikola/plugins/command/bootswatch_theme.py#L100
 .. _IPython's Rich Display System: http://nbviewer.ipython.org/github/ipython/ipython/
    blob/2.x/examples/Notebook/Display%20System.ipynb
 .. _Typesetting Equations: http://nbviewer.ipython.org/github/ipython/ipython/

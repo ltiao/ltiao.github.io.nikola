@@ -2,7 +2,7 @@
 .. slug: restructuredtext-demo
 .. date: 2015-03-16 15:01:39 UTC+11:00
 .. tags: mathjax
-.. category: 
+.. category: coding
 .. link: 
 .. description: 
 .. type: text

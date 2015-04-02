@@ -687,8 +687,6 @@ Now we can set our theme to ``tiao``.
 
 and we should now see a ``yeti`` version of our site.
 
-.. thumbnail
-
 I don't think navigation bars are well-suited personal websites and blogs,
 and that's the main thing I want to address with my custom theme.
 
@@ -714,10 +712,10 @@ Now we replace every between ``<!-- Menubar --> ... <!-- End of Menubar -->`` wi
 
    <div class="container">
        <div class="page-header">
+           {% if search_form %}
+           {{ search_form }}
+           {% endif %}
            <ul class="nav nav-pills pull-right">
-               {% if search_form %}
-               <li>{{ search_form }}</li>
-               {% endif %}
                {% block belowtitle %}
                {% if translations|length > 1 %}
                    <li>{{ base.html_translations() }}</li>
@@ -766,10 +764,12 @@ We also replace the body by
        </div> <!-- ./row -->  
    </div> <!-- ./container --> 
 
-   <footer>
+   <footer class="footer">
        <div class="container">
-           {{ content_footer }}
-           {{ template_hooks['page_footer']() }}
+           <p class="text-muted">
+               {{ content_footer }}
+               {{ template_hooks['page_footer']() }}
+           </p>
        </div>
    </footer>
 
@@ -783,9 +783,13 @@ and lastly create ``assets/css/custom.css``, add
    } 
 
    body {
-     margin-top: 5px;
+     margin-top: 0px;
      /* Margin bottom by footer height */
      margin-bottom: 60px;
+   } 
+
+   .page-header a {
+     text-decoration: none;
    } 
 
    .footer {
@@ -810,6 +814,14 @@ What this does is summarized below:
    which contains the search form, source link and translation links, i.e. the alt menu.
 5. Stick the footer to the bottom, loosely based on the Bootstrap `Sticky footer example`_
    and its corresponding `CSS file`_.
+
+.. admonition:: TODO
+
+   Since we are now using the vertical (stacked) Nav pills, we can still use
+   one level submenus, but this will create a dropdown menu, which looks ugly for 
+   vertical navs. With Bootstrap 2.3.2 you could use the ``nav-header`` class to 
+   create a grouped list, but this no longer exists in Bootstrap 3. So we define our
+   own. *Coming soon.*
 
 Tweaks
 ------

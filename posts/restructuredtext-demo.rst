@@ -1,7 +1,7 @@
 .. title: ReStructuredText Demo
 .. slug: restructuredtext-demo
 .. date: 2015-03-16 15:01:39 UTC+11:00
-.. tags: mathjax
+.. tags: mathjax, demo
 .. category: coding
 .. link: 
 .. description: 

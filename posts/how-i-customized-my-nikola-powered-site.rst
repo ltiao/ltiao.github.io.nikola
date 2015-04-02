@@ -814,6 +814,94 @@ What this does is summarized below:
 Tweaks
 ------
 
+Stories vs. Pages
+*****************
+
+One thing that peeved me was that *pages* are frequently referred to as *stories* throughout 
+the documentation and configuration file. Calling it stories doesn't even make much sense, but
+calling it two things makes it even more confusing.
+
+For example,
+
+.. code-block:: python 
+
+   PAGES = (
+       ("stories/*.rst", "stories", "story.tmpl"),
+       ("stories/*.txt", "stories", "story.tmpl"),
+   )
+
+So *pages* are in the ``stories`` directory and use the ``story.tmpl`` template? Why not
+just call it pages!
+
+.. code-block:: python 
+
+   PAGES = (
+       ("pages/*.rst", "pages", "story.tmpl"),
+       ("pages/*.txt", "pages", "story.tmpl"),
+   )
+
+I left the template file as is because I couldn't be bothered with template inheritance at this
+point, but it is possible to modify it if you're keen. 
+But now, at least the pages are outputted to the ``pages/`` directory, which is reflected
+in the URL for pages, and that is what I care about the post. I also changed the input directory
+to ``pages/`` for consistency.
+
+Site first, blog second
+***********************
+
+I want my site to be a first a foremost just that - a site, perhaps with the 
+occasional post, notebook, recipe or what have you, rather than a blog with
+some static pages. The way to do this is more or less outlined in 
+`Creating a Site (Not a Blog) with Nikola`_.
+
+I change the ``INDEX_PATH`` from the default (``""``) to 
+``"posts"``, so that the index of all posts will be under the ``posts`` 
+subdirectory rather than the root of the output directory.
+
+.. code-block:: python
+
+   # Final location for the main blog page and sibling paginated pages is
+   # output / TRANSLATION[lang] / INDEX_PATH / index-*.html
+   INDEX_PATH = "posts"
+
+This leaves me free to create my own index page for the site and there are
+a number of ways to go about this. Perhaps the most straightforward approach 
+is to change the destination of pages to ``""``, so all pages will go directly 
+to the output directory.
+
+.. code-block:: python
+
+   PAGES = (
+       ("pages/*.rst", "", "story.tmpl"),
+       ("pages/*.txt", "", "story.tmpl"),
+   )
+
+Now we can create our own homepage
+
+.. code-block:: console
+
+   $ nikola new_page --title=Home
+   Creating New Page
+   -----------------   
+
+   Title: Home
+   Scanning posts.....done!
+   [2015-04-02T10:04:58Z] INFO: new_page: Your page's text is at: pages/home.rst 
+
+Since we need the output to be named "index.html", we simply have to modify the
+slug metadata of the page to be ``index``::
+
+  .. slug: index
+
+We can now fill this with whatever content we wish. Personally, I would have
+liked to be able to specify an existing page to use as the homepage, and the
+closest thing to achieving this is using the reStructredText ``.. include::``
+directive. For now, I set my about page as my homepage::
+
+  .. include:: pages/about.rst
+
+Of course, you can also augment this with other content, such as a `Post List`_.
+
 Tags and Categories
 *******************
 
@@ -912,7 +1000,7 @@ With most static site/blog generators, the teaser is often defined by showing on
 the first :math:`n` words of the content and truncating the rest, or allowing you 
 to provide a teaser in the summary field of the post's metadata. Nikola allows you
 to define when the teaser ends in each post on an individual basis, using the following
-directive. 
+directive::
 
   .. TEASER_END
 
@@ -954,40 +1042,11 @@ Twitter Card
 Fancy Dates
 ***********
 
-Stories are Pages
-*****************
-
-One thing that peeved me was that *pages* are frequently referred to as *stories* throughout 
-the documentation and configuration file. Calling it stories doesn't even make much sense, but
-calling it two things makes it even more confusing.
-
-For example,
-
-.. code-block:: python 
-
-   PAGES = (
-       ("stories/*.rst", "stories", "story.tmpl"),
-       ("stories/*.txt", "stories", "story.tmpl"),
-   )
-
-So *pages* are in the ``stories`` directory and use the ``story.tmpl`` template? Why not
-just call it pages!
-
-.. code-block:: python 
-
-   PAGES = (
-       ("pages/*.rst", "pages", "story.tmpl"),
-       ("pages/*.txt", "pages", "story.tmpl"),
-   )
-
-I left the template file as is because I couldn't be bothered with template inheritance at this
-point. But now, at least the pages are outputted to the ``pages/`` directory, which is reflected
-in the URL for pages, and that is what I care about the post. I also changed the input directory
-to ``pages/`` for consistency.
-
 Languages
 *********
 
+.. _Post List: http://getnikola.com/handbook.html#post-list
+.. _Creating a Site (Not a Blog) with Nikola: http://getnikola.com/creating-a-site-not-a-blog-with-nikola.html
 .. _CSS file: http://getbootstrap.com/examples/sticky-footer/sticky-footer.css
 .. _Sticky footer example: http://getbootstrap.com/examples/sticky-footer/
 .. _line 100: https://github.com/getnikola/nikola/blob/

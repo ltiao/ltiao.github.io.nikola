@@ -7,4 +7,10 @@
 .. description: 
 .. type: text
 
-Hi. Welcome.
+.. pull-quote::
+
+   We must get beyond textbooks, go out into the bypaths... 
+   and tell the world the glories of our journey. 
+
+   -- John Hope Franklin
+   

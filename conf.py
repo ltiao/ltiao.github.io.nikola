@@ -125,6 +125,7 @@ NAVIGATION_LINKS = {
         ("/pages/projects.html", "Projects"),
         ("/pages/curriculum-vitae.html", "Curriculum Vitae"),
         ("/pages/contact.html", "Contact"),
+        ("/categories/compsci.html", "CompSci"),
         ("/categories/coding.html", "Coding"),
         ("/categories/misc.html", "Misc"),
         ("/tags/python.html", "Python"),
@@ -135,6 +136,7 @@ NAVIGATION_LINKS = {
 
 # Name of the theme to use.
 THEME = "tiao"
+# THEME = "temp"
 
 # Below this point, everything is optional
 

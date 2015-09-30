@@ -1,8 +1,8 @@
 .. title: Practical implications of IPython and Jupyter split
 .. slug: practical-implications-of-ipython-and-jupyter-split
 .. date: 2015-08-21 16:42:14 UTC+10:00
-.. tags: 
-.. category: 
+.. tags: ipython, jupyter, draft
+.. category: coding
 .. link: 
 .. description: 
 .. type: text

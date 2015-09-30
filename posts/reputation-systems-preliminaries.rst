@@ -1,7 +1,7 @@
 .. title: Modeling Reputation Systems: Preliminaries
 .. slug: reputation-systems-preliminaries
 .. date: 2015-05-09 00:26:17 UTC+10:00
-.. tags: mathjax, reputation systems, linear algebra, computer science
+.. tags: mathjax, reputation systems, linear algebra, draft
 .. category: compsci
 .. link: 
 .. description: 

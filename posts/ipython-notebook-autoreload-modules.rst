@@ -1,7 +1,7 @@
 .. title: IPython [Notebook] Autoreload Modules
 .. slug: ipython-notebook-autoreload-modules
 .. date: 2015-04-02 00:40:45 UTC+11:00
-.. tags: ipython, python, synopsis
+.. tags: ipython, python, draft
 .. category: coding
 .. link: 
 .. description: 

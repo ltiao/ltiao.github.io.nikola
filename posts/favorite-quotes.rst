@@ -1,7 +1,7 @@
 .. title: Favorite Quotes
 .. slug: favorite-quotes
 .. date: 2015-04-24 22:19:53 UTC+10:00
-.. tags: quotes, motivation
+.. tags: quotes, motivation, private
 .. category: misc
 .. link: 
 .. description: 

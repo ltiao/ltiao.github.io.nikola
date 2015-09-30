@@ -1,15 +1,15 @@
 .. title: Notes on BeautifulSoup4
 .. slug: notes-on-beautifulsoup4
 .. date: 2015-05-22 22:58:26 UTC+10:00
-.. tags: 
-.. category: 
+.. tags: BeautifulSoup, python, draft
+.. category: coding
 .. link: 
 .. description: 
 .. type: text
 
 The following are equivalent
 
-.. code::
+.. code:: python
 
    soup.findAll(...)
    soup.find_all(...)
@@ -17,7 +17,7 @@ The following are equivalent
 
 as are the following
 
-.. code::
+.. code:: python
 
    soup.find('some_attr')
    soup.some_attr

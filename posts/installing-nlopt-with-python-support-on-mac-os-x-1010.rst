@@ -1,8 +1,8 @@
 .. title: Installing NLopt with Python support on Mac OS X (10.10)
 .. slug: installing-nlopt-with-python-support-on-mac-os-x-1010
 .. date: 2015-07-17 15:39:17 UTC+10:00
-.. tags: 
-.. category: 
+.. tags: NLopt, python, python3, optimization, homebrew, draft
+.. category: coding
 .. link: 
 .. description: 
 .. type: text

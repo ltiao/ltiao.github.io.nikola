@@ -1,7 +1,7 @@
 .. title: Pelican's USE_FOLDER_AS_CATEGORY setting and behaviour
 .. slug: pelicans-use_folder_as_category-setting-and-behaviour
 .. date: 2015-04-02 00:40:03 UTC+11:00
-.. tags: python, pelican, synopsis
+.. tags: python, pelican
 .. category: coding
 .. link: 
 .. description: 

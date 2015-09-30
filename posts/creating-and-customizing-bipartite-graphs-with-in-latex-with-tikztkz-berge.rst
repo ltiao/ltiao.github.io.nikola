@@ -1,8 +1,8 @@
 .. title: Creating and customizing bipartite graphs with in LaTeX with TikZ/tkz-berge
 .. slug: creating-and-customizing-bipartite-graphs-with-in-latex-with-tikztkz-berge
 .. date: 2015-04-21 23:51:24 UTC+10:00
-.. tags: latex,graph theory,tikz,tkz-berge,tkz-graph
-.. category: 
+.. tags: latex, graph theory, tikz, tkz-berge, tkz-graph, draft
+.. category: coding
 .. link: 
 .. description: 
 .. type: text

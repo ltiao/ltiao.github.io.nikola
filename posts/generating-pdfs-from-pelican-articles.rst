@@ -1,7 +1,7 @@
 .. title: Generating PDFs from Pelican Articles
 .. slug: generating-pdfs-from-pelican-articles
 .. date: 2015-04-02 00:37:26 UTC+11:00
-.. tags: python, pelican, pdf, synopsis
+.. tags: python, pelican, pdf
 .. category: coding
 .. link: 
 .. description: 

@@ -1,5 +1,5 @@
-.. title: Upgrading all outdated pip packages
-.. slug: upgrading-all-outdated-pip-packages
+.. title: Quick reference: Upgrading all outdated pip packages
+.. slug: quick-ref-upgrading-all-outdated-pip-packages
 .. date: 2015-04-02 00:41:22 UTC+11:00
 .. tags: python, pip, bash
 .. category: coding

@@ -1,7 +1,7 @@
 .. title: Sublime Text 2 and Virtualenvwrapper Workflow
 .. slug: sublime-text-2-and-virtualenvwrapper-workflow
 .. date: 2015-03-27 16:33:03 UTC+11:00
-.. tags: draft, sublime text 2, virtualenv, virtualenvwrapper, python, bash 
+.. tags: sublime text 2, virtualenv, virtualenvwrapper, python, bash, draft
 .. category: coding
 .. link: 
 .. description: 

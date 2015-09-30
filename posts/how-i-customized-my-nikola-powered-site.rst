@@ -1,7 +1,7 @@
 .. title: How I customized my Nikola-powered site
 .. slug: how-i-customized-my-nikola-powered-site
 .. date: 2015-03-16 00:49:00 UTC+11:00
-.. tags: python, nikola
+.. tags: python, nikola, mathjax
 .. category: coding
 .. link: 
 .. description: 
@@ -74,7 +74,7 @@ Now we're ready to initialize the site
    --- Questions about the site ---
    Site title [My Nikola Site]: Louis Tiao
    Site author [Nikola Tesla]: Louis Tiao
-   Site author's e-mail [n.tesla@example.com]: louistiao@me.com
+   Site author's e-mail [n.tesla@example.com]: <email_address>
    Site description [This is a demo site for Nikola.]: Computer Science / Math / Software Engineering
    Site URL [http://getnikola.com/]: http://ltiao.github.io/
    --- Questions about languages and locales ---

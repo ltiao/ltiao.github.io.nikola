@@ -1,7 +1,7 @@
 .. title: Creating a Nikola theme with Sass-compiled Bootstrap
 .. slug: creating-a-nikola-theme-with-sass-compiled-bootstrap
 .. date: 2015-09-28 22:59:54 UTC+10:00
-.. tags: sass, bootstrap, nikola, draft
+.. tags: sass, bootstrap, nikola
 .. category: coding
 .. link: 
 .. description: 
@@ -10,17 +10,17 @@
 Initializing the Theme
 ----------------------
 
-First, create a new Nikola theme. The way I like to do this is by creating a 
+First, create a new Nikola theme. I prefer to do this by creating a
 `new repository on Github`_ so that it can be initialized with a README, 
-LICENSE, ``.gitignore``, etc. Next, clone the newly created repo into 
-``<site-root>/themes``.
+LICENSE, ``.gitignore``, etc. Once that's done, clone the newly created repo 
+into ``<site-root>/themes``.
 
 The bare minimum requirement for a Nikola theme is that it include a 
 ``parent`` file. Since our theme just uses our own extended and customized 
-Bootstrap, it makes sense to inherit from ``bootstrap3`` or its `Jinja2`_ 
-port, ``bootstrap3-jinja``. I much prefer Jinja2 over `Mako`_, so we shall opt
-for the latter. It goes without saying that everything outlined below can 
-trivially be made to work for Mako.
+version of Bootstrap, it makes sense to inherit from ``bootstrap3`` or its 
+`Jinja2`_ port, ``bootstrap3-jinja``. I much prefer Jinja2 over `Mako`_, so we
+shall opt for the latter. It goes without saying that everything outlined 
+below can trivially be made to work for Mako.
 
 .. code:: console
 
@@ -34,23 +34,21 @@ better than implicit). We specify Jinja2 as the template engine.
 
    $ echo "jinja" > engine
 
-Note that our theme is going to be very similar to 
-`bootstrap3-gradients-jinja`_, which is a theme that uses 
-``bootstrap-theme.css``, an optional Bootstrap stylesheet that includes 
-gradients and is touted by the Bootstrap developers as "providing a visually 
-enhanced experience".
+Note that our theme is going to be very similar to `bootstrap3-gradients-jinja`_, 
+which is a theme that uses ``bootstrap-theme.css``, an optional Bootstrap 
+stylesheet that includes gradients and is touted by the Bootstrap developers 
+as "providing a visually enhanced experience".
 
 Not surprisingly, it is almost identical to the ``bootstrap3-jinja`` theme. 
 The key difference is that is requires an additional stylesheet, so the 
-webassets bundle and ``html_stylesheets()`` macro in ``base_helper.tmpl`` must 
-be updated to reflect that. Our theme is going to be similar in that we use 
-our own customized Boostrap stylesheet, compiled from Sass.
+webassets bundle and ``html_stylesheets()`` macro in ``base_helper.tmpl`` are 
+updated to reflect that. Our theme is going to be similar in that we use our 
+own customized Boostrap stylesheet, compiled from Sass. We will take care of 
+this later. For now, let's just get our Sass workflow up and running so we can
+get Nikola to use Sass to compile our customized stylesheet.
 
 Sass workflow in Nikola
 -----------------------
-
-We will take care of this later. For now, let us get our Sass workflow up and
-running.
 
 Create the ``sass`` directory inside the root of the repo
 
@@ -59,18 +57,18 @@ Create the ``sass`` directory inside the root of the repo
    $ cd <site-root>/themes/<repo-root>
    $ mkdir sass
 
-Next, we must obtain the Sass sources for Bootstrap. There are many ways to do
-this, either through Compass, Bower, directly from source, etc. I prefer to do
-this through Bower.
+Next, obtain the Sass sources for Bootstrap. There are several ways to do this, 
+e.g. through Compass, Bower, directly from source, etc. I do this through Bower:
 
-- Install `npm`_, which is most easily done by installing `Node.js`_.
-- Install `Bower`_
+If you don't already have Bower, you can install it with `npm`_, which is most 
+easily done by installing `Node.js`_. Then you can just install `Bower`_ 
+globally:
 
-  .. code:: console
+.. code:: console
 
-     $ npm install -g bower
+   $ npm install -g bower
 
-Install ``boostrap-sass`` inside the ``sass`` directory.
+Now we can install ``boostrap-sass`` inside the ``sass`` directory:
 
 .. code:: console
 
@@ -78,12 +76,17 @@ Install ``boostrap-sass`` inside the ``sass`` directory.
    $ bower install bootstrap-sass
 
 You should now see all components installed in the ``bower_components`` 
-directory.
+directory:
+
+.. code:: console
+
+   $ ls bower_components
+   bootstrap-sass   jquery
 
 Now we create a SCSS file, call it say, ``bootstrap-custom.scss``, which is the 
 primary file that we will be compiling to CSS. It will be the main entrypoint 
 that imports the Bootstrap sources, as well as any other customizations we 
-make. We create a file ``_variables-custom.scss`` to isolate all the 
+make. We also create a file ``_variables-custom.scss`` to isolate all the 
 modifications we make to Bootstrap variables. 
 
 .. code:: console
@@ -178,11 +181,11 @@ A quick sanity check to confirm
 Update templates to use Sass-compiled CSS
 -----------------------------------------
 
-Now we just need to override the ``base_helper.tmpl`` template and the 
-webassets bundle to use our customized Bootstrap stylesheet. As mentioned 
+Now all that's left to do is to override the ``base_helper.tmpl`` template and 
+the webassets bundle to use our customized Bootstrap stylesheet. As mentioned 
 earlier, our modifications are going to closely resemble those of the 
-``bootstrap3-gradients-jinja`` theme. Let us locate and install this theme for
-reference:
+``bootstrap3-gradients-jinja`` theme. Let us locate and install this theme to 
+use as a reference:
 
 .. code:: console
 
@@ -254,25 +257,34 @@ differences between the relevant files in ``bootstrap3-jinja`` and
 
 We see the only difference is that ``bootstrap3-gradients-jinja`` includes the 
 additional ``bootstrap-theme.css`` stylesheet after the standard 
-``bootstrap.css`` stylesheet. We could repeat this with our own theme. However,
-if we decide to use other fonts from say, `Google Fonts`_, we would need to add
-an ``@import`` statement in our ``bootstrap-custom.scss`` file. However, if we 
-were to include the compiled ``bootstrap-custom.css`` stylesheet after the 
-standard ``bootstrap.min.css`` stylesheet, the fonts would fail to be imported,
-as ``@imports`` must come before all other content. Since we build all of 
-Bootstrap from source anyways, the most straightforward solution is to get rid
-of the ``bootstrap.min.css`` stylesheet entirely and use our own compiled 
-``bootstrap-custom.css`` stylesheet.
+``bootstrap.css`` stylesheet. While we could simply replicate this with our 
+own theme, it would become problematic if we introduce things like ``@import``
+statements in our Sass sources (which we would definitely need to if we 
+decided to use, for example `Google Fonts`_) as ``@imports`` must come before 
+all other content and our compiled ``bootstrap-custom.css`` stylesheet would
+come after the standard ``bootstrap.min.css`` stylesheet. 
+
+Since we build all of Bootstrap from source anyways, the most straightforward 
+solution is to get rid of the ``bootstrap.min.css`` stylesheet altogether and 
+only use our own compiled ``bootstrap-custom.css`` stylesheet.
 
 Our custom Bootstrap is compiled at the time we run ``nikola build``, so 
 obviously it would not be available on any CDN. Therefore, we would not need to
 make the distinction between using and not using a CDN by having separate 
 webassets bundle files ``all.css`` and ``all-nocdn.css``. We can just bundle 
-everything into the ``all.css``file. Additionally, the ``use_cdn`` variable is
-effectively ignored since we would need to include our compiled stylesheets no 
+everything into the ``all.css`` file. Additionally, the ``use_cdn`` variable is
+effectively ignored since we need to include our compiled stylesheets no 
 matter what; it is not available from anywhere else.
 
-So for the relevant section of ``base_helper.tmpl``, we have:
+To summarize, for ``bundles``, we have:
+
+.. code::
+
+   assets/css/all.css=bootstrap-custom.css,rst.css,code.css,colorbox.css,theme.css,custom.css
+   assets/js/all-nocdn.js=jquery.min.js,bootstrap.min.js,jquery.colorbox-min.js,moment-with-locales.min.js,fancydates.js
+   assets/js/all.js=jquery.colorbox-min.js,moment-with-locales.min.js,fancydates.js
+
+and for the relevant section of ``base_helper.tmpl``, we have:
 
 .. code:: html
 
@@ -289,17 +301,10 @@ So for the relevant section of ``base_helper.tmpl``, we have:
        {% endif %}
    {% endif %}
 
-and for ``bundles``, we have:
-
-.. code::
-
-   assets/css/all.css=bootstrap-custom.css,rst.css,code.css,colorbox.css,theme.css,custom.css
-   assets/js/all-nocdn.js=jquery.min.js,bootstrap.min.js,jquery.colorbox-min.js,moment-with-locales.min.js,fancydates.js
-   assets/js/all.js=jquery.colorbox-min.js,moment-with-locales.min.js,fancydates.js
-
 TODO
-  * Sass compress
+  * Sass compress, and why Nikola can't
   * Bootswatch (optional)
+  * Include Sass Bootstrap workflow references
 
 .. _`Mako`: http://www.makotemplates.org/
 .. _`Jinja2`: http://jinja.pocoo.org/

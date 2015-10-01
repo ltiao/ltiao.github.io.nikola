@@ -44,13 +44,11 @@ Not surprisingly, it is almost identical to the ``bootstrap3-jinja`` theme.
 The key difference is that is requires an additional stylesheet, so the 
 webassets bundle and ``html_stylesheets()`` macro in ``base_helper.tmpl`` must 
 be updated to reflect that. Our theme is going to be similar in that we use 
-our own customized Boostrap stylesheet, compiled from Sass.
+our own customized Boostrap stylesheet, compiled from Sass. We will take care 
+of this later. For now, let us get our Sass workflow up and running.
 
 Sass workflow in Nikola
 -----------------------
-
-We will take care of this later. For now, let us get our Sass workflow up and
-running.
 
 Create the ``sass`` directory inside the root of the repo
 
@@ -268,11 +266,19 @@ Our custom Bootstrap is compiled at the time we run ``nikola build``, so
 obviously it would not be available on any CDN. Therefore, we would not need to
 make the distinction between using and not using a CDN by having separate 
 webassets bundle files ``all.css`` and ``all-nocdn.css``. We can just bundle 
-everything into the ``all.css``file. Additionally, the ``use_cdn`` variable is
+everything into the ``all.css`` file. Additionally, the ``use_cdn`` variable is
 effectively ignored since we would need to include our compiled stylesheets no 
 matter what; it is not available from anywhere else.
 
-So for the relevant section of ``base_helper.tmpl``, we have:
+To summarize, for ``bundles``, we have:
+
+.. code::
+
+   assets/css/all.css=bootstrap-custom.css,rst.css,code.css,colorbox.css,theme.css,custom.css
+   assets/js/all-nocdn.js=jquery.min.js,bootstrap.min.js,jquery.colorbox-min.js,moment-with-locales.min.js,fancydates.js
+   assets/js/all.js=jquery.colorbox-min.js,moment-with-locales.min.js,fancydates.js
+
+and for the relevant section of ``base_helper.tmpl``, we have:
 
 .. code:: html
 
@@ -289,16 +295,8 @@ So for the relevant section of ``base_helper.tmpl``, we have:
        {% endif %}
    {% endif %}
 
-and for ``bundles``, we have:
-
-.. code::
-
-   assets/css/all.css=bootstrap-custom.css,rst.css,code.css,colorbox.css,theme.css,custom.css
-   assets/js/all-nocdn.js=jquery.min.js,bootstrap.min.js,jquery.colorbox-min.js,moment-with-locales.min.js,fancydates.js
-   assets/js/all.js=jquery.colorbox-min.js,moment-with-locales.min.js,fancydates.js
-
 TODO
-  * Sass compress
+  * Sass compress, and why Nikola can't
   * Bootswatch (optional)
 
 .. _`Mako`: http://www.makotemplates.org/

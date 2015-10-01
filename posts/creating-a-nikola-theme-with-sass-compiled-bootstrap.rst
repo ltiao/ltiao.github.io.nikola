@@ -1,11 +1,14 @@
 .. title: Creating a Nikola theme with Sass-compiled Bootstrap
 .. slug: creating-a-nikola-theme-with-sass-compiled-bootstrap
 .. date: 2015-09-28 22:59:54 UTC+10:00
-.. tags: sass, bootstrap, nikola, draft
+.. tags: sass, bootstrap, nikola
 .. category: coding
 .. link: 
 .. description: 
 .. type: text
+
+Initializing the Theme
+----------------------
 
 First, create a new Nikola theme. The way I like to do this is by creating a 
 `new repository on Github`_ so that it can be initialized with a README, 
@@ -21,7 +24,7 @@ trivially be made to work for Mako.
 
 .. code:: console
 
-   $ cd <site-root>/themes/<rep-root>
+   $ cd <site-root>/themes/<repo-root>
    $ echo "bootstrap3-jinja" > parent
 
 The following is not strictly required, but is good practice (explicit is 
@@ -42,6 +45,9 @@ The key difference is that is requires an additional stylesheet, so the
 webassets bundle and ``html_stylesheets()`` macro in ``base_helper.tmpl`` must 
 be updated to reflect that. Our theme is going to be similar in that we use 
 our own customized Boostrap stylesheet, compiled from Sass.
+
+Sass workflow in Nikola
+-----------------------
 
 We will take care of this later. For now, let us get our Sass workflow up and
 running.
@@ -169,26 +175,131 @@ A quick sanity check to confirm
    body {
      margin: 0; }
 
+Update templates to use Sass-compiled CSS
+-----------------------------------------
+
 Now we just need to override the ``base_helper.tmpl`` template and the 
-webassets bundle to use our customized Bootstrap stylesheet.
+webassets bundle to use our customized Bootstrap stylesheet. As mentioned 
+earlier, our modifications are going to closely resemble those of the 
+``bootstrap3-gradients-jinja`` theme. Let us locate and install this theme for
+reference:
 
-bundle
-  Copy the contents of ``bundle``
+.. code:: console
 
-  .. code::
+   $ nikola install_theme -l | grep bootstrap
+   [2015-10-01T05:34:12Z] INFO: requests.packages.urllib3.connectionpool: Starting new HTTPS connection (1): themes.getnikola.com
+   bootstrap
+   bootstrap-jinja
+   bootstrap3-gradients
+   bootstrap3-gradients-jinja
+   $ nikola install_theme bootstrap3-gradients-jinja
+   [2015-10-01T05:35:16Z] INFO: requests.packages.urllib3.connectionpool: Starting new HTTPS connection (1): themes.getnikola.com
+   [2015-10-01T05:35:17Z] INFO: install_theme: Downloading 'https://themes.getnikola.com/v7/bootstrap3-gradients-jinja.zip'
+   [2015-10-01T05:35:17Z] INFO: requests.packages.urllib3.connectionpool: Starting new HTTPS connection (1): themes.getnikola.com
+   [2015-10-01T05:35:17Z] INFO: install_theme: Extracting 'bootstrap3-gradients-jinja' into themes/
+   [2015-10-01T05:35:17Z] NOTICE: install_theme: Remember to set THEME="bootstrap3-gradients-jinja" in conf.py to use this theme.
 
-     assets/css/all-nocdn.css=bootstrap.css,bootstrap-theme.css,rst.css,code.css,colorbox.css,theme.css,custom.css
-     assets/css/all.css=rst.css,code.css,colorbox.css,theme.css,custom.css
-     assets/js/all-nocdn.js=jquery.min.js,bootstrap.min.js,jquery.colorbox-min.js,moment-with-locales.min.js,fancydates.js
-     assets/js/all.js=jquery.colorbox-min.js,moment-with-locales.min.js,fancydates.js
+We can inspect the modifications that have been made by comparing the 
+differences between the relevant files in ``bootstrap3-jinja`` and 
+``bootstrap3-gradients-jinja``. First, let us get the location of the 
+``bootstrap3-jinja`` theme which was shipped with Nikola:
 
-  .. code::
+.. code:: console
 
-     assets/css/all.css=bootstrap-custom.css,rst.css,code.css,colorbox.css,theme.css,custom.css
-     assets/js/all-nocdn.js=jquery.min.js,bootstrap.min.js,jquery.colorbox-min.js,moment-with-locales.min.js,fancydates.js
-     assets/js/all.js=jquery.colorbox-min.js,moment-with-locales.min.js,fancydates.js
+   $ nikola install_theme --get-path bootstrap3-jinja
+   <env>/lib/python2.7/site-packages/nikola/data/themes/bootstrap3-jinja
 
-Bootswatch (Optional)
+.. code:: console
+
+   $ diff -u <env>/lib/python2.7/site-packages/nikola/data/themes/bootstrap3-jinja/bundles themes/bootstrap3-gradients-jinja/bundles 
+   
+.. code:: diff
+
+   --- <env>/lib/python2.7/site-packages/nikola/data/themes/bootstrap3-jinja/bundles  2015-10-01 15:33:47.000000000 +1000
+   +++ <site-root>/themes/themes/bootstrap3-gradients-jinja/bundles 2015-10-01 15:35:17.000000000 +1000
+   @@ -1,4 +1,4 @@
+   -assets/css/all-nocdn.css=bootstrap.css,rst.css,code.css,colorbox.css,theme.css,custom.css
+   +assets/css/all-nocdn.css=bootstrap.css,bootstrap-theme.css,rst.css,code.css,colorbox.css,theme.css,custom.css
+    assets/css/all.css=rst.css,code.css,colorbox.css,theme.css,custom.css
+    assets/js/all-nocdn.js=jquery.min.js,bootstrap.min.js,jquery.colorbox-min.js,moment-with-locales.min.js,fancydates.js
+    assets/js/all.js=jquery.colorbox-min.js,moment-with-locales.min.js,fancydates.js
+
+.. code:: console
+
+   $ diff -u <env>/lib/python2.7/site-packages/nikola/data/themes/bootstrap3-jinja/templates/base_helper.tmpl themes/bootstrap3-gradients-jinja/templates/base_helper.tmpl 
+
+.. code:: diff
+
+   --- <env>/lib/python2.7/site-packages/nikola/data/themes/bootstrap3-jinja/templates/base_helper.tmpl 2015-10-01 15:33:47.000000000 +1000
+   +++ <site-root>/themes/themes/bootstrap3-gradients-jinja/templates/base_helper.tmpl  2015-10-01 15:35:17.000000000 +1000
+   @@ -103,6 +103,7 @@
+        {% if use_bundles %}
+            {% if use_cdn %}
+                <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet">
+   +            <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css" rel="stylesheet">
+                <link href="/assets/css/all.css" rel="stylesheet" type="text/css">
+            {% else %}
+                <link href="/assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
+   @@ -110,8 +111,10 @@
+        {% else %}
+            {% if use_cdn %}
+                <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet">
+   +            <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css" rel="stylesheet">
+            {% else %}
+                <link href="/assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+   +            <link href="/assets/css/bootstrap-theme.min.css" rel="stylesheet" type="text/css">
+            {% endif %}
+            <link href="/assets/css/rst.css" rel="stylesheet" type="text/css">
+            <link href="/assets/css/code.css" rel="stylesheet" type="text/css">
+
+We see the only difference is that ``bootstrap3-gradients-jinja`` includes the 
+additional ``bootstrap-theme.css`` stylesheet after the standard 
+``bootstrap.css`` stylesheet. We could repeat this with our own theme. However,
+if we decide to use other fonts from say, `Google Fonts`_, we would need to add
+an ``@import`` statement in our ``bootstrap-custom.scss`` file. However, if we 
+were to include the compiled ``bootstrap-custom.css`` stylesheet after the 
+standard ``bootstrap.min.css`` stylesheet, the fonts would fail to be imported,
+as ``@imports`` must come before all other content. Since we build all of 
+Bootstrap from source anyways, the most straightforward solution is to get rid
+of the ``bootstrap.min.css`` stylesheet entirely and use our own compiled 
+``bootstrap-custom.css`` stylesheet.
+
+Our custom Bootstrap is compiled at the time we run ``nikola build``, so 
+obviously it would not be available on any CDN. Therefore, we would not need to
+make the distinction between using and not using a CDN by having separate 
+webassets bundle files ``all.css`` and ``all-nocdn.css``. We can just bundle 
+everything into the ``all.css``file. Additionally, the ``use_cdn`` variable is
+effectively ignored since we would need to include our compiled stylesheets no 
+matter what; it is not available from anywhere else.
+
+So for the relevant section of ``base_helper.tmpl``, we have:
+
+.. code:: html
+
+   {% if use_bundles %}
+       <link href="/assets/css/all.css" rel="stylesheet" type="text/css">
+   {% else %}
+       <link href="/assets/css/bootstrap-custom.css" rel="stylesheet" type="text/css">
+       <link href="/assets/css/rst.css" rel="stylesheet" type="text/css">
+       <link href="/assets/css/code.css" rel="stylesheet" type="text/css">
+       <link href="/assets/css/colorbox.css" rel="stylesheet" type="text/css">
+       <link href="/assets/css/theme.css" rel="stylesheet" type="text/css">
+       {% if has_custom_css %}
+           <link href="/assets/css/custom.css" rel="stylesheet" type="text/css">
+       {% endif %}
+   {% endif %}
+
+and for ``bundles``, we have:
+
+.. code::
+
+   assets/css/all.css=bootstrap-custom.css,rst.css,code.css,colorbox.css,theme.css,custom.css
+   assets/js/all-nocdn.js=jquery.min.js,bootstrap.min.js,jquery.colorbox-min.js,moment-with-locales.min.js,fancydates.js
+   assets/js/all.js=jquery.colorbox-min.js,moment-with-locales.min.js,fancydates.js
+
+TODO
+  * Sass compress
+  * Bootswatch (optional)
 
 .. _`Mako`: http://www.makotemplates.org/
 .. _`Jinja2`: http://jinja.pocoo.org/
@@ -199,3 +310,4 @@ Bootswatch (Optional)
 .. _`Bower`: http://bower.io/#install-bower
 .. _`bootstrap-sass`: https://github.com/twbs/bootstrap-sass#c-bower
 .. _`install Sass`: http://sass-lang.com/install
+.. _`Google Fonts`: https://www.google.com/fonts

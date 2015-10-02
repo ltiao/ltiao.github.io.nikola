@@ -25,14 +25,9 @@ probably find me at the gym working on my midrange jumpshot.
 
 .. pull-quote::
     
-   Err
-   and err
-   and err again,
-   but less
-   and less
-   and less.
+   Research is what I'm doing when I don't know what I'm doing.
 
-   -- Piet Hein, Grook
+   -- Wernher von Braun
 
 .. _`NICTA`: http://www.nicta.com.au/
 .. _`The University of New South Wales`: http://www.unsw.edu.au/

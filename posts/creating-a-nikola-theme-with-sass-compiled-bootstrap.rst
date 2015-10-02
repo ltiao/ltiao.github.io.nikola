@@ -47,6 +47,8 @@ own customized Boostrap stylesheet, compiled from Sass. We will take care of
 this later. For now, let's just get our Sass workflow up and running so we can
 get Nikola to use Sass to compile our customized stylesheet.
 
+.. TEASER_END
+
 Sass workflow in Nikola
 -----------------------
 

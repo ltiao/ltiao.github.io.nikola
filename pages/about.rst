@@ -11,26 +11,30 @@
    :align: right
    :class: img-circle
 
-Hi there. My name is Louis Tiao. I am a perennial student of Computer Science 
-and Mathematics. I recently graduated with First Class Honours in Computer Science from 
-`The University of New South Wales`_, where I minored in Mathematics and 
+Hi. My name is Louis. I am a lifelong student of Computer Science and 
+Mathematics and an aspiring researcher.
+
+I recently graduated with First-class Honours in Computer Science from the 
+`University of New South Wales`_, where I minored in Mathematics and 
 concentrated on Algorithm Design and Analysis, Theoretical Computer Science, 
 Artificial Intelligence and Machine Learning.
 
-I currently work as a Software Engineer at `NICTA`_ in Sydney,
-Australia. 
+I am currently a Software Engineer at `NICTA`_ on the `BDKD (Big Data and 
+Knowledge Discovery)`_ project, working with a team of leading Machine 
+Learning researchers with expertise in on Nonparametric Bayesian Inference (in 
+particular, Gaussian Processes) and Markov chain Monte Carlo methods.
 
-When I am not working on one of my many incomplete side projects, you'll 
-probably find me at the gym working on my midrange jumpshot.
+In my spare time, if I am not working on one of my many incomplete side 
+projects, you'll either find me at the gym shooting hoops and trying to 
+improve my terrible ball handling, or at home studying the beautiful and 
+profound ancient strategy board game known as Weiqi, or more commonly `Go`_.
 
-.. pull-quote::
-    
-   Research is what I'm doing when I don't know what I'm doing.
-
-   -- Wernher von Braun
-
-.. _`NICTA`: http://www.nicta.com.au/
-.. _`The University of New South Wales`: http://www.unsw.edu.au/
+.. _`BDKD (Big Data and Knowledge Discovery)`: http://www.sief.org.au/FundingActivities/RP/BigData.html
+.. _`University of New South Wales`: http://www.cse.unsw.edu.au
+.. _`CSIRO`: http://www.csiro.au/
+.. _`NICTA`: http://www.nicta.com.au
+.. _`Data61`: http://www.csiro.au/en/Research/D61
+.. _`Go`: http://senseis.xmp.net/?Go
 
 ..  My current research interests are
 
@@ -42,9 +46,15 @@ probably find me at the gym working on my midrange jumpshot.
     * Computability Theory
     * Complexity Theory
 
+    .. admonition:: Disclaimer
 
+       The views expressed here are my own and do not reflect those of my employer.
 
+    .. pull-quote::
+        
+       Research is what I'm doing when I don't know what I'm doing.    
 
+       -- Wernher von Braun
 
     On the less theoretical CS aspect of things, I am a full-stack software engineer, 
     with experience in

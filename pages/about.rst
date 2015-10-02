@@ -7,43 +7,71 @@
 .. description: 
 .. type: text
 
-Hi. My name is Louis Tiao. I am currently an Honours-Year student of Computer Science  
-at the `University of New South Wales <http://www.unsw.edu.au/>`_ in Sydney, Australia.
+.. image:: http://www.gravatar.com/avatar/3a282cbe067184bb333ee4010a29db19?s=150
+   :align: right
+   :class: img-circle
 
-My current research interests are
+Hi there. My name is Louis Tiao. I am a perennial student of Computer Science 
+and Mathematics. I recently graduated with First Class Honours in Computer Science from 
+`The University of New South Wales`_, where I minored in Mathematics and 
+concentrated on Algorithm Design and Analysis, Theoretical Computer Science, 
+Artificial Intelligence and Machine Learning.
 
-* Algorithm / Data Structure Design and Analysis 
-* Machine Learning / Statistics / Data Mining
-* Artificial Intelligence
-* Discrete Mathematics
-* Combinatorial Optimization
-* Computability Theory
-* Complexity Theory
+I currently work as a Software Engineer at `NICTA`_ in Sydney,
+Australia. 
 
-On the less theoretical CS aspect of things, I am a full-stack software engineer, 
-with experience in
+When I am not working on one of my many incomplete side projects, you'll 
+probably find me at the gym working on my midrange jumpshot.
 
-* Server administration, virtualization, networking, and hosting environments 
-  (e.g. Amazon EC2, Heroku, DigitalOcean)
-* Database administration (PostgreSQL, MongoDB) 
-* Database design / Data modeling
-* Web application frameworks (e.g. Django, Flask) / RESTful APIs
-* User Interface (HTML5, CSS3, Javascript, etc.)
-  
-  - Data Visualization (D3.js, Google Charts, HighCharts JS)
+.. pull-quote::
+    
+   Err
+   and err
+   and err again,
+   but less
+   and less
+   and less.
 
-I am highly effective in Python, and use it regularly for such things as
+   -- Piet Hein, Grook
 
-* Numerical analysis / scientific computing - (numpy, scipy, matplotlib, IPython[Notebook], scikit-learn)
-* Web data extraction (web scraping/crawling) - (Scrapy + lxml, requests + BeautifulSoup)
-* Network analysis - (NetworkX)
-* *Solving almost any other type of problem*
+.. _`NICTA`: http://www.nicta.com.au/
+.. _`The University of New South Wales`: http://www.unsw.edu.au/
 
-Nowadays, though I generally use high-level programming languages such as Python, C++, 
-Java and Haskell, I worked almost exclusively in my earlier days with programming 
-languages such as C and assembly (AVR), for low-level applications such as programming 
-microprocessors (Atmel AVR) or implementing the filesystem and virtual memory for an 
-(educational) operating system (OS/161).
+..  My current research interests are
 
-When I am not working on one of my many incomplete side projects, you'll probably
-find me on the blacktop working on my midrange jumpshot.
+    * Algorithm / Data Structure Design and Analysis 
+    * Machine Learning / Statistics / Data Mining
+    * Artificial Intelligence
+    * Discrete Mathematics
+    * Combinatorial Optimization
+    * Computability Theory
+    * Complexity Theory
+
+
+
+
+
+    On the less theoretical CS aspect of things, I am a full-stack software engineer, 
+    with experience in
+
+    * Server administration, virtualization, networking, and hosting environments 
+      (e.g. Amazon EC2, Heroku, DigitalOcean)
+    * Database administration (PostgreSQL, MongoDB) 
+    * Database design / Data modeling
+    * Web application frameworks (e.g. Django, Flask) / RESTful APIs
+    * User Interface (HTML5, CSS3, Javascript, etc.)
+      
+      - Data Visualization (D3.js, Google Charts, HighCharts JS)
+
+    I am highly effective in Python, and use it regularly for such things as
+
+    * Numerical analysis / scientific computing - (numpy, scipy, matplotlib, IPython[Notebook], scikit-learn)
+    * Web data extraction (web scraping/crawling) - (Scrapy + lxml, requests + BeautifulSoup)
+    * Network analysis - (NetworkX)
+    * *Solving almost any other type of problem*
+
+    Nowadays, though I generally use high-level programming languages such as Python, C++, 
+    Java and Haskell, I worked almost exclusively in my earlier days with programming 
+    languages such as C and assembly (AVR), for low-level applications such as programming 
+    microprocessors (Atmel AVR) or implementing the filesystem and virtual memory for an 
+    (educational) operating system (OS/161).

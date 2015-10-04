@@ -7,36 +7,41 @@
 .. description: 
 .. type: text
 
-*Complete detailed description of projects coming soon.*
+*Complete portfolio coming soon*.
 
-Professional
-============
+For now, please check out `my software projects on GitHub`_.  
 
-For now, please check out `my software projects on GitHub <https://github.com/ltiao>`_.
+.. _`my software projects on GitHub`: https://github.com/ltiao
 
-Coursework
-==========
+..
+  Professional
+  ============  
 
-Every semester, I undertake up to a dozen fairly involved projects, 
-whether it be a practical assignment that requires the design and 
-implementation of complex software, or a theoretical assignment 
-that requires problem solving, investigative / critical thinking 
-and other key skills generally demanded by rigorous academic research.
+  For now, please check out `my software projects on GitHub <https://github.com/ltiao>`_.  
 
-Therefore, I feel this experience is just as important and valuable as, 
-if not more than, the experience accumulated from vocational projects.
+  Coursework
+  ==========  
 
-To see the list of subjects I have completed, learn about the work
-involved, and see how I performed, please refer to :doc:`coursework-experience`.
+  Every semester, I undertake up to a dozen fairly involved projects, 
+  whether it be a practical assignment that requires the design and 
+  implementation of complex software, or a theoretical assignment 
+  that requires problem solving, investigative / critical thinking 
+  and other key skills generally demanded by rigorous academic research.  
 
-Independent
-===========
+  Therefore, I feel this experience is just as important and valuable as, 
+  if not more than, the experience accumulated from vocational projects.  
 
-BasketballiQ
-------------
+  To see the list of subjects I have completed, learn about the work
+  involved, and see how I performed, please refer to :doc:`coursework-experience`.  
 
-* Basketball Database + RESTful API (Django)
-* Data source-agnostic Crawler for Basketball data
-* NBA Hall of Fame Membership Prediction (Weka, scikit-learn, MongoDB, requests, BeautifulSoup)
-* NBA Advanced Team Rankings using PageRank (NetworkX, requests, Django, D3.js)
-* *More to come...*
+  Independent
+  ===========  
+
+  BasketballiQ
+  ------------  
+
+  * Basketball Database + RESTful API (Django)
+  * Data source-agnostic Crawler for Basketball data
+  * NBA Hall of Fame Membership Prediction (Weka, scikit-learn, MongoDB, requests, BeautifulSoup)
+  * NBA Advanced Team Rankings using PageRank (NetworkX, requests, Django, D3.js)
+  * *More to come...*

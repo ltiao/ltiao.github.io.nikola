@@ -21,13 +21,13 @@ Artificial Intelligence and Machine Learning.
 
 I am currently a Software Engineer at `NICTA`_ on the `BDKD (Big Data and 
 Knowledge Discovery)`_ project, working amongst a team of leading Machine 
-Learning researchers with expertise in on Nonparametric Bayesian Inference (in 
+Learning researchers with expertise in Nonparametric Bayesian Inference (in 
 particular, Gaussian Processes) and Markov chain Monte Carlo methods.
 
 In my spare time, if I am not working on one of my many incomplete side 
 projects, you'll either find me at the gym shooting hoops and trying to 
-improve my terrible ball handling, or at home studying the beautiful and 
-profound ancient strategy board game known as Weiqi, or more commonly `Go`_.
+improve my terrible ball handling, or at home studying the profound and 
+beautiful ancient strategy board game known as Weiqi, or more commonly `Go`_.
 
 .. _`BDKD (Big Data and Knowledge Discovery)`: http://www.sief.org.au/FundingActivities/RP/BigData.html
 .. _`University of New South Wales`: http://www.cse.unsw.edu.au

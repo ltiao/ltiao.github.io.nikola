@@ -867,8 +867,8 @@ some static pages. The way to do this is more or less outlined in
 `Creating a Site (Not a Blog) with Nikola`_.
 
 I change the ``INDEX_PATH`` from the default (``""``) to 
-``"posts"``, so that the index of all posts will be under the ``posts`` 
-subdirectory rather than the root of the output directory.
+``"posts"``, so that the index of all posts will be generated under the 
+``posts`` subdirectory rather than the root of the output directory.
 
 .. code-block:: python
 
@@ -904,6 +904,15 @@ Since we need the output to be named "index.html", we simply have to modify the
 slug metadata of the page to be ``index``::
 
   .. slug: index
+
+.. important:: 
+
+   If we had left ``INDEX_PATH = ""`` and set the slug of our new page as 
+   ``index``, Nikola won't be able to decide what to generate as the 
+   ``index.html`` at the site's root and will give the following error when 
+   building ::
+   
+     ERROR: Two different tasks can't have a common target.'output/index.html' is a target for render_indexes:output/index.html and render_pages:output/index.html.
 
 We can now fill this with whatever content we wish. Personally, I would have
 liked to be able to specify an existing page to use as the homepage, and the

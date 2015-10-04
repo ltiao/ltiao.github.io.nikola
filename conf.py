@@ -121,11 +121,11 @@ TRANSLATIONS_PATTERN = "{path}.{lang}.{ext}"
 
 NAVIGATION_LINKS = {
     DEFAULT_LANG: (
-        ("/pages/about.html", "About"),
-        ("/pages/projects.html", "Projects"),
-        ("/pages/contact.html", "Contact"),
+        ("/index.html", "About"),
+        ("/projects.html", "Projects"),
+        ("/contact.html", "Contact"),
+        ("/posts/index.html", "Posts"),
         ("/archive.html", "Archive"),
-        ("/rss.xml", "RSS feed"),
     ),
 }
 
@@ -206,14 +206,14 @@ POSTS = (
     ("posts/*.txt", "posts", "post.tmpl"),
     ("posts/*.ipynb", "posts", "post.tmpl"),
 )
-# PAGES = (
-#     ("pages/*.rst", "", "story.tmpl"),
-#     ("pages/*.txt", "", "story.tmpl"),
-# )
 PAGES = (
-    ("pages/*.rst", "pages", "story.tmpl"),
-    ("pages/*.txt", "pages", "story.tmpl"),
+    ("pages/*.rst", "", "story.tmpl"),
+    ("pages/*.txt", "", "story.tmpl"),
 )
+# PAGES = (
+#     ("pages/*.rst", "pages", "story.tmpl"),
+#     ("pages/*.txt", "pages", "story.tmpl"),
+# )
 
 # One or more folders containing files to be copied as-is into the output.
 # The format is a dictionary of {source: relative destination}.
@@ -327,8 +327,8 @@ CATEGORY_PAGES_DESCRIPTIONS = {
 
 # Final location for the main blog page and sibling paginated pages is
 # output / TRANSLATION[lang] / INDEX_PATH / index-*.html
-INDEX_PATH = ""
-# INDEX_PATH = "posts"
+# INDEX_PATH = ""
+INDEX_PATH = "posts"
 
 # Create per-month archives instead of per-year
 # CREATE_MONTHLY_ARCHIVE = False

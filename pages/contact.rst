@@ -7,18 +7,13 @@
 .. description: 
 .. type: text
 
-Currently, the fastest way to reach me is at `l..@me.com`_.
+Connect with me on `Linkedin`_ or follow me on `GitHub`_ and `Twitter`_. 
 
-Alternatively, you can connect with me on `Linkedin`_ and follow me on `GitHub`_ or `Twitter`_. 
+For more urgent matters, the quickest way to reach me is at `l..@me.com`_.
 
-
-.. _l..@me.com: 
-   http://www.google.com/recaptcha/mailhide/d?
-   k=01ZGES3iSWmUwr35sEbB8-VA==&
+.. _`l..@me.com`: 
+   http://www.google.com/recaptcha/mailhide/d?k=01ZGES3iSWmUwr35sEbB8-VA==&
    c=PeD7vZlw1_DRu8fsayKDuVdVl_rtu18xfsGBgyvNXwc=
-.. _Linkedin:
-   http://www.linkedin.com/in/ltiao
-.. _GitHub:
-   http://github.com/ltiao
-.. _Twitter:
-   http://twitter.com/louistiao
+.. _`Linkedin`: http://www.linkedin.com/in/ltiao
+.. _`GitHub`: http://github.com/ltiao
+.. _`Twitter`: http://twitter.com/louistiao

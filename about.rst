@@ -32,7 +32,7 @@ beautiful ancient strategy board game known as Weiqi, or more commonly `Go`_.
 .. _`BDKD (Big Data and Knowledge Discovery)`: http://www.sief.org.au/FundingActivities/RP/BigData.html
 .. _`University of New South Wales`: http://www.cse.unsw.edu.au
 .. _`CSIRO`: http://www.csiro.au/
-.. _`NICTA`: http://www.nicta.com.au
+.. _`NICTA`: http://www.nicta.com.au/about-nicta/
 .. _`Data61`: http://www.csiro.au/en/Research/D61
 .. _`Go`: http://senseis.xmp.net/?Go
 

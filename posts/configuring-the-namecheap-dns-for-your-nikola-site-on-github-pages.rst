@@ -27,6 +27,8 @@ a shiny new domain name from Namecheap, ``louistiao.me`` and I would like to:
 Configure the Host Records
 --------------------------
 
+https://help.github.com/articles/tips-for-configuring-an-a-record-with-your-dns-provider/#configuring-an-a-record-with-your-dns-provider
+
 .. thumbnail:: ../images/namecheap.png
    :align: center
    :class: img-thumbnail
@@ -43,6 +45,8 @@ placing it in in the ``files/`` directory, which will then be copied to
    $ cd <nikola-project-root>
    $ echo "louistiao.me" > files/CNAME 
    $ nikola github_deploy
+
+https://help.github.com/articles/tips-for-configuring-an-a-record-with-your-dns-provider/#configuring-a-www-subdomain
 
 Further Reading
 ---------------

@@ -20,7 +20,7 @@ concentrated on Algorithm Design and Analysis, Theoretical Computer Science,
 Artificial Intelligence and Machine Learning.
 
 I am currently a Software Engineer at `NICTA`_ on the `BDKD (Big Data and 
-Knowledge Discovery)`_ project, working amongst a team of leading Machine 
+Knowledge Discovery)`_ project, where I work among a team of leading Machine 
 Learning researchers with expertise in Nonparametric Bayesian Inference (in 
 particular, Gaussian Processes) and Markov chain Monte Carlo methods.
 
@@ -32,7 +32,7 @@ beautiful ancient strategy board game known as Weiqi, or more commonly `Go`_.
 .. _`BDKD (Big Data and Knowledge Discovery)`: http://www.sief.org.au/FundingActivities/RP/BigData.html
 .. _`University of New South Wales`: http://www.cse.unsw.edu.au
 .. _`CSIRO`: http://www.csiro.au/
-.. _`NICTA`: http://www.nicta.com.au
+.. _`NICTA`: http://www.nicta.com.au/about-nicta/
 .. _`Data61`: http://www.csiro.au/en/Research/D61
 .. _`Go`: http://senseis.xmp.net/?Go
 

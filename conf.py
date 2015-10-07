@@ -21,7 +21,7 @@ BLOG_AUTHOR = "Louis Tiao"  # (translatable)
 BLOG_TITLE = "Louis Tiao"  # (translatable)
 # This is the main URL for your site. It will be used
 # in a prominent link
-SITE_URL = "http://ltiao.github.io/"
+SITE_URL = "http://louistiao.me/"
 # This is the URL where Nikola's output will be deployed.
 # If not set, defaults to SITE_URL
 # BASE_URL = "http://ltiao.github.io/"

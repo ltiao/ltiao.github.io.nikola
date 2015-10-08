@@ -10,12 +10,12 @@
 The major drawback of feature spaces represented by :math:`n`-gram models is 
 extreme sparcity. 
 
-But what makes me really uncomfortable is that it can only interpret unseen 
-instances with respect to learned training data. What I mean by this is if a 
-classifier learned from the instances *'today was a good day'* and *'that is a 
-ridiculous thing to say'*, it is unable to say much about the instance *'i love 
-this song!'* since the features are *'today', 'was', 'a', 'good', 'day', 'that', 
-'is', 'ridiculous', 'thing', 'to', 'say'*. 
+But even more unsettling is that it can only interpret unseen instances with 
+respect to learned training data. That is, if a classifier learned from the 
+instances *'today was a good day'* and *'that is a ridiculous thing to say'*, 
+it is unable to say much about the instance *'i love this song!'* since the 
+features are *'today', 'was', 'a', 'good', 'day', 'that', 'is', 'ridiculous', 
+'thing', 'to', 'say'*. 
 
 It is impossible to classify this new instance because it is entirely 
 meaningless to the classifier - it cannot be represented. So no matter how 

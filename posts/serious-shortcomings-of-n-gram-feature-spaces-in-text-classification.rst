@@ -29,9 +29,10 @@ represent *all* unseen instances in its feature space.
 
 The Iris flower data set is a very typical test case for many statistical 
 classification techniques. An interesting observation is that for an English
-sentence to be valid, it need not necessarily contain specific words, say, 
-*'was'* or *'good'*, in the same way that for an iris flower to *be an iris 
-flower*, it necessarily has sepal and petal widths and lengths.
+sentence to be valid, it need not *necessarily* contain specific words, like 
+*'was'* or *'good'* for example. Yet, for an iris flower to *be an iris 
+flower*, it necessarily has sepals and petals with their respective widths and 
+lengths.
 
 .. [1] Halevy, Alon, Peter Norvig, and Fernando Pereira. "The unreasonable 
        effectiveness of data." Intelligent Systems, IEEE 24.2 (2009): 8-12.

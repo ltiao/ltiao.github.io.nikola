@@ -8,6 +8,12 @@
 .. type: text
 
 .. pull-quote::
+
+   Somewhere something incredible is waiting to be known.
+
+   -- Carl Sagan
+
+.. pull-quote::
 	
    I'm quite illiterate, but I read a lot.
 

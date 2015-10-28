@@ -1,4 +1,4 @@
-.. title: Installing NLopt with Python support on Mac OS X (10.10)
+.. title: Installing NLOpt with Python support on Mac OS X (10.10)
 .. slug: installing-nlopt-with-python-support-on-mac-os-x-1010
 .. date: 2015-07-17 15:39:17 UTC+10:00
 .. tags: NLopt, python, python3, optimization, homebrew, virtualenv
@@ -7,7 +7,7 @@
 .. description: 
 .. type: text
 
-`NLopt`_ is a popular open-source library for nonlinear optimization. It can be 
+`NLOpt`_ is a popular open-source library for nonlinear optimization. It can be 
 somewhat tricky to install it with Python support on Mac OS X, especially 
 isolated under a virtual environment. This article outlines the different ways 
 of making NLopt play nicely with your Python development environment, whatever 
@@ -94,5 +94,5 @@ than to ``/usr/local``.
 .. _download NLOpt: http://ab-initio.mit.edu/wiki/index.php/NLopt#Download_and_installation
 .. _NLOpt installation: http://ab-initio.mit.edu/wiki/index.php/NLopt_Installation
 .. _virtualenvwrapper: https://virtualenvwrapper.readthedocs.org/en/latest/
-.. _NLopt: http://ab-initio.mit.edu/wiki/index.php/NLopt
+.. _NLOpt: http://ab-initio.mit.edu/wiki/index.php/NLopt
 .. _Homebrew: http://brew.sh

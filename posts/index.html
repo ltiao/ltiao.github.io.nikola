@@ -24,7 +24,7 @@ MathJax.Hub.Config({
         displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
         processEscapes: true
     },
-    displayAlign: 'left', // Change this to 'center' to center equations.
+    displayAlign: 'center', // Change this to 'center' to center equations.
     "HTML-CSS": {
         styles: {'.MathJax_Display': {"margin": 0}}
     }
@@ -95,7 +95,167 @@ MathJax.Hub.Config({
         <div class="row">
           
 <div class="postindex">
-    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="quotes-one-broken-window-starts-the-process-toward-decay.html" class="u-url">Quotes: "One broken window starts the process toward decay"</a></h1>
+    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="notes-chapter-3-pattern-recognition-and-machine-learning-bishop-c-m-2007.html" class="u-url">Notes: Chapter 3, Pattern Recognition and Machine Learning (Bishop, C. M. 2007)</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn">
+                Louis Tiao
+            </span></p>
+            <p class="dateline"><a href="notes-chapter-3-pattern-recognition-and-machine-learning-bishop-c-m-2007.html" rel="bookmark"><time class="published dt-published" datetime="2015-10-28T16:31:44+11:00" title="2015-10-28 16:31">2015-10-28 16:31</time></a></p>
+                <p class="commentline">            <a href="notes-chapter-3-pattern-recognition-and-machine-learning-bishop-c-m-2007.html#disqus_thread" data-disqus-identifier="cache/posts/notes-chapter-3-pattern-recognition-and-machine-learning-bishop-c-m-2007.html">Comments</a>
+
+
+        </p>
+</div>
+    </header><div class="p-summary entry-summary">
+    <div>
+<div class="section" id="equation-3-13">
+<h2>Equation 3.13</h2>
+<p>The gradient of the log-likelihood function is given in equation 3.13:</p>
+<div class="math">
+\begin{equation*}
+\nabla_{\mathbf{w}} \ln p(\mathbf{t} \mid \mathbf{w}, \beta)
+= \beta \sum_{n=1}^N \{ t_n - \mathbf{w}^T \phi(\mathbf{x}_n) \} \phi(\mathbf{x}_n)^T
+\end{equation*}
+</div>
+<p>We derive this step-by-step below. First, the log-likelihood function is given
+by equation 3.11 and reproduced below,</p>
+<div class="math">
+\begin{align*}
+\ln p(\mathbf{t} \mid \mathbf{w}, \beta)
+&amp;= \sum_{n=1}^N \ln \mathcal{N}(t_n \mid \mathbf{w}^T \phi(\mathbf{x}_n), \beta^{-1}) \\
+&amp;= \frac{N}{2} \ln \beta - \frac{N}{2} \ln 2 \pi - \beta E_D(\mathbf{w})
+\end{align*}
+</div>
+<p>where the sum-of-squares error function is given by equation 3.12,</p>
+<div class="math">
+\begin{equation*}
+E_D(\mathbf{w}) = \frac{1}{2} \sum_{n=1}^N \{ t_n - \mathbf{w}^T \phi(\mathbf{x}_n) \}^2
+\end{equation*}
+</div>
+<p>Then <span class="math">\(\nabla_{\mathbf{w}} \ln p(\mathbf{t} \mid \mathbf{w}, \beta)\)</span>, the
+gradient of the log-likelihood function <em>with respect to</em> <span class="math">\(\mathbf{w}\)</span> <a class="footnote-reference" href="notes-chapter-3-pattern-recognition-and-machine-learning-bishop-c-m-2007.html#id2" id="id1">[1]</a>
+is given by,</p>
+<div class="math">
+\begin{equation*}
+\nabla_{\mathbf{w}} \ln p(\mathbf{t} \mid \mathbf{w}, \beta) = - \beta \nabla_{\mathbf{w}} E_D(\mathbf{w})
+\end{equation*}
+</div>
+<p>where</p>
+<div class="math">
+\begin{equation*}
+\nabla_{\mathbf{w}} E_D
+= \begin{bmatrix}
+    \frac{\partial E_D}{\partial w_0} \\
+    \vdots \\
+    \frac{\partial E_D}{\partial w_{M-1}}
+  \end{bmatrix}
+\end{equation*}
+</div>
+<p>and</p>
+<div class="math">
+\begin{align*}
+\frac{\partial E_D}{\partial w_k}
+&amp;= \frac{\partial}{\partial w_k} \frac{1}{2} \sum_{n=1}^N \{ t_n - \mathbf{w}^T \phi(\mathbf{x}_n) \}^2 \\
+&amp;= \frac{1}{2} \sum_{n=1}^N \frac{\partial}{\partial w_k} \{ t_n - \mathbf{w}^T \phi(\mathbf{x}_n) \}^2 \\
+\end{align*}
+</div>
+<p>Since</p>
+<div class="math">
+\begin{equation*}
+\frac{\partial}{\partial w_k} \{ t_n - \mathbf{w}^T \phi(\mathbf{x}_n) \}^2
+= 2 \{ t_n - \mathbf{w}^T \phi(\mathbf{x}_n) \} \frac{\partial}{\partial w_k} \{ t_n - \mathbf{w}^T \phi(\mathbf{x}_n) \}
+\end{equation*}
+</div>
+<p>and</p>
+<div class="math">
+\begin{align*}
+\frac{\partial}{\partial w_k} \{ t_n - \mathbf{w}^T \phi(\mathbf{x}_n) \}
+&amp;= - \frac{\partial}{\partial w_k} \mathbf{w}^T \phi(\mathbf{x}_n) \\
+&amp;= - \frac{\partial}{\partial w_k} \sum_{j=0}^{M-1} w_j \phi_j(\mathbf{x}_n) \\
+&amp;= - \phi_k(\mathbf{x}_n)
+\end{align*}
+</div>
+<p>we have</p>
+<div class="math">
+\begin{equation*}
+\frac{\partial}{\partial w_k} \{ t_n - \mathbf{w}^T \phi(\mathbf{x}_n) \}^2
+= - 2 \{ t_n - \mathbf{w}^T \phi(\mathbf{x}_n) \} \phi_k(\mathbf{x}_n)
+\end{equation*}
+</div>
+<p>and therefore</p>
+<div class="math">
+\begin{align*}
+\frac{\partial E_D}{\partial w_k}
+&amp;= \frac{1}{2} \sum_{n=1}^N \frac{\partial}{\partial w_k} \{ t_n - \mathbf{w}^T \phi(\mathbf{x}_n) \}^2 \\
+&amp;= - \sum_{n=1}^N \{ t_n - \mathbf{w}^T \phi(\mathbf{x}_n) \} \phi_k(\mathbf{x}_n) \\
+\end{align*}
+</div>
+<p>Finally, we have</p>
+<div class="math">
+\begin{align*}
+\nabla_{\mathbf{w}} E_D
+&amp;= \begin{bmatrix}
+     \frac{\partial E_D}{\partial w_0} \\
+     \vdots \\
+     \frac{\partial E_D}{\partial w_{M-1}}
+   \end{bmatrix} \\
+&amp;= - \sum_{n=1}^N \{ t_n - \mathbf{w}^T \phi(\mathbf{x}_n) \}
+   \begin{bmatrix}
+     \phi_0(\mathbf{x}_n) \\
+     \vdots \\
+     \phi_{M-1}(\mathbf{x}_n)
+   \end{bmatrix} \\
+&amp;= - \sum_{n=1}^N \{ t_n - \mathbf{w}^T \phi(\mathbf{x}_n) \} \phi(\mathbf{x}_n)
+\end{align*}
+</div>
+<p>and</p>
+<div class="math">
+\begin{equation*}
+\nabla_{\mathbf{w}} \ln p(\mathbf{t} \mid \mathbf{w}, \beta)
+= \beta \sum_{n=1}^N \{ t_n - \mathbf{w}^T \phi(\mathbf{x}_n) \} \phi(\mathbf{x}_n)
+\end{equation*}
+</div>
+<p>Note that the final <span class="math">\(\phi(\mathbf{x}_n)\)</span> in equation 3.13 is given as
+its transpose, so that <span class="math">\(\nabla_{\mathbf{w}} \ln p(\mathbf{t} \mid \mathbf{w}, \beta)\)</span>
+is a row vector. This was probably done to ease the derivation of the analytic
+solution which following immediately in the section. The only thing we need to
+alter in our derivation to make the result consistent with that of the book is
+to rewrite <span class="math">\(\nabla_{\mathbf{w}} E_D\)</span> as a row vector,</p>
+<div class="math">
+\begin{equation*}
+\nabla_{\mathbf{w}} E_D
+= \begin{bmatrix}
+    \frac{\partial E_D}{\partial w_0} &amp; \cdots &amp; \frac{\partial E_D}{\partial w_{M-1}}
+  \end{bmatrix}
+\end{equation*}
+</div>
+<table class="docutils footnote" frame="void" id="id2" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href="notes-chapter-3-pattern-recognition-and-machine-learning-bishop-c-m-2007.html#id1">[1]</a></td>
+<td>Since there is little possibility of confusion, the book omits the
+subscript and simply writes <span class="math">\(\nabla\)</span> to denote the gradient w.r.t.
+<span class="math">\(\mathbf{w}\)</span>.</td>
+</tr></tbody>
+</table>
+</div>
+<div class="section" id="equation-3-21">
+<h2>Equation 3.21</h2>
+<div class="math">
+\begin{align*}
+\ln p(\mathbf{t} \mid \mathbf{w}, \beta)
+&amp;= \frac{N}{2} \ln \beta - \frac{N}{2} \ln 2 \pi - \beta E_D(\mathbf{w}) \\
+\frac{\partial}{\partial \beta} \ln p(\mathbf{t} \mid \mathbf{w}, \beta)
+&amp;= \frac{N}{2 \beta} - E_D(\mathbf{w})
+\end{align*}
+</div>
+</div>
+</div>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="quotes-one-broken-window-starts-the-process-toward-decay.html" class="u-url">Quotes: "One broken window starts the process toward decay"</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn">
                 Louis Tiao
@@ -186,7 +346,7 @@ get Nikola to use Sass to compile our customized stylesheet.</p>
 <p class="more"><a href="creating-a-nikola-theme-with-sass-compiled-bootstrap.html">Read more…</a></p>
 </div>
     </div>
-    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="installing-nlopt-with-python-support-on-mac-os-x-1010.html" class="u-url">Installing NLopt with Python support on Mac OS X (10.10)</a></h1>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="installing-nlopt-with-python-support-on-mac-os-x-1010.html" class="u-url">Installing NLOpt with Python support on Mac OS X (10.10)</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn">
                 Louis Tiao
@@ -199,7 +359,7 @@ get Nikola to use Sass to compile our customized stylesheet.</p>
 </div>
     </header><div class="p-summary entry-summary">
     <div>
-<p><a class="reference external" href="http://ab-initio.mit.edu/wiki/index.php/NLopt">NLopt</a> is a popular open-source library for nonlinear optimization. It can be
+<p><a class="reference external" href="http://ab-initio.mit.edu/wiki/index.php/NLopt">NLOpt</a> is a popular open-source library for nonlinear optimization. It can be
 somewhat tricky to install it with Python support on Mac OS X, especially
 isolated under a virtual environment. This article outlines the different ways
 of making NLopt play nicely with your Python development environment, whatever
@@ -8574,675 +8734,6 @@ $$<p>It turns out that the conjecture was false.</p>
 </div>
 </div>
 
-</div>
-    </div>
-  </div>
-
-    </div>
-    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="project-euler/problem-47-distinct-primes-factors.html" class="u-url">Project Euler Problem 47: Distinct primes factors</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn">
-                Louis Tiao
-            </span></p>
-            <p class="dateline"><a href="project-euler/problem-47-distinct-primes-factors.html" rel="bookmark"><time class="published dt-published" datetime="2015-04-05T17:25:33+10:00" title="2015-04-05 17:25">2015-04-05 17:25</time></a></p>
-                <p class="commentline">            <a href="project-euler/problem-47-distinct-primes-factors.html#disqus_thread" data-disqus-identifier="cache/posts/project-euler/problem-47-distinct-primes-factors.html">Comments</a>
-
-
-        </p>
-</div>
-    </header><div class="p-summary entry-summary">
-    <div tabindex="-1" id="notebook" class="border-box-sizing">
-    <div class="container" id="notebook-container">
-
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>The first two consecutive numbers to have two distinct prime factors are:</p>
-$$
-14 = 2 × 7 \\
-15 = 3 × 5
-$$<p>The first three consecutive numbers to have three distinct prime factors are:</p>
-$$
-644 = 2² × 7 × 23 \\
-645 = 3 × 5 × 43 \\
-646 = 2 × 17 × 19.
-$$<p>Find the first four consecutive integers to have four distinct prime factors. What is the first of these numbers?</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="Version-1:-Fun-times-with-Itertools">Version 1: Fun times with Itertools<a class="anchor-link" href="project-euler/problem-47-distinct-primes-factors.html#Version-1:-Fun-times-with-Itertools">¶</a>
-</h4>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>First let's load up the prime factorization function we implemented earlier. Recall that this function returns a <code>Counter</code> with the prime factor as the key, and its exponent as the value.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In [6]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="o">%</span><span class="k">load_ext</span> autoreload
-<span class="o">%</span><span class="k">autoreload</span> 2
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-<div class="prompt"></div>
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>The autoreload extension is already loaded. To reload it, use:
-  %reload_ext autoreload
-</pre>
-</div>
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In [37]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="kn">from</span> <span class="nn">common.utils</span> <span class="kn">import</span> <span class="n">prime_factors</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In [38]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">count</span><span class="p">,</span> <span class="n">imap</span><span class="p">,</span> <span class="n">tee</span><span class="p">,</span> <span class="n">izip</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Define an $n$-wise iterator over an iterator, inspired by the implementation of <code>pairwise</code> in the <a href="https://docs.python.org/2/library/itertools.html#recipes">Itertools recipes</a>. It get $n$ iterators for the iterable, advances the $i$th iterator by $i$, and zips them back together.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In [40]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="k">def</span> <span class="nf">nwise</span><span class="p">(</span><span class="n">iterable</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
-    <span class="n">iters</span> <span class="o">=</span> <span class="n">tee</span><span class="p">(</span><span class="n">iterable</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">it</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">iters</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
-            <span class="nb">next</span><span class="p">(</span><span class="n">it</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">izip</span><span class="p">(</span><span class="o">*</span><span class="n">iters</span><span class="p">)</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>See some example calls below.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In [41]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="nb">list</span><span class="p">(</span><span class="n">nwise</span><span class="p">(</span><span class="nb">xrange</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span> <span class="mi">9</span><span class="p">))</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-<div class="prompt output_prompt">Out[41]:</div>
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>[(0, 1, 2, 3, 4, 5, 6, 7, 8), (1, 2, 3, 4, 5, 6, 7, 8, 9)]</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In [42]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="nb">list</span><span class="p">(</span><span class="n">nwise</span><span class="p">(</span><span class="nb">xrange</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span> <span class="mi">4</span><span class="p">))</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-<div class="prompt output_prompt">Out[42]:</div>
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>[(0, 1, 2, 3),
- (1, 2, 3, 4),
- (2, 3, 4, 5),
- (3, 4, 5, 6),
- (4, 5, 6, 7),
- (5, 6, 7, 8),
- (6, 7, 8, 9)]</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Now we can define our function, which (lazily) evaluates the prime factors of all integers greater than 1 and iterates over them $n$-wise (can be thought of as a sliding window of size $n$.) We use <code>len</code> to count the number of distinct factors (since the factors are returned as a <code>Counter</code>) and return the window if the numer of distinct prime factors of all numbers in the window is equal to $m$.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In [63]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="k">def</span> <span class="nf">consecutive_distinct_factors</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="p">):</span>
-    <span class="sd">"""</span>
-<span class="sd">    The first consecutive n numbers </span>
-<span class="sd">    to have m distinct prime factors</span>
-<span class="sd">    """</span>
-    <span class="k">for</span> <span class="n">factors</span> <span class="ow">in</span> <span class="n">nwise</span><span class="p">(</span><span class="n">imap</span><span class="p">(</span><span class="n">prime_factors</span><span class="p">,</span> <span class="n">count</span><span class="p">(</span><span class="mi">2</span><span class="p">)),</span> <span class="n">n</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="n">m</span><span class="p">,</span> <span class="n">factors</span><span class="p">)):</span>
-            <span class="k">return</span> <span class="n">factors</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In [102]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="n">consecutive_distinct_factors</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-<div class="prompt output_prompt">Out[102]:</div>
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>(Counter({2: 1, 7: 1}), Counter({3: 1, 5: 1}))</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>We could modify the loop in the method to return the first number from the window, rather than the prime factors of all the numbers in the window, but this makes our implementation unecessarily long and messy. Also, the prime factorizations actually yield more information, and while we could return both, we can also just uniquely determine the multiple from the prime factors.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In [103]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="c"># recall Python's built-in pow function</span>
-<span class="nb">pow</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-<div class="prompt output_prompt">Out[103]:</div>
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>27</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In [90]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="n">c</span> <span class="o">=</span> <span class="n">prime_factors</span><span class="p">(</span><span class="mi">24</span><span class="p">);</span> <span class="n">c</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-<div class="prompt output_prompt">Out[90]:</div>
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>Counter({2: 3, 3: 1})</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In [104]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="c"># recall that map can be applied </span>
-<span class="c"># to a variable number of lists, </span>
-<span class="c"># i.e. map(func, (a0, a1, ...), (b0, b1, ...)) -&gt; [func(a0, b0), func(a1, b1), ...]</span>
-<span class="nb">map</span><span class="p">(</span><span class="nb">pow</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">c</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-<div class="prompt output_prompt">Out[104]:</div>
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>[8, 3]</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Define the <code>prod</code> function, which is analogous to Python's built-in <code>sum</code> function.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In [106]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="n">prod</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">xs</span><span class="p">:</span> <span class="nb">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span><span class="o">*</span><span class="n">y</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>By convention, $x^0 = 1$ for all $x$ and $0! = 1$</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In [107]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="n">prod</span><span class="p">([])</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-<div class="prompt output_prompt">Out[107]:</div>
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>1</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In [108]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="c"># calculate 6!</span>
-<span class="n">prod</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-<div class="prompt output_prompt">Out[108]:</div>
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>720</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In [109]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="n">prod</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">pow</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">c</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-<div class="prompt output_prompt">Out[109]:</div>
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>24</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In [110]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="n">multiple</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">factors</span><span class="p">:</span> <span class="n">prod</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">pow</span><span class="p">,</span> <span class="n">factors</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">factors</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Evaluate $2^3 \cdot 3$</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In [113]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="n">multiple</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-<div class="prompt output_prompt">Out[113]:</div>
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>24</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Now we can get the actual number, rather than the prime factorization.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In [99]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="nb">map</span><span class="p">(</span><span class="n">multiple</span><span class="p">,</span> <span class="n">consecutive_distinct_factors</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-<div class="prompt output_prompt">Out[99]:</div>
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>[14, 15]</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In [100]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="nb">map</span><span class="p">(</span><span class="n">multiple</span><span class="p">,</span> <span class="n">consecutive_distinct_factors</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-<div class="prompt output_prompt">Out[100]:</div>
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>[644, 645, 646]</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In [101]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="nb">map</span><span class="p">(</span><span class="n">multiple</span><span class="p">,</span> <span class="n">consecutive_distinct_factors</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-<div class="prompt output_prompt">Out[101]:</div>
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>[134043, 134044, 134045, 134046]</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>The answer is 134043</p>
-
-</div>
-</div>
 </div>
     </div>
   </div>

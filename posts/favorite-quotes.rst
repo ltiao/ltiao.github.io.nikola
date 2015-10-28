@@ -7,11 +7,44 @@
 .. description: 
 .. type: text
 
-.. pull-quote::
-	
-   I'm quite illiterate, but I read a lot.
+Persistence
+-----------
 
-   -- J.D. Salinger, The Catcher in the Rye
+.. pull-quote::
+
+   When nothing seems to help, I go and look at a stonecutter hammering away 
+   at his rock, perhaps a hundred times without as much as a crack showing in 
+   it. Yet at the hundred and first blow it will split in two, and I know it 
+   was not that last blow that did it, but all that had gone before
+
+   -- Jacob A. Riis
+
+Consciousness
+-------------
+
+.. pull-quote::
+
+   If our brains were simple enough for us to understand them, we'd be so 
+   simple that we couldn't.
+
+   -- Ian Stewart, The Collapse of Chaos: Discovering Simplicity in a Complex World
+
+Science
+-------
+
+.. pull-quote::
+
+   Somewhere something incredible is waiting to be known.
+
+   -- Carl Sagan
+
+
+.. pull-quote::
+
+   Seeing much, suffering much, and studying much, are the three pillars of 
+   learning.
+
+   -- Benjamin Disraeli
 
 .. pull-quote::
 
@@ -19,6 +52,12 @@
    and tell the world the glories of our journey. 
 
    -- John Hope Franklin
+
+.. pull-quote::
+   
+   I'm quite illiterate, but I read a lot.
+
+   -- J.D. Salinger, The Catcher in the Rye
 
 Motivation
 ----------
@@ -109,3 +148,15 @@ Failure and Success
    is busy making mistakes and becoming superior.
 
    -- Henry C. Link
+
+Girls
+-----
+
+.. pull-quote::
+
+   That's the thing about girls. Every time they do something pretty, even if
+   they're not much to look at, or even if they're sort of stupid, you fall in
+   love with them, and then you never know where the hell you are. Girls.
+   Jesus Christ. They can drive you crazy. They really can.
+
+   -- J.D. Salinger, The Catcher in the Rye

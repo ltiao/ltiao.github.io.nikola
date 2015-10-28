@@ -67,6 +67,18 @@ Updating the Makefile (Optional)
 
 *TODO*
 
+.. code:: make
+
+   ghp: html
+     ghp-import -n -p $(BUILDDIR)/html
+     @echo "Deployment to Github Pages finished."
+
+Dependency
+  http://stackoverflow.com/questions/8646688/make-rule-call-rule
+
+Recipe Echoing
+  https://www.gnu.org/software/make/manual/html_node/Echoing.html
+
 Resources
 ---------
 

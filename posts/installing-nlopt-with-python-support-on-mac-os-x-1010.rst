@@ -13,6 +13,8 @@ isolated under a virtual environment. This article outlines the different ways
 of making NLopt play nicely with your Python development environment, whatever 
 that may be.
 
+.. TEASER_END
+
 Homebrew
 ========
 

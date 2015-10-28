@@ -40,13 +40,14 @@ MathJax.Hub.Config({
                  \///        \///////////  \///        \///       \/////       
 
 --><meta name="author" content="Louis Tiao">
-<meta name="robots" content="noindex">
+<link rel="prev" href="project-euler/problem-42-coded-triangle-numbers.html" title="Project Euler Problem 42: Coded triangle numbers" type="text/html">
+<link rel="next" href="creating-a-nikola-theme-with-sass-compiled-bootstrap.html" title="Creating a Nikola theme with Sass-compiled Bootstrap" type="text/html">
 <meta property="og:site_name" content="Louis Tiao">
 <meta property="og:title" content="Installing NLopt with Python support on Mac OS X (10.10)">
 <meta property="og:url" content="http://louistiao.me/posts/installing-nlopt-with-python-support-on-mac-os-x-1010.html">
-<meta property="og:description" content="NLopt is a popular open-source library for nonlinear optimization. It can
-be somewhat tricky to install it Python support on Mac OS X, especially with
-virtualenv and Python 3. This article outlines th">
+<meta property="og:description" content="NLopt is a popular open-source library for nonlinear optimization. It can be
+somewhat tricky to install it with Python support on Mac OS X, especially
+isolated under a virtual environment. This articl">
 <meta property="og:type" content="article">
 <meta property="article:published_time" content="2015-07-17T15:39:17+10:00">
 <meta property="article:tag" content="homebrew">
@@ -54,6 +55,7 @@ virtualenv and Python 3. This article outlines th">
 <meta property="article:tag" content="optimization">
 <meta property="article:tag" content="python">
 <meta property="article:tag" content="python3">
+<meta property="article:tag" content="virtualenv">
 </head>
 <body>
   <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
@@ -126,39 +128,72 @@ virtualenv and Python 3. This article outlines th">
         
     </header><div class="e-content entry-content" itemprop="articleBody text">
     <div>
-<p><a class="reference external" href="http://ab-initio.mit.edu/wiki/index.php/NLopt">NLopt</a> is a popular open-source library for nonlinear optimization. It can
-be somewhat tricky to install it Python support on Mac OS X, especially with
-<tt class="docutils literal">virtualenv</tt> and Python 3. This article outlines the different ways of making
-NLopt play nicely with your Python development environment, whatever that may
-be.</p>
-<div class="section" id="the-path-of-least-resistence-homebrew">
-<h2>The path of least resistence: Homebrew</h2>
+<p><a class="reference external" href="http://ab-initio.mit.edu/wiki/index.php/NLopt">NLopt</a> is a popular open-source library for nonlinear optimization. It can be
+somewhat tricky to install it with Python support on Mac OS X, especially
+isolated under a virtual environment. This article outlines the different ways
+of making NLopt play nicely with your Python development environment, whatever
+that may be.</p>
+<div class="section" id="homebrew">
+<h2>Homebrew</h2>
 <p>As usual, the easiest way of installing any package on a Mac is using the
 popular third-party package manager, <a class="reference external" href="http://brew.sh">Homebrew</a>. This option is perfectly
 fine if you only need to bind NLopt to your default Python installation, i.e.
-not an alternative version of Python that lives inside a <tt class="docutils literal">virtualenv</tt>.</p>
-<pre class="code console"><a name="rest_code_3620199f804643959ef63e4ad1f88b3c-1"></a><span class="gp">$</span> brew install nlopt --with-python
+not an alternative version of Python that in a virtual environment.</p>
+<pre class="code console"><a name="rest_code_5adbaf65ea6049b0ab07938bcee43305-1"></a><span class="gp">$</span> brew install nlopt --with-python
 </pre>
 <p>If the version of Python you are currently running was installed with Homebrew
 (i.e. according to <a class="reference external" href="http://docs.python-guide.org/en/latest/starting/install/osx/">http://docs.python-guide.org/en/latest/starting/install/osx/</a>),
 you should find the Python bindings for NLopt created in the <tt class="docutils literal"><span class="pre">site-packages</span></tt>
-directory (looks something like <tt class="docutils literal"><span class="pre">/usr/local/lib/python2.7/site-packages/</span></tt>.)</p>
+directory (looks something like <tt class="docutils literal"><span class="pre">/usr/local/lib/python2.7/site-packages/nlopt.py</span></tt>.)</p>
 <p>At this point, you should be able to just import NLopt with no problems.</p>
-<pre class="code console"><a name="rest_code_895b1294341a4c17844e25c3884d43a6-1"></a><span class="gp">$</span> python -c <span class="s1">'import nlopt'</span>
-<a name="rest_code_895b1294341a4c17844e25c3884d43a6-2"></a><span class="gp">$</span>
+<pre class="code console"><a name="rest_code_d47d5cc7ee5d45838c5a8809906e8758-1"></a><span class="gp">$</span> python -c <span class="s1">'import nlopt'</span>
+<a name="rest_code_d47d5cc7ee5d45838c5a8809906e8758-2"></a><span class="gp">$</span>
 </pre>
 </div>
 <div class="section" id="inside-a-virtual-environment">
 <h2>Inside a virtual environment</h2>
-<pre class="code console"><a name="rest_code_b5d4c38646184314a4433d1ac8317426-1"></a><span class="gp">$</span> mkvirtualenv --python<span class="o">=</span><span class="sb">`</span>which python3<span class="sb">`</span> <span class="nb">test</span>
-<a name="rest_code_b5d4c38646184314a4433d1ac8317426-2"></a><span class="gp">$</span><span class="nb"> </span>pip install numpy
-<a name="rest_code_b5d4c38646184314a4433d1ac8317426-3"></a>
-<a name="rest_code_b5d4c38646184314a4433d1ac8317426-4"></a><span class="gp">$</span> ./configure <span class="nv">PYTHON</span><span class="o">=</span><span class="nv">$WORKON_HOME</span>/test/bin/python --prefix<span class="o">=</span><span class="nv">$WORKON_HOME</span>/test --enable-shared
-<a name="rest_code_b5d4c38646184314a4433d1ac8317426-5"></a><span class="gp">$</span> make
-<a name="rest_code_b5d4c38646184314a4433d1ac8317426-6"></a><span class="gp">$</span> make install
-<a name="rest_code_b5d4c38646184314a4433d1ac8317426-7"></a><span class="gp">$</span> python -c <span class="s1">'import nlopt'</span>
-<a name="rest_code_b5d4c38646184314a4433d1ac8317426-8"></a><span class="gp">$</span>
+<p>If you've gotten up to this section of this post, I probably don't need to
+explain the benefits of installing NLOpt inside a virtual environment.</p>
+<p>First, I assume you have created a virtual environment, say <tt class="docutils literal">my_env</tt> with
+Python 3.4 as the Python interpreter <a class="footnote-reference" href="installing-nlopt-with-python-support-on-mac-os-x-1010.html#id2" id="id1">[1]</a>. I am using the excellent
+<a class="reference external" href="https://virtualenvwrapper.readthedocs.org/en/latest/">virtualenvwrapper</a> extension here by Doug Hellmann, though this is not
+strictly required (but highly recommended!)</p>
+<pre class="code console"><a name="rest_code_d1bd1bcfba7c4816adf576dbc7ab1782-1"></a><span class="gp">$</span> mkvirtualenv --python<span class="o">=</span><span class="sb">`</span>which python3<span class="sb">`</span> my_env
 </pre>
+<p>Before moving on, we need to first install <tt class="docutils literal">numpy</tt></p>
+<pre class="code console"><a name="rest_code_072685188cb941bcb5423343ba571937-1"></a><span class="gp">(my_env)$</span> pip install numpy
+</pre>
+<p>Next, <a class="reference external" href="http://ab-initio.mit.edu/wiki/index.php/NLopt#Download_and_installation">download NLOpt</a> and extract it. At the time of writing, the latest
+stable version is 2.4.2. Now we can configure and install it to our virtual
+environment:</p>
+<pre class="code console"><a name="rest_code_394eec1b12c34d82ae33b4a648d0765c-1"></a><span class="gp">$</span> ./configure <span class="nv">PYTHON</span><span class="o">=</span><span class="nv">$WORKON_HOME</span>/my_env/bin/python --prefix<span class="o">=</span><span class="nv">$WORKON_HOME</span>/my_env --enable-shared
+<a name="rest_code_394eec1b12c34d82ae33b4a648d0765c-2"></a><span class="gp">$</span> make
+<a name="rest_code_394eec1b12c34d82ae33b4a648d0765c-3"></a><span class="gp">$</span> make install
+</pre>
+<p>Note that <tt class="docutils literal">WORKON_HOME</tt> is an environment variable required to be set by
+<tt class="docutils literal">virtualenvwrapper</tt>, usually to something like <tt class="docutils literal"><span class="pre">$HOME/.virtualenvs</span></tt>. If
+you're not using <tt class="docutils literal">virtualenvwrapper</tt>, simply replace <tt class="docutils literal">$WORKON_HOME</tt> above
+with the path to the directory containing your virtual environment directory.</p>
+<p>For further information on what these additional flags are, and why they are
+required, please see <a class="reference external" href="http://ab-initio.mit.edu/wiki/index.php/NLopt_Installation">NLOpt installation</a>.</p>
+<p>Now you should be able to import NLOpt within the <tt class="docutils literal">my_env</tt> virtual
+environment, which was installed locally to <tt class="docutils literal">$WORKON_HOME/my_env</tt>, rather
+than to <tt class="docutils literal">/usr/local</tt>.</p>
+<pre class="code console"><a name="rest_code_72e7e67e94ce48fe8b682acd8e2ac6f7-1"></a><span class="gp">(my_env)$</span> python -c <span class="s1">'import nlopt'</span>
+<a name="rest_code_72e7e67e94ce48fe8b682acd8e2ac6f7-2"></a><span class="gp">(my_env)$</span>
+</pre>
+<table class="docutils footnote" frame="void" id="id2" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href="installing-nlopt-with-python-support-on-mac-os-x-1010.html#id1">[1]</a></td>
+<td>The steps outlined below doesn't seem to work for virtual environments
+with Python 2.7 as the Python interpreter. If you have managed to get to to
+work for Python 2.7, I'd love to learn how you did it!</td>
+</tr></tbody>
+</table>
 </div>
 </div>
     </div>
@@ -168,6 +203,15 @@ directory (looks something like <tt class="docutils literal"><span class="pre">/
             <li><a class="tag p-category" href="../tags/optimization.html" rel="tag">optimization</a></li>
             <li><a class="tag p-category" href="../tags/python.html" rel="tag">python</a></li>
             <li><a class="tag p-category" href="../tags/python3.html" rel="tag">python3</a></li>
+            <li><a class="tag p-category" href="../tags/virtualenv.html" rel="tag">virtualenv</a></li>
+        </ul>
+<ul class="pager hidden-print">
+<li class="previous">
+                <a href="project-euler/problem-42-coded-triangle-numbers.html" rel="prev" title="Project Euler Problem 42: Coded triangle numbers">Previous post</a>
+            </li>
+            <li class="next">
+                <a href="creating-a-nikola-theme-with-sass-compiled-bootstrap.html" rel="next" title="Creating a Nikola theme with Sass-compiled Bootstrap">Next post</a>
+            </li>
         </ul></nav></aside><section class="comments hidden-print"><h2>Comments</h2>
                         <div id="disqus_thread"></div>
         <script>

@@ -186,6 +186,88 @@ get Nikola to use Sass to compile our customized stylesheet.</p>
 <p class="more"><a href="../posts/creating-a-nikola-theme-with-sass-compiled-bootstrap.html">Read more…</a></p>
 </div>
     </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="../posts/installing-nlopt-with-python-support-on-mac-os-x-1010.html" class="u-url">Installing NLopt with Python support on Mac OS X (10.10)</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn">
+                Louis Tiao
+            </span></p>
+            <p class="dateline"><a href="../posts/installing-nlopt-with-python-support-on-mac-os-x-1010.html" rel="bookmark"><time class="published dt-published" datetime="2015-07-17T15:39:17+10:00" title="2015-07-17 15:39">2015-07-17 15:39</time></a></p>
+                <p class="commentline">            <a href="../posts/installing-nlopt-with-python-support-on-mac-os-x-1010.html#disqus_thread" data-disqus-identifier="cache/posts/installing-nlopt-with-python-support-on-mac-os-x-1010.html">Comments</a>
+
+
+        </p>
+</div>
+    </header><div class="p-summary entry-summary">
+    <div>
+<p><a class="reference external" href="http://ab-initio.mit.edu/wiki/index.php/NLopt">NLopt</a> is a popular open-source library for nonlinear optimization. It can be
+somewhat tricky to install it with Python support on Mac OS X, especially
+isolated under a virtual environment. This article outlines the different ways
+of making NLopt play nicely with your Python development environment, whatever
+that may be.</p>
+<div class="section" id="homebrew">
+<h2>Homebrew</h2>
+<p>As usual, the easiest way of installing any package on a Mac is using the
+popular third-party package manager, <a class="reference external" href="http://brew.sh">Homebrew</a>. This option is perfectly
+fine if you only need to bind NLopt to your default Python installation, i.e.
+not an alternative version of Python that in a virtual environment.</p>
+<pre class="code console"><a name="rest_code_5adbaf65ea6049b0ab07938bcee43305-1"></a><span class="gp">$</span> brew install nlopt --with-python
+</pre>
+<p>If the version of Python you are currently running was installed with Homebrew
+(i.e. according to <a class="reference external" href="http://docs.python-guide.org/en/latest/starting/install/osx/">http://docs.python-guide.org/en/latest/starting/install/osx/</a>),
+you should find the Python bindings for NLopt created in the <tt class="docutils literal"><span class="pre">site-packages</span></tt>
+directory (looks something like <tt class="docutils literal"><span class="pre">/usr/local/lib/python2.7/site-packages/nlopt.py</span></tt>.)</p>
+<p>At this point, you should be able to just import NLopt with no problems.</p>
+<pre class="code console"><a name="rest_code_d47d5cc7ee5d45838c5a8809906e8758-1"></a><span class="gp">$</span> python -c <span class="s1">'import nlopt'</span>
+<a name="rest_code_d47d5cc7ee5d45838c5a8809906e8758-2"></a><span class="gp">$</span>
+</pre>
+</div>
+<div class="section" id="inside-a-virtual-environment">
+<h2>Inside a virtual environment</h2>
+<p>If you've gotten up to this section of this post, I probably don't need to
+explain the benefits of installing NLOpt inside a virtual environment.</p>
+<p>First, I assume you have created a virtual environment, say <tt class="docutils literal">my_env</tt> with
+Python 3.4 as the Python interpreter <a class="footnote-reference" href="../posts/installing-nlopt-with-python-support-on-mac-os-x-1010.html#id2" id="id1">[1]</a>. I am using the excellent
+<a class="reference external" href="https://virtualenvwrapper.readthedocs.org/en/latest/">virtualenvwrapper</a> extension here by Doug Hellmann, though this is not
+strictly required (but highly recommended!)</p>
+<pre class="code console"><a name="rest_code_d1bd1bcfba7c4816adf576dbc7ab1782-1"></a><span class="gp">$</span> mkvirtualenv --python<span class="o">=</span><span class="sb">`</span>which python3<span class="sb">`</span> my_env
+</pre>
+<p>Before moving on, we need to first install <tt class="docutils literal">numpy</tt></p>
+<pre class="code console"><a name="rest_code_072685188cb941bcb5423343ba571937-1"></a><span class="gp">(my_env)$</span> pip install numpy
+</pre>
+<p>Next, <a class="reference external" href="http://ab-initio.mit.edu/wiki/index.php/NLopt#Download_and_installation">download NLOpt</a> and extract it. At the time of writing, the latest
+stable version is 2.4.2. Now we can configure and install it to our virtual
+environment:</p>
+<pre class="code console"><a name="rest_code_394eec1b12c34d82ae33b4a648d0765c-1"></a><span class="gp">$</span> ./configure <span class="nv">PYTHON</span><span class="o">=</span><span class="nv">$WORKON_HOME</span>/my_env/bin/python --prefix<span class="o">=</span><span class="nv">$WORKON_HOME</span>/my_env --enable-shared
+<a name="rest_code_394eec1b12c34d82ae33b4a648d0765c-2"></a><span class="gp">$</span> make
+<a name="rest_code_394eec1b12c34d82ae33b4a648d0765c-3"></a><span class="gp">$</span> make install
+</pre>
+<p>Note that <tt class="docutils literal">WORKON_HOME</tt> is an environment variable required to be set by
+<tt class="docutils literal">virtualenvwrapper</tt>, usually to something like <tt class="docutils literal"><span class="pre">$HOME/.virtualenvs</span></tt>. If
+you're not using <tt class="docutils literal">virtualenvwrapper</tt>, simply replace <tt class="docutils literal">$WORKON_HOME</tt> above
+with the path to the directory containing your virtual environment directory.</p>
+<p>For further information on what these additional flags are, and why they are
+required, please see <a class="reference external" href="http://ab-initio.mit.edu/wiki/index.php/NLopt_Installation">NLOpt installation</a>.</p>
+<p>Now you should be able to import NLOpt within the <tt class="docutils literal">my_env</tt> virtual
+environment, which was installed locally to <tt class="docutils literal">$WORKON_HOME/my_env</tt>, rather
+than to <tt class="docutils literal">/usr/local</tt>.</p>
+<pre class="code console"><a name="rest_code_72e7e67e94ce48fe8b682acd8e2ac6f7-1"></a><span class="gp">(my_env)$</span> python -c <span class="s1">'import nlopt'</span>
+<a name="rest_code_72e7e67e94ce48fe8b682acd8e2ac6f7-2"></a><span class="gp">(my_env)$</span>
+</pre>
+<table class="docutils footnote" frame="void" id="id2" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href="../posts/installing-nlopt-with-python-support-on-mac-os-x-1010.html#id1">[1]</a></td>
+<td>The steps outlined below doesn't seem to work for virtual environments
+with Python 2.7 as the Python interpreter. If you have managed to get to to
+work for Python 2.7, I'd love to learn how you did it!</td>
+</tr></tbody>
+</table>
+</div>
+</div>
+    </div>
     </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="../posts/project-euler/problem-42-coded-triangle-numbers.html" class="u-url">Project Euler Problem 42: Coded triangle numbers</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn">
@@ -9219,238 +9301,6 @@ $$<p>Find the first four consecutive integers to have four distinct prime factor
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>The answer is 134043</p>
-
-</div>
-</div>
-</div>
-    </div>
-  </div>
-
-    </div>
-    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="../posts/project-euler/problem-48-self-powers.html" class="u-url">Project Euler Problem 48: Self powers</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn">
-                Louis Tiao
-            </span></p>
-            <p class="dateline"><a href="../posts/project-euler/problem-48-self-powers.html" rel="bookmark"><time class="published dt-published" datetime="2015-04-03T14:36:17+11:00" title="2015-04-03 14:36">2015-04-03 14:36</time></a></p>
-                <p class="commentline">            <a href="../posts/project-euler/problem-48-self-powers.html#disqus_thread" data-disqus-identifier="cache/posts/project-euler/problem-48-self-powers.html">Comments</a>
-
-
-        </p>
-</div>
-    </header><div class="p-summary entry-summary">
-    <div tabindex="-1" id="notebook" class="border-box-sizing">
-    <div class="container" id="notebook-container">
-
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Project-Euler---Problem-48">Project Euler - Problem 48<a class="anchor-link" href="../posts/project-euler/problem-48-self-powers.html#Project-Euler---Problem-48">¶</a>
-</h3>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>The series, $1^1 + 2^2 + 3^3 + ... + 10^{10} = 10405071317$.</p>
-<p>Find the last ten digits of the series, $1^1 + 2^2 + 3^3 + ... + 1000^{1000}$.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="Version-1:-The-obvious-way">Version 1: The obvious way<a class="anchor-link" href="../posts/project-euler/problem-48-self-powers.html#Version-1:-The-obvious-way">¶</a>
-</h4>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In [31]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span class="nb">sum</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">k</span><span class="p">:</span> <span class="n">k</span><span class="o">**</span><span class="n">k</span><span class="p">,</span> <span class="n">xrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1000</span><span class="o">+</span><span class="mi">1</span><span class="p">)))</span> <span class="o">%</span> <span class="mi">10</span><span class="o">**</span><span class="mi">10</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-<div class="prompt output_prompt">Out[31]:</div>
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>9110846700L</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>This leaves much to be desired since we have to compute a integer with at least $10^{3000}$ digits only to truncate off $10^{3000} - 10^{10} = 10^{10} (10^{2990} - 1)$ digits. Note that in most other languages such as Java, we would have had to resort to some library like <code>BigInteger</code> to perform this computation. In Python, all numbers are represented by a (theoretically) infinite number of bits:</p>
-<blockquote>
-<p>Integers (int)</p>
-<p>These represent numbers in an unlimited range, subject to available (virtual) memory only. For the purpose of shift and mask operations, a binary representation is assumed, and negative numbers are represented in a variant of 2’s complement which gives the illusion of an infinite string of sign bits extending to the left.</p>
-</blockquote>
-<p><a href="https://docs.python.org/3/reference/datamodel.html">https://docs.python.org/3/reference/datamodel.html</a></p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="Version-2:-Some-simple-modulo-arithmetic">Version 2: Some simple modulo arithmetic<a class="anchor-link" href="../posts/project-euler/problem-48-self-powers.html#Version-2:-Some-simple-modulo-arithmetic">¶</a>
-</h4>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>We're asked to find $1^1 + 2^2 + 3^3 + ... + 1000^{1000} \mod 10^{10}$. Note that
-$$a + b \mod n = (a \mod n) + (b \mod n)$$
-and that
-$$a \cdot b \mod n = (a \mod n) \cdot (b \mod n)$$
-so we can implement modulo <code>sum</code> and <code>prod</code> functions.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In [21]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span class="k">def</span> <span class="nf">prod_mod</span><span class="p">(</span><span class="n">nums</span><span class="p">,</span> <span class="n">m</span><span class="p">):</span>
-    <span class="s">"Multiply all nums modulo m"</span> 
-    <span class="k">return</span> <span class="n">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">:</span> <span class="p">(</span><span class="n">p</span><span class="o">*</span><span class="n">q</span><span class="p">)</span><span class="o">%</span><span class="k">m</span>, map(lambda n: n%m, nums))  
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In [22]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span class="kn">from</span> <span class="nn">itertools</span> <span class="k">import</span> <span class="n">repeat</span>
-
-<span class="n">pow_mod</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">n</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="n">prod_mod</span><span class="p">(</span><span class="n">repeat</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">p</span><span class="p">),</span> <span class="n">m</span><span class="p">)</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In [23]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span class="n">pow_mod</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-<div class="prompt output_prompt">Out[23]:</div>
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>3</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In [27]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span class="n">sum_mod</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">nums</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="n">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">:</span> <span class="p">(</span><span class="n">p</span><span class="o">+</span><span class="n">q</span><span class="p">)</span><span class="o">%</span><span class="k">m</span>, map(lambda n: n%m, nums))
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In [28]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span class="n">sum_mod</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">k</span><span class="p">:</span> <span class="n">pow_mod</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="mi">10</span><span class="o">**</span><span class="mi">10</span><span class="p">),</span> <span class="n">xrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1000</span><span class="o">+</span><span class="mi">1</span><span class="p">)),</span> <span class="mi">10</span><span class="o">**</span><span class="mi">10</span><span class="p">)</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-<div class="prompt output_prompt">Out[28]:</div>
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>9110846700</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>This way, we never let the result of any intermediate addition or multiplication exceed $10^{10}-1$.</p>
 
 </div>
 </div>

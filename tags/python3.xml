@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/"><channel><title>Louis Tiao (python3)</title><link>http://louistiao.me/</link><description></description><atom:link href="http://louistiao.me/tags/python3.xml" type="application/rss+xml" rel="self"></atom:link><language>en</language><lastBuildDate>Wed, 28 Oct 2015 03:30:26 GMT</lastBuildDate><generator>https://getnikola.com/</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Installing NLopt with Python support on Mac OS X (10.10)</title><link>http://louistiao.me/posts/installing-nlopt-with-python-support-on-mac-os-x-1010.html</link><dc:creator>Louis Tiao</dc:creator><description>&lt;div&gt;&lt;p&gt;&lt;a class="reference external" href="http://ab-initio.mit.edu/wiki/index.php/NLopt"&gt;NLopt&lt;/a&gt; is a popular open-source library for nonlinear optimization. It can be
+somewhat tricky to install it with Python support on Mac OS X, especially
+isolated under a virtual environment. This article outlines the different ways
+of making NLopt play nicely with your Python development environment, whatever
+that may be.&lt;/p&gt;
+&lt;div class="section" id="homebrew"&gt;
+&lt;h2&gt;Homebrew&lt;/h2&gt;
+&lt;p&gt;As usual, the easiest way of installing any package on a Mac is using the
+popular third-party package manager, &lt;a class="reference external" href="http://brew.sh"&gt;Homebrew&lt;/a&gt;. This option is perfectly
+fine if you only need to bind NLopt to your default Python installation, i.e.
+not an alternative version of Python that in a virtual environment.&lt;/p&gt;
+&lt;pre class="code console"&gt;&lt;a name="rest_code_5adbaf65ea6049b0ab07938bcee43305-1"&gt;&lt;/a&gt;&lt;span class="gp"&gt;$&lt;/span&gt; brew install nlopt --with-python
+&lt;/pre&gt;&lt;p&gt;If the version of Python you are currently running was installed with Homebrew
+(i.e. according to &lt;a class="reference external" href="http://docs.python-guide.org/en/latest/starting/install/osx/"&gt;http://docs.python-guide.org/en/latest/starting/install/osx/&lt;/a&gt;),
+you should find the Python bindings for NLopt created in the &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;site-packages&lt;/span&gt;&lt;/tt&gt;
+directory (looks something like &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;/usr/local/lib/python2.7/site-packages/nlopt.py&lt;/span&gt;&lt;/tt&gt;.)&lt;/p&gt;
+&lt;p&gt;At this point, you should be able to just import NLopt with no problems.&lt;/p&gt;
+&lt;pre class="code console"&gt;&lt;a name="rest_code_d47d5cc7ee5d45838c5a8809906e8758-1"&gt;&lt;/a&gt;&lt;span class="gp"&gt;$&lt;/span&gt; python -c &lt;span class="s1"&gt;'import nlopt'&lt;/span&gt;
+&lt;a name="rest_code_d47d5cc7ee5d45838c5a8809906e8758-2"&gt;&lt;/a&gt;&lt;span class="gp"&gt;$&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="section" id="inside-a-virtual-environment"&gt;
+&lt;h2&gt;Inside a virtual environment&lt;/h2&gt;
+&lt;p&gt;If you've gotten up to this section of this post, I probably don't need to
+explain the benefits of installing NLOpt inside a virtual environment.&lt;/p&gt;
+&lt;p&gt;First, I assume you have created a virtual environment, say &lt;tt class="docutils literal"&gt;my_env&lt;/tt&gt; with
+Python 3.4 as the Python interpreter &lt;a class="footnote-reference" href="http://louistiao.me/posts/installing-nlopt-with-python-support-on-mac-os-x-1010.html#id2" id="id1"&gt;[1]&lt;/a&gt;. I am using the excellent
+&lt;a class="reference external" href="https://virtualenvwrapper.readthedocs.org/en/latest/"&gt;virtualenvwrapper&lt;/a&gt; extension here by Doug Hellmann, though this is not
+strictly required (but highly recommended!)&lt;/p&gt;
+&lt;pre class="code console"&gt;&lt;a name="rest_code_d1bd1bcfba7c4816adf576dbc7ab1782-1"&gt;&lt;/a&gt;&lt;span class="gp"&gt;$&lt;/span&gt; mkvirtualenv --python&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="sb"&gt;`&lt;/span&gt;which python3&lt;span class="sb"&gt;`&lt;/span&gt; my_env
+&lt;/pre&gt;&lt;p&gt;Before moving on, we need to first install &lt;tt class="docutils literal"&gt;numpy&lt;/tt&gt;&lt;/p&gt;
+&lt;pre class="code console"&gt;&lt;a name="rest_code_072685188cb941bcb5423343ba571937-1"&gt;&lt;/a&gt;&lt;span class="gp"&gt;(my_env)$&lt;/span&gt; pip install numpy
+&lt;/pre&gt;&lt;p&gt;Next, &lt;a class="reference external" href="http://ab-initio.mit.edu/wiki/index.php/NLopt#Download_and_installation"&gt;download NLOpt&lt;/a&gt; and extract it. At the time of writing, the latest
+stable version is 2.4.2. Now we can configure and install it to our virtual
+environment:&lt;/p&gt;
+&lt;pre class="code console"&gt;&lt;a name="rest_code_394eec1b12c34d82ae33b4a648d0765c-1"&gt;&lt;/a&gt;&lt;span class="gp"&gt;$&lt;/span&gt; ./configure &lt;span class="nv"&gt;PYTHON&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nv"&gt;$WORKON_HOME&lt;/span&gt;/my_env/bin/python --prefix&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nv"&gt;$WORKON_HOME&lt;/span&gt;/my_env --enable-shared
+&lt;a name="rest_code_394eec1b12c34d82ae33b4a648d0765c-2"&gt;&lt;/a&gt;&lt;span class="gp"&gt;$&lt;/span&gt; make
+&lt;a name="rest_code_394eec1b12c34d82ae33b4a648d0765c-3"&gt;&lt;/a&gt;&lt;span class="gp"&gt;$&lt;/span&gt; make install
+&lt;/pre&gt;&lt;p&gt;Note that &lt;tt class="docutils literal"&gt;WORKON_HOME&lt;/tt&gt; is an environment variable required to be set by
+&lt;tt class="docutils literal"&gt;virtualenvwrapper&lt;/tt&gt;, usually to something like &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;$HOME/.virtualenvs&lt;/span&gt;&lt;/tt&gt;. If
+you're not using &lt;tt class="docutils literal"&gt;virtualenvwrapper&lt;/tt&gt;, simply replace &lt;tt class="docutils literal"&gt;$WORKON_HOME&lt;/tt&gt; above
+with the path to the directory containing your virtual environment directory.&lt;/p&gt;
+&lt;p&gt;For further information on what these additional flags are, and why they are
+required, please see &lt;a class="reference external" href="http://ab-initio.mit.edu/wiki/index.php/NLopt_Installation"&gt;NLOpt installation&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Now you should be able to import NLOpt within the &lt;tt class="docutils literal"&gt;my_env&lt;/tt&gt; virtual
+environment, which was installed locally to &lt;tt class="docutils literal"&gt;$WORKON_HOME/my_env&lt;/tt&gt;, rather
+than to &lt;tt class="docutils literal"&gt;/usr/local&lt;/tt&gt;.&lt;/p&gt;
+&lt;pre class="code console"&gt;&lt;a name="rest_code_72e7e67e94ce48fe8b682acd8e2ac6f7-1"&gt;&lt;/a&gt;&lt;span class="gp"&gt;(my_env)$&lt;/span&gt; python -c &lt;span class="s1"&gt;'import nlopt'&lt;/span&gt;
+&lt;a name="rest_code_72e7e67e94ce48fe8b682acd8e2ac6f7-2"&gt;&lt;/a&gt;&lt;span class="gp"&gt;(my_env)$&lt;/span&gt;
+&lt;/pre&gt;&lt;table class="docutils footnote" frame="void" id="id2" rules="none"&gt;
+&lt;colgroup&gt;&lt;col class="label"&gt;&lt;col&gt;&lt;/colgroup&gt;
+&lt;tbody valign="top"&gt;
+&lt;tr&gt;&lt;td class="label"&gt;&lt;a class="fn-backref" href="http://louistiao.me/posts/installing-nlopt-with-python-support-on-mac-os-x-1010.html#id1"&gt;[1]&lt;/a&gt;&lt;/td&gt;&lt;td&gt;The steps outlined below doesn't seem to work for virtual environments
+with Python 2.7 as the Python interpreter. If you have managed to get to to
+work for Python 2.7, I'd love to learn how you did it!&lt;/td&gt;&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;/div&gt;&lt;/div&gt;</description><category>homebrew</category><category>NLopt</category><category>optimization</category><category>python</category><category>python3</category><category>virtualenv</category><guid>http://louistiao.me/posts/installing-nlopt-with-python-support-on-mac-os-x-1010.html</guid><pubDate>Fri, 17 Jul 2015 05:39:17 GMT</pubDate></item></channel></rss>

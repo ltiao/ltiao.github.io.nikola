@@ -15,6 +15,8 @@ First, create a new Nikola theme. I prefer to do this by creating a
 LICENSE, ``.gitignore``, etc. Once that's done, clone the newly created repo 
 into ``<site-root>/themes``.
 
+.. TEASER_END
+
 The bare minimum requirement for a Nikola theme is that it include a 
 ``parent`` file. Since our theme just uses our own extended and customized 
 version of Bootstrap, it makes sense to inherit from ``bootstrap3`` or its 
@@ -46,8 +48,6 @@ updated to reflect that. Our theme is going to be similar in that we use our
 own customized Boostrap stylesheet, compiled from Sass. We will take care of 
 this later. For now, let's just get our Sass workflow up and running so we can
 get Nikola to use Sass to compile our customized stylesheet.
-
-.. TEASER_END
 
 Sass workflow in Nikola
 -----------------------

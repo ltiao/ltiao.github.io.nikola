@@ -5,7 +5,7 @@
 .. category: coding
 .. link: 
 .. description: 
-.. type: micro
+.. type: text
 
 .. pull-quote::
     

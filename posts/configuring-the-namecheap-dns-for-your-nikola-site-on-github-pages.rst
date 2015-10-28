@@ -1,7 +1,7 @@
 .. title: Configuring the Namecheap DNS for your Nikola site on Github Pages
 .. slug: configuring-the-namecheap-dns-for-your-nikola-site-on-github-pages
 .. date: 2015-10-07 22:49:06 UTC+11:00
-.. tags: nikola, github, namecheap, dns, hosting, devops, draft
+.. tags: nikola, github, namecheap, dns, hosting, devops
 .. category: coding 
 .. link: 
 .. description: 
@@ -10,22 +10,29 @@
 Namecheap overhauled their Account Panel a few weeks ago 
 (https://blog.namecheap.com/ready-to-roll-your-new-account-panel/). 
 Nonetheless, the popular guide on `Setting the DNS for GitHub Pages on Namecheap`_
-is still relevant and the steps remain practically the same. 
+is still applicable and the instructions remain practically the same, if not
+even simpler now due to the new interface.
 
-This article will adapt the steps outlined in the aforementioned guide to the
-new Namecheap account panel and the Nikola static site generator.
+.. TEASER_END
 
-First I describe what I have now, and what I wish to achieve. Currently, I 
-have :doc:`my Nikola-generated site <how-i-customized-my-nikola-powered-site>` 
-hosted on my Github User Page (``http://ltiao.github.io``). Say I just bought 
-a shiny new domain name from Namecheap, ``louistiao.me`` and I would like to:
+This posts adapts the steps outlined in the aforementioned guide to the
+new Namecheap account panel interface and also includes additional steps for
+static sites generated with Nikola.
 
-- Let ``louistiao.me`` be the primary domain
-- Redirect ``ltiao.github.io`` to ``louistiao.me``
-- Redirect ``www.louistiao.me`` to ``louistiao.me``
+Consider the following scenario. You have your static site hosted on your 
+Github User Page at ``http://<username>.github.io`` and you just bought a 
+shiny new domain name from Namecheap, say, ``<username>.me``. Say you want to
+and want to still host your static site on Github, but additioanlly, you would 
+like to:
+
+- Let ``<username>.me`` be the primary domain
+- Redirect ``<username>.github.io`` to ``<username>.me``
+- Redirect ``www.<username>.me`` to ``<username>.me``
 
 Configure the Host Records
 --------------------------
+
+*Work in progress*
 
 https://help.github.com/articles/tips-for-configuring-an-a-record-with-your-dns-provider/#configuring-an-a-record-with-your-dns-provider
 
@@ -48,8 +55,8 @@ placing it in in the ``files/`` directory, which will then be copied to
 
 https://help.github.com/articles/tips-for-configuring-an-a-record-with-your-dns-provider/#configuring-a-www-subdomain
 
-Further Reading
----------------
+Additional Resources
+--------------------
 
 - https://help.github.com/articles/tips-for-configuring-a-cname-record-with-your-dns-provider/
 - https://help.github.com/articles/tips-for-configuring-an-a-record-with-your-dns-provider/

@@ -20,6 +20,8 @@ The gradient of the log-likelihood function is given in equation 3.13:
 We derive this step-by-step below. First, the log-likelihood function is given 
 by equation 3.11 and reproduced below,
 
+.. TEASER_END
+
 .. math::
 
    \ln p(\mathbf{t} \mid \mathbf{w}, \beta) 

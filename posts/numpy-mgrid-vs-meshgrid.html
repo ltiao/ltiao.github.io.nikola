@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html prefix="
+og: http://ogp.me/ns#
+article: http://ogp.me/ns/article#
+" lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NumPy mgrid vs. meshgrid | Louis Tiao</title>
+<link href="../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
+<link href="../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
+<link href="../assets/css/all.css" rel="stylesheet" type="text/css">
+<link rel="alternate" type="application/rss+xml" title="RSS" href="../rss.xml">
+<link rel="canonical" href="http://louistiao.me/posts/numpy-mgrid-vs-meshgrid.html">
+<link rel="icon" href="../favicon_256x256.ico" sizes="256x256">
+<link rel="icon" href="../favicon_16x16.ico" sizes="16x16">
+<link rel="icon" href="../favicon_32x32.ico" sizes="32x32">
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+    },
+    displayAlign: 'center', // Change this to 'center' to center equations.
+    "HTML-CSS": {
+        styles: {'.MathJax_Display': {"margin": 0}}
+    }
+});
+</script><!--[if lt IE 9]><script src="../assets/js/html5.js"></script><![endif]--><!-- 
+
+    /\\\\\\\\\\\\\\\  /\\\\\\\\\\\     /\\\\\\\\\          /\\\\\              
+    \///////\\\/////  \/////\\\///    /\\\\\\\\\\\\\      /\\\///\\\           
+           \/\\\           \/\\\      /\\\/////////\\\   /\\\/  \///\\\        
+            \/\\\           \/\\\     \/\\\       \/\\\  /\\\      \//\\\      
+             \/\\\           \/\\\     \/\\\\\\\\\\\\\\\ \/\\\       \/\\\     
+              \/\\\           \/\\\     \/\\\/////////\\\ \//\\\      /\\\     
+               \/\\\           \/\\\     \/\\\       \/\\\  \///\\\  /\\\      
+                \/\\\        /\\\\\\\\\\\ \/\\\       \/\\\    \///\\\\\/      
+                 \///        \///////////  \///        \///       \/////       
+
+--><meta name="author" content="Louis Tiao">
+<link rel="prev" href="notes-chapter-3-pattern-recognition-and-machine-learning-bishop-c-m-2007.html" title="Notes: Chapter 3, Pattern Recognition and Machine Learning (Bishop, C. M. 2007)" type="text/html">
+<meta property="og:site_name" content="Louis Tiao">
+<meta property="og:title" content="NumPy mgrid vs. meshgrid">
+<meta property="og:url" content="http://louistiao.me/posts/numpy-mgrid-vs-meshgrid.html">
+<meta property="og:description" content="&gt;&gt;&gt; import numpy as np
+&gt;&gt;&gt; x1, y1 = np.meshgrid(np.arange(1, 11, 2), np.arange(-12, -3, 3))
+&gt;&gt;&gt; x1
+array([[1, 3, 5, 7, 9],
+       [1, 3, 5, 7, 9],
+       [1, 3, 5, 7, 9]])
+&gt;&gt;&gt; y1
+array([[-12, -12, -12">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2015-10-30T16:00:19+11:00">
+<meta property="article:tag" content="numpy">
+<meta property="article:tag" content="python">
+</head>
+<body>
+  <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+  <div class="container">
+    <div class="header clearfix">
+      <nav><ul class="nav nav-pills pull-right">
+<li>
+<a href="../index.html">About</a>
+                </li>
+<li>
+<a href="../projects.html">Projects</a>
+                </li>
+<li>
+<a href="../contact.html">Contact</a>
+                </li>
+<li>
+<a href="index.html">Posts</a>
+                </li>
+<li>
+<a href="../archive.html">Archive</a>
+
+          
+        </li>
+</ul></nav><a href="http://louistiao.me/">
+
+        <h3 class="text-muted">
+          <span id="blog-title">Louis Tiao</span>
+        </h3>
+      </a>
+    </div>
+
+<!-- TODO Figure out what to do with this stuff -->
+<!--     <div class="row">
+        
+<form class="navbar-form navbar-right" role="search">
+  <div class="form-group">
+    <input type="text" class="form-control" placeholder="Search">
+  </div>
+</form>
+
+
+      <ul class="nav nav-pills pull-right">
+    <li>
+    <a href="/posts/numpy-mgrid-vs-meshgrid.rst" id="sourcelink">Source</a>
+    </li>
+          
+      </ul>
+    </div> -->
+
+    <div id="content" role="main">
+      <div class="body-content">
+        <!--Body content-->
+        <div class="row">
+          
+<article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="#" class="u-url">NumPy mgrid vs. meshgrid</a></h1>
+
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn">
+                    Louis Tiao
+            </span></p>
+            <p class="dateline"><a href="#" rel="bookmark"><time class="published dt-published" datetime="2015-10-30T16:00:19+11:00" itemprop="datePublished" title="2015-10-30 16:00">2015-10-30 16:00</time></a></p>
+                <p class="commentline">            <a href="numpy-mgrid-vs-meshgrid.html#disqus_thread" data-disqus-identifier="cache/posts/numpy-mgrid-vs-meshgrid.html">Comments</a>
+
+
+                    </p>
+<p class="sourceline"><a href="numpy-mgrid-vs-meshgrid.rst" id="sourcelink">Source</a></p>
+
+        </div>
+        
+    </header><div class="e-content entry-content" itemprop="articleBody text">
+    <div>
+<pre class="code pycon"><a name="rest_code_86727d6fbaf04a28ba36cac3ca827cbf-1"></a><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<a name="rest_code_86727d6fbaf04a28ba36cac3ca827cbf-2"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mi">12</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<a name="rest_code_86727d6fbaf04a28ba36cac3ca827cbf-3"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">x1</span>
+<a name="rest_code_86727d6fbaf04a28ba36cac3ca827cbf-4"></a><span class="go">array([[1, 3, 5, 7, 9],</span>
+<a name="rest_code_86727d6fbaf04a28ba36cac3ca827cbf-5"></a><span class="go">       [1, 3, 5, 7, 9],</span>
+<a name="rest_code_86727d6fbaf04a28ba36cac3ca827cbf-6"></a><span class="go">       [1, 3, 5, 7, 9]])</span>
+<a name="rest_code_86727d6fbaf04a28ba36cac3ca827cbf-7"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">y1</span>
+<a name="rest_code_86727d6fbaf04a28ba36cac3ca827cbf-8"></a><span class="go">array([[-12, -12, -12, -12, -12],</span>
+<a name="rest_code_86727d6fbaf04a28ba36cac3ca827cbf-9"></a><span class="go">       [ -9,  -9,  -9,  -9,  -9],</span>
+<a name="rest_code_86727d6fbaf04a28ba36cac3ca827cbf-10"></a><span class="go">       [ -6,  -6,  -6,  -6,  -6]])</span>
+</pre>
+<!-- TEASER_END -->
+<pre class="code pycon"><a name="rest_code_81fb08d4a141493c92bde710c48e81aa-1"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">x2</span><span class="p">,</span> <span class="n">y2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mgrid</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">11</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">12</span><span class="p">:</span><span class="o">-</span><span class="mi">3</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span>
+<a name="rest_code_81fb08d4a141493c92bde710c48e81aa-2"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">x2</span>
+<a name="rest_code_81fb08d4a141493c92bde710c48e81aa-3"></a><span class="go">array([[1, 1, 1],</span>
+<a name="rest_code_81fb08d4a141493c92bde710c48e81aa-4"></a><span class="go">       [3, 3, 3],</span>
+<a name="rest_code_81fb08d4a141493c92bde710c48e81aa-5"></a><span class="go">       [5, 5, 5],</span>
+<a name="rest_code_81fb08d4a141493c92bde710c48e81aa-6"></a><span class="go">       [7, 7, 7],</span>
+<a name="rest_code_81fb08d4a141493c92bde710c48e81aa-7"></a><span class="go">       [9, 9, 9]])</span>
+<a name="rest_code_81fb08d4a141493c92bde710c48e81aa-8"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">y2</span>
+<a name="rest_code_81fb08d4a141493c92bde710c48e81aa-9"></a><span class="go">array([[-12,  -9,  -6],</span>
+<a name="rest_code_81fb08d4a141493c92bde710c48e81aa-10"></a><span class="go">       [-12,  -9,  -6],</span>
+<a name="rest_code_81fb08d4a141493c92bde710c48e81aa-11"></a><span class="go">       [-12,  -9,  -6],</span>
+<a name="rest_code_81fb08d4a141493c92bde710c48e81aa-12"></a><span class="go">       [-12,  -9,  -6],</span>
+<a name="rest_code_81fb08d4a141493c92bde710c48e81aa-13"></a><span class="go">       [-12,  -9,  -6]])</span>
+<a name="rest_code_81fb08d4a141493c92bde710c48e81aa-14"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">x1</span> <span class="o">==</span> <span class="n">x2</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+<a name="rest_code_81fb08d4a141493c92bde710c48e81aa-15"></a><span class="go">True</span>
+<a name="rest_code_81fb08d4a141493c92bde710c48e81aa-16"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">y2</span> <span class="o">==</span> <span class="n">y2</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+<a name="rest_code_81fb08d4a141493c92bde710c48e81aa-17"></a><span class="go">True</span>
+</pre>
+<pre class="code pycon"><a name="rest_code_5f2a8a799361431c96f84fd7f197d71f-1"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">y3</span><span class="p">,</span> <span class="n">x3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mgrid</span><span class="p">[</span><span class="o">-</span><span class="mi">12</span><span class="p">:</span><span class="o">-</span><span class="mi">3</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span><span class="mi">11</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span>
+<a name="rest_code_5f2a8a799361431c96f84fd7f197d71f-2"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">x3</span>
+<a name="rest_code_5f2a8a799361431c96f84fd7f197d71f-3"></a><span class="go">array([[1, 3, 5, 7, 9],</span>
+<a name="rest_code_5f2a8a799361431c96f84fd7f197d71f-4"></a><span class="go">       [1, 3, 5, 7, 9],</span>
+<a name="rest_code_5f2a8a799361431c96f84fd7f197d71f-5"></a><span class="go">       [1, 3, 5, 7, 9]])</span>
+<a name="rest_code_5f2a8a799361431c96f84fd7f197d71f-6"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">y3</span>
+<a name="rest_code_5f2a8a799361431c96f84fd7f197d71f-7"></a><span class="go">array([[-12, -12, -12, -12, -12],</span>
+<a name="rest_code_5f2a8a799361431c96f84fd7f197d71f-8"></a><span class="go">       [ -9,  -9,  -9,  -9,  -9],</span>
+<a name="rest_code_5f2a8a799361431c96f84fd7f197d71f-9"></a><span class="go">       [ -6,  -6,  -6,  -6,  -6]])</span>
+<a name="rest_code_5f2a8a799361431c96f84fd7f197d71f-10"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">x1</span> <span class="o">==</span> <span class="n">x3</span><span class="p">)</span>
+<a name="rest_code_5f2a8a799361431c96f84fd7f197d71f-11"></a><span class="go">True</span>
+<a name="rest_code_5f2a8a799361431c96f84fd7f197d71f-12"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">y1</span> <span class="o">==</span> <span class="n">y3</span><span class="p">)</span>
+<a name="rest_code_5f2a8a799361431c96f84fd7f197d71f-13"></a><span class="go">True</span>
+</pre>
+</div>
+    </div>
+    <aside class="postpromonav"><nav><ul itemprop="keywords" class="tags">
+<li><a class="tag p-category" href="../tags/numpy.html" rel="tag">numpy</a></li>
+            <li><a class="tag p-category" href="../tags/python.html" rel="tag">python</a></li>
+        </ul>
+<ul class="pager hidden-print">
+<li class="previous">
+                <a href="notes-chapter-3-pattern-recognition-and-machine-learning-bishop-c-m-2007.html" rel="prev" title="Notes: Chapter 3, Pattern Recognition and Machine Learning (Bishop, C. M. 2007)">Previous post</a>
+            </li>
+        </ul></nav></aside><section class="comments hidden-print"><h2>Comments</h2>
+                        <div id="disqus_thread"></div>
+        <script>
+        var disqus_shortname ="ltiao",
+            disqus_url="http://louistiao.me/posts/numpy-mgrid-vs-meshgrid.html",
+        disqus_title="NumPy mgrid vs. meshgrid",
+        disqus_identifier="cache/posts/numpy-mgrid-vs-meshgrid.html",
+        disqus_config = function () {
+            this.language = "en";
+        };
+        (function() {
+            var dsq = document.createElement('script'); dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script><noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a>
+</noscript>
+    <a href="//disqus.com" class="dsq-brlink" rel="nofollow">Comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+        </section></article><script>var disqus_shortname="ltiao";(function(){var a=document.createElement("script");a.async=true;a.src="//"+disqus_shortname+".disqus.com/count.js";(document.getElementsByTagName("head")[0]||document.getElementsByTagName("body")[0]).appendChild(a)}());</script>
+</div>
+        <!--End of body content-->
+        </div>
+    </div>
+
+    <footer id="footer" class="footer">
+              Contents © 2015         <a href="mailto:louistiao@me.com">Louis Tiao</a> - Powered by         <a href="http://getnikola.com" rel="nofollow">Nikola</a>         
+                  
+    </footer>
+</div> <!-- /container -->
+
+            <script src="../assets/js/all-nocdn.js"></script><script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script><!-- fancy dates --><script>
+    moment.locale("");
+    fancydates(0, "YYYY-MM-DD HH:mm");
+    </script><!-- end fancy dates --><script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-43722566-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+</html>

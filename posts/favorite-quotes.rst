@@ -7,6 +7,41 @@
 .. description: 
 .. type: text
 
+.. pull-quote::
+
+   Every single day, you’re the result of what you did on the days prior.
+
+   So if you turn that around, you can start turning yourself into who you 
+   want to be, based on what you decide to do today. What food do you put in 
+   your mouth? What book do you read? What movie do you watch? What do you do 
+   with your spare time? Do you study, do you learn something?
+
+   If you make deliberate choices with your life, it’s amazing, after a week 
+   or a month or a year, the changes that you can effect. And you literally 
+   turn yourself into the person that you want to become.
+
+   -- Chris Hadfield, `How You Can Achieve Your Goals <https://www.youtube.com/watch?v=eGrzo4IvXyg>`_
+
+
+.. pull-quote::
+
+   Everything in life worth achieving requires practice. In fact, life itself 
+   is nothing more than one long practice session, an endless effort of 
+   refining our motions. When the proper mechanics of practice are understood, 
+   the task of learning something new becomes a stress-free experience of joy 
+   and calmness, a process which settles all areas in your life and promotes 
+   proper perspective on all of life’s difficulties.
+
+   -- Thomas M. Sterner, The Practicing Mind: Developing Focus and Discipline 
+   in Your Life
+
+.. pull-quote::
+
+   You are going to find that buying the car is much less satisfying than 
+   working for it.
+
+   -- Thomas M. Sterner
+
 Persistence
 -----------
 

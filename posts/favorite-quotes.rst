@@ -9,6 +9,19 @@
 
 .. pull-quote::
 
+   It does not take much strength to do things, but it requires a great deal 
+   of strength to decide what to do.
+
+   -- Elbert Hubbard
+
+.. pull-quote::
+
+   Common sense is instinct, and enough of it is genius.
+
+   -- Josh Billings
+
+.. pull-quote::
+
    Every single day, you’re the result of what you did on the days prior.
 
    So if you turn that around, you can start turning yourself into who you 

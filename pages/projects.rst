@@ -11,6 +11,20 @@
 
 For now, please check out `my software projects on GitHub`_.  
 
+Independent Projects
+--------------------
+
+- `pyweiqi`_: Implements outdated Go (Weiqi, Baduk) software tools in pure, 
+  modern Python and consolidates them in one comprehensive library.
+
+  * Parsing SGF (Smart Go Format) files with ``pyparsing``
+  * Publication-quality drawings with ``matplotlib``
+  * Zobrist Hashing
+  * General Game Playing Description (GDL) generation with templates (Jinja2)
+  * Game Engine
+  * and more...
+
+.. _pyweiqi: http://github.com/ltiao/pyweiqi
 .. _`my software projects on GitHub`: https://github.com/ltiao
 
 ..

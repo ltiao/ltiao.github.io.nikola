@@ -1,7 +1,7 @@
 .. title: Notes: Getting Things Done
 .. slug: notes-getting-things-done
 .. date: 2015-10-30 23:09:26 UTC+11:00
-.. tags: 
+.. tags: draft
 .. category: 
 .. link: 
 .. description: 

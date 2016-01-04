@@ -25,8 +25,10 @@ among a team of leading Machine Learning researchers with expertise in
 Nonparametric Bayesian Inference (in particular, Gaussian Processes) and Markov
 chain Monte Carlo methods.
 
-In my spare time, if I am not working on one of my many incomplete side projects or reading on my Kindle or, you'll either find me shooting hoops at the gym, or 
-at home studying the profound and beautiful ancient strategy board game known as Weiqi, or more commonly `Go`_.
+In my spare time, if I am not working on one of my many incomplete side 
+projects or reading on my Kindle, you'll either find me shooting hoops at the 
+gym, or studying the profound and beautiful ancient strategy board game known 
+as Weiqi, or more commonly `Go`_.
 
 .. _`BDKD (Big Data and Knowledge Discovery)`: http://www.sief.org.au/FundingActivities/RP/BigData.html
 .. _`University of New South Wales`: http://www.cse.unsw.edu.au

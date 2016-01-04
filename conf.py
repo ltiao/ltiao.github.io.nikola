@@ -123,7 +123,6 @@ NAVIGATION_LINKS = {
     DEFAULT_LANG: (
         ("/index.html", "About"),
         ("/projects.html", "Projects"),
-        ("/contact.html", "Contact"),
         ("/posts/index.html", "Posts"),
         ("/archive.html", "Archive"),
     ),

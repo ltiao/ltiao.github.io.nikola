@@ -129,8 +129,8 @@ TRANSLATIONS_PATTERN = "{path}.{lang}.{ext}"
 NAVIGATION_LINKS = {
     DEFAULT_LANG: (
         ("/index.html", "About"),
-        ("/projects.html", "Projects"),
-        ("/posts/index.html", "Posts"),
+        ("/projects", "Projects"),
+        ("/posts", "Posts"),
         ("/archive.html", "Archive"),
     ),
 }
@@ -173,8 +173,8 @@ POSTS = (
     ("posts/*.ipynb", "posts", "post.tmpl"),
 )
 PAGES = (
-    ("stories/*.rst", "", "story.tmpl"),
-    ("stories/*.txt", "", "story.tmpl"),
+    ("pages/*.rst", "", "story.tmpl"),
+    ("pages/*.txt", "", "story.tmpl"),
 )
 
 
@@ -388,7 +388,7 @@ HIDDEN_TAGS = ['mathjax']
 # output / TRANSLATION[lang] / CATEGORY_PATH / CATEGORY_PREFIX category.html (list of posts for a category)
 # output / TRANSLATION[lang] / CATEGORY_PATH / CATEGORY_PREFIX category.xml (RSS feed for a category)
 # (translatable)
-# CATEGORY_PATH = "categories"
+CATEGORY_PATH = "categories"
 CATEGORY_PREFIX = ""
 
 # If CATEGORY_ALLOW_HIERARCHIES is set to True, categories can be organized in

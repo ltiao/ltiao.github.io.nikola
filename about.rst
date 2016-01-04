@@ -11,23 +11,22 @@
    :align: right
    :class: img-circle
 
-Hi. My name is Louis. I am a lifelong student of Computer Science and 
-Mathematics and an aspiring researcher.
+Hi. My name is Louis. I am a lifelong student and aspiring researcher of 
+Computer Science and Mathematics.
 
 I recently graduated with First-class Honours in Computer Science from the 
 `University of New South Wales`_, where I minored in Mathematics and 
 concentrated on Algorithm Design and Analysis, Theoretical Computer Science, 
 Artificial Intelligence and Machine Learning.
 
-I am currently a Software Engineer at `NICTA`_ on the `BDKD (Big Data and 
-Knowledge Discovery)`_ project, where I work among a team of leading Machine 
-Learning researchers with expertise in Nonparametric Bayesian Inference (in 
-particular, Gaussian Processes) and Markov chain Monte Carlo methods.
+I am currently a Software Engineer at `NICTA`_ on the Spatial Analytics Systems
+Team, and the `BDKD (Big Data and Knowledge Discovery)`_ project, where I work 
+among a team of leading Machine Learning researchers with expertise in 
+Nonparametric Bayesian Inference (in particular, Gaussian Processes) and Markov
+chain Monte Carlo methods.
 
-In my spare time, if I am not working on one of my many incomplete side 
-projects, you'll either find me at the gym shooting hoops, or at home trying 
-to grasp the profound and beautiful ancient strategy board game known as 
-Weiqi, or more commonly `Go`_.
+In my spare time, if I am not working on one of my many incomplete side projects or reading on my Kindle or, you'll either find me shooting hoops at the gym, or 
+at home studying the profound and beautiful ancient strategy board game known as Weiqi, or more commonly `Go`_.
 
 .. _`BDKD (Big Data and Knowledge Discovery)`: http://www.sief.org.au/FundingActivities/RP/BigData.html
 .. _`University of New South Wales`: http://www.cse.unsw.edu.au

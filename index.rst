@@ -9,6 +9,10 @@
 
 .. include:: pages/about.rst
 
+.. include:: pages/contact.rst
+
 ..
+  Recent News
+  -----------
   .. post-list::
      :stop: 5

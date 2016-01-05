@@ -9,7 +9,7 @@
 
 .. image:: http://www.gravatar.com/avatar/3a282cbe067184bb333ee4010a29db19?s=150
    :align: right
-   :class: img-circle
+   :class: img-thumbnail
 
 Hi. My name is Louis. I am a lifelong student and aspiring researcher of 
 Computer Science and Mathematics.

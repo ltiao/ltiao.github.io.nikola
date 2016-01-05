@@ -20,8 +20,8 @@ concentrated on Algorithm Design and Analysis, Theoretical Computer Science,
 Artificial Intelligence and Machine Learning.
 
 I am currently a Software Engineer at `NICTA`_ on the Spatial Analytics Systems
-Team, and the `BDKD (Big Data and Knowledge Discovery)`_ project, where I work 
-among a team of leading Machine Learning researchers with expertise in 
+Team and the `BDKD (Big Data and Knowledge Discovery)`_ project, where I work 
+among a group of leading Machine Learning researchers with expertise in 
 Nonparametric Bayesian Inference (in particular, Gaussian Processes) and Markov
 chain Monte Carlo methods.
 

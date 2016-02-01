@@ -1,7 +1,7 @@
 .. title: Installing NLopt with Python bindings inside a virtualenv on Travis CI
 .. slug: installing-nlopt-with-python-bindings-inside-a-virtualenv-on-travis-ci
 .. date: 2015-12-17 10:52:05 UTC+11:00
-.. tags: travis ci, python, nlopt, ubuntu, virtualenv
+.. tags: draft, travis ci, python, nlopt, ubuntu, virtualenv
 .. category: coding
 .. link: 
 .. description: 

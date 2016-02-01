@@ -22,8 +22,7 @@ Artificial Intelligence and Machine Learning.
 I am currently a Software Engineer at `NICTA`_ on the Spatial Analytics Systems
 Team and the `BDKD (Big Data and Knowledge Discovery)`_ project, where I work 
 among a group of leading Machine Learning researchers with expertise in 
-Nonparametric Bayesian Inference (in particular, Gaussian Processes) and Markov
-chain Monte Carlo methods.
+Nonparametric Bayesian Inference (in particular, Gaussian Processes.)
 
 In my spare time, if I am not working on one of my many incomplete side 
 projects or reading on my Kindle, you'll either find me shooting hoops at the 

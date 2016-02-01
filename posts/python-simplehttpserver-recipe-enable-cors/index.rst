@@ -42,8 +42,13 @@ As with ``python -m SimpleHTTPServer``, we can specify a port as well:
     Serving HTTP on 0.0.0.0 port 5000 ...
 
 This server behaves exactly the same as ``SimpleHTTPServer``, except we send 
-the extra header ``Access-Control-Allow-Origin: *`` to allow any origin to 
-access the resource.
+the extra header 
+
+.. code::
+
+   Access-Control-Allow-Origin: *
+
+to allow any origin to access the resource.
 
 Further Resources
 -----------------

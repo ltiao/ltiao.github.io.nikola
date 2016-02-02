@@ -182,11 +182,11 @@ of ``demo.txt``
 
 For the most part, this looks pretty good.
 
-.. thumbnail:: ../images/rest_demo.png
+.. thumbnail:: ../../images/rest_demo.png
    
 There's something funky going on with the footnotes and citations
 
-.. thumbnail:: ../images/rest_demo_footnotes.png
+.. thumbnail:: ../../images/rest_demo_footnotes.png
 
 It appears some the text color of some citations are white; they
 become visible when we highlight it. 

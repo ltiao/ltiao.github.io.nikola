@@ -1,7 +1,7 @@
 .. title: Notes: Chapter 3, Pattern Recognition and Machine Learning (Bishop, C. M. 2007)
 .. slug: notes-chapter-3-pattern-recognition-and-machine-learning-bishop-c-m-2007
 .. date: 2015-10-28 16:31:44 UTC+11:00
-.. tags: mathjax, machine learning, linear algebra, algebra, gradients
+.. tags: draft, mathjax, machine learning, linear algebra, algebra, gradients
 .. category: 
 .. link: 
 .. description: 

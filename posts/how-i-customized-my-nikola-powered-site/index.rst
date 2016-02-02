@@ -194,7 +194,7 @@ become visible when we highlight it.
 Obviously, we haven't included the images corresponding to the demo,
 or even set up our images directory yet.
 
-.. thumbnail:: images/rest_demo_images.png
+.. thumbnail:: ../../images/rest_demo_images.png
 
 So let's go ahead and do just that.
 
@@ -252,7 +252,7 @@ In the ``posts/restructuredtext-demo.rst`` file, we must now update all occurren
 
 Now we should see
 
-.. thumbnail:: ../images/rest_demo_images_fixed.png
+.. thumbnail:: ../../images/rest_demo_images_fixed.png
 
 To reference the contents of the ``images`` directory within our post, 
 we use ``../``, since the images and its thumbnails are outputted to
@@ -297,7 +297,7 @@ Let's add the following code block to the demo and see how it looks::
 
 Seems to look alright.
 
-.. thumbnail:: ../images/rest_demo_code_default.png
+.. thumbnail:: ../../images/rest_demo_code_default.png
 
 For any theme that uses Pygments (e.g. the default themes), we can modify
 the color scheme to any one of
@@ -352,7 +352,7 @@ Let's go ahead and check out ``xcode``.
 
    CODE_COLOR_SCHEME = 'xcode'
 
-.. thumbnail:: ../images/rest_demo_code_xcode.png
+.. thumbnail:: ../../images/rest_demo_code_xcode.png
 
 In the end, I still think ``default`` looks best so I stuck with it.
 
@@ -393,7 +393,7 @@ while equations can be displayed with the math **directive**::
 
 Let's see what we get
 
-.. thumbnail:: ../images/rest_demo_math_no_tag.png
+.. thumbnail:: ../../images/rest_demo_math_no_tag.png
 
 Oops... That's not what we want. Turns out, we forgot to add the ``mathjax`` tag 
 to the post's tags metadata::
@@ -409,7 +409,7 @@ to the post's tags metadata::
 
 Now we're in business.
 
-.. thumbnail:: ../images/rest_demo_math_tag.png
+.. thumbnail:: ../../images/rest_demo_math_tag.png
 
 Note that these examples were ripped off from http://cdn.mathjax.org/mathjax/latest/test/sample.html.
 
@@ -472,11 +472,11 @@ This looks promising, but it doesn't have the nice `In [#]` / `Out [#]`
 formatting we're so used to seeing from IPython. Also, the tables look
 a bit condensed.
 
-.. thumbnail:: ../images/rest_demo_ipython_initial.png
+.. thumbnail:: ../../images/rest_demo_ipython_initial.png
 
 The MathJax equations are also problematic
 
-.. thumbnail:: ../images/rest_demo_ipython_initial_math.png
+.. thumbnail:: ../../images/rest_demo_ipython_initial_math.png
 
 Luckily, this is easily fixed by installing the ``ipython`` theme.
 
@@ -528,9 +528,9 @@ now set this as our theme (``conf.py``):
 
 That's better.
 
-.. thumbnail:: ../images/rest_demo_ipython_themed.png
+.. thumbnail:: ../../images/rest_demo_ipython_themed.png
 
-.. thumbnail:: ../images/rest_demo_ipython_themed_math.png
+.. thumbnail:: ../../images/rest_demo_ipython_themed_math.png
 
 But wait! The inline math expressions are still not rendered correctly.
 To fix this, we need to set the ``MATHJAX_CONFIG`` (in ``conf.py``):

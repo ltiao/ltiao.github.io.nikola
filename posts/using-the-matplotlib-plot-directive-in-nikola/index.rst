@@ -7,6 +7,10 @@
 .. description: 
 .. type: text
 
+.. code:: console
+
+   $ nikola plugin --install pyplots
+
 ..  plot::
 
     from mpl_toolkits.mplot3d import Axes3D

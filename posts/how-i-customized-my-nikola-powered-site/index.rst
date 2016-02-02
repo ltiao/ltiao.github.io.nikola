@@ -194,7 +194,7 @@ become visible when we highlight it.
 Obviously, we haven't included the images corresponding to the demo,
 or even set up our images directory yet.
 
-.. thumbnail:: ../images/rest_demo_images.png
+.. thumbnail:: images/rest_demo_images.png
 
 So let's go ahead and do just that.
 

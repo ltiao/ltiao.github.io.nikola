@@ -79,6 +79,14 @@ a `3D surface plot example`_:
 
     fig.colorbar(surf, shrink=0.5, aspect=5)
 
+.. warning::
+   
+   While the SVG is generated with no issues with ``nikola build`` and with
+   ``nikola auto``, it appears that the ``nikola github_deploy`` command 
+   actually deletes the generated SVG from the output directory before 
+   committing and pushing. I supposed this is pretty useless if only I can see 
+   the plot with ``nikola serve`` or ``nikola auto``...
+
 Unlike the `plot directive`_, which is highly flexible, this plugin does not
 support any configuration options whatsoever. This means that useful options 
 such as ``include-source``, which displays the source inline, is not supported. 

@@ -15,6 +15,8 @@ generated will display a PNG of the plot, and also provide links to the source
 code for generating the plot, a high-resolution PNG, and also a vector graphic
 (PDF).
 
+.. TEASER_END
+
 In this article, we try out the Nikola plugin pyplots_, which is a (lite) 
 implementation of the matplotlib's ``plot`` directive. 
 

@@ -7,7 +7,7 @@
 .. description: 
 .. type: text
 
-For a long time, I have kept a small set of minimalistic dotfiles
+For a long time, I kept a small set of minimalistic dotfiles
 (``.bash_profile``, ``.gitconfig``, ``.vimrc``). You probably couldn't find 
 anything in my ``.bash_profile`` other than exports and path definitions that 
 were absolutely necessary to get tools such as `Homebrew`_ and 

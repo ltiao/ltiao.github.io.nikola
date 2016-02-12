@@ -14,8 +14,8 @@ article: http://ogp.me/ns/article#
 <link rel="alternate" type="application/rss+xml" title="RSS" href="../rss.xml">
 <link rel="canonical" href="http://louistiao.me/posts/">
 <link rel="icon" href="../favicon_32x32.ico" sizes="32x32">
-<link rel="icon" href="../favicon_16x16.ico" sizes="16x16">
 <link rel="icon" href="../favicon_256x256.ico" sizes="256x256">
+<link rel="icon" href="../favicon_16x16.ico" sizes="16x16">
 <link rel="next" href="index-3.html" type="text/html">
 <script type="text/x-mathjax-config">
 MathJax.Hub.Config({
@@ -85,7 +85,144 @@ MathJax.Hub.Config({
         <div class="row">
           
 <div class="postindex">
-    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="using-the-matplotlib-plot-directive-in-nikola/" class="u-url">Using the Matplotlib plot directive in Nikola</a></h1>
+    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="how-i-manage-my-dotfiles/" class="u-url">How I manage my dotfiles</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn">
+                Louis Tiao
+            </span></p>
+            <p class="dateline"><a href="how-i-manage-my-dotfiles/" rel="bookmark"><time class="published dt-published" datetime="2016-02-12T22:59:46+11:00" title="2016-02-12 22:59">2016-02-12 22:59</time></a></p>
+                <p class="commentline">            <a href="how-i-manage-my-dotfiles/#disqus_thread" data-disqus-identifier="cache/posts/how-i-manage-my-dotfiles.html">Comments</a>
+
+
+        </p>
+</div>
+    </header><div class="p-summary entry-summary">
+    <div>
+<p>For a long time, I have kept a small set of minimalistic dotfiles
+(<tt class="docutils literal">.bash_profile</tt>, <tt class="docutils literal">.gitconfig</tt>, <tt class="docutils literal">.vimrc</tt>). You probably couldn't find
+anything in my <tt class="docutils literal">.bash_profile</tt> other than exports and path definitions that
+were absolutely necessary to get tools such as <a class="reference external" href="http://brew.sh/">Homebrew</a> and
+<a class="reference external" href="https://virtualenvwrapper.readthedocs.org/en/latest/">virtualenvwrapper</a> to work. Furthermore, I was dismissive towards spending
+any significant amount of time down the rabbit hole of perpetual dotfile
+customization and optimization.</p>
+<p>Recently, while digging through my bookmarks saved from months ago, I came
+across <a class="reference external" href="https://dotfiles.github.io/">GitHub does dotfiles</a>. Needless to say, after perusing through some
+of the most popular dotfiles, dotfile utilities and tutorials, I came away
+quite impressed. It disabused me of my previous misbelief that dotfile
+calibration is ultimately a fruitless and ceaseless task, and I decided to
+give it another shot.</p>
+<div class="section" id="getting-started">
+<h2>Getting Started</h2>
+<p>Instead of starting from scratch, I decided to bootstrap off an existing
+dotfile repo.</p>
+<p>By far the most popular is <a class="reference external" href="https://github.com/mathiasbynens/dotfiles">Mathias Bynens' dotfiles</a>. Not only that, it
+seemed to offer the most sensible defaults for OSX. First, I created a fork
+(<a class="reference external" href="https://github.com/ltiao/dotfiles">Louis' fork of Mathias' dotfiles</a>) and cloned it to my computer.</p>
+<p>From several blog posts, I have found that some people like to clone to a
+directory under <tt class="docutils literal">~</tt>, such as <tt class="docutils literal">~/dotfiles</tt>. Personally, I like to clone it
+to a synchronized directory, such as <tt class="docutils literal">~/Dropbox/dotfiles</tt>, so that I can
+still easily access it anywhere that has an internet connection, even if it is
+infeasible to install and use <tt class="docutils literal">git</tt>.</p>
+</div>
+<div class="section" id="gnu-stow">
+<h2>GNU Stow</h2>
+<pre class="code console"><a name="rest_code_b3f2a1c71eda4dec8dd47eb121630501-1"></a><span class="gp">$</span> stow --dir<span class="o">=</span>$HOME/Dropbox/ --target<span class="o">=</span>$HOME dotfiles <span class="se">\</span>
+<a name="rest_code_b3f2a1c71eda4dec8dd47eb121630501-2"></a><span class="go">       --simulate --verbose=1 --ignore='(bootstrap.sh|brew.sh)'</span>
+<a name="rest_code_b3f2a1c71eda4dec8dd47eb121630501-3"></a><span class="go">LINK: .aliases =&gt; ../Dropbox/dotfiles/.aliases</span>
+<a name="rest_code_b3f2a1c71eda4dec8dd47eb121630501-4"></a><span class="go">LINK: .bash_profile =&gt; ../Dropbox/dotfiles/.bash_profile</span>
+<a name="rest_code_b3f2a1c71eda4dec8dd47eb121630501-5"></a><span class="go">LINK: .bash_prompt =&gt; ../Dropbox/dotfiles/.bash_prompt</span>
+<a name="rest_code_b3f2a1c71eda4dec8dd47eb121630501-6"></a><span class="go">LINK: .bashrc =&gt; ../Dropbox/dotfiles/.bashrc</span>
+<a name="rest_code_b3f2a1c71eda4dec8dd47eb121630501-7"></a><span class="go">LINK: .curlrc =&gt; ../Dropbox/dotfiles/.curlrc</span>
+<a name="rest_code_b3f2a1c71eda4dec8dd47eb121630501-8"></a><span class="go">LINK: .editorconfig =&gt; ../Dropbox/dotfiles/.editorconfig</span>
+<a name="rest_code_b3f2a1c71eda4dec8dd47eb121630501-9"></a><span class="go">LINK: .exports =&gt; ../Dropbox/dotfiles/.exports</span>
+<a name="rest_code_b3f2a1c71eda4dec8dd47eb121630501-10"></a><span class="go">LINK: .functions =&gt; ../Dropbox/dotfiles/.functions</span>
+<a name="rest_code_b3f2a1c71eda4dec8dd47eb121630501-11"></a><span class="go">LINK: .gdbinit =&gt; ../Dropbox/dotfiles/.gdbinit</span>
+<a name="rest_code_b3f2a1c71eda4dec8dd47eb121630501-12"></a><span class="go">LINK: .gitattributes =&gt; ../Dropbox/dotfiles/.gitattributes</span>
+<a name="rest_code_b3f2a1c71eda4dec8dd47eb121630501-13"></a><span class="go">LINK: .gitconfig =&gt; ../Dropbox/dotfiles/.gitconfig</span>
+<a name="rest_code_b3f2a1c71eda4dec8dd47eb121630501-14"></a><span class="go">LINK: .gvimrc =&gt; ../Dropbox/dotfiles/.gvimrc</span>
+<a name="rest_code_b3f2a1c71eda4dec8dd47eb121630501-15"></a><span class="go">LINK: .hgignore =&gt; ../Dropbox/dotfiles/.hgignore</span>
+<a name="rest_code_b3f2a1c71eda4dec8dd47eb121630501-16"></a><span class="go">LINK: .hushlogin =&gt; ../Dropbox/dotfiles/.hushlogin</span>
+<a name="rest_code_b3f2a1c71eda4dec8dd47eb121630501-17"></a><span class="go">LINK: .inputrc =&gt; ../Dropbox/dotfiles/.inputrc</span>
+<a name="rest_code_b3f2a1c71eda4dec8dd47eb121630501-18"></a><span class="go">LINK: .osx =&gt; ../Dropbox/dotfiles/.osx</span>
+<a name="rest_code_b3f2a1c71eda4dec8dd47eb121630501-19"></a><span class="go">LINK: .path =&gt; ../Dropbox/dotfiles/.path</span>
+<a name="rest_code_b3f2a1c71eda4dec8dd47eb121630501-20"></a><span class="go">LINK: .screenrc =&gt; ../Dropbox/dotfiles/.screenrc</span>
+<a name="rest_code_b3f2a1c71eda4dec8dd47eb121630501-21"></a><span class="go">LINK: .vim =&gt; ../Dropbox/dotfiles/.vim</span>
+<a name="rest_code_b3f2a1c71eda4dec8dd47eb121630501-22"></a><span class="go">LINK: .vimrc =&gt; ../Dropbox/dotfiles/.vimrc</span>
+<a name="rest_code_b3f2a1c71eda4dec8dd47eb121630501-23"></a><span class="go">LINK: .wgetrc =&gt; ../Dropbox/dotfiles/.wgetrc</span>
+<a name="rest_code_b3f2a1c71eda4dec8dd47eb121630501-24"></a><span class="go">LINK: bin =&gt; ../Dropbox/dotfiles/bin</span>
+<a name="rest_code_b3f2a1c71eda4dec8dd47eb121630501-25"></a><span class="go">LINK: init =&gt; ../Dropbox/dotfiles/init</span>
+<a name="rest_code_b3f2a1c71eda4dec8dd47eb121630501-26"></a><span class="go">WARNING: in simulation mode so not modifying filesystem.</span>
+</pre>
+</div>
+<div class="section" id="useful-links">
+<h2>Useful Links</h2>
+<ul class="simple">
+<li><a class="reference external" href="https://github.com/webpro/awesome-dotfiles">https://github.com/webpro/awesome-dotfiles</a></li>
+<li><a class="reference external" href="http://dotfiles.github.io/">http://dotfiles.github.io/</a></li>
+<li><a class="reference external" href="https://www.gnu.org/software/stow/">https://www.gnu.org/software/stow/</a></li>
+<li><a class="reference external" href="http://brandon.invergo.net/news/2012-05-26-using-gnu-stow-to-manage-your-dotfiles.html">http://brandon.invergo.net/news/2012-05-26-using-gnu-stow-to-manage-your-dotfiles.html</a></li>
+<li><a class="reference external" href="https://taihen.org/managing-dotfiles-with-gnu-stow/">https://taihen.org/managing-dotfiles-with-gnu-stow/</a></li>
+<li><a class="reference external" href="https://github.com/barryclark/bashstrap">https://github.com/barryclark/bashstrap</a></li>
+</ul>
+</div>
+</div>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="setting-up-custom-unix-fortunes/" class="u-url">Setting up custom (Unix) fortunes</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn">
+                Louis Tiao
+            </span></p>
+            <p class="dateline"><a href="setting-up-custom-unix-fortunes/" rel="bookmark"><time class="published dt-published" datetime="2016-02-10T14:56:54+11:00" title="2016-02-10 14:56">2016-02-10 14:56</time></a></p>
+                <p class="commentline">            <a href="setting-up-custom-unix-fortunes/#disqus_thread" data-disqus-identifier="cache/posts/setting-up-custom-unix-fortunes.html">Comments</a>
+
+
+        </p>
+</div>
+    </header><div class="p-summary entry-summary">
+    <div>
+<pre class="code console"><a name="rest_code_4a05875181414242a6450d896832d2a7-1"></a><span class="gp">$</span> brew install fortune
+<a name="rest_code_4a05875181414242a6450d896832d2a7-2"></a><span class="gp">$</span> ls /usr/local/share/games/fortunes/
+<a name="rest_code_4a05875181414242a6450d896832d2a7-3"></a><span class="gp">$</span> touch quotes
+<a name="rest_code_4a05875181414242a6450d896832d2a7-4"></a><span class="gp">$</span> strfile quotes
+<a name="rest_code_4a05875181414242a6450d896832d2a7-5"></a><span class="gp">$</span> fortune quotes
+</pre>
+<pre class="code bash"><a name="rest_code_2792aaa128844a059b02ce85178f3f3f-1"></a><span class="c1"># Fortune / Cowsay Greeting / LOLCAT</span>
+<a name="rest_code_2792aaa128844a059b02ce85178f3f3f-2"></a>fortune Dropbox/fortunes <span class="p">|</span> cowsay -f turtle <span class="p">|</span> lolcat
+</pre>
+</div>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="adding-__name__-and-__doc__-attributes-to-functoolspartial-objects/" class="u-url">Adding __name__ and __doc__ attributes to functools.partial objects</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn">
+                Louis Tiao
+            </span></p>
+            <p class="dateline"><a href="adding-__name__-and-__doc__-attributes-to-functoolspartial-objects/" rel="bookmark"><time class="published dt-published" datetime="2016-02-08T14:42:56+11:00" title="2016-02-08 14:42">2016-02-08 14:42</time></a></p>
+                <p class="commentline">            <a href="adding-__name__-and-__doc__-attributes-to-functoolspartial-objects/#disqus_thread" data-disqus-identifier="cache/posts/adding-__name__-and-__doc__-attributes-to-functoolspartial-objects.html">Comments</a>
+
+
+        </p>
+</div>
+    </header><div class="p-summary entry-summary">
+    <div>
+<pre class="code python"><a name="rest_code_bc2f057b45af4eb4836444c577442e3d-1"></a><span class="k">def</span> <span class="nf">sse</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">):</span>
+<a name="rest_code_bc2f057b45af4eb4836444c577442e3d-2"></a>    <span class="sd">"""Sum squared error function"""</span>
+<a name="rest_code_bc2f057b45af4eb4836444c577442e3d-3"></a>    <span class="n">z</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="o">-</span> <span class="n">y</span>
+<a name="rest_code_bc2f057b45af4eb4836444c577442e3d-4"></a>    <span class="k">return</span> <span class="o">.</span><span class="mi">5</span> <span class="o">*</span> <span class="n">z</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+</pre>
+<pre class="code python"><a name="rest_code_ed8c2d805fac431abc9e4498d41fe438-1"></a><span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span><span class="p">,</span> <span class="n">update_wrapper</span>
+<a name="rest_code_ed8c2d805fac431abc9e4498d41fe438-2"></a>
+<a name="rest_code_ed8c2d805fac431abc9e4498d41fe438-3"></a><span class="k">def</span> <span class="nf">wrapped_partial</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<a name="rest_code_ed8c2d805fac431abc9e4498d41fe438-4"></a>    <span class="n">partial_func</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<a name="rest_code_ed8c2d805fac431abc9e4498d41fe438-5"></a>    <span class="n">update_wrapper</span><span class="p">(</span><span class="n">partial_func</span><span class="p">,</span> <span class="n">func</span><span class="p">)</span>
+<a name="rest_code_ed8c2d805fac431abc9e4498d41fe438-6"></a>    <span class="k">return</span> <span class="n">partial_func</span>
+</pre>
+<ul class="simple">
+<li><a class="reference external" href="https://pymotw.com/2/functools/">https://pymotw.com/2/functools/</a></li>
+<li><a class="reference external" href="https://docs.python.org/2/library/functools.html">https://docs.python.org/2/library/functools.html</a></li>
+</ul>
+</div>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="using-the-matplotlib-plot-directive-in-nikola/" class="u-url">Using the Matplotlib plot directive in Nikola</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn">
                 Louis Tiao
@@ -151,19 +288,19 @@ We just have to instead prepend the  argument we propagated to
     </header><div class="p-summary entry-summary">
     <div>
 <p>Create a file, let's call it <tt class="docutils literal">cors_http_server.py</tt>, with the code below:</p>
-<pre class="code python"><a name="rest_code_11fab4482e7845ac9ae2e9d69aa38963-1"></a><span class="ch">#! /usr/bin/env python</span>
-<a name="rest_code_11fab4482e7845ac9ae2e9d69aa38963-2"></a>
-<a name="rest_code_11fab4482e7845ac9ae2e9d69aa38963-3"></a><span class="kn">from</span> <span class="nn">SimpleHTTPServer</span> <span class="kn">import</span> <span class="n">SimpleHTTPRequestHandler</span><span class="p">,</span> <span class="n">test</span>
-<a name="rest_code_11fab4482e7845ac9ae2e9d69aa38963-4"></a>
-<a name="rest_code_11fab4482e7845ac9ae2e9d69aa38963-5"></a>
-<a name="rest_code_11fab4482e7845ac9ae2e9d69aa38963-6"></a><span class="k">class</span> <span class="nc">CORSHTTPRequestHandler</span><span class="p">(</span><span class="n">SimpleHTTPRequestHandler</span><span class="p">):</span>
-<a name="rest_code_11fab4482e7845ac9ae2e9d69aa38963-7"></a>
-<a name="rest_code_11fab4482e7845ac9ae2e9d69aa38963-8"></a>    <span class="k">def</span> <span class="nf">end_headers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<a name="rest_code_11fab4482e7845ac9ae2e9d69aa38963-9"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">send_header</span><span class="p">(</span><span class="s1">'Access-Control-Allow-Origin'</span><span class="p">,</span> <span class="s1">'*'</span><span class="p">)</span>
-<a name="rest_code_11fab4482e7845ac9ae2e9d69aa38963-10"></a>        <span class="nb">super</span><span class="p">(</span><span class="n">CORSHTTPRequestHandler</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">end_headers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-<a name="rest_code_11fab4482e7845ac9ae2e9d69aa38963-11"></a>
-<a name="rest_code_11fab4482e7845ac9ae2e9d69aa38963-12"></a><span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">'__main__'</span><span class="p">:</span>
-<a name="rest_code_11fab4482e7845ac9ae2e9d69aa38963-13"></a>    <span class="n">test</span><span class="p">(</span><span class="n">HandlerClass</span><span class="o">=</span><span class="n">CORSHTTPRequestHandler</span><span class="p">)</span>
+<pre class="code python"><a name="rest_code_b61c3ec9a46f47de92128a69603c5a6f-1"></a><span class="ch">#! /usr/bin/env python</span>
+<a name="rest_code_b61c3ec9a46f47de92128a69603c5a6f-2"></a>
+<a name="rest_code_b61c3ec9a46f47de92128a69603c5a6f-3"></a><span class="kn">from</span> <span class="nn">SimpleHTTPServer</span> <span class="kn">import</span> <span class="n">SimpleHTTPRequestHandler</span><span class="p">,</span> <span class="n">test</span>
+<a name="rest_code_b61c3ec9a46f47de92128a69603c5a6f-4"></a>
+<a name="rest_code_b61c3ec9a46f47de92128a69603c5a6f-5"></a>
+<a name="rest_code_b61c3ec9a46f47de92128a69603c5a6f-6"></a><span class="k">class</span> <span class="nc">CORSHTTPRequestHandler</span><span class="p">(</span><span class="n">SimpleHTTPRequestHandler</span><span class="p">):</span>
+<a name="rest_code_b61c3ec9a46f47de92128a69603c5a6f-7"></a>
+<a name="rest_code_b61c3ec9a46f47de92128a69603c5a6f-8"></a>    <span class="k">def</span> <span class="nf">end_headers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<a name="rest_code_b61c3ec9a46f47de92128a69603c5a6f-9"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">send_header</span><span class="p">(</span><span class="s1">'Access-Control-Allow-Origin'</span><span class="p">,</span> <span class="s1">'*'</span><span class="p">)</span>
+<a name="rest_code_b61c3ec9a46f47de92128a69603c5a6f-10"></a>        <span class="nb">super</span><span class="p">(</span><span class="n">CORSHTTPRequestHandler</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">end_headers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+<a name="rest_code_b61c3ec9a46f47de92128a69603c5a6f-11"></a>
+<a name="rest_code_b61c3ec9a46f47de92128a69603c5a6f-12"></a><span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">'__main__'</span><span class="p">:</span>
+<a name="rest_code_b61c3ec9a46f47de92128a69603c5a6f-13"></a>    <span class="n">test</span><span class="p">(</span><span class="n">HandlerClass</span><span class="o">=</span><span class="n">CORSHTTPRequestHandler</span><span class="p">)</span>
 </pre>
 <p class="more"><a href="python-simplehttpserver-recipe-enable-cors/">Read more…</a></p>
 </div>
@@ -185,12 +322,12 @@ We just have to instead prepend the  argument we propagated to
 Scrapy and Nikola. If you are a Mac OSX user, it's highly likely that you have
 encountered the following error when trying to install <tt class="docutils literal">lxml</tt> or its
 dependants with <tt class="docutils literal">pip</tt>:</p>
-<pre class="code console"><a name="rest_code_cdb4aa5e70504c76bb5990569a28badd-1"></a><span class="go">In file included from src/lxml/lxml.etree.c:346:</span>
-<a name="rest_code_cdb4aa5e70504c76bb5990569a28badd-2"></a><span class="gp">$</span>WORKON_HOME/venv_name/build/lxml/src/lxml/includes/etree_defs.h:9:10: fatal error: <span class="s1">'libxml/xmlversion.h'</span> file not found
-<a name="rest_code_cdb4aa5e70504c76bb5990569a28badd-3"></a><span class="gp">#</span>include <span class="s2">"libxml/xmlversion.h"</span>
-<a name="rest_code_cdb4aa5e70504c76bb5990569a28badd-4"></a><span class="go">         ^</span>
-<a name="rest_code_cdb4aa5e70504c76bb5990569a28badd-5"></a><span class="go">1 error generated.</span>
-<a name="rest_code_cdb4aa5e70504c76bb5990569a28badd-6"></a><span class="go">error: command 'clang' failed with exit status 1</span>
+<pre class="code console"><a name="rest_code_8686527e744f48809319b5f9a446775b-1"></a><span class="go">In file included from src/lxml/lxml.etree.c:346:</span>
+<a name="rest_code_8686527e744f48809319b5f9a446775b-2"></a><span class="gp">$</span>WORKON_HOME/venv_name/build/lxml/src/lxml/includes/etree_defs.h:9:10: fatal error: <span class="s1">'libxml/xmlversion.h'</span> file not found
+<a name="rest_code_8686527e744f48809319b5f9a446775b-3"></a><span class="gp">#</span>include <span class="s2">"libxml/xmlversion.h"</span>
+<a name="rest_code_8686527e744f48809319b5f9a446775b-4"></a><span class="go">         ^</span>
+<a name="rest_code_8686527e744f48809319b5f9a446775b-5"></a><span class="go">1 error generated.</span>
+<a name="rest_code_8686527e744f48809319b5f9a446775b-6"></a><span class="go">error: command 'clang' failed with exit status 1</span>
 </pre>
 <p class="more"><a href="installing-lxml-on-mac-osx-1011-inside-a-virtualenv-with-pip/">Read more…</a></p>
 </div>
@@ -215,16 +352,16 @@ that is used just as often, for exactly the same purpose. What is the
 discrepancy, and why does a discrepancy even exist when <em>"there should be one
 - and preferably only one - obvious way to do it."</em> <a class="footnote-reference" href="numpy-mgrid-vs-meshgrid/#id2" id="id1">[1]</a></p>
 <p>First, recall that <tt class="docutils literal">meshgrid</tt> behaves as follows:</p>
-<pre class="code pycon"><a name="rest_code_82497983f44c4770928f74f7c0ad9584-1"></a><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-<a name="rest_code_82497983f44c4770928f74f7c0ad9584-2"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mi">12</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
-<a name="rest_code_82497983f44c4770928f74f7c0ad9584-3"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">x1</span>
-<a name="rest_code_82497983f44c4770928f74f7c0ad9584-4"></a><span class="go">array([[1, 3, 5, 7, 9],</span>
-<a name="rest_code_82497983f44c4770928f74f7c0ad9584-5"></a><span class="go">       [1, 3, 5, 7, 9],</span>
-<a name="rest_code_82497983f44c4770928f74f7c0ad9584-6"></a><span class="go">       [1, 3, 5, 7, 9]])</span>
-<a name="rest_code_82497983f44c4770928f74f7c0ad9584-7"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">y1</span>
-<a name="rest_code_82497983f44c4770928f74f7c0ad9584-8"></a><span class="go">array([[-12, -12, -12, -12, -12],</span>
-<a name="rest_code_82497983f44c4770928f74f7c0ad9584-9"></a><span class="go">       [ -9,  -9,  -9,  -9,  -9],</span>
-<a name="rest_code_82497983f44c4770928f74f7c0ad9584-10"></a><span class="go">       [ -6,  -6,  -6,  -6,  -6]])</span>
+<pre class="code pycon"><a name="rest_code_d622f3d228a04108b3d5ae8358c2f6aa-1"></a><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<a name="rest_code_d622f3d228a04108b3d5ae8358c2f6aa-2"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mi">12</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<a name="rest_code_d622f3d228a04108b3d5ae8358c2f6aa-3"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">x1</span>
+<a name="rest_code_d622f3d228a04108b3d5ae8358c2f6aa-4"></a><span class="go">array([[1, 3, 5, 7, 9],</span>
+<a name="rest_code_d622f3d228a04108b3d5ae8358c2f6aa-5"></a><span class="go">       [1, 3, 5, 7, 9],</span>
+<a name="rest_code_d622f3d228a04108b3d5ae8358c2f6aa-6"></a><span class="go">       [1, 3, 5, 7, 9]])</span>
+<a name="rest_code_d622f3d228a04108b3d5ae8358c2f6aa-7"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">y1</span>
+<a name="rest_code_d622f3d228a04108b3d5ae8358c2f6aa-8"></a><span class="go">array([[-12, -12, -12, -12, -12],</span>
+<a name="rest_code_d622f3d228a04108b3d5ae8358c2f6aa-9"></a><span class="go">       [ -9,  -9,  -9,  -9,  -9],</span>
+<a name="rest_code_d622f3d228a04108b3d5ae8358c2f6aa-10"></a><span class="go">       [ -6,  -6,  -6,  -6,  -6]])</span>
 </pre>
 <p class="more"><a href="numpy-mgrid-vs-meshgrid/">Read more…</a></p>
 </div>
@@ -269,74 +406,6 @@ they actively break them. They despoil the facade with graffiti and allow
 garbage to collect. One broken window starts the process toward decay.</p>
 <p class="attribution">—Robert C. Martin, Clean Code: A Handbook of Agile Software Craftsmanship</p>
 </blockquote>
-    </div>
-    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="quotes-its-harder-to-read-code-than-to-write-it/" class="u-url">Quotes: "It's harder to read code than to write it"</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn">
-                Louis Tiao
-            </span></p>
-            <p class="dateline"><a href="quotes-its-harder-to-read-code-than-to-write-it/" rel="bookmark"><time class="published dt-published" datetime="2015-10-01T14:12:35+10:00" title="2015-10-01 14:12">2015-10-01 14:12</time></a></p>
-                <p class="commentline">            <a href="quotes-its-harder-to-read-code-than-to-write-it/#disqus_thread" data-disqus-identifier="cache/posts/quotes-its-harder-to-read-code-than-to-write-it.html">Comments</a>
-
-
-        </p>
-</div>
-    </header><div class="p-summary entry-summary">
-    <blockquote class="pull-quote">
-<p>We're programmers. Programmers are, in their hearts, architects, and the
-first thing they want to do when they get to a site is to bulldoze the place
-flat and build something grand. We're not excited by incremental renovation:
-tinkering, improving, planting flower beds.</p>
-<p>There's a subtle reason that programmers always want to throw away the code
-and start over. The reason is that they think the old code is a mess. And
-here is the interesting observation: they are probably wrong. The reason
-that they think the old code is a mess is because of a cardinal, fundamental
-law of programming:</p>
-<p>It’s harder to read code than to write it.</p>
-<p class="attribution">—Joel Spolsky, <a class="reference external" href="http://www.joelonsoftware.com/articles/fog0000000069.html">Things You Should Never Do, Part I</a></p>
-</blockquote>
-    </div>
-    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="creating-a-nikola-theme-with-sass-compiled-bootstrap/" class="u-url">Creating a Nikola theme with Sass-compiled Bootstrap</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn">
-                Louis Tiao
-            </span></p>
-            <p class="dateline"><a href="creating-a-nikola-theme-with-sass-compiled-bootstrap/" rel="bookmark"><time class="published dt-published" datetime="2015-09-28T22:59:54+10:00" title="2015-09-28 22:59">2015-09-28 22:59</time></a></p>
-                <p class="commentline">            <a href="creating-a-nikola-theme-with-sass-compiled-bootstrap/#disqus_thread" data-disqus-identifier="cache/posts/creating-a-nikola-theme-with-sass-compiled-bootstrap.html">Comments</a>
-
-
-        </p>
-</div>
-    </header><div class="p-summary entry-summary">
-    <div class="section" id="initializing-the-theme">
-<h2>Initializing the Theme</h2>
-<p>First, create a new Nikola theme. I prefer to do this by creating a
-<a class="reference external" href="https://github.com/new">new repository on Github</a> so that it can be initialized with a README,
-LICENSE, <tt class="docutils literal">.gitignore</tt>, etc. Once that's done, clone the newly created repo
-into <tt class="docutils literal"><span class="pre">&lt;site-root&gt;/themes</span></tt>.</p>
-<p class="more"><a href="creating-a-nikola-theme-with-sass-compiled-bootstrap/">Read more…</a></p>
-</div>
-    </div>
-    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="installing-nlopt-with-python-support-on-mac-os-x-1010/" class="u-url">Installing NLOpt with Python support on Mac OS X (10.10)</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn">
-                Louis Tiao
-            </span></p>
-            <p class="dateline"><a href="installing-nlopt-with-python-support-on-mac-os-x-1010/" rel="bookmark"><time class="published dt-published" datetime="2015-07-17T15:39:17+10:00" title="2015-07-17 15:39">2015-07-17 15:39</time></a></p>
-                <p class="commentline">            <a href="installing-nlopt-with-python-support-on-mac-os-x-1010/#disqus_thread" data-disqus-identifier="cache/posts/installing-nlopt-with-python-support-on-mac-os-x-1010.html">Comments</a>
-
-
-        </p>
-</div>
-    </header><div class="p-summary entry-summary">
-    <div>
-<p><a class="reference external" href="http://ab-initio.mit.edu/wiki/index.php/NLopt">NLOpt</a> is a popular open-source library for nonlinear optimization. It can be
-somewhat tricky to install it with Python support on Mac OS X, especially
-isolated under a virtual environment. This article outlines the different ways
-of making NLopt play nicely with your Python development environment, whatever
-that may be.</p>
-<p class="more"><a href="installing-nlopt-with-python-support-on-mac-os-x-1010/">Read more…</a></p>
-</div>
     </div>
     </article>
 </div>

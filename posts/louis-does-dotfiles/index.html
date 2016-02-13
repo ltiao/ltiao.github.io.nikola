@@ -13,8 +13,8 @@ article: http://ogp.me/ns/article#
 <link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
 <link rel="canonical" href="http://louistiao.me/posts/louis-does-dotfiles/">
 <link rel="icon" href="../../favicon_32x32.ico" sizes="32x32">
-<link rel="icon" href="../../favicon_16x16.ico" sizes="16x16">
 <link rel="icon" href="../../favicon_256x256.ico" sizes="256x256">
+<link rel="icon" href="../../favicon_16x16.ico" sizes="16x16">
 <script type="text/x-mathjax-config">
 MathJax.Hub.Config({
     tex2jax: {
@@ -53,9 +53,8 @@ w">
 <meta property="article:tag" content="dotfiles">
 <meta property="article:tag" content="git">
 <meta property="article:tag" content="github">
-<meta property="article:tag" content="gnu">
+<meta property="article:tag" content="gnu stow">
 <meta property="article:tag" content="osx">
-<meta property="article:tag" content="stow">
 </head>
 <body>
   <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
@@ -118,6 +117,7 @@ w">
         
     </header><div class="e-content entry-content" itemprop="articleBody text">
     <div>
+<a class="reference external image-reference" href="../../images/bash.png"><img alt="../../images/bash.thumbnail.png" class="align-center" src="../../images/bash.thumbnail.png"></a>
 <p>For a long time, I kept a small set of minimalistic dotfiles
 (<tt class="docutils literal">.bash_profile</tt>, <tt class="docutils literal">.gitconfig</tt>, <tt class="docutils literal">.vimrc</tt>). You probably couldn't find
 anything in my <tt class="docutils literal">.bash_profile</tt> other than exports and path definitions that
@@ -131,59 +131,117 @@ of the most popular dotfiles, dotfile utilities and tutorials, I came away
 quite impressed. It disabused me of my previous misbelief that dotfile
 calibration is ultimately a fruitless and ceaseless task, and I decided to
 give it another shot.</p>
+<!-- TEASER_END -->
 <div class="section" id="getting-started">
 <h2>Getting Started</h2>
 <p>Instead of starting from scratch, I decided to bootstrap off an existing
-dotfile repo.</p>
-<p>By far the most popular is <a class="reference external" href="https://github.com/mathiasbynens/dotfiles">Mathias Bynens' dotfiles</a>. Not only that, it
-seemed to offer the most sensible defaults for OSX. First, I created a fork
-(<a class="reference external" href="https://github.com/ltiao/dotfiles">Louis' fork of Mathias' dotfiles</a>) and cloned it to my computer.</p>
-<p>From several blog posts, I have found that some people like to clone to a
-directory under <tt class="docutils literal">~</tt>, such as <tt class="docutils literal">~/dotfiles</tt>. Personally, I like to clone it
-to a synchronized directory, such as <tt class="docutils literal">~/Dropbox/dotfiles</tt>, so that I can
-still easily access it anywhere that has an internet connection, even if it is
-infeasible to install and use <tt class="docutils literal">git</tt>.</p>
+dotfile repo. From going through <a class="reference external" href="https://dotfiles.github.io/">GitHub does dotfiles</a>, I found
+<a class="reference external" href="https://github.com/mathiasbynens/dotfiles">Mathias Bynens' dotfiles</a> to be by far the most popular. Not only that, it
+seemed to offer the most sensible defaults for OSX.</p>
+<p>First, I created a fork (<a class="reference external" href="https://github.com/ltiao/dotfiles">Louis' fork of Mathias' dotfiles</a>) and cloned it
+locally. From several blog posts, I have found that some people like to clone
+to a directory under <tt class="docutils literal">~</tt>, such as <tt class="docutils literal">~/dotfiles</tt>. Personally, I like to
+clone it to a synchronized directory, such as <tt class="docutils literal">~/Dropbox/dotfiles</tt>, so that
+I can still easily access it anywhere that has an internet connection, even if
+it is infeasible to install and use <tt class="docutils literal">git</tt>.</p>
+<p>Now we need to create symlinks to these dotfiles inside the home directory.
+While you can do this manually, it can become cumbersome to manage should you
+decide to remove or update these symlinks in the future. Hence, it might be
+worthwhile to consider using one of the dotfile mananagement utilities. After
+trying out <a class="reference external" href="https://robots.thoughtbot.com/rcm-for-rc-files-in-dotfiles-repos">rcm</a> <a class="footnote-reference" href="#id2" id="id1">[1]</a>, and giving serious consideration to a few others that
+seemed promising (<a class="reference external" href="https://github.com/technicalpickles/homesick">homesick</a>, <a class="reference external" href="https://github.com/justone/dfm">dfm</a>), I settled on <a class="reference external" href="https://www.gnu.org/software/stow/">GNU Stow</a>.</p>
 </div>
 <div class="section" id="gnu-stow">
 <h2>GNU Stow</h2>
-<pre class="code console"><a name="rest_code_64f4ae7b304c4073a48e832a0a54cf55-1"></a><span class="gp">$</span> stow --dir<span class="o">=</span>$HOME/Dropbox/ --target<span class="o">=</span>$HOME dotfiles <span class="se">\</span>
-<a name="rest_code_64f4ae7b304c4073a48e832a0a54cf55-2"></a><span class="go">       --simulate --verbose=1 --ignore='(bootstrap.sh|brew.sh)'</span>
-<a name="rest_code_64f4ae7b304c4073a48e832a0a54cf55-3"></a><span class="go">LINK: .aliases =&gt; ../Dropbox/dotfiles/.aliases</span>
-<a name="rest_code_64f4ae7b304c4073a48e832a0a54cf55-4"></a><span class="go">LINK: .bash_profile =&gt; ../Dropbox/dotfiles/.bash_profile</span>
-<a name="rest_code_64f4ae7b304c4073a48e832a0a54cf55-5"></a><span class="go">LINK: .bash_prompt =&gt; ../Dropbox/dotfiles/.bash_prompt</span>
-<a name="rest_code_64f4ae7b304c4073a48e832a0a54cf55-6"></a><span class="go">LINK: .bashrc =&gt; ../Dropbox/dotfiles/.bashrc</span>
-<a name="rest_code_64f4ae7b304c4073a48e832a0a54cf55-7"></a><span class="go">LINK: .curlrc =&gt; ../Dropbox/dotfiles/.curlrc</span>
-<a name="rest_code_64f4ae7b304c4073a48e832a0a54cf55-8"></a><span class="go">LINK: .editorconfig =&gt; ../Dropbox/dotfiles/.editorconfig</span>
-<a name="rest_code_64f4ae7b304c4073a48e832a0a54cf55-9"></a><span class="go">LINK: .exports =&gt; ../Dropbox/dotfiles/.exports</span>
-<a name="rest_code_64f4ae7b304c4073a48e832a0a54cf55-10"></a><span class="go">LINK: .functions =&gt; ../Dropbox/dotfiles/.functions</span>
-<a name="rest_code_64f4ae7b304c4073a48e832a0a54cf55-11"></a><span class="go">LINK: .gdbinit =&gt; ../Dropbox/dotfiles/.gdbinit</span>
-<a name="rest_code_64f4ae7b304c4073a48e832a0a54cf55-12"></a><span class="go">LINK: .gitattributes =&gt; ../Dropbox/dotfiles/.gitattributes</span>
-<a name="rest_code_64f4ae7b304c4073a48e832a0a54cf55-13"></a><span class="go">LINK: .gitconfig =&gt; ../Dropbox/dotfiles/.gitconfig</span>
-<a name="rest_code_64f4ae7b304c4073a48e832a0a54cf55-14"></a><span class="go">LINK: .gvimrc =&gt; ../Dropbox/dotfiles/.gvimrc</span>
-<a name="rest_code_64f4ae7b304c4073a48e832a0a54cf55-15"></a><span class="go">LINK: .hgignore =&gt; ../Dropbox/dotfiles/.hgignore</span>
-<a name="rest_code_64f4ae7b304c4073a48e832a0a54cf55-16"></a><span class="go">LINK: .hushlogin =&gt; ../Dropbox/dotfiles/.hushlogin</span>
-<a name="rest_code_64f4ae7b304c4073a48e832a0a54cf55-17"></a><span class="go">LINK: .inputrc =&gt; ../Dropbox/dotfiles/.inputrc</span>
-<a name="rest_code_64f4ae7b304c4073a48e832a0a54cf55-18"></a><span class="go">LINK: .osx =&gt; ../Dropbox/dotfiles/.osx</span>
-<a name="rest_code_64f4ae7b304c4073a48e832a0a54cf55-19"></a><span class="go">LINK: .path =&gt; ../Dropbox/dotfiles/.path</span>
-<a name="rest_code_64f4ae7b304c4073a48e832a0a54cf55-20"></a><span class="go">LINK: .screenrc =&gt; ../Dropbox/dotfiles/.screenrc</span>
-<a name="rest_code_64f4ae7b304c4073a48e832a0a54cf55-21"></a><span class="go">LINK: .vim =&gt; ../Dropbox/dotfiles/.vim</span>
-<a name="rest_code_64f4ae7b304c4073a48e832a0a54cf55-22"></a><span class="go">LINK: .vimrc =&gt; ../Dropbox/dotfiles/.vimrc</span>
-<a name="rest_code_64f4ae7b304c4073a48e832a0a54cf55-23"></a><span class="go">LINK: .wgetrc =&gt; ../Dropbox/dotfiles/.wgetrc</span>
-<a name="rest_code_64f4ae7b304c4073a48e832a0a54cf55-24"></a><span class="go">LINK: bin =&gt; ../Dropbox/dotfiles/bin</span>
-<a name="rest_code_64f4ae7b304c4073a48e832a0a54cf55-25"></a><span class="go">LINK: init =&gt; ../Dropbox/dotfiles/init</span>
-<a name="rest_code_64f4ae7b304c4073a48e832a0a54cf55-26"></a><span class="go">WARNING: in simulation mode so not modifying filesystem.</span>
+<p>First, we install GNU Stow with Homebrew:</p>
+<pre class="code console"><a name="rest_code_e06a6846d3c848b980bccb61edf97b22-1"></a><span class="gp">$</span> brew install stow
 </pre>
+<p>A few good places to get started with GNU Stow are <a class="reference external" href="http://brandon.invergo.net/news/2012-05-26-using-gnu-stow-to-manage-your-dotfiles.html">Using GNU Stow to manage
+your dotfiles</a> and <a class="reference external" href="https://taihen.org/managing-dotfiles-with-gnu-stow/">Managing Dotfiles with GNU Stow</a>. Perhaps the most
+important thing to know is the terminology it uses. Specifically, what
+<em>package</em>, <em>target directory</em> and <em>stow directory</em> are. From the <tt class="docutils literal">man</tt> page:</p>
+<blockquote>
+<p>A "package" is a related collection of files and directories that you wish
+to administer as a unit [...]</p>
+<p>A "target directory" is the root of a tree in which one or more packages
+wish to appear to be installed. [...]</p>
+<p>A "stow directory" is the root of a tree containing separate packages in
+private subtrees. When Stow runs, it uses the current directory as the
+default stow directory.</p>
+</blockquote>
+<p>Note that by default, the target directory is the parent of the stow
+directory.</p>
+<p>Since our dotfiles reside in <tt class="docutils literal">~/Dropbox/dotfiles</tt>, for our purposes, the
+<em>stow directory</em> should be <tt class="docutils literal">~/Dropbox</tt> and the <em>package</em> should be
+<tt class="docutils literal">dotfiles</tt>. The <em>target directory</em> is the parent of the <em>stow directory</em>,
+which is <tt class="docutils literal">~</tt>, so no further modifications are required.</p>
+<p>Additionally, there are a few bash scripts (<tt class="docutils literal">bootstrap.sh</tt>, <tt class="docutils literal">brew.sh</tt>)
+which we don't wish to symlink to from our home directory, so we want Stow to
+ignore those.</p>
+<p>It may be a good idea to see what Stow will do to your filesystem without
+actually making any modifications. To do this, we can use the flags
+<tt class="docutils literal"><span class="pre">--simulate</span> <span class="pre">--verbose=1</span></tt>.</p>
+<p>Putting it all together, we have:</p>
+<pre class="code console"><a name="rest_code_9d7cdf51ca0a4bf193dbc1c525500c16-1"></a><span class="gp">$</span> stow --ignore<span class="o">=</span><span class="s1">'(bootstrap.sh|brew.sh)'</span> <span class="se">\</span>
+<a name="rest_code_9d7cdf51ca0a4bf193dbc1c525500c16-2"></a><span class="go">       --simulate --verbose=1 \</span>
+<a name="rest_code_9d7cdf51ca0a4bf193dbc1c525500c16-3"></a><span class="go">       --dir=$HOME/Dropbox/ dotfiles</span>
+<a name="rest_code_9d7cdf51ca0a4bf193dbc1c525500c16-4"></a><span class="go">LINK: .aliases =&gt; ../Dropbox/dotfiles/.aliases</span>
+<a name="rest_code_9d7cdf51ca0a4bf193dbc1c525500c16-5"></a><span class="go">LINK: .bash_profile =&gt; ../Dropbox/dotfiles/.bash_profile</span>
+<a name="rest_code_9d7cdf51ca0a4bf193dbc1c525500c16-6"></a><span class="go">LINK: .bash_prompt =&gt; ../Dropbox/dotfiles/.bash_prompt</span>
+<a name="rest_code_9d7cdf51ca0a4bf193dbc1c525500c16-7"></a><span class="go">LINK: .bashrc =&gt; ../Dropbox/dotfiles/.bashrc</span>
+<a name="rest_code_9d7cdf51ca0a4bf193dbc1c525500c16-8"></a><span class="go">LINK: .curlrc =&gt; ../Dropbox/dotfiles/.curlrc</span>
+<a name="rest_code_9d7cdf51ca0a4bf193dbc1c525500c16-9"></a><span class="go">LINK: .editorconfig =&gt; ../Dropbox/dotfiles/.editorconfig</span>
+<a name="rest_code_9d7cdf51ca0a4bf193dbc1c525500c16-10"></a><span class="go">LINK: .exports =&gt; ../Dropbox/dotfiles/.exports</span>
+<a name="rest_code_9d7cdf51ca0a4bf193dbc1c525500c16-11"></a><span class="go">LINK: .functions =&gt; ../Dropbox/dotfiles/.functions</span>
+<a name="rest_code_9d7cdf51ca0a4bf193dbc1c525500c16-12"></a><span class="go">LINK: .gdbinit =&gt; ../Dropbox/dotfiles/.gdbinit</span>
+<a name="rest_code_9d7cdf51ca0a4bf193dbc1c525500c16-13"></a><span class="go">LINK: .gitattributes =&gt; ../Dropbox/dotfiles/.gitattributes</span>
+<a name="rest_code_9d7cdf51ca0a4bf193dbc1c525500c16-14"></a><span class="go">LINK: .gitconfig =&gt; ../Dropbox/dotfiles/.gitconfig</span>
+<a name="rest_code_9d7cdf51ca0a4bf193dbc1c525500c16-15"></a><span class="go">LINK: .gvimrc =&gt; ../Dropbox/dotfiles/.gvimrc</span>
+<a name="rest_code_9d7cdf51ca0a4bf193dbc1c525500c16-16"></a><span class="go">LINK: .hgignore =&gt; ../Dropbox/dotfiles/.hgignore</span>
+<a name="rest_code_9d7cdf51ca0a4bf193dbc1c525500c16-17"></a><span class="go">LINK: .hushlogin =&gt; ../Dropbox/dotfiles/.hushlogin</span>
+<a name="rest_code_9d7cdf51ca0a4bf193dbc1c525500c16-18"></a><span class="go">LINK: .inputrc =&gt; ../Dropbox/dotfiles/.inputrc</span>
+<a name="rest_code_9d7cdf51ca0a4bf193dbc1c525500c16-19"></a><span class="go">LINK: .osx =&gt; ../Dropbox/dotfiles/.osx</span>
+<a name="rest_code_9d7cdf51ca0a4bf193dbc1c525500c16-20"></a><span class="go">LINK: .path =&gt; ../Dropbox/dotfiles/.path</span>
+<a name="rest_code_9d7cdf51ca0a4bf193dbc1c525500c16-21"></a><span class="go">LINK: .screenrc =&gt; ../Dropbox/dotfiles/.screenrc</span>
+<a name="rest_code_9d7cdf51ca0a4bf193dbc1c525500c16-22"></a><span class="go">LINK: .vim =&gt; ../Dropbox/dotfiles/.vim</span>
+<a name="rest_code_9d7cdf51ca0a4bf193dbc1c525500c16-23"></a><span class="go">LINK: .vimrc =&gt; ../Dropbox/dotfiles/.vimrc</span>
+<a name="rest_code_9d7cdf51ca0a4bf193dbc1c525500c16-24"></a><span class="go">LINK: .wgetrc =&gt; ../Dropbox/dotfiles/.wgetrc</span>
+<a name="rest_code_9d7cdf51ca0a4bf193dbc1c525500c16-25"></a><span class="go">LINK: bin =&gt; ../Dropbox/dotfiles/bin</span>
+<a name="rest_code_9d7cdf51ca0a4bf193dbc1c525500c16-26"></a><span class="go">LINK: init =&gt; ../Dropbox/dotfiles/init</span>
+<a name="rest_code_9d7cdf51ca0a4bf193dbc1c525500c16-27"></a><span class="go">WARNING: in simulation mode so not modifying filesystem.</span>
+</pre>
+<p>If you're happy with this, go ahead and remove the <tt class="docutils literal">simulate</tt> option and run
+again! That's it!</p>
 </div>
 <div class="section" id="useful-links">
 <h2>Useful Links</h2>
 <ul class="simple">
-<li><a class="reference external" href="https://github.com/webpro/awesome-dotfiles">https://github.com/webpro/awesome-dotfiles</a></li>
-<li><a class="reference external" href="http://dotfiles.github.io/">http://dotfiles.github.io/</a></li>
-<li><a class="reference external" href="https://www.gnu.org/software/stow/">https://www.gnu.org/software/stow/</a></li>
-<li><a class="reference external" href="http://brandon.invergo.net/news/2012-05-26-using-gnu-stow-to-manage-your-dotfiles.html">http://brandon.invergo.net/news/2012-05-26-using-gnu-stow-to-manage-your-dotfiles.html</a></li>
-<li><a class="reference external" href="https://taihen.org/managing-dotfiles-with-gnu-stow/">https://taihen.org/managing-dotfiles-with-gnu-stow/</a></li>
 <li><a class="reference external" href="https://github.com/barryclark/bashstrap">https://github.com/barryclark/bashstrap</a></li>
+<li><a class="reference external" href="https://github.com/webpro/awesome-dotfiles">https://github.com/webpro/awesome-dotfiles</a></li>
 </ul>
+<table class="docutils footnote" frame="void" id="id2" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href="#id1">[1]</a></td>
+<td>
+<p class="first"><a class="reference external" href="https://robots.thoughtbot.com/rcm-for-rc-files-in-dotfiles-repos">rcm</a> is lightweight and easy to install but the documentation and
+"tutorial" (which is actually just the <tt class="docutils literal">man</tt> page) leaves much to be
+desired. However, the major deal-breaker for me was baffling fact that
+dotfiles prefixed with a dot are <strong>ignored</strong>
+(<a class="reference external" href="http://thoughtbot.github.io/rcm/rcm.7.html">http://thoughtbot.github.io/rcm/rcm.7.html</a>):</p>
+<blockquote>
+A less common situation is for all the filenames in your dotfiles
+directory to be prefixed with a period. These files are skipped by
+the rcm suite, and thus would result in nothing happening. The
+only option in this case is to rename all the files</blockquote>
+<p class="last">which makes this tool worthless for people whose dotfiles begins with,
+well, a dot. Which is most people.</p>
+</td>
+</tr></tbody>
+</table>
 </div>
 </div>
     </div>
@@ -191,9 +249,8 @@ infeasible to install and use <tt class="docutils literal">git</tt>.</p>
 <li><a class="tag p-category" href="../../tags/dotfiles/" rel="tag">dotfiles</a></li>
             <li><a class="tag p-category" href="../../tags/git/" rel="tag">git</a></li>
             <li><a class="tag p-category" href="../../tags/github/" rel="tag">github</a></li>
-            <li><a class="tag p-category" href="../../tags/gnu/" rel="tag">gnu</a></li>
+            <li><a class="tag p-category" href="../../tags/gnu-stow/" rel="tag">gnu stow</a></li>
             <li><a class="tag p-category" href="../../tags/osx/" rel="tag">osx</a></li>
-            <li><a class="tag p-category" href="../../tags/stow/" rel="tag">stow</a></li>
         </ul>
 <ul class="pager hidden-print">
 <li class="previous">

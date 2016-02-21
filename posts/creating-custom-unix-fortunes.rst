@@ -10,9 +10,9 @@
 Like others, I include ``fortune`` in my ``.bash_profile`` so that I am 
 greeted with a random, witty and thought-provoking epigram upon starting a 
 new shell session. Eventually, however, I found most of the epigrams to be 
-trite and vapid most of the time, and began growing tired of them. Instead of 
-tinkering with the probabilities of sampling from the various datafiles 
-available, I decided to roll with my own epigram datafile.
+mostly trite and vapid, and quickly grew tired of them. Instead of tinkering 
+with the probabilities of sampling from the various datafiles available, I 
+decided to roll with my own epigram datafile.
 
 .. TEASER_END
 
@@ -23,20 +23,20 @@ available, I decided to roll with my own epigram datafile.
 
     -- Zig Ziglar
 
-I have a collection of favorite quotes scattered across various places -- 
+I have a collection of favorite quotes scattered between various places - 
 Evernote, Goodreads, Reddit Saves, Kindle Annotations, etc. Usually, when I 
-add something to that collection, it's likely the last I'll ever see of it. 
+add something to that collection, it's probably the last I'll ever see of it. 
 Recently, I had the idea of incorporating the review and curation of the 
 collection as part of my `GTD Weekly Review`_ (or perhaps more appropriately,
-a `"Bigger Picture" Review`_ of some sort). In addition to this, I thought it 
+some kind of `"Bigger Picture" Review`_). In addition to this, I thought it 
 would be beneficial to see some subset of epigrams from my collection on a 
-day-to-day basis. This way, it ensures there is a nonzero (albeit low) 
-probability of encountering everything in my collection.
+day-to-day basis, ensuring there is a nonzero (albeit low) probability of 
+eventually encountering everything in my collection.
 
 Getting Started
 ---------------
 
-First note that I obtained ``fortune`` with Homebrew:
+First, I installed ``fortune`` with Homebrew:
 
 ..  code:: console
 
@@ -78,6 +78,7 @@ So now let's create a text file with the properties prescribed above, e.g.:
     was not that last blow that did it, but all that had gone before.
 
     -- Jacob A. Riis
+    %
 
 Next we create the datafile with ``strfile``:
 
@@ -89,7 +90,7 @@ Next we create the datafile with ``strfile``:
     Longest string: 310 bytes
     Shortest string: 106 bytes
 
-and now we can randomly access a group of lines with ``fortune``:  
+and now we are able to randomly access a group of lines with ``fortune``:  
 
 ..  code:: console
 
@@ -100,7 +101,7 @@ and now we can randomly access a group of lines with ``fortune``:
     -- Benjamin Disraeli
 
 It is important to note that when we specify ``quotes`` as the argument to 
-``fortune``, it will look for the datafile ``quotes.dat``, rather than the
+``fortune``, it will look for the datafile ``quotes.dat``, in addition to the
 plaintext file ``quotes``.
 
 Just to amuse ourselves, we can pipe through to a number of humorous commands/
@@ -113,11 +114,11 @@ utilities (``cowsay``, ``lolcat``):
 ..  thumbnail:: ../../images/fortune_cowsay_lolcat.png
     :align: center
 
-Anyways, back to the point! I created a repo on Github (`ltiao/fortunes`_) to 
-centralize, manage, curate and source control my collection of epigrams. This
-repo can contain several datafiles, so I have the option of logically grouping
-epigrams into various datafiles, and get a random epigram from across all of 
-the datafiles:
+Alright let's not get carried away here... I created a repo on Github 
+(`ltiao/fortunes`_) to centralize, manage, curate and source control my 
+collection of epigrams. This repo can contain several datafiles, so I have the
+option of logically grouping epigrams into various datafiles, and get a random
+epigram from across all of the datafiles:
 
 ..  code:: console
 
@@ -126,12 +127,41 @@ the datafiles:
     [...]
 
 Furthermore, I have the option of tweaking probabilities of sampling from a
-particular datafile, and more! But I'll investigate more advanced features 
+particular datafile, and more. I shall defer tinkering with advanced features 
 after I've built up my collection. For the time being, the relevant line in my 
-``.bash_profile`` will simply be the above (piped to ``cowsay`` and 
-``lolcat`` of course!)
+``.bash_profile`` will simply be the one above.
+
+Adding Entries
+--------------
+
+The workflow for adding entries would look something like this:
+
+..  code:: console
+
+    $ cat >> quotes
+    Employ your time in improving yourself by other men's writings so that you
+    shall come easily by what others have labored hard for.
+
+    -- Socrates
+    %
+    $ strfile quotes
+    [...]
+    $ git commit -am 'Added quote'
+    [...]
+    $ git push origin master
+    [...]
+
+Future Work
+-----------
+
+At some point, I will probably to write a spider to crawl sources such as 
+`Amazon Kindle Highlights`_, dump the highights into a plaintext file in the
+prescribed format, automatically generate the datafile with ``strfile`` and 
+use that as my fortune. Another interesting source is tweets, filtered by user
+or hashtag, or even a snapshot of the real-time live Twitter feed.
 
 .. _strfile: http://linuxcommand.org/man_pages/strfile1.html
 .. _GTD Weekly Review: http://lifehacker.com/5908816/the-weekly-review-how-one-hour-can-save-you-a-weeks-worth-of-hassle-and-headache
 .. _"Bigger Picture" Review: https://facilethings.com/blog/en/basics-big-picture-reviews
 .. _ltiao/fortunes: https://github.com/ltiao/fortunes
+.. _Amazon Kindle Highlights: https://kindle.amazon.com/your_highlights

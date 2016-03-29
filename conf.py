@@ -49,6 +49,7 @@ BLOG_DESCRIPTION = "Computer Science / Math / Software Engineering"  # (translat
 # fa        Persian
 # fi        Finnish
 # fr        French
+# gl        Galician
 # hi        Hindi
 # hr        Croatian
 # hu        Hungarian
@@ -228,8 +229,8 @@ TIMEZONE = "Australia/Sydney"
 # FILES_FOLDERS = {'files': ''}
 # Which means copy 'files' into 'output'
 
-# One or more folders containing listings to be processed and stored into
-# the output. The format is a dictionary of {source: relative destination}.
+# One or more folders containing code listings to be processed and published on
+# the site. The format is a dictionary of {source: relative destination}.
 # Default is:
 # LISTINGS_FOLDERS = {'listings': 'listings'}
 # Which means process listings from 'listings' into 'output/listings'
@@ -459,7 +460,13 @@ HIDDEN_AUTHORS = ['Guest']
 
 # Final location for the main blog page and sibling paginated pages is
 # output / TRANSLATION[lang] / INDEX_PATH / index-*.html
-INDEX_PATH = "posts"
+# INDEX_PATH = "posts"
+
+# Optional HTML that displayed on “main” blog index.html files.
+# May be used for a greeting. (translatable)
+FRONT_INDEX_HEADER = {
+    DEFAULT_LANG: ''
+}
 
 # Create per-month archives instead of per-year
 # CREATE_MONTHLY_ARCHIVE = False
@@ -533,6 +540,9 @@ REDIRECTIONS = []
 #     ]
 # }
 
+# github_deploy configuration
+# For more details, read the manual:
+# https://getnikola.com/handbook.html#deploying-to-github
 # For user.github.io OR organization.github.io pages, the DEPLOY branch
 # MUST be 'master', and 'gh-pages' for other repositories.
 GITHUB_SOURCE_BRANCH = 'source'
@@ -540,6 +550,10 @@ GITHUB_DEPLOY_BRANCH = 'master'
 
 # The name of the remote where you wish to push to, using github_deploy.
 # GITHUB_REMOTE_NAME = 'origin'
+
+# Whether or not github_deploy should commit to the source branch automatically
+# before deploying.
+GITHUB_COMMIT_SOURCE = True
 
 # Where the output site should be located
 # If you don't use an absolute path, it will be considered as relative
@@ -625,6 +639,11 @@ GITHUB_DEPLOY_BRANCH = 'master'
 #
 # If set to False, it will sort by filename instead. Defaults to True
 # GALLERY_SORT_BY_DATE = True
+
+# If set to True, EXIF data will be copied when an image is thumbnailed or
+# resized.
+# PRESERVE_EXIF_DATA = False
+
 #
 # Folders containing images to be used in normal posts or pages. Images will be
 # scaled down according to IMAGE_THUMBNAIL_SIZE and MAX_IMAGE_SIZE options, but

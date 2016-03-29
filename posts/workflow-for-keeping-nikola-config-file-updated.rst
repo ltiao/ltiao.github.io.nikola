@@ -22,7 +22,7 @@ updated with each major Nikola release.
 .. TEASER_END
 
 There is no sound way to keep this updated automatically, since what you're
-trying to do is a essentially "rebase_" your version of ``conf.py`` onto the 
+trying to do is essentially a "rebase_" your version of ``conf.py`` onto the 
 version that is generated for new Nikola sites with the latest version of 
 Nikola.
 

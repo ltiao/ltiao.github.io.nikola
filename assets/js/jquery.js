@@ -1,5 +1,5 @@
 /*!
- * jQuery JavaScript Library v1.12.1
+ * jQuery JavaScript Library v1.12.0
  * http://jquery.com/
  *
  * Includes Sizzle.js
@@ -9,7 +9,7 @@
  * Released under the MIT license
  * http://jquery.org/license
  *
- * Date: 2016-02-22T19:07Z
+ * Date: 2016-01-08T19:56Z
  */
 
 (function( global, factory ) {
@@ -65,7 +65,7 @@ var support = {};
 
 
 var
-	version = "1.12.1",
+	version = "1.12.0",
 
 	// Define a local copy of jQuery
 	jQuery = function( selector, context ) {
@@ -3625,10 +3625,11 @@ jQuery.ready.promise = function( obj ) {
 
 		// Catch cases where $(document).ready() is called
 		// after the browser event has already occurred.
-		// Support: IE6-10
-		// Older IE sometimes signals "interactive" too soon
-		if ( document.readyState === "complete" ||
-			( document.readyState !== "loading" && !document.documentElement.doScroll ) ) {
+		// we once tried to use readyState "interactive" here,
+		// but it caused issues like the one
+		// discovered by ChrisS here:
+		// http://bugs.jquery.com/ticket/12282#comment:15
+		if ( document.readyState === "complete" ) {
 
 			// Handle it asynchronously to allow scripts the opportunity to delay ready
 			window.setTimeout( jQuery.ready );
@@ -6700,7 +6701,7 @@ if ( window.getComputedStyle ) {
 		// FF meanwhile throws on frame elements through "defaultView.getComputedStyle"
 		var view = elem.ownerDocument.defaultView;
 
-		if ( !view || !view.opener ) {
+		if ( !view.opener ) {
 			view = window;
 		}
 
@@ -6716,14 +6717,11 @@ if ( window.getComputedStyle ) {
 		// getPropertyValue is only needed for .css('filter') in IE9, see #12537
 		ret = computed ? computed.getPropertyValue( name ) || computed[ name ] : undefined;
 
-		// Support: Opera 12.1x only
-		// Fall back to style even without computed
-		// computed is undefined for elems on document fragments
-		if ( ( ret === "" || ret === undefined ) && !jQuery.contains( elem.ownerDocument, elem ) ) {
-			ret = jQuery.style( elem, name );
-		}
-
 		if ( computed ) {
+
+			if ( ret === "" && !jQuery.contains( elem.ownerDocument, elem ) ) {
+				ret = jQuery.style( elem, name );
+			}
 
 			// A tribute to the "awesome hack by Dean Edwards"
 			// Chrome < 17 and Safari 5.0 uses "computed value"
@@ -10820,8 +10818,11 @@ jQuery.fn.extend( {
 			}
 
 			// Add offsetParent borders
-			parentOffset.top  += jQuery.css( offsetParent[ 0 ], "borderTopWidth", true );
-			parentOffset.left += jQuery.css( offsetParent[ 0 ], "borderLeftWidth", true );
+			// Subtract offsetParent scroll positions
+			parentOffset.top += jQuery.css( offsetParent[ 0 ], "borderTopWidth", true ) -
+				offsetParent.scrollTop();
+			parentOffset.left += jQuery.css( offsetParent[ 0 ], "borderLeftWidth", true ) -
+				offsetParent.scrollLeft();
 		}
 
 		// Subtract parent offsets and element margins

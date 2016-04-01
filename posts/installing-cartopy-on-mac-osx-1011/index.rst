@@ -55,8 +55,8 @@ prepends an extraneous ``-I`` to the include directory containing
 ``clang`` has ``-I-I/usr/local/Cellar/proj/4.9.2/include`` as one of its flags)
 so ``clang`` ends up not being able to see it at all. 
 
-I discuss this bug at some length provide a fix in my `pull request`_, which 
-has since been merged and should be included in the Cartopy 0.14.0 release.
+I discuss this bug at some length and provide a fix in my `pull request`_,
+which has since been merged and should be included in the Cartopy 0.14.0 release.
 
 The Workaround
 --------------

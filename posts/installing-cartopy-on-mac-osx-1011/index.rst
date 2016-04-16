@@ -15,8 +15,6 @@ dependencies (geos_ 3.5.0, proj_ 4.9.2) of Cartopy_ with Homebrew_:
     $ brew install geos
     $ brew install proj
 
-.. TEASER_END
-
 Moreover, you have created a ``virtualenv`` and installed the Python 
 dependencies (Cython, NumPy):
 
@@ -41,6 +39,8 @@ seemingly inexplicable error:
     error: command 'clang' failed with exit status 1
 
     ----------------------------------------
+
+.. TEASER_END
 
 despite the fact that ``proj_api.h`` does in fact exist:
 

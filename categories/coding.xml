@@ -1,5 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title>Louis Tiao (coding)</title><link>http://louistiao.me/</link><description></description><atom:link type="application/rss+xml" href="http://louistiao.me/categories/coding.xml" rel="self"></atom:link><language>en</language><lastBuildDate>Sun, 17 Apr 2016 13:29:03 GMT</lastBuildDate><generator>https://getnikola.com/</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>This is your life and it's ending one week at a time</title><link>http://louistiao.me/posts/this-is-your-life-and-its-ending-one-week-at-a-time/</link><dc:creator>Louis Tiao</dc:creator><description>&lt;div&gt;&lt;a class="reference external image-reference" href="http://louistiao.me/images/life-in-weeks.png"&gt;&lt;img alt="../../images/life-in-weeks.thumbnail.png" class="align-center" src="http://louistiao.me/images/life-in-weeks.thumbnail.png"&gt;&lt;/a&gt;
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Louis Tiao (coding)</title><link>http://louistiao.me/</link><description></description><atom:link type="application/rss+xml" href="http://louistiao.me/categories/coding.xml" rel="self"></atom:link><language>en</language><lastBuildDate>Tue, 26 Apr 2016 14:00:20 GMT</lastBuildDate><generator>https://getnikola.com/</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Visualizing and Animating Optimization Algorithms with Matplotlib</title><link>http://louistiao.me/posts/notebooks/visualizing-and-animating-optimization-algorithms-with-matplotlib/</link><dc:creator>Louis Tiao</dc:creator><description>&lt;div tabindex="-1" id="notebook" class="border-box-sizing"&gt;
+    &lt;div class="container" id="notebook-container"&gt;
+
+&lt;div class="cell border-box-sizing text_cell rendered"&gt;
+&lt;div class="prompt input_prompt"&gt;
+&lt;/div&gt;
+&lt;div class="inner_cell"&gt;
+&lt;div class="text_cell_render border-box-sizing rendered_html"&gt;
+&lt;p&gt;In this notebook, we demonstrate some useful patterns and recipes for visualizing animating optimization algorithms using Matplotlib.&lt;/p&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="cell border-box-sizing code_cell rendered"&gt;
+&lt;div class="input"&gt;
+&lt;div class="prompt input_prompt"&gt;In [1]:&lt;/div&gt;
+&lt;div class="inner_cell"&gt;
+    &lt;div class="input_area"&gt;
+&lt;div class=" highlight hl-ipython3"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt;&lt;span class="k"&gt;matplotlib&lt;/span&gt; inline
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;div class="cell border-box-sizing code_cell rendered"&gt;
+&lt;div class="input"&gt;
+&lt;div class="prompt input_prompt"&gt;In [2]:&lt;/div&gt;
+&lt;div class="inner_cell"&gt;
+    &lt;div class="input_area"&gt;
+&lt;div class=" highlight hl-ipython3"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;matplotlib.pyplot&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;plt&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;autograd.numpy&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
+
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;mpl_toolkits.mplot3d&lt;/span&gt; &lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="n"&gt;Axes3D&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;matplotlib.colors&lt;/span&gt; &lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="n"&gt;LogNorm&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;matplotlib&lt;/span&gt; &lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="n"&gt;animation&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;IPython.display&lt;/span&gt; &lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="n"&gt;HTML&lt;/span&gt;
+
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;autograd&lt;/span&gt; &lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="n"&gt;elementwise_grad&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;value_and_grad&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;scipy.optimize&lt;/span&gt; &lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="n"&gt;minimize&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;collections&lt;/span&gt; &lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="n"&gt;defaultdict&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;itertools&lt;/span&gt; &lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="n"&gt;zip_longest&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;functools&lt;/span&gt; &lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="n"&gt;partial&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;div class="cell border-box-sizing text_cell rendered"&gt;
+&lt;div class="prompt input_prompt"&gt;
+&lt;/div&gt;
+&lt;div class="inner_cell"&gt;
+&lt;div class="text_cell_render border-box-sizing rendered_html"&gt;
+&lt;p&gt;We shall restrict our attention to 3-dimensional problems for right now (optimizing over 2 parameters) though what follows can be extended to higher dimensions by plotting all pairs of parameters against each other, effectively projecting the problem to 3-dimensions.&lt;/p&gt;
+&lt;p&gt;The Wikipedia article on &lt;a href="https://en.wikipedia.org/wiki/Test_functions_for_optimization"&gt;Test functions for optimization&lt;/a&gt; has a few functions that are useful for evaluating optimization algorithms. In particular, we shall look at &lt;strong&gt;Beale's function&lt;/strong&gt;:&lt;/p&gt;
+$$
+f(x, y) = (1.5 - x + xy)^2 + (2.25 - x + xy^2)^2 + (2.625 - x + xy^3)^2
+$$
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="cell border-box-sizing code_cell rendered"&gt;
+&lt;div class="input"&gt;
+&lt;div class="prompt input_prompt"&gt;In [3]:&lt;/div&gt;
+&lt;div class="inner_cell"&gt;
+    &lt;div class="input_area"&gt;
+&lt;div class=" highlight hl-ipython3"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;f&lt;/span&gt;  &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;lambda&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mf"&gt;1.5&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;**&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mf"&gt;2.25&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="o"&gt;**&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;**&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mf"&gt;2.625&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="o"&gt;**&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;**&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;div class="cell border-box-sizing text_cell rendered"&gt;
+&lt;div class="prompt input_prompt"&gt;
+&lt;/div&gt;
+&lt;div class="inner_cell"&gt;
+&lt;div class="text_cell_render border-box-sizing rendered_html"&gt;
+&lt;p&gt;&lt;a href="http://louistiao.me/posts/notebooks/visualizing-and-animating-optimization-algorithms-with-matplotlib/"&gt;Read more…&lt;/a&gt; (12 min remaining to read)&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;</description><category>autograd</category><category>ipython</category><category>jupyter</category><category>matplotlib</category><category>numpy</category><category>optimization</category><category>scipy</category><category>visualization</category><guid>http://louistiao.me/posts/notebooks/visualizing-and-animating-optimization-algorithms-with-matplotlib/</guid><pubDate>Tue, 26 Apr 2016 12:13:17 GMT</pubDate></item><item><title>This is your life and it's ending one week at a time</title><link>http://louistiao.me/posts/this-is-your-life-and-its-ending-one-week-at-a-time/</link><dc:creator>Louis Tiao</dc:creator><description>&lt;div&gt;&lt;a class="reference external image-reference" href="http://louistiao.me/images/life-in-weeks.png"&gt;&lt;img alt="../../images/life-in-weeks.thumbnail.png" class="align-center" src="http://louistiao.me/images/life-in-weeks.thumbnail.png"&gt;&lt;/a&gt;
 &lt;p&gt;I am currently reading &lt;a class="reference external" href="http://www.amazon.com/Shortness-Life-Penguin-Great-Ideas/dp/0143036327"&gt;On the Shortness of Life&lt;/a&gt; by Seneca, and the following
 quote really stood out:&lt;/p&gt;
 &lt;blockquote class="pull-quote"&gt;
@@ -96,14 +178,4 @@ We just have to instead prepend the  argument we propagated to
 &lt;a name="rest_code_6ce373e7d96d4c1ba09998e736b1519a-11"&gt;&lt;/a&gt;
 &lt;a name="rest_code_6ce373e7d96d4c1ba09998e736b1519a-12"&gt;&lt;/a&gt;&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;__name__&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="s1"&gt;'__main__'&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
 &lt;a name="rest_code_6ce373e7d96d4c1ba09998e736b1519a-13"&gt;&lt;/a&gt;    &lt;span class="n"&gt;test&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;HandlerClass&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;CORSHTTPRequestHandler&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;&lt;p&gt;&lt;a href="http://louistiao.me/posts/python-simplehttpserver-recipe-enable-cors/"&gt;Read more…&lt;/a&gt; (1 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>cors</category><category>python</category><guid>http://louistiao.me/posts/python-simplehttpserver-recipe-enable-cors/</guid><pubDate>Thu, 10 Dec 2015 04:56:08 GMT</pubDate></item><item><title>Installing lxml on Mac OSX (10.11) inside a virtualenv with pip</title><link>http://louistiao.me/posts/installing-lxml-on-mac-osx-1011-inside-a-virtualenv-with-pip/</link><dc:creator>Louis Tiao</dc:creator><description>&lt;div&gt;&lt;p&gt;The &lt;tt class="docutils literal"&gt;lxml&lt;/tt&gt; library is a dependency for many popular Python projects such as
-Scrapy and Nikola. If you are a Mac OSX user, it's highly likely that you have
-encountered the following error when trying to install &lt;tt class="docutils literal"&gt;lxml&lt;/tt&gt; or its
-dependants with &lt;tt class="docutils literal"&gt;pip&lt;/tt&gt;:&lt;/p&gt;
-&lt;pre class="code console"&gt;&lt;a name="rest_code_71f02a3d21244531bda54760f1405bd4-1"&gt;&lt;/a&gt;&lt;span class="go"&gt;In file included from src/lxml/lxml.etree.c:346:&lt;/span&gt;
-&lt;a name="rest_code_71f02a3d21244531bda54760f1405bd4-2"&gt;&lt;/a&gt;&lt;span class="gp"&gt;$&lt;/span&gt;WORKON_HOME/venv_name/build/lxml/src/lxml/includes/etree_defs.h:9:10: fatal error: &lt;span class="s1"&gt;'libxml/xmlversion.h'&lt;/span&gt; file not found
-&lt;a name="rest_code_71f02a3d21244531bda54760f1405bd4-3"&gt;&lt;/a&gt;&lt;span class="gp"&gt;#&lt;/span&gt;include &lt;span class="s2"&gt;"libxml/xmlversion.h"&lt;/span&gt;
-&lt;a name="rest_code_71f02a3d21244531bda54760f1405bd4-4"&gt;&lt;/a&gt;&lt;span class="go"&gt;         ^&lt;/span&gt;
-&lt;a name="rest_code_71f02a3d21244531bda54760f1405bd4-5"&gt;&lt;/a&gt;&lt;span class="go"&gt;1 error generated.&lt;/span&gt;
-&lt;a name="rest_code_71f02a3d21244531bda54760f1405bd4-6"&gt;&lt;/a&gt;&lt;span class="go"&gt;error: command 'clang' failed with exit status 1&lt;/span&gt;
-&lt;/pre&gt;&lt;p&gt;&lt;a href="http://louistiao.me/posts/installing-lxml-on-mac-osx-1011-inside-a-virtualenv-with-pip/"&gt;Read more…&lt;/a&gt; (1 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>lxml</category><category>mac</category><category>osx</category><category>pip</category><category>python</category><category>virtualenv</category><guid>http://louistiao.me/posts/installing-lxml-on-mac-osx-1011-inside-a-virtualenv-with-pip/</guid><pubDate>Tue, 01 Dec 2015 03:04:57 GMT</pubDate></item></channel></rss>
+&lt;/pre&gt;&lt;p&gt;&lt;a href="http://louistiao.me/posts/python-simplehttpserver-recipe-enable-cors/"&gt;Read more…&lt;/a&gt; (1 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>cors</category><category>python</category><guid>http://louistiao.me/posts/python-simplehttpserver-recipe-enable-cors/</guid><pubDate>Thu, 10 Dec 2015 04:56:08 GMT</pubDate></item></channel></rss>

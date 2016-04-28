@@ -13,8 +13,8 @@ article: http://ogp.me/ns/article#
 <link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
 <link rel="canonical" href="http://louistiao.me/posts/installing-lxml-on-mac-osx-1011-inside-a-virtualenv-with-pip/">
 <link rel="icon" href="../../favicon_256x256.ico" sizes="256x256">
-<link rel="icon" href="../../favicon_16x16.ico" sizes="16x16">
 <link rel="icon" href="../../favicon_32x32.ico" sizes="32x32">
+<link rel="icon" href="../../favicon_16x16.ico" sizes="16x16">
 <script type="text/x-mathjax-config">
 MathJax.Hub.Config({
     tex2jax: {
@@ -51,7 +51,6 @@ encountered the following error when trying to ">
 <meta property="og:type" content="article">
 <meta property="article:published_time" content="2015-12-01T14:04:57+11:00">
 <meta property="article:tag" content="lxml">
-<meta property="article:tag" content="mac">
 <meta property="article:tag" content="osx">
 <meta property="article:tag" content="pip">
 <meta property="article:tag" content="python">
@@ -122,35 +121,35 @@ encountered the following error when trying to ">
 Scrapy and Nikola. If you are a Mac OSX user, it's highly likely that you have
 encountered the following error when trying to install <tt class="docutils literal">lxml</tt> or its
 dependants with <tt class="docutils literal">pip</tt>:</p>
-<pre class="code console"><a name="rest_code_71f02a3d21244531bda54760f1405bd4-1"></a><span class="go">In file included from src/lxml/lxml.etree.c:346:</span>
-<a name="rest_code_71f02a3d21244531bda54760f1405bd4-2"></a><span class="gp">$</span>WORKON_HOME/venv_name/build/lxml/src/lxml/includes/etree_defs.h:9:10: fatal error: <span class="s1">'libxml/xmlversion.h'</span> file not found
-<a name="rest_code_71f02a3d21244531bda54760f1405bd4-3"></a><span class="gp">#</span>include <span class="s2">"libxml/xmlversion.h"</span>
-<a name="rest_code_71f02a3d21244531bda54760f1405bd4-4"></a><span class="go">         ^</span>
-<a name="rest_code_71f02a3d21244531bda54760f1405bd4-5"></a><span class="go">1 error generated.</span>
-<a name="rest_code_71f02a3d21244531bda54760f1405bd4-6"></a><span class="go">error: command 'clang' failed with exit status 1</span>
+<pre class="code console"><a name="rest_code_d0ffd635d5574ea598631dfee60caa74-1"></a><span class="go">In file included from src/lxml/lxml.etree.c:346:</span>
+<a name="rest_code_d0ffd635d5574ea598631dfee60caa74-2"></a><span class="gp">$</span>WORKON_HOME/venv_name/build/lxml/src/lxml/includes/etree_defs.h:9:10: fatal error: <span class="s1">'libxml/xmlversion.h'</span> file not found
+<a name="rest_code_d0ffd635d5574ea598631dfee60caa74-3"></a><span class="gp">#</span>include <span class="s2">"libxml/xmlversion.h"</span>
+<a name="rest_code_d0ffd635d5574ea598631dfee60caa74-4"></a><span class="go">         ^</span>
+<a name="rest_code_d0ffd635d5574ea598631dfee60caa74-5"></a><span class="go">1 error generated.</span>
+<a name="rest_code_d0ffd635d5574ea598631dfee60caa74-6"></a><span class="go">error: command 'clang' failed with exit status 1</span>
 </pre>
 <!-- TEASER_END -->
 <p>For a long time, the easy fix for this was to simply set the env var</p>
-<pre class="code text"><a name="rest_code_06eadfb089254859b06814b509b2ed43-1"></a>STATIC_DEPS=true
+<pre class="code text"><a name="rest_code_b2f05811c2d34aea8b1ef9833b0940bc-1"></a>STATIC_DEPS=true
 </pre>
 <p>which makes the <tt class="docutils literal">setup.py</tt> for <tt class="docutils literal">lxml</tt> download and build the latest
 versions of <tt class="docutils literal">libxml2</tt> and <tt class="docutils literal">libxslt</tt> instead of using the system version,
 as suggested by the official <a class="reference external" href="http://lxml.de/installation.html#installation">installation instructions</a> and this
 <a class="reference external" href="http://stackoverflow.com/a/19550278/1924843">StackOverflow answer</a>:</p>
-<pre class="code console"><a name="rest_code_e11e0607ac434d74acad63cc8055208e-1"></a><span class="gp">$</span> <span class="nv">STATIC_DEPS</span><span class="o">=</span><span class="nb">true</span> pip install lxml
+<pre class="code console"><a name="rest_code_08a81d7c4d954615a755afb3013c8a35-1"></a><span class="gp">$</span> <span class="nv">STATIC_DEPS</span><span class="o">=</span><span class="nb">true</span> pip install lxml
 </pre>
 <p>This was all fine until 20 Nov 2015, when version 2.9.3 of <tt class="docutils literal">libxml2</tt> was
 <a class="reference external" href="http://www.xmlsoft.org/news.html">released</a>. When installing with the above command, you will encounter an
 exception similar to this:</p>
-<pre class="code console"><a name="rest_code_59fac37062c04ac3a7835df4b9fe63b3-1"></a><span class="go">Exception: Command "make -j6" returned code 512</span>
+<pre class="code console"><a name="rest_code_82bb2d2d2f81432893bf94ecc99fbd70-1"></a><span class="go">Exception: Command "make -j6" returned code 512</span>
 </pre>
 <p>with the compilation error somewhere above in the traceback message:</p>
-<pre class="code console"><a name="rest_code_1569d6868f4a411daaa7add47b54ac9e-1"></a><span class="go">xmlIO.c:1450:52: error: use of undeclared identifier 'LZMA_OK'</span>
-<a name="rest_code_1569d6868f4a411daaa7add47b54ac9e-2"></a><span class="go">    ret =  (__libxml2_xzclose((xzFile) context) == LZMA_OK ) ? 0 : -1;</span>
-<a name="rest_code_1569d6868f4a411daaa7add47b54ac9e-3"></a><span class="go">                                                   ^</span>
-<a name="rest_code_1569d6868f4a411daaa7add47b54ac9e-4"></a><span class="go">  CC       uri.lo</span>
-<a name="rest_code_1569d6868f4a411daaa7add47b54ac9e-5"></a><span class="go">1 error generated.</span>
-<a name="rest_code_1569d6868f4a411daaa7add47b54ac9e-6"></a><span class="go">make[2]: *** [xmlIO.lo] Error 1</span>
+<pre class="code console"><a name="rest_code_00ea72a4fb0b4bb2aeac444e9f0cbe2d-1"></a><span class="go">xmlIO.c:1450:52: error: use of undeclared identifier 'LZMA_OK'</span>
+<a name="rest_code_00ea72a4fb0b4bb2aeac444e9f0cbe2d-2"></a><span class="go">    ret =  (__libxml2_xzclose((xzFile) context) == LZMA_OK ) ? 0 : -1;</span>
+<a name="rest_code_00ea72a4fb0b4bb2aeac444e9f0cbe2d-3"></a><span class="go">                                                   ^</span>
+<a name="rest_code_00ea72a4fb0b4bb2aeac444e9f0cbe2d-4"></a><span class="go">  CC       uri.lo</span>
+<a name="rest_code_00ea72a4fb0b4bb2aeac444e9f0cbe2d-5"></a><span class="go">1 error generated.</span>
+<a name="rest_code_00ea72a4fb0b4bb2aeac444e9f0cbe2d-6"></a><span class="go">make[2]: *** [xmlIO.lo] Error 1</span>
 </pre>
 <p>This seems to be an error introduced in version 2.9.3. For now, a reasonable
 workaround is to install <tt class="docutils literal">lxml</tt> as before, but explicitly specify the version
@@ -159,34 +158,33 @@ manually download <tt class="docutils literal">lxml</tt> and run <tt class="docu
 <tt class="docutils literal"><span class="pre">--libxml2-version</span></tt> and <tt class="docutils literal"><span class="pre">libxslt-version</span></tt>.</p>
 <p>Note that we can still use <tt class="docutils literal">pip</tt> (only version &gt;= 7.0) and
 <a class="reference external" href="http://pip.readthedocs.org/en/stable/reference/pip_install/#per-requirement-overrides">propagate the options</a> to <tt class="docutils literal">setup.py</tt> with <tt class="docutils literal"><span class="pre">--install-option</span></tt>:</p>
-<pre class="code console"><a name="rest_code_776368acfaeb473e806ecc745a55ff2c-1"></a><span class="gp">$</span> pip install lxml --install-option<span class="o">=</span><span class="s2">"--static-deps=true"</span> <span class="se">\</span>
-<a name="rest_code_776368acfaeb473e806ecc745a55ff2c-2"></a><span class="go">                   --install-option="--libxml2-version=2.9.2"</span>
+<pre class="code console"><a name="rest_code_f2821534af384df5aa0556ade47d6030-1"></a><span class="gp">$</span> pip install lxml --install-option<span class="o">=</span><span class="s2">"--static-deps=true"</span> <span class="se">\</span>
+<a name="rest_code_f2821534af384df5aa0556ade47d6030-2"></a><span class="go">                   --install-option="--libxml2-version=2.9.2"</span>
 </pre>
 <p>Alternatively, if you must us an older version of <tt class="docutils literal">pip</tt> that does not support
 passing options, the <tt class="docutils literal">setup.py</tt> for <tt class="docutils literal">lxml</tt> is implemented to support
 passing command line options as environment variables (see <a class="reference external" href="https://github.com/lxml/lxml/blob/42bbfdca8956d607c7bfceed1cc55b9bca48faf8/setupinfo.py#L410">setupinfo.py</a>).
 This is why we were able to simply set <tt class="docutils literal">STATIC_DEPS=true</tt> before.</p>
 <p>In the same manner, we can just set <tt class="docutils literal">LIBXML2_VERSION=2.9.2</tt>:</p>
-<pre class="code console"><a name="rest_code_612aec629c2747f1b199e0983a116ec6-1"></a><span class="gp">$</span> <span class="nv">STATIC_DEPS</span><span class="o">=</span><span class="nb">true</span> <span class="nv">LIBXML2_VERSION</span><span class="o">=</span>2.9.2 pip install lxml
-<a name="rest_code_612aec629c2747f1b199e0983a116ec6-2"></a><span class="go">Collecting lxml</span>
-<a name="rest_code_612aec629c2747f1b199e0983a116ec6-3"></a><span class="go">  Using cached lxml-3.5.0.tar.gz</span>
-<a name="rest_code_612aec629c2747f1b199e0983a116ec6-4"></a><span class="go">Building wheels for collected packages: lxml</span>
-<a name="rest_code_612aec629c2747f1b199e0983a116ec6-5"></a><span class="go">  Running setup.py bdist_wheel for lxml</span>
-<a name="rest_code_612aec629c2747f1b199e0983a116ec6-6"></a><span class="go">  Stored in directory: [...]</span>
-<a name="rest_code_612aec629c2747f1b199e0983a116ec6-7"></a><span class="go">Successfully built lxml</span>
-<a name="rest_code_612aec629c2747f1b199e0983a116ec6-8"></a><span class="go">Installing collected packages: lxml</span>
-<a name="rest_code_612aec629c2747f1b199e0983a116ec6-9"></a><span class="go">Successfully installed lxml-3.5.0</span>
+<pre class="code console"><a name="rest_code_14fb40c3c36349d8b336ab9506d2a3c7-1"></a><span class="gp">$</span> <span class="nv">STATIC_DEPS</span><span class="o">=</span><span class="nb">true</span> <span class="nv">LIBXML2_VERSION</span><span class="o">=</span>2.9.2 pip install lxml
+<a name="rest_code_14fb40c3c36349d8b336ab9506d2a3c7-2"></a><span class="go">Collecting lxml</span>
+<a name="rest_code_14fb40c3c36349d8b336ab9506d2a3c7-3"></a><span class="go">  Using cached lxml-3.5.0.tar.gz</span>
+<a name="rest_code_14fb40c3c36349d8b336ab9506d2a3c7-4"></a><span class="go">Building wheels for collected packages: lxml</span>
+<a name="rest_code_14fb40c3c36349d8b336ab9506d2a3c7-5"></a><span class="go">  Running setup.py bdist_wheel for lxml</span>
+<a name="rest_code_14fb40c3c36349d8b336ab9506d2a3c7-6"></a><span class="go">  Stored in directory: [...]</span>
+<a name="rest_code_14fb40c3c36349d8b336ab9506d2a3c7-7"></a><span class="go">Successfully built lxml</span>
+<a name="rest_code_14fb40c3c36349d8b336ab9506d2a3c7-8"></a><span class="go">Installing collected packages: lxml</span>
+<a name="rest_code_14fb40c3c36349d8b336ab9506d2a3c7-9"></a><span class="go">Successfully installed lxml-3.5.0</span>
 </pre>
 <p>Now <tt class="docutils literal">lxml</tt> should be successfully installed:</p>
-<pre class="code console"><a name="rest_code_8de6c250109b4bf78c90a0290feca633-1"></a><span class="gp">$</span> python -c <span class="s1">'import lxml'</span>
-<a name="rest_code_8de6c250109b4bf78c90a0290feca633-2"></a><span class="gp">$</span> python -c <span class="s1">'from lxml import etree'</span>
+<pre class="code console"><a name="rest_code_a650216f4925407099a88d1b8d66871f-1"></a><span class="gp">$</span> python -c <span class="s1">'import lxml'</span>
+<a name="rest_code_a650216f4925407099a88d1b8d66871f-2"></a><span class="gp">$</span> python -c <span class="s1">'from lxml import etree'</span>
 </pre>
 <p>Good luck!</p>
 </div>
     </div>
     <aside class="postpromonav"><nav><ul itemprop="keywords" class="tags">
 <li><a class="tag p-category" href="../../tags/lxml/" rel="tag">lxml</a></li>
-            <li><a class="tag p-category" href="../../tags/mac/" rel="tag">mac</a></li>
             <li><a class="tag p-category" href="../../tags/osx/" rel="tag">osx</a></li>
             <li><a class="tag p-category" href="../../tags/pip/" rel="tag">pip</a></li>
             <li><a class="tag p-category" href="../../tags/python/" rel="tag">python</a></li>

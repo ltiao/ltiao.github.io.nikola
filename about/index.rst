@@ -26,8 +26,7 @@ Nonparametric Bayesian Inference (in particular Gaussian Processes).
 
 In my spare time, if I am not working on one of my many incomplete side 
 projects or hanging out with my Kindle, you'll either find me shooting hoops at
-the gym, or studying the profound and beautiful ancient strategy board game 
-known as Weiqi, or more commonly `Go`_.
+the gym, or trying to get stronger at `Go`_.
 
 .. _`BDKD (Big Data and Knowledge Discovery)`: http://www.sief.org.au/FundingActivities/RP/BigData.html
 .. _`University of New South Wales`: http://www.cse.unsw.edu.au

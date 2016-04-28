@@ -1,7 +1,7 @@
 .. title: Installing lxml on Mac OSX (10.11) inside a virtualenv with pip
 .. slug: installing-lxml-on-mac-osx-1011-inside-a-virtualenv-with-pip
 .. date: 2015-12-01 14:04:57 UTC+11:00
-.. tags: mac, osx, lxml, python, virtualenv, pip
+.. tags: osx, lxml, python, virtualenv, pip
 .. category: coding
 .. link: 
 .. description: 

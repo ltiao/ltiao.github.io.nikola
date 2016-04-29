@@ -7,141 +7,155 @@
 .. description: 
 .. type: text
 
-Programming Languages
-  * Python_
-  * Haskell
-  * C/C++
-  * Prolog
-  * *Java*
-  * *Perl*
+..  role:: raw-html(raw)
+    :format: html
 
-Scientific Computing
-  * NumPy_
-  * SciPy_
+..  class:: row
 
-Data Analysis
-  * Pandas_
+        ..  class:: col-md-4
 
-Machine Learning
-  * scikit-learn
-  * TensorFlow
-  * *Weka*
+            Programming Languages
+              * Python_
+              * Haskell
+              * C/C++
+              * Prolog
+              * :raw-html:`<s>Java</s>`
+              * :raw-html:`<s>Perl</s>`  
 
-Constraint Modelling
-  * MiniZinc
+            Scientific Computing
+              * NumPy_
+              * SciPy_
 
-* Fabric
-* SQLAlchemy
-* AngularJS
+            Machine Learning
+              * scikit-learn
+              * TensorFlow
+              * :raw-html:`<s>Weka</s>`
 
-Frontend
-  * HTML5
-  * CSS3
-  * Javascript
+            Optimization
+              * nlopt
 
-Static Site Generators
-  * Nikola
-  * *Pelican*
-  * *Octopress*
+            Data Analysis
+              * Pandas_  
+              * :raw-html:`<s>R</s>`
 
-Web Frameworks
-  * Django_
-  * Flask_
+            Data Visualization
+              * Matplotlib_
+              * D3.js
 
-Data Visualization
-  * Matplotlib_
-  * D3.js
+            Computer Vision / Image Processing
+              * OpenCV
+              * scikit-image
 
-Package Managers
-  * Homebrew_
+            Network Analysis
+              * NetworkX
 
-* Regexp
+            Computer Algebra System
+              * Mathematica
+              * Maple
 
-Terminal Emulator
-  * iTerm2
+            Constraint Modelling
+              * MiniZinc
 
-Unix Shell
-  * Zsh
+            Interactive Computing
+              * IPython
+              * Jupyter Notebook
 
-Productivity
-  * OmniFocus
-  * Evernote
+        ..  class:: col-md-4 
 
+            Web Frameworks
+              * Django_
+              * Flask_
 
-Python Libraries
-  * Scrapy/lxml
-  * requests
-  * BeautifulSoup4
+            Object Relational Mapper
+              * :raw-html:`<small>SQLAlchemy</small>`
+              * Django ORM
 
-Network Analysis
-  * NetworkX
+            Database and Persistence
+              * PostgreSQL
+              * MongoDB
+              * redis
 
-DevOps
-  * Kubernetes
-  * Docker
+            Data Pipelines
+              * luigi
 
-Database and Persistence
-  * PostgreSQL
-  * MongoDB
-  * redis
+            Web Scraping
+              * Scrapy / lxml_
+              * requests
+              * BeautifulSoup4
 
-Data Pipelines
-  * luigi
+            DevOps
+              * Kubernetes
+              * Docker
 
-Cloud Computing
-  * Amazon AWS
-  * Heroku
-  * DigitalOcean
+            Systems Administration
+              * Fabric
 
-Operating System
-  * `Mac OS X`_
+            Cloud Computing
+              * Amazon AWS
+              * Heroku
+              * DigitalOcean
 
-* pip/virtualenv
+            Static Site Generators
+              * Nikola
+              * *Pelican*
+              * *Octopress* 
 
-Version Control
-  * Git
-  * *Subversion (SVN)*
+            Frontend
+              * :raw-html:`<small>AngularJS</small>`
+              * HTML5
+              * Sass_ / CSS3
+              * Javascript 
 
-Optimization
-  * nlopt
+            Markup Languages
+              * Markdown
+              * ReStructuredText
 
-* sass
+        ..  class:: col-md-4
 
-Computer Vision / Image Processing
-  * OpenCV
-  * scikit-image
+            Operating System
+              * `Mac OS X`_
 
-* ipython/jupyter notebook
+            Terminal Emulator
+              * iTerm2    
 
-Package Managers
-  * Homebrew_
+            Unix Shell
+              * Zsh    
 
-* click
-* cookiecutter
-* zeromq
+            Version Control
+              * Git
+              * :raw-html:`<s>Subversion (SVN)</s>`
 
-* zsh
+            Package Managers
+              * Homebrew_    
+              * :raw-html:`<s>Macports</s>`  
+              * pip / virtualenv / virtualenvwrapper
 
-* protobufs
+            Text Editors
+              * Sublime Text 2
 
-Text Editors
-  * Sublime Text 2
+            Productivity
+              * OmniFocus 2
+              * Evernote
 
-Documentation
-  * Sphinx
+            Documentation
+              * Sphinx
 
-Continuous Integration
-  * Travis CI
+            Continuous Integration
+              * Travis CI
 
-Testing / Code Coverage
-  * pytest
+            Testing / Code Coverage
+              * pytest
+              * doctest
 
-* Github
-* Github Pages
+            Other
+              * Github
+              * Github Pages
+              * click
+              * cookiecutter
+              * zeromq
+              * protobufs
+              * Regexp
 
-Markup Languages
-  * Markdown
-  * ReStructuredText
 
 .. _Matplotlib: /tags/matplotlib
 .. _Python: /tags/python
@@ -153,3 +167,5 @@ Markup Languages
 .. _Flask: /tags/flask
 .. _Homebrew: /tags/homebrew
 .. _Pandas: /tags/pandas
+.. _Sass: /tags/sass
+.. _lxml: /tags/lxml

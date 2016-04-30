@@ -10,15 +10,19 @@
 ..  role:: raw-html(raw)
     :format: html
 
+These are my favorite languages, libraries, tools and frameworks. I have 
+:raw-html:`<s>crossed out</s>` the few that I no longer love or have abandoned
+in favor of something better.
+
 ..  class:: row
 
-        ..  class:: col-md-4
+        ..  class:: col-md-4 col-sm-4
 
             Programming Languages
               * Python_
-              * Haskell
-              * C/C++
-              * Prolog
+              * Haskell_
+              * C_/`C++`_
+              * Prolog_
               * :raw-html:`<s>Java</s>`
               * :raw-html:`<s>Perl</s>`  
 
@@ -27,12 +31,12 @@
               * SciPy_
 
             Machine Learning
-              * scikit-learn
-              * TensorFlow
+              * `scikit-learn`_
+              * TensorFlow_
               * :raw-html:`<s>Weka</s>`
 
             Optimization
-              * nlopt
+              * NLOpt_
 
             Data Analysis
               * Pandas_  
@@ -40,123 +44,179 @@
 
             Data Visualization
               * Matplotlib_
-              * D3.js
+              * `D3.js`_
 
             Computer Vision / Image Processing
-              * OpenCV
-              * scikit-image
+              * OpenCV_
+              * `scikit-image`_
 
             Network Analysis
-              * NetworkX
+              * NetworkX_
 
             Computer Algebra System
-              * Mathematica
-              * Maple
+              * Mathematica_
+              * :raw-html:`<s>Maple</s>`
 
             Constraint Modelling
-              * MiniZinc
+              * MiniZinc_
 
             Interactive Computing
-              * IPython
-              * Jupyter Notebook
+              * IPython_
+              * `Jupyter Notebook`_
 
-        ..  class:: col-md-4 
+            Lexers / Parsers
+              * *PyParsing*
+              * regex_
+
+        ..  class:: col-md-4 col-sm-4
 
             Web Frameworks
               * Django_
               * Flask_
 
-            Object Relational Mapper
-              * :raw-html:`<small>SQLAlchemy</small>`
-              * Django ORM
-
             Database and Persistence
-              * PostgreSQL
-              * MongoDB
-              * redis
+              * PostgreSQL_
+              * MongoDB_
+              * Redis_
+
+            Object Relational Mapper
+              * *SQLAlchemy*
+              * `Django ORM`_
 
             Data Pipelines
-              * luigi
+              * Luigi_
 
             Web Scraping
-              * Scrapy / lxml_
-              * requests
-              * BeautifulSoup4
-
-            DevOps
-              * Kubernetes
-              * Docker
-
-            Systems Administration
-              * Fabric
-
-            Cloud Computing
-              * Amazon AWS
-              * Heroku
-              * DigitalOcean
+              * Scrapy_ / lxml_
+              * requests_
+              * BeautifulSoup_
 
             Static Site Generators
-              * Nikola
-              * *Pelican*
-              * *Octopress* 
+              * Nikola_
+              * Pelican_
+              * :raw-html:`<s>Octopress</s>` 
 
             Frontend
-              * :raw-html:`<small>AngularJS</small>`
-              * HTML5
-              * Sass_ / CSS3
-              * Javascript 
+              * *AngularJS*
+              * HTML5_
+              * Sass_ / CSS3_
+              * Javascript_
 
             Markup Languages
-              * Markdown
-              * ReStructuredText
+              * Markdown_
+              * ReStructuredText_
+            
+            Document Preparation
+              * LaTeX_
 
-        ..  class:: col-md-4
+            Documentation
+              * Sphinx_
+
+            Continuous Integration
+              * `Travis CI`_
+
+            Testing / Code Coverage
+              * pytest_
+              * doctest_
+
+        ..  class:: col-md-4 col-sm-4
 
             Operating System
               * `Mac OS X`_
 
             Terminal Emulator
-              * iTerm2    
+              * iTerm2_    
 
             Unix Shell
-              * Zsh    
+              * Zsh_ 
 
             Version Control
-              * Git
+              * Git_
               * :raw-html:`<s>Subversion (SVN)</s>`
 
             Package Managers
               * Homebrew_    
               * :raw-html:`<s>Macports</s>`  
-              * pip / virtualenv / virtualenvwrapper
+              * pip_ / virtualenv_ / virtualenvwrapper_
 
             Text Editors
-              * Sublime Text 2
+              * `Sublime Text 2`_
 
             Productivity
-              * OmniFocus 2
-              * Evernote
+              * `OmniFocus 2`_
+              * Evernote_
 
-            Documentation
-              * Sphinx
+            DevOps
+              * Kubernetes_
+              * Docker_
 
-            Continuous Integration
-              * Travis CI
+            Systems Administration / Automation
+              * Fabric_
 
-            Testing / Code Coverage
-              * pytest
-              * doctest
+            Cloud Computing
+              * `Amazon AWS`_
+              * Heroku_
+              * DigitalOcean_
 
-            Other
-              * Github
-              * Github Pages
-              * click
-              * cookiecutter
-              * zeromq
-              * protobufs
-              * Regexp
+            Miscellaneous
+              * Click_
+              * cookiecutter_
+              * ZeroMQ_
+              * `Protocol Buffers`_ (protobufs)
 
-
+.. _Haskell: /tags/haskell
+.. _C: /tags/c
+.. _C++: /tags/c++
+.. _Prolog: /tags/prolog
+.. _scikit-learn: /tags/scikit-learn
+.. _TensorFlow: /tags/tensorflow
+.. _NLOpt: /tags/nlopt
+.. _D3.js: /tags/d3.js
+.. _OpenCV: /tags/opencv
+.. _scikit-image: /tags/scikit-image
+.. _NetworkX: /tags/networkx
+.. _Mathematica: /tags/mathematica
+.. _MiniZinc: /tags/minizinc
+.. _IPython: /tags/ipython
+.. _Jupyter Notebook: /tags/jupyter-notebook
+.. _Django ORM: /tags/django
+.. _PostgreSQL: /tags/postgresql
+.. _MongoDB: /tags/mongodb
+.. _Redis: /tags/redis
+.. _Luigi: /tags/luigi
+.. _Scrapy: /tags/scrapy
+.. _requests: /tags/requests
+.. _BeautifulSoup: /tags/beautifulsoup
+.. _Kubernetes: /tags/kubernetes
+.. _Docker: /tags/docker
+.. _Fabric: /tags/fabric
+.. _Amazon AWS: /tags/amazon-aws
+.. _Heroku: /tags/heroku
+.. _DigitalOcean: /tags/digitalocean
+.. _Nikola: /tags/nikola
+.. _Pelican: /tags/pelican
+.. _HTML5: /tags/html5
+.. _CSS3: /tags/css3
+.. _Javascript: /tags/javascript
+.. _Markdown: /tags/markdown
+.. _ReStructuredText: /tags/restructuredtext
+.. _iTerm2: /tags/iterm2
+.. _Zsh: /tags/zsh
+.. _Git: /tags/git
+.. _pip: /tags/pip
+.. _virtualenv: /tags/virtualenv
+.. _virtualenvwrapper: /tags/virtualenvwrapper
+.. _Sublime Text 2: /tags/sublime-text-2
+.. _OmniFocus 2: /tags/omnifocus-2
+.. _Evernote: /tags/evernote
+.. _Sphinx: /tags/sphinx
+.. _Travis CI: /tags/travis-ci
+.. _pytest: /tags/pytest
+.. _doctest: /tags/doctest
+.. _Click: /tags/click
+.. _cookiecutter: /tags/cookiecutter
+.. _ZeroMQ: /tags/zeromq
+.. _regex: /tags/regex
 .. _Matplotlib: /tags/matplotlib
 .. _Python: /tags/python
 .. _NumPy: /tags/numpy
@@ -169,3 +229,5 @@
 .. _Pandas: /tags/pandas
 .. _Sass: /tags/sass
 .. _lxml: /tags/lxml
+.. _Protocol Buffers: /tags/protobufs
+.. _LaTeX: /tags/latex

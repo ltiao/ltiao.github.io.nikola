@@ -20,20 +20,19 @@ concentrated on Algorithm Design and Analysis, Theoretical Computer Science,
 Artificial Intelligence and Machine Learning.
 
 I am currently a Software Engineer at `NICTA`_ on the Spatial Analytics Systems
-Team and the `BDKD (Big Data and Knowledge Discovery)`_ project, where I work 
-among a group of leading Machine Learning researchers with expertise in 
-Nonparametric Bayesian Inference (in particular Gaussian Processes).
+Team, where I work among a group of leading Machine Learning researchers with
+expertise in Nonparametric Bayesian Inference (in particular Gaussian Processes).
 
-In my spare time, if I am not working on one of my many incomplete side 
-projects or hanging out with my Kindle, you'll either find me shooting hoops at
-the gym, or trying to get stronger at `Go`_.
+In my spare time, if I am not working on one of my `many incomplete side 
+projects`_ or hanging out with my Kindle, you'll either find me shooting hoops
+at the gym, or trying to get stronger at `Go`_.
 
-.. _`BDKD (Big Data and Knowledge Discovery)`: http://www.sief.org.au/FundingActivities/RP/BigData.html
-.. _`University of New South Wales`: http://www.cse.unsw.edu.au
-.. _`CSIRO`: http://www.csiro.au/
-.. _`NICTA`: http://www.nicta.com.au/about-nicta/
-.. _`Data61`: http://www.csiro.au/en/Research/D61
-.. _`Go`: http://senseis.xmp.net/?Go
+.. _University of New South Wales: http://www.cse.unsw.edu.au
+.. _CSIRO: http://www.csiro.au/
+.. _NICTA: http://www.nicta.com.au/about-nicta/
+.. _Data61: http://www.csiro.au/en/Research/D61
+.. _Go: http://senseis.xmp.net/?Go
+.. _many incomplete side projects: https://i.imgur.com/QTjtiai.png
 
 ..  My current research interests are
 

@@ -8,7 +8,7 @@
 .. type: text
 
 To get in touch, you can connect with me on `LinkedIn`_, or follow me on 
-`GitHub`_ and `Twitter`_. You can also reach me directly at `l..@me.com`_.
+`GitHub`_ and `Twitter`_. Alternatively, you can reach me directly at `l..@me.com`_.
 
 .. _`l..@me.com`: 
    http://www.google.com/recaptcha/mailhide/d?k=01ZGES3iSWmUwr35sEbB8-VA==&

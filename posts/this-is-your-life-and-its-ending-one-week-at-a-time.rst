@@ -10,8 +10,7 @@
 ..  thumbnail:: ../../images/life-in-weeks.png
     :align: center
 
-I am currently reading `On the Shortness of Life`_ by Seneca, and the following
-quote really stood out: 
+One of the most influential quotes is from `On the Shortness of Life`_ by Seneca:
 
 ..  pull-quote::
 

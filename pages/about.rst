@@ -14,12 +14,12 @@
 Hi. My name is Louis. I am a lifelong student and aspiring researcher of 
 Computer Science and Mathematics.
 
-I recently graduated with First-class Honours in Computer Science from the 
+I graduated with First-class Honours in Computer Science from the 
 `University of New South Wales`_, where I minored in Mathematics and 
 concentrated on Algorithm Design and Analysis, Theoretical Computer Science, 
 Artificial Intelligence and Machine Learning.
 
-I am currently a Software Engineer at `NICTA`_ on the Spatial Analytics Systems
+I am currently a Software Engineer at `NICTA`_ on the Spatial Inference Systems
 Team, where I work among a group of leading Machine Learning researchers with
 expertise in Nonparametric Bayesian Inference (in particular Gaussian Processes).
 

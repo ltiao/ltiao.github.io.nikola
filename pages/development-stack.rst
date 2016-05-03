@@ -121,6 +121,18 @@ in favor of something better.
 
         ..  class:: col-md-4 col-sm-4
 
+            DevOps
+              * Kubernetes_
+              * Docker_
+
+            Systems Administration / Automation
+              * Fabric_
+
+            Cloud Computing
+              * `Amazon AWS`_
+              * Heroku_
+              * DigitalOcean_
+
             Operating System
               * `Mac OS X`_
 
@@ -145,18 +157,6 @@ in favor of something better.
             Productivity
               * `OmniFocus 2`_
               * Evernote_
-
-            DevOps
-              * Kubernetes_
-              * Docker_
-
-            Systems Administration / Automation
-              * Fabric_
-
-            Cloud Computing
-              * `Amazon AWS`_
-              * Heroku_
-              * DigitalOcean_
 
             Miscellaneous
               * Click_

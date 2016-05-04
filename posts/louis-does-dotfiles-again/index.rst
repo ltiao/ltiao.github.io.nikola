@@ -1,8 +1,8 @@
 .. title: Louis does dotfiles... again
 .. slug: louis-does-dotfiles-again
 .. date: 2016-02-21 23:14:18 UTC+11:00
-.. tags: 
-.. category: draft
+.. tags: draft
+.. category: 
 .. link: 
 .. description: 
 .. type: text

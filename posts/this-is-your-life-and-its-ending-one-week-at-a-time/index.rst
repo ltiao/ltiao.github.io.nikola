@@ -2,7 +2,7 @@
 .. slug: this-is-your-life-and-its-ending-one-week-at-a-time
 .. date: 2016-04-17 21:35:56 UTC+10:00
 .. tags: python, click
-.. category: coding
+.. category: coding, draft
 .. link: 
 .. description: 
 .. type: text

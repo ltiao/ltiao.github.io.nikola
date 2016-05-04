@@ -2,7 +2,7 @@
 .. slug: louis-does-dotfiles-again
 .. date: 2016-02-21 23:14:18 UTC+11:00
 .. tags: 
-.. category: 
+.. category: draft
 .. link: 
 .. description: 
 .. type: text

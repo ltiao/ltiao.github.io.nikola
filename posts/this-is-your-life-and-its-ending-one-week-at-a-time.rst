@@ -1,8 +1,8 @@
 .. title: This is your life and it's ending one week at a time
 .. slug: this-is-your-life-and-its-ending-one-week-at-a-time
 .. date: 2016-04-17 21:35:56 UTC+10:00
-.. tags: python, click
-.. category: coding, draft
+.. tags: python, click, draft
+.. category: coding
 .. link: 
 .. description: 
 .. type: text

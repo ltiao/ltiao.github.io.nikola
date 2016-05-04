@@ -42,7 +42,7 @@ in favor of something better.
               * Pandas_  
               * :raw-html:`<s>R</s>`
 
-            Data Visualization
+            Plotting / Data Visualization
               * Matplotlib_
               * `D3.js`_
 

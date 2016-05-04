@@ -19,16 +19,21 @@ I graduated with First-class Honours in Computer Science from the
 concentrated on Algorithm Design and Analysis, Theoretical Computer Science, 
 Artificial Intelligence and Machine Learning.
 
-I am currently a Software Engineer at `NICTA`_ on the Spatial Inference Systems
-Team, where I work among a group of leading Machine Learning researchers with
-expertise in Nonparametric Bayesian Inference (in particular Gaussian Processes).
+I am currently a Software Engineer at `Data61 | CSIRO`_  (formerly `NICTA`_) on
+the `Spatial Analytics Systems Team`_, where I work among a group of leading 
+Machine Learning researchers with expertise in Nonparametric Bayesian Inference.
 
 In my spare time, if I am not working on one of my `many incomplete side 
 projects`_ or hanging out with my Kindle, you'll either find me shooting hoops
 at the gym, or trying to get stronger at `Go`_.
 
+Check out my :doc:`projects <projects>` if you're interested in the stuff I've
+worked on and also :doc:`my development stack <development-stack>` to get an
+idea of what I'm good at.
+
 .. _University of New South Wales: http://www.cse.unsw.edu.au
-.. _CSIRO: http://www.csiro.au/
+.. _Spatial Analytics Systems Team: http://www.csiro.au/en/Research/D61/Areas/Imaging-and-visualisation/Visualisation/Terria
+.. _Data61 | CSIRO: http://www.csiro.au/en/Research/D61
 .. _NICTA: http://www.nicta.com.au/about-nicta/
 .. _Data61: http://www.csiro.au/en/Research/D61
 .. _Go: http://senseis.xmp.net/?Go

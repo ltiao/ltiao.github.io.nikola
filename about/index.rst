@@ -29,7 +29,7 @@ at the gym, or trying to get stronger at `Go`_.
 
 Check out :doc:`my projects <projects>` if you're interested in the stuff I've
 worked on and also :doc:`my dev stack <development-stack>` to get an idea of 
-the kinds of things I'm good at.
+what I do.
 
 .. _University of New South Wales: http://www.cse.unsw.edu.au
 .. _Spatial Analytics Systems Team: http://www.csiro.au/en/Research/D61/Areas/Imaging-and-visualisation/Visualisation/Terria

@@ -12,9 +12,9 @@ article: http://ogp.me/ns/article#
 <link href="../../assets/css/all.css" rel="stylesheet" type="text/css">
 <link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
 <link rel="canonical" href="http://louistiao.me/posts/setting-up-a-ipython-parallel-cluster-on-amazon-ec2-with-starcluster/">
+<link rel="icon" href="../../favicon_16x16.ico" sizes="16x16">
 <link rel="icon" href="../../favicon_32x32.ico" sizes="32x32">
 <link rel="icon" href="../../favicon_256x256.ico" sizes="256x256">
-<link rel="icon" href="../../favicon_16x16.ico" sizes="16x16">
 <script type="text/x-mathjax-config">
 MathJax.Hub.Config({
     tex2jax: {
@@ -139,46 +139,164 @@ Mar 21 2015 - again, a <em>long</em> time ago.</li>
 is 4.2.0. Furthermore <tt class="docutils literal">IPython.parallel</tt> has since become its own
 project, <a class="reference external" href="http://ipyparallel.readthedocs.io/en/latest/">ipyparallel</a>.</li>
 </ul>
-<p class="last">If you are able to circumvent the ramifications of these issues then we
-are ready to proceed.</p>
+<p class="last">If you fully understand these issues and their implications, then proceed.</p>
 </div>
 <div class="section" id="getting-started">
 <h2>Getting Started</h2>
 <p>First we initialize a <tt class="docutils literal">virtualenv</tt> for our project with Python 2.7 and install
 StarCluster with <tt class="docutils literal">pip</tt>:</p>
-<pre class="code console"><a name="rest_code_0d725930924041509cfc7d0a4bd2f01a-1"></a><span class="gp">$</span> mkvirtualenv starcluster --python<span class="o">=</span><span class="sb">`</span>which python2<span class="sb">`</span>
-<a name="rest_code_0d725930924041509cfc7d0a4bd2f01a-2"></a><span class="gp">$</span> python -V
-<a name="rest_code_0d725930924041509cfc7d0a4bd2f01a-3"></a><span class="go">Python 2.7.11</span>
-<a name="rest_code_0d725930924041509cfc7d0a4bd2f01a-4"></a><span class="gp">$</span> pip install starcluster
+<pre class="code console"><a name="rest_code_4c4e2061d75747a6b4be8e94fd588461-1"></a><span class="gp">$</span> mkvirtualenv starcluster --python<span class="o">=</span><span class="sb">`</span>which python2<span class="sb">`</span>
+<a name="rest_code_4c4e2061d75747a6b4be8e94fd588461-2"></a><span class="gp">$</span> python -V
+<a name="rest_code_4c4e2061d75747a6b4be8e94fd588461-3"></a><span class="go">Python 2.7.11</span>
+<a name="rest_code_4c4e2061d75747a6b4be8e94fd588461-4"></a><span class="gp">$</span> pip install starcluster
 </pre>
 <p>Create a directory to contain the various configuration files:</p>
-<pre class="code console"><a name="rest_code_eee7739bd82340c882b78930e603753b-1"></a><span class="gp">$</span> mkdir &lt;starcluster-project&gt;
-<a name="rest_code_eee7739bd82340c882b78930e603753b-2"></a><span class="gp">$</span> <span class="nb">cd</span> &lt;starcluster-project&gt;
+<pre class="code console"><a name="rest_code_0cbc2cab27d14e198249c8b05c2de83c-1"></a><span class="gp">$</span> mkdir &lt;starcluster-project&gt;
+<a name="rest_code_0cbc2cab27d14e198249c8b05c2de83c-2"></a><span class="gp">$</span> <span class="nb">cd</span> &lt;starcluster-project&gt;
 </pre>
 <p>Initialize the StarCluster configuration file:</p>
-<pre class="code console"><a name="rest_code_c944455523284a22a744cef4f75a12ae-1"></a><span class="gp">$</span> starcluster -c &lt;starcluster-project&gt;/starcluster.cfg <span class="nb">help</span>
-<a name="rest_code_c944455523284a22a744cef4f75a12ae-2"></a><span class="go">StarCluster - (http://star.mit.edu/cluster) (v. 0.95.6)</span>
-<a name="rest_code_c944455523284a22a744cef4f75a12ae-3"></a><span class="go">Software Tools for Academics and Researchers (STAR)</span>
-<a name="rest_code_c944455523284a22a744cef4f75a12ae-4"></a><span class="go">Please submit bug reports to starcluster@mit.edu</span>
-<a name="rest_code_c944455523284a22a744cef4f75a12ae-5"></a>
-<a name="rest_code_c944455523284a22a744cef4f75a12ae-6"></a><span class="go">!!! ERROR - config file &lt;starcluster-project&gt;/starcluster.cfg does not exist</span>
-<a name="rest_code_c944455523284a22a744cef4f75a12ae-7"></a>
-<a name="rest_code_c944455523284a22a744cef4f75a12ae-8"></a><span class="go">Options:</span>
-<a name="rest_code_c944455523284a22a744cef4f75a12ae-9"></a><span class="go">--------</span>
-<a name="rest_code_c944455523284a22a744cef4f75a12ae-10"></a><span class="go">[1] Show the StarCluster config template</span>
-<a name="rest_code_c944455523284a22a744cef4f75a12ae-11"></a><span class="go">[2] Write config template to &lt;starcluster-project&gt;/starcluster.cfg</span>
-<a name="rest_code_c944455523284a22a744cef4f75a12ae-12"></a><span class="go">[q] Quit</span>
-<a name="rest_code_c944455523284a22a744cef4f75a12ae-13"></a>
-<a name="rest_code_c944455523284a22a744cef4f75a12ae-14"></a><span class="go">Please enter your selection: 2</span>
+<pre class="code console"><a name="rest_code_036b052e95c74563a5fd42a26333b9f5-1"></a><span class="gp">$</span> starcluster -c &lt;starcluster-project&gt;/starcluster.cfg <span class="nb">help</span>
+<a name="rest_code_036b052e95c74563a5fd42a26333b9f5-2"></a><span class="go">StarCluster - (http://star.mit.edu/cluster) (v. 0.95.6)</span>
+<a name="rest_code_036b052e95c74563a5fd42a26333b9f5-3"></a><span class="go">Software Tools for Academics and Researchers (STAR)</span>
+<a name="rest_code_036b052e95c74563a5fd42a26333b9f5-4"></a><span class="go">Please submit bug reports to starcluster@mit.edu</span>
+<a name="rest_code_036b052e95c74563a5fd42a26333b9f5-5"></a>
+<a name="rest_code_036b052e95c74563a5fd42a26333b9f5-6"></a><span class="go">!!! ERROR - config file &lt;starcluster-project&gt;/starcluster.cfg does not exist</span>
+<a name="rest_code_036b052e95c74563a5fd42a26333b9f5-7"></a>
+<a name="rest_code_036b052e95c74563a5fd42a26333b9f5-8"></a><span class="go">Options:</span>
+<a name="rest_code_036b052e95c74563a5fd42a26333b9f5-9"></a><span class="go">--------</span>
+<a name="rest_code_036b052e95c74563a5fd42a26333b9f5-10"></a><span class="go">[1] Show the StarCluster config template</span>
+<a name="rest_code_036b052e95c74563a5fd42a26333b9f5-11"></a><span class="go">[2] Write config template to &lt;starcluster-project&gt;/starcluster.cfg</span>
+<a name="rest_code_036b052e95c74563a5fd42a26333b9f5-12"></a><span class="go">[q] Quit</span>
+<a name="rest_code_036b052e95c74563a5fd42a26333b9f5-13"></a>
+<a name="rest_code_036b052e95c74563a5fd42a26333b9f5-14"></a><span class="go">Please enter your selection: 2</span>
+<a name="rest_code_036b052e95c74563a5fd42a26333b9f5-15"></a>
+<a name="rest_code_036b052e95c74563a5fd42a26333b9f5-16"></a><span class="gp">&gt;</span>&gt;&gt; Config template written to &lt;starcluster-project&gt;/starcluster.cfg
+<a name="rest_code_036b052e95c74563a5fd42a26333b9f5-17"></a><span class="gp">&gt;</span>&gt;&gt; Please customize the config template
 </pre>
 <p>Note that without the <tt class="docutils literal"><span class="pre">-c</span></tt> argument, the configuration file would have been
 initialized in the default location, which is <tt class="docutils literal"><span class="pre">~/.starcluster/config</span></tt>. Since
 we may want to version control this configuration, we initialize and store
 this file in an alternate location, namely, <tt class="docutils literal"><span class="pre">&lt;starcluster-project&gt;/starcluster.cfg</span></tt>.</p>
+<p>Now that this file has been created, we can execute the previous command without
+errors:</p>
+<pre class="code console"><a name="rest_code_9e1cec24846a48319960d57d5b0cece1-1"></a><span class="gp">$</span> starcluster -c &lt;starcluster-project&gt;/starcluster.cfg <span class="nb">help</span>
+<a name="rest_code_9e1cec24846a48319960d57d5b0cece1-2"></a><span class="go">StarCluster - (http://star.mit.edu/cluster) (v. 0.95.6)</span>
+<a name="rest_code_9e1cec24846a48319960d57d5b0cece1-3"></a><span class="go">Software Tools for Academics and Researchers (STAR)</span>
+<a name="rest_code_9e1cec24846a48319960d57d5b0cece1-4"></a><span class="go">Please submit bug reports to starcluster@mit.edu</span>
+<a name="rest_code_9e1cec24846a48319960d57d5b0cece1-5"></a>
+<a name="rest_code_9e1cec24846a48319960d57d5b0cece1-6"></a><span class="go">Usage: StarCluster Command Line Interface:</span>
+<a name="rest_code_9e1cec24846a48319960d57d5b0cece1-7"></a>
+<a name="rest_code_9e1cec24846a48319960d57d5b0cece1-8"></a><span class="go">starcluster [global-opts] action [action-opts] [&lt;action-args&gt; ...]</span>
+<a name="rest_code_9e1cec24846a48319960d57d5b0cece1-9"></a>
+<a name="rest_code_9e1cec24846a48319960d57d5b0cece1-10"></a><span class="go">Available Commands:</span>
+<a name="rest_code_9e1cec24846a48319960d57d5b0cece1-11"></a><span class="go">-------------------</span>
+<a name="rest_code_9e1cec24846a48319960d57d5b0cece1-12"></a><span class="go">NOTE: Pass --help to any command for a list of its options and detailed usage information</span>
+<a name="rest_code_9e1cec24846a48319960d57d5b0cece1-13"></a>
+<a name="rest_code_9e1cec24846a48319960d57d5b0cece1-14"></a><span class="go">- start: Start a new cluster</span>
+<a name="rest_code_9e1cec24846a48319960d57d5b0cece1-15"></a><span class="go">- stop: Stop a running EBS-backed cluster</span>
+<a name="rest_code_9e1cec24846a48319960d57d5b0cece1-16"></a><span class="go">- terminate: Terminate a running or stopped cluster</span>
+<a name="rest_code_9e1cec24846a48319960d57d5b0cece1-17"></a><span class="go">[...]</span>
+</pre>
 <p>We can set the <tt class="docutils literal">STARCLUSTER_CONFIG</tt> environment variable so we don't have to
 provide the full path to the config file everytime we execute a <tt class="docutils literal">starcluster</tt>
 subcommand:</p>
-<pre class="code console"><a name="rest_code_bafe8b5cacc84bc08db0a0f8b859f060-1"></a><span class="gp">$</span> <span class="nb">export</span> <span class="nv">STARCLUSTER_CONFIG</span><span class="o">=</span><span class="s2">"&lt;starcluster-project&gt;/starcluster.cfg"</span>
+<pre class="code console"><a name="rest_code_386cb9f2159041d4829330833ef70767-1"></a><span class="gp">$</span> <span class="nb">export</span> <span class="nv">STARCLUSTER_CONFIG</span><span class="o">=</span><span class="s2">"&lt;starcluster-project&gt;/starcluster.cfg"</span>
+</pre>
+<p>Now we can simply run <tt class="docutils literal">starcluster help</tt> and get the same output as before.</p>
+</div>
+<div class="section" id="aws-credentials-and-connection-settings">
+<h2>AWS Credentials and Connection Settings</h2>
+<pre class="code console"><a name="rest_code_22e7d4919f4742a1853f04ebd0d657ca-1"></a><span class="gp">$</span> starcluster -c ./starcluster.cfg createkey starcluster -o ~/.ssh/starcluster.rsa
+<a name="rest_code_22e7d4919f4742a1853f04ebd0d657ca-2"></a><span class="gp">$</span> starcluster -c ./starcluster.cfg listkeypairs
+</pre>
+<pre class="code diff"><a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-1"></a><span class="gd">--- default.cfg 2016-05-04 15:16:18.000000000 +1000</span>
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-2"></a><span class="gi">+++ starcluster.cfg 2016-05-02 19:29:47.000000000 +1000</span>
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-3"></a><span class="gu">@@ -22,15 +22,15 @@</span>
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-4"></a> # This is the AWS credentials section (required).
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-5"></a> # These settings apply to all clusters
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-6"></a> # replace these with your AWS keys
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-7"></a><span class="gd">-AWS_ACCESS_KEY_ID = #your_aws_access_key_id</span>
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-8"></a><span class="gd">-AWS_SECRET_ACCESS_KEY = #your_secret_access_key</span>
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-9"></a><span class="gi">+AWS_ACCESS_KEY_ID = #your_aws_access_key_id</span>
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-10"></a><span class="gi">+AWS_SECRET_ACCESS_KEY = #your_secret_access_key</span>
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-11"></a> # replace this with your account number
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-12"></a><span class="gd">-AWS_USER_ID= #your userid</span>
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-13"></a><span class="gi">+AWS_USER_ID= #your userid</span>
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-14"></a> # Uncomment to specify a different Amazon AWS region  (OPTIONAL)
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-15"></a> # (defaults to us-east-1 if not specified)
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-16"></a> # NOTE: AMIs have to be migrated!
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-17"></a><span class="gd">-#AWS_REGION_NAME = eu-west-1</span>
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-18"></a><span class="gd">-#AWS_REGION_HOST = ec2.eu-west-1.amazonaws.com</span>
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-19"></a><span class="gi">+AWS_REGION_NAME = ap-southeast-2</span>
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-20"></a><span class="gi">+AWS_REGION_HOST = ec2.ap-southeast-2.amazonaws.com</span>
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-21"></a> # Uncomment these settings when creating an instance-store (S3) AMI (OPTIONAL)
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-22"></a> #EC2_CERT = /path/to/your/cert-asdf0as9df092039asdfi02089.pem
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-23"></a> #EC2_PRIVATE_KEY = /path/to/your/pk-asdfasd890f200909.pem
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-24"></a><span class="gu">@@ -46,8 +46,8 @@</span>
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-25"></a> # Sections starting with "key" define your keypairs. See "starcluster createkey
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-26"></a> # --help" for instructions on how to create a new keypair. Section name should
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-27"></a> # match your key name e.g.:
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-28"></a><span class="gd">-[key mykey]</span>
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-29"></a><span class="gd">-KEY_LOCATION=~/.ssh/mykey.rsa</span>
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-30"></a><span class="gi">+[key starcluster]</span>
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-31"></a><span class="gi">+KEY_LOCATION=~/.ssh/starcluster.rsa</span>
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-32"></a>
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-33"></a> # You can of course have multiple keypair sections
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-34"></a> # [key myotherkey]
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-35"></a><span class="gu">@@ -72,9 +72,9 @@</span>
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-36"></a>
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-37"></a> [cluster smallcluster]
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-38"></a> # change this to the name of one of the keypair sections defined above
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-39"></a><span class="gd">-KEYNAME = mykey</span>
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-40"></a><span class="gi">+KEYNAME = starcluster</span>
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-41"></a> # number of ec2 instances to launch
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-42"></a><span class="gd">-CLUSTER_SIZE = 2</span>
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-43"></a><span class="gi">+CLUSTER_SIZE = 5</span>
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-44"></a> # create the following user on the cluster
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-45"></a> CLUSTER_USER = sgeadmin
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-46"></a> # optionally specify shell (defaults to bash)
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-47"></a><span class="gu">@@ -90,7 +90,7 @@</span>
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-48"></a> # The base i386 StarCluster AMI is ami-9bf9c9f2
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-49"></a> # The base x86_64 StarCluster AMI is ami-3393a45a
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-50"></a> # The base HVM StarCluster AMI is ami-6b211202
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-51"></a><span class="gd">-NODE_IMAGE_ID = ami-3393a45a</span>
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-52"></a><span class="gi">+NODE_IMAGE_ID = ami-e3841ad9</span>
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-53"></a> # instance type for all cluster nodes
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-54"></a> # (options: m3.large, c3.8xlarge, i2.8xlarge, t2.micro, hs1.8xlarge, c1.xlarge, r3.4xlarge, g2.2xlarge, m1.small, c1.medium, m3.2xlarge, c3.2xlarge, m2.xlarge, m2.2xlarge, t2.small, r3.2xlarge, t1.micro, cr1.8xlarge, r3.8xlarge, cc1.4xlarge, m1.medium, r3.large, c3.xlarge, i2.xlarge, m3.medium, cc2.8xlarge, m1.large, cg1.4xlarge, i2.2xlarge, c3.large, i2.4xlarge, c3.4xlarge, r3.xlarge, t2.medium, hi1.4xlarge, m2.4xlarge, m1.xlarge, m3.xlarge)
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-55"></a> NODE_INSTANCE_TYPE = m1.small
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-56"></a><span class="gu">@@ -122,7 +122,7 @@</span>
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-57"></a> #VOLUMES = oceandata, biodata
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-58"></a> # list of plugins to load after StarCluster's default setup routines (OPTIONAL)
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-59"></a> # see "Configuring StarCluster Plugins" below on how to define plugin sections
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-60"></a><span class="gd">-#PLUGINS = myplugin, myplugin2</span>
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-61"></a><span class="gi">+PLUGINS = ipcluster</span>
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-62"></a> # list of permissions (or firewall rules) to apply to the cluster's security
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-63"></a> # group (OPTIONAL).
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-64"></a> #PERMISSIONS = ssh, http
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-65"></a><span class="gu">@@ -285,8 +285,8 @@</span>
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-66"></a> # The IPCluster plugin configures a parallel IPython cluster with optional
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-67"></a> # web notebook support. This allows you to run Python code in parallel with low
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-68"></a> # latency message passing via ZeroMQ.
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-69"></a><span class="gd">-# [plugin ipcluster]</span>
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-70"></a><span class="gd">-# SETUP_CLASS = starcluster.plugins.ipcluster.IPCluster</span>
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-71"></a><span class="gi">+[plugin ipcluster]</span>
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-72"></a><span class="gi">+SETUP_CLASS = starcluster.plugins.ipcluster.IPCluster</span>
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-73"></a> # # Enable the IPython notebook server (optional)
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-74"></a> # ENABLE_NOTEBOOK = True
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-75"></a> # # Set a password for the notebook for increased security
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-76"></a><span class="gu">@@ -294,9 +294,9 @@</span>
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-77"></a> # NOTEBOOK_PASSWD = a-secret-password
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-78"></a> # # Set a custom directory for storing/loading notebooks (optional)
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-79"></a> # NOTEBOOK_DIRECTORY = /path/to/notebook/dir
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-80"></a><span class="gd">-# # Set a custom packer. Must be one of 'json', 'pickle', or 'msgpack'</span>
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-81"></a><span class="gd">-# # This is optional.</span>
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-82"></a><span class="gd">-# PACKER = pickle</span>
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-83"></a><span class="gi">+# Set a custom packer. Must be one of 'json', 'pickle', or 'msgpack'</span>
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-84"></a><span class="gi">+# This is optional.</span>
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-85"></a><span class="gi">+PACKER = json</span>
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-86"></a> #
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-87"></a> # Use this plugin to create a cluster SSH "dashboard" using tmux. The plugin
+<a name="rest_code_b44da4e37fa548ddad19d723d3dfa6ae-88"></a> # creates a tmux session on the master node that automatically connects to all
 </pre>
 </div>
 </div>

@@ -163,6 +163,7 @@ in favor of something better.
               * cookiecutter_
               * ZeroMQ_
               * `Protocol Buffers`_ (protobufs)
+              * Pygments
 
 .. _Haskell: /tags/haskell
 .. _C: /tags/c

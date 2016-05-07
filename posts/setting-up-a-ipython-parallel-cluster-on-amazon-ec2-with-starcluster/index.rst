@@ -109,109 +109,245 @@ subcommand:
 
 Now we can simply run ``starcluster help`` and get the same output as before.
 
+For further information, see `Creating the configuration file`_
+
 AWS Credentials and Connection Settings
 ---------------------------------------
+
+Next fill in your AWS credentials and connection settings under the ``[aws info]``
+section. 
+
+You can (kind of) generate this with the `AWS Command Line Interface`_, by 
+creating a named profile with the name ``aws info``:
+
+..  code:: console
+
+    $ aws configure --profile='aws info'
+    AWS Access Key ID [None]: ###
+    AWS Secret Access Key [None]: ###
+    Default region name [None]: 
+    Default output format [None]: 
+    $ cat ~/.aws/credentials
+    [aws info]
+    aws_access_key_id = ###
+    aws_secret_access_key = ###
+
+You just need to include these credentials in the global config file (``starcluster.cfg`` 
+in this tutorial):
+
+..  code:: ini
+
+    [global]
+    include = ~/.aws/credentials
+
+The full list of Regions and Endpoints can be found at 
+http://docs.aws.amazon.com/general/latest/gr/rande.html#ec2_region, and 
+information on how to determine your Account ID can be found at
+http://docs.aws.amazon.com/general/latest/gr/acct-identifiers.html.
+
+For further information, see `Amazon Web Services Credentials`_.
+
+Amazon EC2 Keypairs
+-------------------
+
+The next step is to fill in your keypair information. If you don’t already 
+have a keypair you can create one directly with StarCluster:
 
 ..  code:: console
 
     $ starcluster -c ./starcluster.cfg createkey starcluster -o ~/.ssh/starcluster.rsa
+
+You should be able to see the keypair you just created, and any other existing
+ones on Amazon EC2:
+
+..  code:: console
+
     $ starcluster -c ./starcluster.cfg listkeypairs
+
+You must define this key the the location of the private key in the config (``starcluster.cfg``):
+
+..  code:: ini
+
+    [key starcluster]
+    KEY_LOCATION=~/.ssh/starcluster.rsa
+
+For more information, see `Amazon EC2 Keypairs`_.
+
+Defining Cluster Templates
+--------------------------
+
+Now you just need to define your cluster templates. The default settings are
+quite reasonable. You can find a description of every setting at 
+http://star.mit.edu/cluster/docs/latest/manual/configuration.html#cluster-settings.
+
+The only change you are required to make is to specifying the keypair we just created
+to be used by the cluster.
+
+..  code:: console
+
+    [cluster smallcluster]
+    # change this to the name of one of the keypair sections defined above
+    KEYNAME = starcluster
+
+Depending on the AWS region you specified, you may need to modify the AMI Image
+ID, as not all AMIs are available in all across all regions. You can use the 
+``listpublic`` subcommand to see the list of available AMIs. Here we list all
+available AMIs for the ``ap-southeast-2`` region:
+
+..  code:: console
+
+    $ starcluster listpublic
+    StarCluster - (http://star.mit.edu/cluster) (v. 0.95.6)
+    Software Tools for Academics and Researchers (STAR)
+    Please submit bug reports to starcluster@mit.edu
+
+    >>> Listing all public StarCluster images...
+
+    32bit Images:
+    -------------
+    [0] ami-d58719ef ap-southeast-2 starcluster-base-ubuntu-13.04-x86 (EBS)
+    [1] ami-1adf4f20 ap-southeast-2 starcluster-base-ubuntu-12.04-x86 (EBS)
+
+    64bit Images:
+    --------------
+    [0] ami-cd841af7 ap-southeast-2 starcluster-base-ubuntu-13.04-x86_64-hvm (HVM-EBS)
+    [1] ami-e3841ad9 ap-southeast-2 starcluster-base-ubuntu-13.04-x86_64 (EBS)
+    [2] ami-18df4f22 ap-southeast-2 starcluster-base-ubuntu-12.04-x86_64 (EBS)
+
+    total images: 5
+
+Note that you can have multiple cluster templates, and are able to inherit 
+settings existing templates. For more information, see `Defining Multiple Cluster Templates`_.
+
+Enable the IPython Cluster Plugin
+---------------------------------
+
+Finally, you must define settings for the built-in ``ipcluster`` plugin:
+
+..  code:: ini
+
+    # The IPCluster plugin configures a parallel IPython cluster with optional
+    # web notebook support. This allows you to run Python code in parallel with low
+    # latency message passing via ZeroMQ.
+    [plugin ipcluster]
+    SETUP_CLASS = starcluster.plugins.ipcluster.IPCluster
+    # Set a custom packer. Must be one of 'json', 'pickle', or 'msgpack'
+    # This is optional.
+    PACKER = json
+
+We don't enable the IPython Notebook here, although this is quite straight-forward,
+and instructions can be found at http://star.mit.edu/cluster/docs/latest/plugins/ipython.html#using-the-ipython-html-notebook.
+
+Lastly, you need to add ``ipcluster`` to the list of plugins to be loaded after 
+StarCluster's default setup routines
 
 ..  code:: diff
 
-    --- default.cfg 2016-05-04 15:16:18.000000000 +1000
-    +++ starcluster.cfg 2016-05-02 19:29:47.000000000 +1000
-    @@ -22,15 +22,15 @@
-     # This is the AWS credentials section (required).
-     # These settings apply to all clusters
-     # replace these with your AWS keys
-    -AWS_ACCESS_KEY_ID = #your_aws_access_key_id
-    -AWS_SECRET_ACCESS_KEY = #your_secret_access_key
-    +AWS_ACCESS_KEY_ID = #your_aws_access_key_id
-    +AWS_SECRET_ACCESS_KEY = #your_secret_access_key
-     # replace this with your account number
-    -AWS_USER_ID= #your userid
-    +AWS_USER_ID= #your userid
-     # Uncomment to specify a different Amazon AWS region  (OPTIONAL)
-     # (defaults to us-east-1 if not specified)
-     # NOTE: AMIs have to be migrated!
-    -#AWS_REGION_NAME = eu-west-1
-    -#AWS_REGION_HOST = ec2.eu-west-1.amazonaws.com
-    +AWS_REGION_NAME = ap-southeast-2
-    +AWS_REGION_HOST = ec2.ap-southeast-2.amazonaws.com
-     # Uncomment these settings when creating an instance-store (S3) AMI (OPTIONAL)
-     #EC2_CERT = /path/to/your/cert-asdf0as9df092039asdfi02089.pem
-     #EC2_PRIVATE_KEY = /path/to/your/pk-asdfasd890f200909.pem
-    @@ -46,8 +46,8 @@
-     # Sections starting with "key" define your keypairs. See "starcluster createkey
-     # --help" for instructions on how to create a new keypair. Section name should
-     # match your key name e.g.:
-    -[key mykey]
-    -KEY_LOCATION=~/.ssh/mykey.rsa
-    +[key starcluster]
-    +KEY_LOCATION=~/.ssh/starcluster.rsa
+    [cluster smallcluster]
+    plugins = ipcluster
 
-     # You can of course have multiple keypair sections
-     # [key myotherkey]
-    @@ -72,9 +72,9 @@
+Starting the Cluster
+--------------------
 
-     [cluster smallcluster]
-     # change this to the name of one of the keypair sections defined above
-    -KEYNAME = mykey
-    +KEYNAME = starcluster
-     # number of ec2 instances to launch
-    -CLUSTER_SIZE = 2
-    +CLUSTER_SIZE = 5
-     # create the following user on the cluster
-     CLUSTER_USER = sgeadmin
-     # optionally specify shell (defaults to bash)
-    @@ -90,7 +90,7 @@
-     # The base i386 StarCluster AMI is ami-9bf9c9f2
-     # The base x86_64 StarCluster AMI is ami-3393a45a
-     # The base HVM StarCluster AMI is ami-6b211202
-    -NODE_IMAGE_ID = ami-3393a45a
-    +NODE_IMAGE_ID = ami-e3841ad9
-     # instance type for all cluster nodes
-     # (options: m3.large, c3.8xlarge, i2.8xlarge, t2.micro, hs1.8xlarge, c1.xlarge, r3.4xlarge, g2.2xlarge, m1.small, c1.medium, m3.2xlarge, c3.2xlarge, m2.xlarge, m2.2xlarge, t2.small, r3.2xlarge, t1.micro, cr1.8xlarge, r3.8xlarge, cc1.4xlarge, m1.medium, r3.large, c3.xlarge, i2.xlarge, m3.medium, cc2.8xlarge, m1.large, cg1.4xlarge, i2.2xlarge, c3.large, i2.4xlarge, c3.4xlarge, r3.xlarge, t2.medium, hi1.4xlarge, m2.4xlarge, m1.xlarge, m3.xlarge)
-     NODE_INSTANCE_TYPE = m1.small
-    @@ -122,7 +122,7 @@
-     #VOLUMES = oceandata, biodata
-     # list of plugins to load after StarCluster's default setup routines (OPTIONAL)
-     # see "Configuring StarCluster Plugins" below on how to define plugin sections
-    -#PLUGINS = myplugin, myplugin2
-    +PLUGINS = ipcluster
-     # list of permissions (or firewall rules) to apply to the cluster's security
-     # group (OPTIONAL).
-     #PERMISSIONS = ssh, http
-    @@ -285,8 +285,8 @@
-     # The IPCluster plugin configures a parallel IPython cluster with optional
-     # web notebook support. This allows you to run Python code in parallel with low
-     # latency message passing via ZeroMQ.
-    -# [plugin ipcluster]
-    -# SETUP_CLASS = starcluster.plugins.ipcluster.IPCluster
-    +[plugin ipcluster]
-    +SETUP_CLASS = starcluster.plugins.ipcluster.IPCluster
-     # # Enable the IPython notebook server (optional)
-     # ENABLE_NOTEBOOK = True
-     # # Set a password for the notebook for increased security
-    @@ -294,9 +294,9 @@
-     # NOTEBOOK_PASSWD = a-secret-password
-     # # Set a custom directory for storing/loading notebooks (optional)
-     # NOTEBOOK_DIRECTORY = /path/to/notebook/dir
-    -# # Set a custom packer. Must be one of 'json', 'pickle', or 'msgpack'
-    -# # This is optional.
-    -# PACKER = pickle
-    +# Set a custom packer. Must be one of 'json', 'pickle', or 'msgpack'
-    +# This is optional.
-    +PACKER = json
-     #
-     # Use this plugin to create a cluster SSH "dashboard" using tmux. The plugin
-     # creates a tmux session on the master node that automatically connects to all
+Now we are finally ready to start the cluster:
 
+..  code:: console
 
+    $ starcluster start mycluster
+
+This will take about 5-10 minutes. Once the cluster has successfully started, 
+you should first SSH into the master node as the ``CLUSTER_USER`` (by default 
+this is ``sgeadmin``). This is important as this will add the master node to
+the list of know hosts, which is required for the subsequent commands to work.
+
+..  code:: console
+
+    $ starcluster sshmaster mycluster -u sgeadmin
+    $ ipython # now you should be able to create a parallel client
+    [~]> from IPython.parallel import Client
+    [~]> rc = Client()
+    [~]> view = rc[:]
+    [~]> results = view.map_async(lambda x: x**30, range(8))
+    [~]> print results.get()
+    [0,
+     1,
+     1073741824,
+     205891132094649L,
+     1152921504606846976L,
+     931322574615478515625L,
+     221073919720733357899776L,
+     22539340290692258087863249L]
+
+You can now create a parallel client on your local machine that connects to and
+leverages the remote cluster. When you run ``starcluster start mycluster``, it
+generates and stores a JSON file containing the client's connection information
+in ``~/.starcluster/ipcluster/``, with the name ``<cluster>-<region>.json'``
+
+..  code:: console
+
+    $ ipython
+    [~]> from IPython.parallel import Client
+    [~]> rc = Client('~/.starcluster/ipcluster/<cluster>-<region>.json'
+                     sshkey='~/.ssh/starcluster.rsa')
+
+See https://ipython.org/ipython-doc/2/parallel/parallel_intro.html for an 
+introduction to using IPython Parallel.
+
+You should also be able to use the IPython Parallel cluster with the 
+``--ipcluster`` option:
+
+..  code:: console
+
+    $ starcluster shell --ipcluster=mycluster
+
+The expected behavior is described below (taken from http://star.mit.edu/cluster/docs/latest/plugins/ipython.html#connecting-from-your-local-ipython-installation): 
+
+    This will start StarCluster’s development shell and configure a remote parallel 
+    session for you automatically. StarCluster will create a parallel client in a 
+    variable named ipclient and a corresponding view of the entire cluster in a 
+    variable named ipview which you can use to run parallel tasks on the remote cluster:
+
+    ..  code:: console
+
+        $ starcluster shell --ipcluster=mycluster
+        [~]> ipclient.ids
+        [0, 1, 2, 3]
+        [~]> res = ipview.map_async(lambda x: x**30, range(8))
+        [~]> print res.get()
+        [0,
+         1,
+         1073741824,
+         205891132094649L,
+         1152921504606846976L,
+         931322574615478515625L,
+         221073919720733357899776L,
+         22539340290692258087863249L]
+
+However, at the time of writing, this feature appears to be broken.
+
+Tearing Down the Cluster
+------------------------
+
+Once you are done with the cluster, remember to tear it down so you don't incur
+unnecessary costs:
+
+..  code:: console
+    
+    $ starcluster terminate mycluster
+
+For help or further information, refer to the `official StarCluster documentation`_.
+
+Best of Luck!
+
+.. _official StarCluster documentation: http://star.mit.edu/cluster/docs/latest/index.html
 .. _StarCluster: http://star.mit.edu/cluster/
 .. _54a61fd: https://github.com/jtriley/StarCluster/commit/54a61fd0add8802e61a8c035944389fe2939be23
 .. _open issue: https://github.com/jtriley/StarCluster/issues/514
 .. _ipyparallel: http://ipyparallel.readthedocs.io/en/latest/
 .. _version 1.1.0: http://ipython.org/ipython-doc/1/index.html
 .. _Client: http://ipyparallel.readthedocs.io/en/latest/api/ipyparallel.html#ipyparallel.Client
+.. _AWS Command Line Interface: https://aws.amazon.com/cli/
+.. _Amazon Web Services Credentials: http://star.mit.edu/cluster/docs/latest/manual/configuration.html#amazon-web-services-credentials
+.. _Creating the configuration file: http://star.mit.edu/cluster/docs/latest/manual/configuration.html#creating-the-configuration-file
+.. _Amazon EC2 Keypairs: http://star.mit.edu/cluster/docs/latest/manual/configuration.html#amazon-ec2-keypairs
+.. _Defining Multiple Cluster Templates: http://star.mit.edu/cluster/docs/latest/manual/configuration.html#defining-multiple-cluster-templates

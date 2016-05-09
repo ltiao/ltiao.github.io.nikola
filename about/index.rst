@@ -27,9 +27,9 @@ In my spare time, if I am not working on one of my `many incomplete side
 projects`_ or hanging out with my Kindle, you'll either find me shooting hoops
 at the gym, or trying to get stronger at `Go`_.
 
-Check out :doc:`my projects <projects>` if you're interested in the stuff I've
-worked on and also :doc:`my dev stack <development-stack>` to get an idea of 
-what I do.
+Check out :doc:`my projects <projects>` if you're interested in the things I 
+make, and also :doc:`my dev stack <development-stack>` for what I like to make
+things with.
 
 .. _University of New South Wales: http://www.cse.unsw.edu.au
 .. _Spatial Analytics Systems Team: http://www.csiro.au/en/Research/D61/Areas/Imaging-and-visualisation/Visualisation/Terria

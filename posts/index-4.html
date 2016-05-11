@@ -87,7 +87,36 @@ MathJax.Hub.Config({
           
     
 <div class="postindex">
-    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="python-simplehttpserver-recipe-enable-cors/" class="u-url">Python SimpleHTTPServer Recipe: Enable CORS</a></h1>
+    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="python-simplehttpserver-recipe-serve-specific-directory/" class="u-url">Python SimpleHTTPServer Recipe: Serve specific directory</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn">
+                Louis Tiao
+            </span></p>
+            <p class="dateline"><a href="python-simplehttpserver-recipe-serve-specific-directory/" rel="bookmark"><time class="published dt-published" datetime="2015-12-10T17:38:27+11:00" title="2015-12-10 17:38">2015-12-10 17:38</time></a></p>
+                <p class="commentline">            <a href="python-simplehttpserver-recipe-serve-specific-directory/#disqus_thread" data-disqus-identifier="cache/posts/python-simplehttpserver-recipe-serve-specific-directory.html">Comments</a>
+
+
+        </p>
+</div>
+    </header><div class="p-summary entry-summary">
+    <div>
+<ul class="simple">
+<li>We need to be able to pass the path to the root of the directory tree we wish
+to serve.</li>
+<li>We can only pass arguments to the <tt class="docutils literal">ServerClass</tt> and not <tt class="docutils literal">HandlerClass</tt>.
+Note however that <tt class="docutils literal">HandlerClass</tt> is passed as an argument to <tt class="docutils literal">ServerClass</tt>
+so we should be able to propagate the argument to <tt class="docutils literal">HandlerClass</tt>.</li>
+<li>The <tt class="docutils literal">translate_path</tt> method of <tt class="docutils literal">SimpleHTTPRequestHandler</tt> takes the
+<tt class="docutils literal">/</tt>-separated path specified in the URL and prepends <tt class="docutils literal">os.getcwd()</tt> to it.
+We just have to instead prepend the  argument we propagated to
+<tt class="docutils literal">SimpleHTTPRequestHandler</tt>.</li>
+<li>Lastly we modify the <tt class="docutils literal">test</tt> function to take multiple optional arguments
+(port and base path) using the excellent module <tt class="docutils literal">argparse</tt>.</li>
+</ul>
+<p class="more"><a href="python-simplehttpserver-recipe-serve-specific-directory/">Read more…</a></p>
+</div>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="python-simplehttpserver-recipe-enable-cors/" class="u-url">Python SimpleHTTPServer Recipe: Enable CORS</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn">
                 Louis Tiao
@@ -101,19 +130,19 @@ MathJax.Hub.Config({
     </header><div class="p-summary entry-summary">
     <div>
 <p>Create a file, let's call it <tt class="docutils literal">cors_http_server.py</tt>, with the code below:</p>
-<pre class="code python"><a name="rest_code_e7254b3c447b4070956feff1ceab9974-1"></a><span class="ch">#! /usr/bin/env python</span>
-<a name="rest_code_e7254b3c447b4070956feff1ceab9974-2"></a>
-<a name="rest_code_e7254b3c447b4070956feff1ceab9974-3"></a><span class="kn">from</span> <span class="nn">SimpleHTTPServer</span> <span class="kn">import</span> <span class="n">SimpleHTTPRequestHandler</span><span class="p">,</span> <span class="n">test</span>
-<a name="rest_code_e7254b3c447b4070956feff1ceab9974-4"></a>
-<a name="rest_code_e7254b3c447b4070956feff1ceab9974-5"></a>
-<a name="rest_code_e7254b3c447b4070956feff1ceab9974-6"></a><span class="k">class</span> <span class="nc">CORSHTTPRequestHandler</span><span class="p">(</span><span class="n">SimpleHTTPRequestHandler</span><span class="p">):</span>
-<a name="rest_code_e7254b3c447b4070956feff1ceab9974-7"></a>
-<a name="rest_code_e7254b3c447b4070956feff1ceab9974-8"></a>    <span class="k">def</span> <span class="nf">end_headers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<a name="rest_code_e7254b3c447b4070956feff1ceab9974-9"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">send_header</span><span class="p">(</span><span class="s1">'Access-Control-Allow-Origin'</span><span class="p">,</span> <span class="s1">'*'</span><span class="p">)</span>
-<a name="rest_code_e7254b3c447b4070956feff1ceab9974-10"></a>        <span class="nb">super</span><span class="p">(</span><span class="n">CORSHTTPRequestHandler</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">end_headers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-<a name="rest_code_e7254b3c447b4070956feff1ceab9974-11"></a>
-<a name="rest_code_e7254b3c447b4070956feff1ceab9974-12"></a><span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">'__main__'</span><span class="p">:</span>
-<a name="rest_code_e7254b3c447b4070956feff1ceab9974-13"></a>    <span class="n">test</span><span class="p">(</span><span class="n">HandlerClass</span><span class="o">=</span><span class="n">CORSHTTPRequestHandler</span><span class="p">)</span>
+<pre class="code python"><a name="rest_code_00fa17493e724586ac9720533ca96d4c-1"></a><span class="ch">#! /usr/bin/env python</span>
+<a name="rest_code_00fa17493e724586ac9720533ca96d4c-2"></a>
+<a name="rest_code_00fa17493e724586ac9720533ca96d4c-3"></a><span class="kn">from</span> <span class="nn">SimpleHTTPServer</span> <span class="kn">import</span> <span class="n">SimpleHTTPRequestHandler</span><span class="p">,</span> <span class="n">test</span>
+<a name="rest_code_00fa17493e724586ac9720533ca96d4c-4"></a>
+<a name="rest_code_00fa17493e724586ac9720533ca96d4c-5"></a>
+<a name="rest_code_00fa17493e724586ac9720533ca96d4c-6"></a><span class="k">class</span> <span class="nc">CORSHTTPRequestHandler</span><span class="p">(</span><span class="n">SimpleHTTPRequestHandler</span><span class="p">):</span>
+<a name="rest_code_00fa17493e724586ac9720533ca96d4c-7"></a>
+<a name="rest_code_00fa17493e724586ac9720533ca96d4c-8"></a>    <span class="k">def</span> <span class="nf">end_headers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<a name="rest_code_00fa17493e724586ac9720533ca96d4c-9"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">send_header</span><span class="p">(</span><span class="s1">'Access-Control-Allow-Origin'</span><span class="p">,</span> <span class="s1">'*'</span><span class="p">)</span>
+<a name="rest_code_00fa17493e724586ac9720533ca96d4c-10"></a>        <span class="nb">super</span><span class="p">(</span><span class="n">CORSHTTPRequestHandler</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">end_headers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+<a name="rest_code_00fa17493e724586ac9720533ca96d4c-11"></a>
+<a name="rest_code_00fa17493e724586ac9720533ca96d4c-12"></a><span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">'__main__'</span><span class="p">:</span>
+<a name="rest_code_00fa17493e724586ac9720533ca96d4c-13"></a>    <span class="n">test</span><span class="p">(</span><span class="n">HandlerClass</span><span class="o">=</span><span class="n">CORSHTTPRequestHandler</span><span class="p">)</span>
 </pre>
 <p class="more"><a href="python-simplehttpserver-recipe-enable-cors/">Read more…</a></p>
 </div>
@@ -135,12 +164,12 @@ MathJax.Hub.Config({
 Scrapy and Nikola. If you are a Mac OSX user, it's highly likely that you have
 encountered the following error when trying to install <tt class="docutils literal">lxml</tt> or its
 dependants with <tt class="docutils literal">pip</tt>:</p>
-<pre class="code console"><a name="rest_code_d886422fa325415398486b3f2cc53224-1"></a><span class="go">In file included from src/lxml/lxml.etree.c:346:</span>
-<a name="rest_code_d886422fa325415398486b3f2cc53224-2"></a><span class="gp">$</span>WORKON_HOME/venv_name/build/lxml/src/lxml/includes/etree_defs.h:9:10: fatal error: <span class="s1">'libxml/xmlversion.h'</span> file not found
-<a name="rest_code_d886422fa325415398486b3f2cc53224-3"></a><span class="gp">#</span>include <span class="s2">"libxml/xmlversion.h"</span>
-<a name="rest_code_d886422fa325415398486b3f2cc53224-4"></a><span class="go">         ^</span>
-<a name="rest_code_d886422fa325415398486b3f2cc53224-5"></a><span class="go">1 error generated.</span>
-<a name="rest_code_d886422fa325415398486b3f2cc53224-6"></a><span class="go">error: command 'clang' failed with exit status 1</span>
+<pre class="code console"><a name="rest_code_d6598e93593d4da5be84de78d1be37e7-1"></a><span class="go">In file included from src/lxml/lxml.etree.c:346:</span>
+<a name="rest_code_d6598e93593d4da5be84de78d1be37e7-2"></a><span class="gp">$</span>WORKON_HOME/venv_name/build/lxml/src/lxml/includes/etree_defs.h:9:10: fatal error: <span class="s1">'libxml/xmlversion.h'</span> file not found
+<a name="rest_code_d6598e93593d4da5be84de78d1be37e7-3"></a><span class="gp">#</span>include <span class="s2">"libxml/xmlversion.h"</span>
+<a name="rest_code_d6598e93593d4da5be84de78d1be37e7-4"></a><span class="go">         ^</span>
+<a name="rest_code_d6598e93593d4da5be84de78d1be37e7-5"></a><span class="go">1 error generated.</span>
+<a name="rest_code_d6598e93593d4da5be84de78d1be37e7-6"></a><span class="go">error: command 'clang' failed with exit status 1</span>
 </pre>
 <p class="more"><a href="installing-lxml-on-mac-osx-1011-inside-a-virtualenv-with-pip/">Read more…</a></p>
 </div>

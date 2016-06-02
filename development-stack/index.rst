@@ -164,6 +164,8 @@ in favor of something better.
               * ZeroMQ_
               * `Protocol Buffers`_ (protobufs)
               * Pygments
+              * NGINX
+              * uWSGI / Gunicorn
 
 .. _Haskell: /tags/haskell
 .. _C: /tags/c

@@ -7,7 +7,7 @@
 .. description: 
 .. type: text
 
-The official Kubernetes_ `walkthrough guides`_ often point to the `guestbook
+The official Kubernetes_ `walkthrough guides`_ often points to the `guestbook
 application`_ as a quintessential example of how a simple, but complete multi-tier 
 web application can be deployed with Kubernetes. As described in the README_, it
 consists of a web frontend, a redis master (for storage), and a replicated set of 
@@ -16,8 +16,8 @@ redis 'slaves'.
 ..  image:: //cloud.google.com/container-engine/images/guestbook.png
     :align: center
 
-This seemed like an ideal starting point for deploying my Flask_ applications that
-uses a similar stack, and also makes use of redis master/slaves. The difficulty 
+This seemed like an ideal starting point for deploying my Flask_ applications 
+with a similar stack, and also makes use of redis master/slaves. The difficulty 
 I found with readily making use of this example as a starting point is that the 
 frontend is implemented in PHP, which is considerably different to modern paradigms
 (Node.js, Flask/Django, Rails, etc.) As described in the README:
@@ -41,10 +41,12 @@ to a HTTP/reverse proxy server. This means the frontend pod will have multiple
 containers. A common practice for deploying Flask applications is to use uWSGI_ 
 as the WSGI server with NGINX_ as the reverse proxy. 
 
-First we create an exact copy of the guestbook example:
+First we fork from the `official Kubernetes repo`_ and create an exact copy of 
+the guestbook example:
 
 ..  code:: console
     
+    $ git clone https://github.com/ltiao/kubernetes
     $ cd kubernetes/examples/
     $ cp -r guestbook guestbook-flask
 
@@ -79,6 +81,14 @@ The current directory structure looks like this:
     └── redis-slave-service.yaml
 
     4 directories, 19 files
+
+Let's track these files:
+
+..  code:: console
+
+    $ git add guestbook-flask/
+
+.. _official Kubernetes repo: https://github.com/kubernetes/kubernetes
 
 Reverse Proxy Server (NGINX) Container
 --------------------------------------
@@ -231,6 +241,12 @@ See the official nginx base image documentation for more information on how to
 fully leverage this image, and `How to Configure Nginx <https://www.linode.com/docs/websites/nginx/how-to-configure-nginx>`_ 
 for more information on NGINX configuration files.
 
+Before moving on, let's track our additions:
+
+..  code:: console
+
+    $ git add guestbook-flask/nginx/
+
 Now we build and push the image:
 
 ..  code:: console
@@ -255,79 +271,259 @@ Of course, the form and the 'Submit' button won't do anything useful... just yet
 The Flask/uWSGI Container
 -------------------------
 
+Now we re-implement server for interacting with redis in Flask. First, let's 
+create a new directory for the files associated with this container.
+
+..  code:: console
+
+    $ mkdir guestbook-flask/flask-redis
+
+requirements.txt
+''''''''''''''''
+
+To run Flask with uWSGI in our container, we just need to install ``flask`` and 
+``uwsgi`` from PyPI. The only other Python package our Flask app depends on is 
+`redis-py`_ (simply redis_ on PyPI_):
+
+..  code:: console
+
+    $ vim guestbook-flask/flask-redis/requirements.txt
+
+..  code::
+
+    flask
+    uwsgi
+    redis
+
+.. _PyPI: https://pypi.python.org/
+.. _redis: https://pypi.python.org/pypi/redis
+.. _redis-py: https://redis-py.readthedocs.io/en/latest/
+
+app.py
+''''''
+
+Our Flask app re-implements the PHP server (``guestbook.php``), which handles
+requests and interacts with the redis master and slaves. The only supported route
+is ``GET`` requests to ``/guestbook/``.
+
+..  code:: console
+
+    $ vim guestbook-flask/flask-redis/app.py
+
+..  code:: python
+
+    from flask import Flask, jsonify, request
+    from redis import StrictRedis
+
+    import os
+
+
+    app = Flask(__name__)
+
+
+    @app.route('/guestbook/')
+    def redis():
+
+        if 'cmd' in request.args:
+
+            host = 'redis-master'
+            if os.environ.get('GET_HOSTS_FROM') == 'env':
+                host = os.environ.get('REDIS_MASTER_SERVICE_HOST')
+
+            if request.args.get('cmd') == 'set':
+
+                r = StrictRedis(host=host, port=6379)
+                r.set(request.args.get('key'), request.args.get('value'))
+                return jsonify(message='Updated')
+
+            else:
+
+                host = 'redis-slave'
+                if os.environ.get('GET_HOSTS_FROM') == 'env':
+                    host = os.environ.get('REDIS_SLAVE_SERVICE_HOST')
+
+                r = StrictRedis(host=host, port=6379)
+                value = r.get(request.args.get('key')) or b''
+                return jsonify(data=value.decode('utf-8'))
+
+For brevity, and also in the interest of remaining faithful to the original 
+implementation, we intentionally omit any robust error handling. Just be aware 
+that the above code will fail spectacularly in all sorts of cases (e.g. ``GET`` 
+requests without queries), but so would the original ``guestbook.php``. It is 
+only guaranteed to work correctly with the AngularJS controller 
+(``controllers.js``) defined previously.
+
+conf.ini
+''''''''
+
+Create and edit the uWSGI configuration file:
+
+..  code:: console
+
+    $ vim guestbook-flask/flask-redis/conf.ini
+
+..  code:: ini
+
+    [uwsgi]
+    socket = :8080
+    wsgi-file = app.py
+    callable = app
+    master = true
+    processes = 4
+    threads = 2
+
+Refer to the `uWSGI documentation <https://uwsgi-docs.readthedocs.io/en/latest/WSGIquickstart.html#deploying-flask>`_ for more information on these settings.
+
+Dockerfile
+''''''''''
+
+Finally, we create and edit the Dockerfile for this image:
+
+..  code:: console
+
+    $ vim guestbook-flask/flask-redis/Dockerfile
+
+..  code:: docker
+
+    FROM python:3.5.1-onbuild
+
+    EXPOSE 8080
+    CMD ["uwsgi", "--ini", "conf.ini"]
+
+This image uses the `onbuild variant`_ of the `official Python image`_, which 
+automatically copies our files (``app.py``, ``requirements.txt``, ``conf.ini``)
+to the image, and uses ``pip`` to install the requirements. For more information
+about the ``ONBUILD`` command please see the `Dockerfile reference`_.
+
+Before moving on, let's track our additions:
+
+..  code:: console
+
+    $ git add guestbook-flask/flask-redis/
+
+Like before, we build and push the image:
+
+..  code:: console
+
+    $ docker build -t tiao/gb-frontend-flask-redis guestbook-flask/flask-redis
+    $ docker push tiao/gb-frontend-flask-redis
+
+There is no point in running it as a sanity test, as none of the redis masters 
+or slaves will exist, and because there is no error handling, everything will 
+just crash immediately.
+
+.. _official Python image: https://hub.docker.com/_/python/
+.. _onbuild variant: https://github.com/docker-library/python/blob/0fa3202789648132971160f686f5a37595108f44/3.5/onbuild/Dockerfile
+.. _Dockerfile reference: https://docs.docker.com/engine/reference/builder/#onbuild
 
 Updating the Frontend Deployment
 --------------------------------
 
-
-
-
-..  code:: console
-
-    $ gst
-    On branch master
-    Your branch is up-to-date with 'origin/master'.
-    Changes to be committed:
-      (use "git reset HEAD <file>..." to unstage)
-
-        new file:   examples/guestbook/flask-redis/Dockerfile
-        new file:   examples/guestbook/flask-redis/README.md
-        new file:   examples/guestbook/flask-redis/app.py
-        new file:   examples/guestbook/flask-redis/conf.ini
-        new file:   examples/guestbook/flask-redis/requirements.txt
-        new file:   examples/guestbook/nginx/Dockerfile
-        new file:   examples/guestbook/nginx/controllers.js
-        new file:   examples/guestbook/nginx/index.html
-        new file:   examples/guestbook/nginx/nginx.conf
-
-    Changes not staged for commit:
-      (use "git add/rm <file>..." to update what will be committed)
-      (use "git checkout -- <file>..." to discard changes in working directory)
-
-        modified:   examples/guestbook/README.md
-        modified:   examples/guestbook/all-in-one/frontend.yaml
-        modified:   examples/guestbook/all-in-one/guestbook-all-in-one.yaml
-        modified:   examples/guestbook/frontend-deployment.yaml
-        modified:   examples/guestbook/frontend-service.yaml
-        deleted:    examples/guestbook/legacy/frontend-controller.yaml
-        deleted:    examples/guestbook/legacy/redis-master-controller.yaml
-        deleted:    examples/guestbook/legacy/redis-slave-controller.yaml
-        deleted:    examples/guestbook/php-redis/Dockerfile
-        deleted:    examples/guestbook/php-redis/controllers.js
-        deleted:    examples/guestbook/php-redis/guestbook.php
-        deleted:    examples/guestbook/php-redis/index.html
-
-The directory structure.
+Lastly, we modify the frontend Deployment to replace the existing container in 
+the frontend Pod with the containers we just created and pushed.
 
 ..  code:: console
 
-    $ tree kubernetes/examples/guestbook
-    kubernetes/examples/guestbook
-    ├── README.md
-    ├── all-in-one
-    │   ├── frontend.yaml
-    │   ├── guestbook-all-in-one.yaml
-    │   └── redis-slave.yaml
-    ├── frontend-deployment.yaml
-    ├── frontend-service.yaml
-    ├── legacy
-    │   ├── frontend-controller.yaml
-    │   ├── redis-master-controller.yaml
-    │   └── redis-slave-controller.yaml
-    ├── php-redis
-    │   ├── Dockerfile
-    │   ├── controllers.js
-    │   ├── guestbook.php
-    │   └── index.html
-    ├── redis-master-deployment.yaml
-    ├── redis-master-service.yaml
-    ├── redis-slave
-    │   ├── Dockerfile
-    │   └── run.sh
-    ├── redis-slave-deployment.yaml
-    └── redis-slave-service.yaml
+    $ vim guestbook-flask/frontend-deployment.yaml
 
-    4 directories, 19 files
+Under ``.spec.template.spec.containers``, add the following containers:
+
+..  code:: yaml
+
+    containers:
+    - name: flask-redis
+      image: tiao/gb-frontend-flask-redis
+      resources:
+        requests:
+          cpu: 100m
+          memory: 100Mi
+      env:
+      - name: GET_HOSTS_FROM
+        value: dns
+        # If your cluster config does not include a dns service, then to
+        # instead access environment variables to find service host
+        # info, comment out the 'value: dns' line above, and uncomment the
+        # line below.
+        # value: env
+      ports:
+      - containerPort: 8080
+    - name: nginx
+      image: tiao/gb-frontend-nginx
+      ports:
+      - containerPort: 80
+
+The change should look exactly like this: 
+
+..  code:: diff
+
+    --- guestbook/frontend-deployment.yaml  2016-06-02 14:01:30.000000000 +1000
+    +++ guestbook-flask/frontend-deployment.yaml    2016-06-02 16:56:24.000000000 +1000
+    @@ -24,8 +24,8 @@
+             tier: frontend
+         spec:
+           containers:
+    -      - name: php-redis
+    -        image: gcr.io/google-samples/gb-frontend:v4
+    +      - name: flask-redis
+    +        image: tiao/gb-frontend-flask-redis
+             resources:
+               requests:
+                 cpu: 100m
+    @@ -39,4 +39,8 @@
+               # line below.
+               # value: env
+             ports:
+    +        - containerPort: 8080
+    +      - name: nginx
+    +        image: tiao/gb-frontend-nginx
+    +        ports:
+             - containerPort: 80
+
+We also update the "all-in-one" variants of these configurations in exactly the 
+same way:
+
+..  code:: console
+
+    $ vim guestbook-flask/all-in-one/frontend.yaml
+    $ vim guestbook-flask/all-in-one/guestbook-all-in-one.yaml
+
+At last, we can create all related Deployments and Services:
+
+..  code:: console
+
+    $ kubectl create -f guestbook-flask
+    deployment "frontend" created
+    service "frontend" created
+    deployment "redis-master" created
+    service "redis-master" created
+    deployment "redis-slave" created
+    service "redis-slave" created
+
+Now you should be able to see a live, running Guestbook example with functionality 
+and behavior identical to that of the original PHP implementation.
+
+Wrapping Up
+-----------
+
+Time wrap things up. First, let's delete the Deployments and Services:
+
+..  code:: console
+
+    $ kubectl delete -f guestbook-flask
+    deployment "frontend" deleted
+    service "frontend" deleted
+    deployment "redis-master" deleted
+    service "redis-master" deleted
+    deployment "redis-slave" deleted
+    service "redis-slave" deleted
+
+We can get rid of the PHP server, and other irrelevant legacy stuff:
+
+..  code:: console
+
+    $ rm -r guestbook-flask/legacy guestbook-flask/php-redis
+
+At this point, the directory structure should look like this:
 
 ..  code:: console
 
@@ -340,7 +536,6 @@ The directory structure.
     │   └── redis-slave.yaml
     ├── flask-redis
     │   ├── Dockerfile
-    │   ├── README.md
     │   ├── app.py
     │   ├── conf.ini
     │   └── requirements.txt
@@ -359,9 +554,19 @@ The directory structure.
     ├── redis-slave-deployment.yaml
     └── redis-slave-service.yaml
 
-    4 directories, 21 files
+    4 directories, 20 files
 
-https://cloud.google.com/container-engine/docs/tutorials/guestbook
+At this point, we can commit our changes and push to the fork:
+
+..  code:: console
+
+    $ git commit -am 'Re-implemented Guestbook example with Flask/uWSGI/NGINX'
+    $ git push origin master
+
+At some point, if deemed useful by the Kubernetes Development Team and Community, 
+I will submit a pull request to incorporate this into the ``examples`` directory. 
+For now, you can clone `my fork <https://github.com/ltiao/kubernetes>`_ if you 
+wish to tinker with this example.
 
 .. _Kubernetes: http://kubernetes.io/
 .. _guestbook application: https://github.com/kubernetes/kubernetes/tree/master/examples/guestbook

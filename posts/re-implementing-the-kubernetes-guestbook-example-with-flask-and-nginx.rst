@@ -271,7 +271,7 @@ Of course, the form and the 'Submit' button won't do anything useful... just yet
 The Flask/uWSGI Container
 -------------------------
 
-Now we re-implement server for interacting with redis in Flask. First, let's 
+Now we re-implement the server that interacts with redis in Flask. First, let's 
 create a new directory for the files associated with this container.
 
 ..  code:: console
@@ -556,7 +556,7 @@ At this point, the directory structure should look like this:
 
     4 directories, 20 files
 
-At this point, we can commit our changes and push to the fork:
+We can commit our changes and push to the fork:
 
 ..  code:: console
 

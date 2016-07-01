@@ -2,7 +2,7 @@
 .. slug: re-implementing-the-kubernetes-guestbook-example-with-flask-and-nginx
 .. date: 2016-05-25 14:10:00 UTC+10:00
 .. tags: kubernetes, docker, flask, nginx, uwsgi, html, angularjs, redis
-.. category: 
+.. category: coding
 .. link: 
 .. description: 
 .. type: text

@@ -5,20 +5,18 @@ article: http://ogp.me/ns/article#
 " lang="en">
 <head>
 <meta charset="utf-8">
-<base href="http://louistiao.me/posts/">
-<meta name="description" content="Computer Science / Math / Software Engineering">
+<base href="http://louistiao.me/posts/walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes/">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Louis Tiao</title>
-<link href="../assets/css/all.css" rel="stylesheet" type="text/css">
-<link href="../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
-<link href="../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
+<title>Walkthrough: Deploying a Flask app with Redis Queue (RQ) Workers and Dashboard using Kubernetes | Louis Tiao</title>
+<link href="../../assets/css/all.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
 <meta content="#5670d4" name="theme-color">
-<link rel="alternate" type="application/rss+xml" title="RSS" href="../rss.xml">
-<link rel="canonical" href="http://louistiao.me/posts/">
-<link rel="icon" href="../favicon_32x32.ico" sizes="32x32">
-<link rel="icon" href="../favicon_16x16.ico" sizes="16x16">
-<link rel="icon" href="../favicon_256x256.ico" sizes="256x256">
-<link rel="next" href="index-4.html" type="text/html">
+<link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
+<link rel="canonical" href="http://louistiao.me/posts/walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes/">
+<link rel="icon" href="../../favicon_32x32.ico" sizes="32x32">
+<link rel="icon" href="../../favicon_16x16.ico" sizes="16x16">
+<link rel="icon" href="../../favicon_256x256.ico" sizes="256x256">
 <script type="text/x-mathjax-config">
 MathJax.Hub.Config({
     tex2jax: {
@@ -31,7 +29,7 @@ MathJax.Hub.Config({
         styles: {'.MathJax_Display': {"margin": 0}}
     }
 });
-</script><!--[if lt IE 9]><script src="../assets/js/html5.js"></script><![endif]--><!--
+</script><!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><!--
 
     /\\\\\\\\\\\\\\\  /\\\\\\\\\\\     /\\\\\\\\\          /\\\\\              
     \///////\\\/////  \/////\\\///    /\\\\\\\\\\\\\      /\\\///\\\           
@@ -43,7 +41,32 @@ MathJax.Hub.Config({
                 \/\\\        /\\\\\\\\\\\ \/\\\       \/\\\    \///\\\\\/      
                  \///        \///////////  \///        \///       \/////       
 
--->
+--><meta name="author" content="Louis Tiao">
+<link rel="prev" href="../re-implementing-the-kubernetes-guestbook-example-with-flask-and-nginx/" title="Re-implementing the Kubernetes Guestbook Example with Flask and NGINX" type="text/html">
+<meta property="og:site_name" content="Louis Tiao">
+<meta property="og:title" content="Walkthrough: Deploying a Flask app with Redis Queue (RQ) Workers and D">
+<meta property="og:url" content="http://louistiao.me/posts/walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes/">
+<meta property="og:description" content="Contents
+
+1   Deploy the Redis master
+2   Deploy the Flask web app
+2.1   requirements.txt
+2.2   settings.py
+2.3   app.py
+2.4   Dockerfile
+2.5   web-flask-deployment.yaml
+2.6   web-flask-service.yaml
+
+">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2016-07-01T14:12:07+10:00">
+<meta property="article:tag" content="docker">
+<meta property="article:tag" content="flask">
+<meta property="article:tag" content="jsonpath">
+<meta property="article:tag" content="kubernetes">
+<meta property="article:tag" content="redis">
+<meta property="article:tag" content="rq">
+<meta property="article:tag" content="yaml">
 </head>
 <body>
   <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
@@ -52,16 +75,16 @@ MathJax.Hub.Config({
     <div class="header clearfix">
       <nav><ul class="nav nav-pills pull-right">
 <li>
-<a href="../">About</a>
+<a href="../../">About</a>
                 </li>
 <li>
-<a href="../projects/">Projects</a>
-                </li>
-<li class="active">
-<a href=".">Posts <span class="sr-only">(active)</span></a>
+<a href="../../projects/">Projects</a>
                 </li>
 <li>
-<a href="../archive.html">Archive</a>
+<a href="../">Posts</a>
+                </li>
+<li>
+<a href="../../archive.html">Archive</a>
 
           
         </li>
@@ -77,6 +100,9 @@ MathJax.Hub.Config({
 <!--     <div class="row">
 
       <ul class="nav nav-pills pull-right">
+    <li>
+    <a href="/posts/walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes/index.rst" id="sourcelink">Source</a>
+    </li>
           
       </ul>
     </div> -->
@@ -86,49 +112,51 @@ MathJax.Hub.Config({
         <!--Body content-->
         <div class="row">
           
-    
-<div class="postindex">
-    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes/" class="u-url">Walkthrough: Deploying a Flask app with Redis Queue (RQ) Workers and Dashboard using Kubernetes</a></h1>
+<article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">Walkthrough: Deploying a Flask app with Redis Queue (RQ) Workers and Dashboard using Kubernetes</a></h1>
+
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn">
-                Louis Tiao
+                    Louis Tiao
             </span></p>
-            <p class="dateline"><a href="walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes/" rel="bookmark"><time class="published dt-published" datetime="2016-07-01T14:12:07+10:00" title="2016-07-01 14:12">2016-07-01 14:12</time></a></p>
-                <p class="commentline">            <a href="walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes/#disqus_thread" data-disqus-identifier="cache/posts/walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes.html">Comments</a>
+            <p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2016-07-01T14:12:07+10:00" itemprop="datePublished" title="2016-07-01 14:12">2016-07-01 14:12</time></a></p>
+                <p class="commentline">            <a href="#disqus_thread" data-disqus-identifier="cache/posts/walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes.html">Comments</a>
 
 
-        </p>
-</div>
-    </header><div class="p-summary entry-summary">
+                    </p>
+<p class="sourceline"><a href="index.rst" id="sourcelink">Source</a></p>
+
+        </div>
+        
+    </header><div class="e-content entry-content" itemprop="articleBody text">
     <div>
-<img alt="../../images/rq-dashboard.png" class="align-center" src="../images/rq-dashboard.png"><div class="contents topic" id="contents">
+<img alt="../../images/rq-dashboard.png" class="align-center" src="../../images/rq-dashboard.png"><div class="contents topic" id="contents">
 <p class="topic-title first">Contents</p>
 <ul class="auto-toc simple">
-<li><a class="reference internal" href="walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes/#deploy-the-redis-master" id="id4">1   Deploy the Redis master</a></li>
+<li><a class="reference internal" href="#deploy-the-redis-master" id="id4">1   Deploy the Redis master</a></li>
 <li>
-<a class="reference internal" href="walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes/#deploy-the-flask-web-app" id="id5">2   Deploy the Flask web app</a><ul class="auto-toc">
-<li><a class="reference internal" href="walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes/#requirements-txt" id="id6">2.1   requirements.txt</a></li>
-<li><a class="reference internal" href="walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes/#settings-py" id="id7">2.2   settings.py</a></li>
-<li><a class="reference internal" href="walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes/#app-py" id="id8">2.3   app.py</a></li>
-<li><a class="reference internal" href="walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes/#dockerfile" id="id9">2.4   Dockerfile</a></li>
-<li><a class="reference internal" href="walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes/#web-flask-deployment-yaml" id="id10">2.5   web-flask-deployment.yaml</a></li>
-<li><a class="reference internal" href="walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes/#web-flask-service-yaml" id="id11">2.6   web-flask-service.yaml</a></li>
+<a class="reference internal" href="#deploy-the-flask-web-app" id="id5">2   Deploy the Flask web app</a><ul class="auto-toc">
+<li><a class="reference internal" href="#requirements-txt" id="id6">2.1   requirements.txt</a></li>
+<li><a class="reference internal" href="#settings-py" id="id7">2.2   settings.py</a></li>
+<li><a class="reference internal" href="#app-py" id="id8">2.3   app.py</a></li>
+<li><a class="reference internal" href="#dockerfile" id="id9">2.4   Dockerfile</a></li>
+<li><a class="reference internal" href="#web-flask-deployment-yaml" id="id10">2.5   web-flask-deployment.yaml</a></li>
+<li><a class="reference internal" href="#web-flask-service-yaml" id="id11">2.6   web-flask-service.yaml</a></li>
 </ul>
 </li>
 <li>
-<a class="reference internal" href="walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes/#deploy-the-redis-queue-rq-workers" id="id12">3   Deploy the Redis Queue (RQ) workers</a><ul class="auto-toc">
-<li><a class="reference internal" href="walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes/#id1" id="id13">3.1   Dockerfile</a></li>
-<li><a class="reference internal" href="walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes/#rq-worker-deployment-yaml" id="id14">3.2   rq-worker-deployment.yaml</a></li>
+<a class="reference internal" href="#deploy-the-redis-queue-rq-workers" id="id12">3   Deploy the Redis Queue (RQ) workers</a><ul class="auto-toc">
+<li><a class="reference internal" href="#id1" id="id13">3.1   Dockerfile</a></li>
+<li><a class="reference internal" href="#rq-worker-deployment-yaml" id="id14">3.2   rq-worker-deployment.yaml</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes/#testing-it-out" id="id15">4   Testing it out</a></li>
+<li><a class="reference internal" href="#testing-it-out" id="id15">4   Testing it out</a></li>
 <li>
-<a class="reference internal" href="walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes/#rq-dashboard-optional" id="id16">5   RQ Dashboard (Optional)</a><ul class="auto-toc">
-<li><a class="reference internal" href="walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes/#id2" id="id17">5.1   requirements.txt</a></li>
-<li><a class="reference internal" href="walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes/#id3" id="id18">5.2   Dockerfile</a></li>
-<li><a class="reference internal" href="walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes/#rq-dashboard-deployment-yaml" id="id19">5.3   rq-dashboard-deployment.yaml</a></li>
-<li><a class="reference internal" href="walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes/#rq-dashboard-service-yaml" id="id20">5.4   rq-dashboard-service.yaml</a></li>
-<li><a class="reference internal" href="walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes/#alternative-solution-integrate-the-dashboard-in-our-flask-app" id="id21">5.5   Alternative Solution: Integrate the Dashboard in our Flask app</a></li>
+<a class="reference internal" href="#rq-dashboard-optional" id="id16">5   RQ Dashboard (Optional)</a><ul class="auto-toc">
+<li><a class="reference internal" href="#id2" id="id17">5.1   requirements.txt</a></li>
+<li><a class="reference internal" href="#id3" id="id18">5.2   Dockerfile</a></li>
+<li><a class="reference internal" href="#rq-dashboard-deployment-yaml" id="id19">5.3   rq-dashboard-deployment.yaml</a></li>
+<li><a class="reference internal" href="#rq-dashboard-service-yaml" id="id20">5.4   rq-dashboard-service.yaml</a></li>
+<li><a class="reference internal" href="#alternative-solution-integrate-the-dashboard-in-our-flask-app" id="id21">5.5   Alternative Solution: Integrate the Dashboard in our Flask app</a></li>
 </ul>
 </li>
 </ul>
@@ -137,7 +165,7 @@ MathJax.Hub.Config({
 <a name="rest_code_83ee9834a60741c885505f146f114174-2"></a><span class="gp">$</span> <span class="nb">cd</span> flask-redis-queue
 </pre>
 <div class="section" id="deploy-the-redis-master">
-<h2><a class="toc-backref" href="walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes/#id4">1   Deploy the Redis master</a></h2>
+<h2><a class="toc-backref" href="#id4">1   Deploy the Redis master</a></h2>
 <p>a</p>
 <pre class="code console"><a name="rest_code_88d85f687e294699a458b97a4496d82f-1"></a><span class="gp">$</span> kubectl run redis-master --image<span class="o">=</span>redis --replicas<span class="o">=</span><span class="m">1</span> --port<span class="o">=</span><span class="m">6379</span> <span class="se">\</span>
 <a name="rest_code_88d85f687e294699a458b97a4496d82f-2"></a><span class="gp">&gt;</span>                          --labels<span class="o">=</span><span class="s1">'app=redis,role=master,tier=backend'</span> <span class="se">\</span>
@@ -212,11 +240,11 @@ MathJax.Hub.Config({
 </pre>
 </div>
 <div class="section" id="deploy-the-flask-web-app">
-<h2><a class="toc-backref" href="walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes/#id5">2   Deploy the Flask web app</a></h2>
+<h2><a class="toc-backref" href="#id5">2   Deploy the Flask web app</a></h2>
 <pre class="code console"><a name="rest_code_739818d6f12d4e6080290a4342cd1bf9-1"></a><span class="gp">$</span> mkdir web-flask
 </pre>
 <div class="section" id="requirements-txt">
-<h3><a class="toc-backref" href="walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes/#id6">2.1   requirements.txt</a></h3>
+<h3><a class="toc-backref" href="#id6">2.1   requirements.txt</a></h3>
 <pre class="code console"><a name="rest_code_180cc9aeb9b948f0b8e30a22c7cfed5e-1"></a><span class="gp">$</span> cat &gt; web-flask/requirements.txt
 <a name="rest_code_180cc9aeb9b948f0b8e30a22c7cfed5e-2"></a><span class="go">flask</span>
 <a name="rest_code_180cc9aeb9b948f0b8e30a22c7cfed5e-3"></a><span class="go">redis</span>
@@ -224,7 +252,7 @@ MathJax.Hub.Config({
 </pre>
 </div>
 <div class="section" id="settings-py">
-<h3><a class="toc-backref" href="walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes/#id7">2.2   settings.py</a></h3>
+<h3><a class="toc-backref" href="#id7">2.2   settings.py</a></h3>
 <pre class="code console"><a name="rest_code_35a831a5e2b240de8d0b06be2fdbaa06-1"></a><span class="gp">$</span> <span class="nv">$EDITOR</span> web-flask/settings.py
 </pre>
 <pre class="code python"><a name="rest_code_b47e951a70be4f029cd6ae291de792d8-1"></a><span class="kn">import</span> <span class="nn">os</span>
@@ -235,7 +263,7 @@ MathJax.Hub.Config({
 </pre>
 </div>
 <div class="section" id="app-py">
-<h3><a class="toc-backref" href="walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes/#id8">2.3   app.py</a></h3>
+<h3><a class="toc-backref" href="#id8">2.3   app.py</a></h3>
 <pre class="code console"><a name="rest_code_1c0e903998d0439faa17e5a6a52dde02-1"></a><span class="gp">$</span> <span class="nv">$EDITOR</span> web-flask/app.py
 </pre>
 <pre class="code python"><a name="rest_code_0217ca1093de4b389c1a413ee439deac-1"></a><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span><span class="p">,</span> <span class="n">jsonify</span><span class="p">,</span> <span class="n">request</span>
@@ -291,7 +319,7 @@ MathJax.Hub.Config({
 </pre>
 </div>
 <div class="section" id="dockerfile">
-<h3><a class="toc-backref" href="walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes/#id9">2.4   Dockerfile</a></h3>
+<h3><a class="toc-backref" href="#id9">2.4   Dockerfile</a></h3>
 <pre class="code console"><a name="rest_code_3d0dc6a1374f400dbd30c7dc7b906b89-1"></a><span class="gp">$</span> <span class="nv">$EDITOR</span> web-flask/Dockerfile
 </pre>
 <div class="attention">
@@ -313,7 +341,7 @@ MathJax.Hub.Config({
 </pre>
 </div>
 <div class="section" id="web-flask-deployment-yaml">
-<h3><a class="toc-backref" href="walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes/#id10">2.5   web-flask-deployment.yaml</a></h3>
+<h3><a class="toc-backref" href="#id10">2.5   web-flask-deployment.yaml</a></h3>
 <pre class="code yaml"><a name="rest_code_bbb39290d287456cb750b4f7c366484e-1"></a><span class="l l-Scalar l-Scalar-Plain">apiVersion</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">extensions/v1beta1</span>
 <a name="rest_code_bbb39290d287456cb750b4f7c366484e-2"></a><span class="l l-Scalar l-Scalar-Plain">kind</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">Deployment</span>
 <a name="rest_code_bbb39290d287456cb750b4f7c366484e-3"></a><span class="l l-Scalar l-Scalar-Plain">metadata</span><span class="p p-Indicator">:</span>
@@ -358,7 +386,7 @@ MathJax.Hub.Config({
 </pre>
 </div>
 <div class="section" id="web-flask-service-yaml">
-<h3><a class="toc-backref" href="walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes/#id11">2.6   web-flask-service.yaml</a></h3>
+<h3><a class="toc-backref" href="#id11">2.6   web-flask-service.yaml</a></h3>
 <pre class="code yaml"><a name="rest_code_2b2ac5aecb0a446ca0b6bb329400bfd1-1"></a><span class="l l-Scalar l-Scalar-Plain">apiVersion</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">v1</span>
 <a name="rest_code_2b2ac5aecb0a446ca0b6bb329400bfd1-2"></a><span class="l l-Scalar l-Scalar-Plain">kind</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">Service</span>
 <a name="rest_code_2b2ac5aecb0a446ca0b6bb329400bfd1-3"></a><span class="l l-Scalar l-Scalar-Plain">metadata</span><span class="p p-Indicator">:</span>
@@ -390,11 +418,11 @@ MathJax.Hub.Config({
 </div>
 </div>
 <div class="section" id="deploy-the-redis-queue-rq-workers">
-<h2><a class="toc-backref" href="walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes/#id12">3   Deploy the Redis Queue (RQ) workers</a></h2>
+<h2><a class="toc-backref" href="#id12">3   Deploy the Redis Queue (RQ) workers</a></h2>
 <pre class="code console"><a name="rest_code_dbf988d5a703469cbbc875f3ef0d1361-1"></a><span class="gp">$</span> mkdir rq-worker
 </pre>
 <div class="section" id="id1">
-<h3><a class="toc-backref" href="walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes/#id13">3.1   Dockerfile</a></h3>
+<h3><a class="toc-backref" href="#id13">3.1   Dockerfile</a></h3>
 <pre class="code docker"><a name="rest_code_97ffb0ab0f1645c7946d4824256f5172-1"></a><span class="k">FROM</span><span class="s"> tiao/web-flask-rq:v1</span>
 <a name="rest_code_97ffb0ab0f1645c7946d4824256f5172-2"></a>
 <a name="rest_code_97ffb0ab0f1645c7946d4824256f5172-3"></a><span class="k">CMD</span><span class="s"> ["rq", "worker", "--config", "settings"]</span>
@@ -409,7 +437,7 @@ MathJax.Hub.Config({
 </pre>
 </div>
 <div class="section" id="rq-worker-deployment-yaml">
-<h3><a class="toc-backref" href="walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes/#id14">3.2   rq-worker-deployment.yaml</a></h3>
+<h3><a class="toc-backref" href="#id14">3.2   rq-worker-deployment.yaml</a></h3>
 <pre class="code yaml"><a name="rest_code_82e336bf3bea4de1987bb2395f3cb6a2-1"></a><span class="l l-Scalar l-Scalar-Plain">apiVersion</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">extensions/v1beta1</span>
 <a name="rest_code_82e336bf3bea4de1987bb2395f3cb6a2-2"></a><span class="l l-Scalar l-Scalar-Plain">kind</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">Deployment</span>
 <a name="rest_code_82e336bf3bea4de1987bb2395f3cb6a2-3"></a><span class="l l-Scalar l-Scalar-Plain">metadata</span><span class="p p-Indicator">:</span>
@@ -453,7 +481,7 @@ MathJax.Hub.Config({
 </div>
 </div>
 <div class="section" id="testing-it-out">
-<h2><a class="toc-backref" href="walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes/#id15">4   Testing it out</a></h2>
+<h2><a class="toc-backref" href="#id15">4   Testing it out</a></h2>
 <p>We make make use of <a class="reference external" href="http://kubernetes.io/docs/user-guide/jsonpath/">JSONPath support</a>
 in the <tt class="docutils literal">kubectl</tt> tool to query the <tt class="docutils literal">NodePort</tt> for our <tt class="docutils literal"><span class="pre">web-flask</span></tt> service:</p>
 <pre class="code console"><a name="rest_code_6ca2ce62faad4d73969ef8e4c0ea5b7f-1"></a><span class="gp">$</span> kubectl get service web-flask --output<span class="o">=</span><span class="s1">'jsonpath={.spec.ports[0].NodePort}'</span>
@@ -467,7 +495,7 @@ in the <tt class="docutils literal">kubectl</tt> tool to query the <tt class="do
 </pre>
 <pre class="code console"><a name="rest_code_c072447e72b84fc7b013efe43935a221-1"></a><span class="gp">$</span> open <span class="s2">"http://</span><span class="si">${</span><span class="nv">address</span><span class="si">}</span><span class="s2">/?start=23&amp;stop=31"</span>
 </pre>
-<img alt="../../images/flask-rq-job.png" class="align-center" src="../images/flask-rq-job.png"><pre class="code console"><a name="rest_code_148c1db7088440318c3531a046aad632-1"></a><span class="gp">$</span> curl <span class="s2">"http://</span><span class="si">${</span><span class="nv">address</span><span class="si">}</span><span class="s2">/?start=41&amp;stop=45"</span>
+<img alt="../../images/flask-rq-job.png" class="align-center" src="../../images/flask-rq-job.png"><pre class="code console"><a name="rest_code_148c1db7088440318c3531a046aad632-1"></a><span class="gp">$</span> curl <span class="s2">"http://</span><span class="si">${</span><span class="nv">address</span><span class="si">}</span><span class="s2">/?start=41&amp;stop=45"</span>
 <a name="rest_code_148c1db7088440318c3531a046aad632-2"></a><span class="go">{</span>
 <a name="rest_code_148c1db7088440318c3531a046aad632-3"></a><span class="go">  "job_id": "cc31bdcd-ad31-41ce-b516-2b90cd92f2a1"</span>
 <a name="rest_code_148c1db7088440318c3531a046aad632-4"></a><span class="go">}</span>
@@ -488,16 +516,16 @@ in the <tt class="docutils literal">kubectl</tt> tool to query the <tt class="do
 </pre>
 </div>
 <div class="section" id="rq-dashboard-optional">
-<h2><a class="toc-backref" href="walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes/#id16">5   RQ Dashboard (Optional)</a></h2>
+<h2><a class="toc-backref" href="#id16">5   RQ Dashboard (Optional)</a></h2>
 <pre class="code console"><a name="rest_code_206689f8238e4ec68caca346d6e9a813-1"></a><span class="gp">$</span> mkdir rq-dashboard
 </pre>
 <div class="section" id="id2">
-<h3><a class="toc-backref" href="walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes/#id17">5.1   requirements.txt</a></h3>
+<h3><a class="toc-backref" href="#id17">5.1   requirements.txt</a></h3>
 <pre class="code console"><a name="rest_code_afc0bc4c34124fc882e63c51d7426e1d-1"></a><span class="gp">$</span> <span class="nb">echo</span> rq-dashboard &gt; rq-dashboard/requirements.txt
 </pre>
 </div>
 <div class="section" id="id3">
-<h3><a class="toc-backref" href="walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes/#id18">5.2   Dockerfile</a></h3>
+<h3><a class="toc-backref" href="#id18">5.2   Dockerfile</a></h3>
 <pre class="code console"><a name="rest_code_87048734db9c4d97bf47667028365c35-1"></a><span class="gp">$</span> <span class="nv">$EDITOR</span> rq-dashboard/Dockerfile
 </pre>
 <pre class="code docker"><a name="rest_code_e7055fd3764d448e9e64040b6a720e9a-1"></a><span class="k">FROM</span><span class="s"> python:3.5.1-onbuild</span>
@@ -517,7 +545,7 @@ in the <tt class="docutils literal">kubectl</tt> tool to query the <tt class="do
 </pre>
 </div>
 <div class="section" id="rq-dashboard-deployment-yaml">
-<h3><a class="toc-backref" href="walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes/#id19">5.3   rq-dashboard-deployment.yaml</a></h3>
+<h3><a class="toc-backref" href="#id19">5.3   rq-dashboard-deployment.yaml</a></h3>
 <pre class="code yaml"><a name="rest_code_af3cefef899341fb834d4db75322859f-1"></a><span class="l l-Scalar l-Scalar-Plain">apiVersion</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">extensions/v1beta1</span>
 <a name="rest_code_af3cefef899341fb834d4db75322859f-2"></a><span class="l l-Scalar l-Scalar-Plain">kind</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">Deployment</span>
 <a name="rest_code_af3cefef899341fb834d4db75322859f-3"></a><span class="l l-Scalar l-Scalar-Plain">metadata</span><span class="p p-Indicator">:</span>
@@ -565,7 +593,7 @@ in the <tt class="docutils literal">kubectl</tt> tool to query the <tt class="do
 </pre>
 </div>
 <div class="section" id="rq-dashboard-service-yaml">
-<h3><a class="toc-backref" href="walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes/#id20">5.4   rq-dashboard-service.yaml</a></h3>
+<h3><a class="toc-backref" href="#id20">5.4   rq-dashboard-service.yaml</a></h3>
 <pre class="code yaml"><a name="rest_code_fb80b5b51b5d46cf898b4cf71b6fda82-1"></a><span class="l l-Scalar l-Scalar-Plain">apiVersion</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">v1</span>
 <a name="rest_code_fb80b5b51b5d46cf898b4cf71b6fda82-2"></a><span class="l l-Scalar l-Scalar-Plain">kind</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">Service</span>
 <a name="rest_code_fb80b5b51b5d46cf898b4cf71b6fda82-3"></a><span class="l l-Scalar l-Scalar-Plain">metadata</span><span class="p p-Indicator">:</span>
@@ -598,7 +626,7 @@ in the <tt class="docutils literal">kubectl</tt> tool to query the <tt class="do
 </pre>
 <pre class="code console"><a name="rest_code_a8596bd656834bbd9a8cf696ef024455-1"></a><span class="gp">$</span> open <span class="s2">"http://</span><span class="k">$(</span>minikube ip<span class="k">)</span><span class="s2">:</span><span class="k">$(</span>kubectl get service rq-dashboard --output<span class="o">=</span><span class="s1">'jsonpath={.spec.ports[0].NodePort}'</span><span class="k">)</span><span class="s2">"</span>
 </pre>
-<a class="reference external image-reference" href="../images/rq-dashboard-failed.png"><img alt="../../images/rq-dashboard-failed.thumbnail.png" class="align-center" src="../images/rq-dashboard-failed.thumbnail.png"></a>
+<a class="reference external image-reference" href="../../images/rq-dashboard-failed.png"><img alt="../../images/rq-dashboard-failed.thumbnail.png" class="align-center" src="../../images/rq-dashboard-failed.thumbnail.png"></a>
 <pre class="code console"><a name="rest_code_615f03d40c6b4265882fdc33a0c3fbf4-1"></a><span class="gp">$</span> kubectl get pods
 <a name="rest_code_615f03d40c6b4265882fdc33a0c3fbf4-2"></a><span class="go">NAME                            READY     STATUS    RESTARTS   AGE</span>
 <a name="rest_code_615f03d40c6b4265882fdc33a0c3fbf4-3"></a><span class="go">redis-master-2576299852-iwf15   1/1       Running   0          52m</span>
@@ -612,7 +640,7 @@ in the <tt class="docutils literal">kubectl</tt> tool to query the <tt class="do
 </pre>
 </div>
 <div class="section" id="alternative-solution-integrate-the-dashboard-in-our-flask-app">
-<h3><a class="toc-backref" href="walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes/#id21">5.5   Alternative Solution: Integrate the Dashboard in our Flask app</a></h3>
+<h3><a class="toc-backref" href="#id21">5.5   Alternative Solution: Integrate the Dashboard in our Flask app</a></h3>
 <pre class="code diff"><a name="rest_code_2fad0d47351f4fe5968dacf764460e1b-1"></a><span class="gh">diff --git a/web-flask/app.py b/web-flask/app.py</span>
 <a name="rest_code_2fad0d47351f4fe5968dacf764460e1b-2"></a><span class="gh">index af6ec48..ec7c1cd 100644</span>
 <a name="rest_code_2fad0d47351f4fe5968dacf764460e1b-3"></a><span class="gd">--- a/web-flask/app.py</span>
@@ -669,367 +697,45 @@ in the <tt class="docutils literal">kubectl</tt> tool to query the <tt class="do
 </pre>
 <pre class="code console"><a name="rest_code_ca1bc62c1a5e480499a6047402d39f02-1"></a><span class="gp">$</span> open <span class="s2">"http://</span><span class="si">${</span><span class="nv">address</span><span class="si">}</span><span class="s2">/dashboard"</span>
 </pre>
-<a class="reference external image-reference" href="../images/rq-dashboard-failed-flask.png"><img alt="../../images/rq-dashboard-failed-flask.thumbnail.png" class="align-center" src="../images/rq-dashboard-failed-flask.thumbnail.png"></a>
+<a class="reference external image-reference" href="../../images/rq-dashboard-failed-flask.png"><img alt="../../images/rq-dashboard-failed-flask.thumbnail.png" class="align-center" src="../../images/rq-dashboard-failed-flask.thumbnail.png"></a>
 </div>
 </div>
 </div>
     </div>
-    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="re-implementing-the-kubernetes-guestbook-example-with-flask-and-nginx/" class="u-url">Re-implementing the Kubernetes Guestbook Example with Flask and NGINX</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn">
-                Louis Tiao
-            </span></p>
-            <p class="dateline"><a href="re-implementing-the-kubernetes-guestbook-example-with-flask-and-nginx/" rel="bookmark"><time class="published dt-published" datetime="2016-05-25T14:10:00+10:00" title="2016-05-25 14:10">2016-05-25 14:10</time></a></p>
-                <p class="commentline">            <a href="re-implementing-the-kubernetes-guestbook-example-with-flask-and-nginx/#disqus_thread" data-disqus-identifier="cache/posts/re-implementing-the-kubernetes-guestbook-example-with-flask-and-nginx.html">Comments</a>
-
-
-        </p>
-</div>
-    </header><div class="p-summary entry-summary">
-    <div>
-<p>The official <a class="reference external" href="http://kubernetes.io/">Kubernetes</a> <a class="reference external" href="http://kubernetes.io/docs/user-guide/walkthrough/">walkthrough guides</a> often points to the <a class="reference external" href="https://github.com/kubernetes/kubernetes/tree/master/examples/guestbook">guestbook
-application</a> as a quintessential example of how a simple, but complete multi-tier
-web application can be deployed with Kubernetes. As described in the <a class="reference external" href="https://github.com/kubernetes/kubernetes/blob/master/examples/guestbook/README.md">README</a>, it
-consists of a web frontend, a redis master (for storage), and a replicated set of
-redis 'slaves'.</p>
-<img alt="//cloud.google.com/container-engine/images/guestbook.png" class="align-center" src="//cloud.google.com/container-engine/images/guestbook.png"><p>This seemed like an ideal starting point for deploying my <a class="reference external" href="http://flask.pocoo.org/">Flask</a> applications
-with a similar stack, and also makes use of redis master/slaves. The difficulty
-I found with readily making use of this example as a starting point is that the
-frontend is implemented in PHP, which is considerably different to modern paradigms
-(Node.js, Flask/Django, Rails, etc.) As described in the README:</p>
-<blockquote>
-A frontend pod is a simple PHP server that is configured to talk to either
-the slave or master services, depending on whether the client request is a
-read or a write. It exposes a simple AJAX interface, and serves an
-Angular-based UX. Again we'll create a set of replicated frontend pods
-instantiated by a Deployment — this time, with three replicas.</blockquote>
-<p>I figured re-implementing the frontend pod in with Flask would require minimal
-changes - the UI would remain mostly the same, and the actual interaction with
-the redis master/slaves is quite trivial.</p>
-<p class="more"><a href="re-implementing-the-kubernetes-guestbook-example-with-flask-and-nginx/">Read more…</a></p>
-</div>
-    </div>
-    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="a-better-approach-for-initializing-new-nikola-themes-since-v775/" class="u-url">A Better Approach For Initializing New Nikola Themes (since v7.7.5)</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn">
-                Louis Tiao
-            </span></p>
-            <p class="dateline"><a href="a-better-approach-for-initializing-new-nikola-themes-since-v775/" rel="bookmark"><time class="published dt-published" datetime="2016-05-18T12:20:24+10:00" title="2016-05-18 12:20">2016-05-18 12:20</time></a></p>
-                <p class="commentline">            <a href="a-better-approach-for-initializing-new-nikola-themes-since-v775/#disqus_thread" data-disqus-identifier="cache/posts/a-better-approach-for-initializing-new-nikola-themes-since-v775.html">Comments</a>
-
-
-        </p>
-</div>
-    </header><div class="p-summary entry-summary">
-    <div>
-<p>A few months ago, I wrote a post on <a class="reference external" href="creating-a-nikola-theme-with-sass-compiled-bootstrap/">Creating a Nikola theme with Sass-compiled Bootstrap</a>.
-Since then, <a class="reference external" href="https://getnikola.com/changes.html#new-in-v7-7-5">Nikola 7.7.5</a> has added several new features which makes it less
-tedious to get started with your custom theme.</p>
-<div class="section" id="initializing-the-theme">
-<h2>Initializing the Theme</h2>
-<p>First, I initialize a theme named <tt class="docutils literal">tiao</tt>, which automatically creates the
-necessary directories and files for me.</p>
-<pre class="code console"><a name="rest_code_946615ad401a43d8b94c30afef1a41b0-1"></a><span class="gp">$</span> nikola theme --new<span class="o">=</span>tiao --engine<span class="o">=</span>jinja --parent<span class="o">=</span>bootstrap3-jinja
-<a name="rest_code_946615ad401a43d8b94c30afef1a41b0-2"></a><span class="go">[2016-05-18T02:29:49Z] INFO: theme: Creating theme tiao with parent bootstrap3-jinja and engine jinja in themes/tiao</span>
-<a name="rest_code_946615ad401a43d8b94c30afef1a41b0-3"></a><span class="go">[2016-05-18T02:29:49Z] INFO: theme: Created directory themes/tiao</span>
-<a name="rest_code_946615ad401a43d8b94c30afef1a41b0-4"></a><span class="go">[2016-05-18T02:29:49Z] INFO: theme: Created file themes/tiao/parent</span>
-<a name="rest_code_946615ad401a43d8b94c30afef1a41b0-5"></a><span class="go">[2016-05-18T02:29:49Z] INFO: theme: Created file themes/tiao/engine</span>
-<a name="rest_code_946615ad401a43d8b94c30afef1a41b0-6"></a><span class="go">[2016-05-18T02:29:49Z] INFO: theme: Theme themes/tiao created successfully.</span>
-<a name="rest_code_946615ad401a43d8b94c30afef1a41b0-7"></a><span class="go">[2016-05-18T02:29:49Z] NOTICE: theme: Remember to set THEME="tiao" in conf.py to use this theme.</span>
-<a name="rest_code_946615ad401a43d8b94c30afef1a41b0-8"></a>
-<a name="rest_code_946615ad401a43d8b94c30afef1a41b0-9"></a><span class="gp">$</span> tree themes/tiao
-<a name="rest_code_946615ad401a43d8b94c30afef1a41b0-10"></a><span class="go">themes/tiao</span>
-<a name="rest_code_946615ad401a43d8b94c30afef1a41b0-11"></a><span class="go">├── engine</span>
-<a name="rest_code_946615ad401a43d8b94c30afef1a41b0-12"></a><span class="go">└── parent</span>
-<a name="rest_code_946615ad401a43d8b94c30afef1a41b0-13"></a>
-<a name="rest_code_946615ad401a43d8b94c30afef1a41b0-14"></a><span class="go">0 directories, 2 files</span>
-</pre>
-<p class="more"><a href="a-better-approach-for-initializing-new-nikola-themes-since-v775/">Read more…</a></p>
-</div>
-</div>
-    </div>
-    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="quick-reference-deleting-local-and-remote-git-branches/" class="u-url">Quick Reference: Deleting Local and Remote Git Branches</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn">
-                Louis Tiao
-            </span></p>
-            <p class="dateline"><a href="quick-reference-deleting-local-and-remote-git-branches/" rel="bookmark"><time class="published dt-published" datetime="2016-05-11T17:16:05+10:00" title="2016-05-11 17:16">2016-05-11 17:16</time></a></p>
-                <p class="commentline">            <a href="quick-reference-deleting-local-and-remote-git-branches/#disqus_thread" data-disqus-identifier="cache/posts/quick-reference-deleting-local-and-remote-git-branches.html">Comments</a>
-
-
-        </p>
-</div>
-    </header><div class="p-summary entry-summary">
-    <div>
-<p>From <a class="reference external" href="http://stackoverflow.com/questions/2003505/delete-a-git-branch-both-locally-and-remotely">http://stackoverflow.com/questions/2003505/delete-a-git-branch-both-locally-and-remotely</a>:</p>
-<p>Deleting a Local Git Branch:</p>
-<pre class="code console"><a name="rest_code_6c6b32dc39cf4be19a2e2ef99ca6350c-1"></a><span class="gp">$</span> git branch -D &lt;branch-name&gt;
-<a name="rest_code_6c6b32dc39cf4be19a2e2ef99ca6350c-2"></a><span class="go">Deleted branch &lt;branch-name&gt; (was &lt;commit-hash&gt;).</span>
-</pre>
-<p>Deleting a Remote Git Branch (available as of <a class="reference external" href="https://github.com/git/git/blob/c2c5f6b1e479f2c38e0e01345350620944e3527f/Documentation/RelNotes/1.7.0.txt#L154">Git 1.7.0</a>)</p>
-<pre class="code console"><a name="rest_code_c2bfa1c1e083469e8b20296aa29940ba-1"></a><span class="gp">$</span> git push origin --delete &lt;branch-name&gt;
-<a name="rest_code_c2bfa1c1e083469e8b20296aa29940ba-2"></a><span class="go">To &lt;git-remote-origin-url&gt;</span>
-<a name="rest_code_c2bfa1c1e083469e8b20296aa29940ba-3"></a><span class="go"> - [deleted]         &lt;branch-name&gt;</span>
-</pre>
-</div>
-    </div>
-    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="setting-up-a-ipython-parallel-cluster-on-amazon-ec2-with-starcluster/" class="u-url">Setting up a IPython Parallel Cluster on Amazon EC2 with StarCluster</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn">
-                Louis Tiao
-            </span></p>
-            <p class="dateline"><a href="setting-up-a-ipython-parallel-cluster-on-amazon-ec2-with-starcluster/" rel="bookmark"><time class="published dt-published" datetime="2016-05-03T22:55:55+10:00" title="2016-05-03 22:55">2016-05-03 22:55</time></a></p>
-                <p class="commentline">            <a href="setting-up-a-ipython-parallel-cluster-on-amazon-ec2-with-starcluster/#disqus_thread" data-disqus-identifier="cache/posts/setting-up-a-ipython-parallel-cluster-on-amazon-ec2-with-starcluster.html">Comments</a>
-
-
-        </p>
-</div>
-    </header><div class="p-summary entry-summary">
-    <div>
-<p><a class="reference external" href="http://star.mit.edu/cluster/">StarCluster</a> is an open source cluster-computing toolkit for Amazon’s Elastic
-Compute Cloud (EC2) that is designed to automate and simplify the process of
-building, configuring, and managing clusters of virtual machines on Amazon’s
-EC2 cloud. StarCluster makes it easy to create a cluster computing environment
-in the cloud for distributed and parallel computing applications.</p>
-<p class="more"><a href="setting-up-a-ipython-parallel-cluster-on-amazon-ec2-with-starcluster/">Read more…</a></p>
-</div>
-    </div>
-    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="notebooks/visualizing-and-animating-optimization-algorithms-with-matplotlib/" class="u-url">Visualizing and Animating Optimization Algorithms with Matplotlib</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn">
-                Louis Tiao
-            </span></p>
-            <p class="dateline"><a href="notebooks/visualizing-and-animating-optimization-algorithms-with-matplotlib/" rel="bookmark"><time class="published dt-published" datetime="2016-04-26T22:13:17+10:00" title="2016-04-26 22:13">2016-04-26 22:13</time></a></p>
-                <p class="commentline">            <a href="notebooks/visualizing-and-animating-optimization-algorithms-with-matplotlib/#disqus_thread" data-disqus-identifier="cache/posts/notebooks/visualizing-and-animating-optimization-algorithms-with-matplotlib.html">Comments</a>
-
-
-        </p>
-</div>
-    </header><div class="p-summary entry-summary">
-    <div tabindex="-1" id="notebook" class="border-box-sizing">
-    <div class="container" id="notebook-container">
-
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>In this series of notebooks, we demonstrate some useful patterns and recipes for visualizing animating optimization algorithms using Matplotlib.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In [1]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="o">%</span><span class="k">matplotlib</span> inline
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In [2]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">autograd.numpy</span> <span class="k">as</span> <span class="nn">np</span>
-
-<span class="kn">from</span> <span class="nn">mpl_toolkits.mplot3d</span> <span class="k">import</span> <span class="n">Axes3D</span>
-<span class="kn">from</span> <span class="nn">matplotlib.colors</span> <span class="k">import</span> <span class="n">LogNorm</span>
-<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="k">import</span> <span class="n">animation</span>
-<span class="kn">from</span> <span class="nn">IPython.display</span> <span class="k">import</span> <span class="n">HTML</span>
-
-<span class="kn">from</span> <span class="nn">autograd</span> <span class="k">import</span> <span class="n">elementwise_grad</span><span class="p">,</span> <span class="n">value_and_grad</span>
-<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="k">import</span> <span class="n">minimize</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span>
-<span class="kn">from</span> <span class="nn">itertools</span> <span class="k">import</span> <span class="n">zip_longest</span>
-<span class="kn">from</span> <span class="nn">functools</span> <span class="k">import</span> <span class="n">partial</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>We shall restrict our attention to 3-dimensional problems for right now (i.e. optimizing over only 2 parameters), though what follows can be extended to higher dimensions by plotting all pairs of parameters against each other, effectively projecting the problem to 3-dimensions.</p>
-<p>The Wikipedia article on <a href="https://en.wikipedia.org/wiki/Test_functions_for_optimization">Test functions for optimization</a> has a few functions that are useful for evaluating optimization algorithms. In particular, we shall look at <strong>Beale's function</strong>:</p>
-$$
-f(x, y) = (1.5 - x + xy)^2 + (2.25 - x + xy^2)^2 + (2.625 - x + xy^3)^2
-$$
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In [3]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">f</span>  <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="p">(</span><span class="mf">1.5</span> <span class="o">-</span> <span class="n">x</span> <span class="o">+</span> <span class="n">x</span><span class="o">*</span><span class="n">y</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="mf">2.25</span> <span class="o">-</span> <span class="n">x</span> <span class="o">+</span> <span class="n">x</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="mf">2.625</span> <span class="o">-</span> <span class="n">x</span> <span class="o">+</span> <span class="n">x</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p class="more"><a href="notebooks/visualizing-and-animating-optimization-algorithms-with-matplotlib/">Read more…</a></p>
-</div>
-</div>
-</div>
-</div>
-</div>
-    </div>
-    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="notebooks/embedding-matplotlib-animations-in-jupyter-notebooks/" class="u-url">Embedding Matplotlib Animations in Jupyter Notebooks</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn">
-                Louis Tiao
-            </span></p>
-            <p class="dateline"><a href="notebooks/embedding-matplotlib-animations-in-jupyter-notebooks/" rel="bookmark"><time class="published dt-published" datetime="2016-04-16T21:10:04+10:00" title="2016-04-16 21:10">2016-04-16 21:10</time></a></p>
-                <p class="commentline">            <a href="notebooks/embedding-matplotlib-animations-in-jupyter-notebooks/#disqus_thread" data-disqus-identifier="cache/posts/notebooks/embedding-matplotlib-animations-in-jupyter-notebooks.html">Comments</a>
-
-
-        </p>
-</div>
-    </header><div class="p-summary entry-summary">
-    <div tabindex="-1" id="notebook" class="border-box-sizing">
-    <div class="container" id="notebook-container">
-
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>In his blog post <a href="http://jakevdp.github.io/blog/2013/05/12/embedding-matplotlib-animations/">Embedding Matplotlib Animations in IPython Notebooks</a>, Jake VanderPlas presents a slick hack for embedding Matplotlib Animations in IPython Notebooks, which involves writing it as a video to a <a href="https://docs.python.org/2/library/tempfile.html">tempfile</a>, and then re-encoding it in Base64 as a HTML5 Video.</p>
-<p>Unfortunately (or rather fortunately), this hack has been largely rendered obsolete by the heavy development efforts dedicated to both Matplotlib and IPython Notebook (<a href="https://blog.jupyter.org/2015/08/12/first-release-of-jupyter/">since renamed to Jupyter Notebook</a>) in recent years. In particular, <a href="http://matplotlib.org/users/whats_new.html#new-in-matplotlib-1-5">Matplotlib 1.5.1</a> now <a href="http://matplotlib.org/users/whats_new.html#display-hook-for-animations-in-the-ipython-notebook">supports inline display of animations in the notebook</a> with the <code>to_html5_video</code> method, which converts the animation to an h264 encoded video and embeddeds it directly in the notebook.</p>
-<p>In this notebook, we reproduce Jake VanderPlas' blog post with this new feature.</p>
-<p class="more"><a href="notebooks/embedding-matplotlib-animations-in-jupyter-notebooks/">Read more…</a></p>
-</div>
-</div>
-</div>
-</div>
-</div>
-    </div>
-    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="installing-cartopy-on-mac-osx-1011/" class="u-url">Installing Cartopy on Mac OSX (10.11)</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn">
-                Louis Tiao
-            </span></p>
-            <p class="dateline"><a href="installing-cartopy-on-mac-osx-1011/" rel="bookmark"><time class="published dt-published" datetime="2016-03-31T23:33:50+11:00" title="2016-03-31 23:33">2016-03-31 23:33</time></a></p>
-                <p class="commentline">            <a href="installing-cartopy-on-mac-osx-1011/#disqus_thread" data-disqus-identifier="cache/posts/installing-cartopy-on-mac-osx-1011.html">Comments</a>
-
-
-        </p>
-</div>
-    </header><div class="p-summary entry-summary">
-    <div>
-<p>So you develop on Mac OS X (10.11) and have installed the external
-dependencies (<a class="reference external" href="https://trac.osgeo.org/geos/">geos</a> 3.5.0, <a class="reference external" href="https://trac.osgeo.org/proj/">proj</a> 4.9.2) of <a class="reference external" href="http://scitools.org.uk/cartopy/">Cartopy</a> with <a class="reference external" href="http://brew.sh/">Homebrew</a>:</p>
-<pre class="code console"><a name="rest_code_77cee92c35a049ccaecd30b5f29dedaa-1"></a><span class="gp">$</span> brew install geos
-<a name="rest_code_77cee92c35a049ccaecd30b5f29dedaa-2"></a><span class="gp">$</span> brew install proj
-</pre>
-<p>Moreover, you have created a <tt class="docutils literal">virtualenv</tt> and installed the Python
-dependencies (Cython, NumPy):</p>
-<pre class="code console"><a name="rest_code_8dcf7809e38b409a80e80979a670406b-1"></a><span class="gp">$</span> mkvirtualenv cartopy_venv
-<a name="rest_code_8dcf7809e38b409a80e80979a670406b-2"></a><span class="gp">(cartopy_venv)$</span> pip install cython
-<a name="rest_code_8dcf7809e38b409a80e80979a670406b-3"></a><span class="gp">(cartopy_venv)$</span> pip install numpy
-</pre>
-<p>Yet, when you finally go install Cartopy, you still encounter the following
-seemingly inexplicable error:</p>
-<pre class="code console"><a name="rest_code_1fb99b8052924ed09cd17c002f446261-1"></a><span class="gp">(cartopy_venv)$</span> pip install cartopy
-<a name="rest_code_1fb99b8052924ed09cd17c002f446261-2"></a><span class="go">[...]</span>
-<a name="rest_code_1fb99b8052924ed09cd17c002f446261-3"></a><span class="go">clang -fno-strict-aliasing -fno-common -dynamic -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk/System/Library/Frameworks/Tk.framework/Versions/8.5/Headers -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I/usr/local/Cellar/python/2.7.11/Frameworks/Python.framework/Versions/2.7/include -I./lib/cartopy -I-I/usr/local/Cellar/proj/4.9.2/include -I/usr/local/Cellar/geos/3.5.0/include -I/usr/local/Cellar/python/2.7.11/Frameworks/Python.framework/Versions/2.7/include/python2.7 -c lib/cartopy/trace.cpp -o build/temp.macosx-10.11-x86_64-2.7/lib/cartopy/trace.o</span>
-<a name="rest_code_1fb99b8052924ed09cd17c002f446261-4"></a><span class="go">lib/cartopy/trace.cpp:249:10: fatal error: 'proj_api.h' file not found</span>
-<a name="rest_code_1fb99b8052924ed09cd17c002f446261-5"></a><span class="gp">#</span>include <span class="s2">"proj_api.h"</span>
-<a name="rest_code_1fb99b8052924ed09cd17c002f446261-6"></a><span class="go">         ^</span>
-<a name="rest_code_1fb99b8052924ed09cd17c002f446261-7"></a><span class="go">1 error generated.</span>
-<a name="rest_code_1fb99b8052924ed09cd17c002f446261-8"></a><span class="go">error: command 'clang' failed with exit status 1</span>
-<a name="rest_code_1fb99b8052924ed09cd17c002f446261-9"></a>
-<a name="rest_code_1fb99b8052924ed09cd17c002f446261-10"></a><span class="go">----------------------------------------</span>
-</pre>
-<p class="more"><a href="installing-cartopy-on-mac-osx-1011/">Read more…</a></p>
-</div>
-    </div>
-    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="workflow-for-keeping-nikola-config-file-updated/" class="u-url">Workflow for keeping Nikola config file updated</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn">
-                Louis Tiao
-            </span></p>
-            <p class="dateline"><a href="workflow-for-keeping-nikola-config-file-updated/" rel="bookmark"><time class="published dt-published" datetime="2016-03-29T11:13:12+11:00" title="2016-03-29 11:13">2016-03-29 11:13</time></a></p>
-                <p class="commentline">            <a href="workflow-for-keeping-nikola-config-file-updated/#disqus_thread" data-disqus-identifier="cache/posts/workflow-for-keeping-nikola-config-file-updated.html">Comments</a>
-
-
-        </p>
-</div>
-    </header><div class="p-summary entry-summary">
-    <div>
-<p>For most, keeping Nikola up-to-date is usually a simple matter of running
-something like:</p>
-<pre class="code console"><a name="rest_code_e89dac43aa4a47f79ca52c2c4838f965-1"></a><span class="gp">$</span> pip install --upgrade nikola
-</pre>
-<p>The same goes for its dependencies. However, one important thing that can get
-overlooked is the Nikola configuration file for your site (the <tt class="docutils literal">conf.py</tt> file
-sitting at the root of your Nikola site directory), which is almost always
-updated with each major Nikola release.</p>
-<p class="more"><a href="workflow-for-keeping-nikola-config-file-updated/">Read more…</a></p>
-</div>
-    </div>
-    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="creating-custom-unix-fortunes/" class="u-url">Creating custom (Unix) fortunes</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn">
-                Louis Tiao
-            </span></p>
-            <p class="dateline"><a href="creating-custom-unix-fortunes/" rel="bookmark"><time class="published dt-published" datetime="2016-02-18T01:15:42+11:00" title="2016-02-18 01:15">2016-02-18 01:15</time></a></p>
-                <p class="commentline">            <a href="creating-custom-unix-fortunes/#disqus_thread" data-disqus-identifier="cache/posts/creating-custom-unix-fortunes.html">Comments</a>
-
-
-        </p>
-</div>
-    </header><div class="p-summary entry-summary">
-    <div>
-<p>Like others, I include <tt class="docutils literal">fortune</tt> in my <tt class="docutils literal">.bash_profile</tt> so that I am
-greeted with a random, witty and thought-provoking epigram upon starting a
-new shell session. Eventually, however, I found most of the epigrams to be
-mostly trite and vapid, and quickly grew tired of them. Instead of tinkering
-with the probabilities of sampling from the various datafiles available, I
-decided to roll with my own epigram datafile.</p>
-<p class="more"><a href="creating-custom-unix-fortunes/">Read more…</a></p>
-</div>
-    </div>
-    </article>
-</div>
-        <nav class="postindexpager"><ul class="pager">
-<li class="next">
-                <a href="index-4.html" rel="next">Older posts</a>
+    <aside class="postpromonav"><nav><ul itemprop="keywords" class="tags">
+<li><a class="tag p-category" href="../../tags/docker/" rel="tag">docker</a></li>
+            <li><a class="tag p-category" href="../../tags/flask/" rel="tag">flask</a></li>
+            <li><a class="tag p-category" href="../../tags/jsonpath/" rel="tag">jsonpath</a></li>
+            <li><a class="tag p-category" href="../../tags/kubernetes/" rel="tag">kubernetes</a></li>
+            <li><a class="tag p-category" href="../../tags/redis/" rel="tag">redis</a></li>
+            <li><a class="tag p-category" href="../../tags/rq/" rel="tag">rq</a></li>
+            <li><a class="tag p-category" href="../../tags/yaml/" rel="tag">yaml</a></li>
+        </ul>
+<ul class="pager hidden-print">
+<li class="previous">
+                <a href="../re-implementing-the-kubernetes-guestbook-example-with-flask-and-nginx/" rel="prev" title="Re-implementing the Kubernetes Guestbook Example with Flask and NGINX">Previous post</a>
             </li>
-        </ul></nav><script>var disqus_shortname="ltiao";(function(){var a=document.createElement("script");a.async=true;a.src="https://"+disqus_shortname+".disqus.com/count.js";(document.getElementsByTagName("head")[0]||document.getElementsByTagName("body")[0]).appendChild(a)}());</script><script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"> </script><script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-    tex2jax: {
-        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
-        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
-        processEscapes: true
-    },
-    displayAlign: 'center', // Change this to 'center' to center equations.
-    "HTML-CSS": {
-        styles: {'.MathJax_Display': {"margin": 0}}
-    }
-});
-</script>
+        </ul></nav></aside><section class="comments hidden-print"><h2>Comments</h2>
+                        <div id="disqus_thread"></div>
+        <script>
+        var disqus_shortname ="ltiao",
+            disqus_url="http://louistiao.me/posts/walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes/",
+        disqus_title="Walkthrough: Deploying a Flask app with Redis Queue (RQ) Workers and Dashboard using Kubernetes",
+        disqus_identifier="cache/posts/walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes.html",
+        disqus_config = function () {
+            this.language = "en";
+        };
+        (function() {
+            var dsq = document.createElement('script'); dsq.async = true;
+            dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script><noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a>
+</noscript>
+    <a href="https://disqus.com" class="dsq-brlink" rel="nofollow">Comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+        </section></article><script>var disqus_shortname="ltiao";(function(){var a=document.createElement("script");a.async=true;a.src="https://"+disqus_shortname+".disqus.com/count.js";(document.getElementsByTagName("head")[0]||document.getElementsByTagName("body")[0]).appendChild(a)}());</script>
 </div>
         <!--End of body content-->
       </div>
@@ -1041,7 +747,7 @@ MathJax.Hub.Config({
     </footer>
 </div> <!-- /container -->
 
-            <script src="../assets/js/all-nocdn.js"></script><script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script><!-- fancy dates --><script>
+            <script src="../../assets/js/all-nocdn.js"></script><script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script><!-- fancy dates --><script>
     moment.locale("en");
     fancydates(0, "YYYY-MM-DD HH:mm");
     </script><!-- end fancy dates --><script>

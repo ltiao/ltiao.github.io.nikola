@@ -1,7 +1,7 @@
-.. title: Deploying Flask with Redis Queue (RQ) Workers using Kubernetes
-.. slug: deploying-flask-with-redis-queue-rq-workers-using-kubernetes
-.. date: 2016-06-30 10:42:25 UTC+10:00
-.. tags: kubernetes, docker, flask, redis, rq
+.. title: Walkthrough: Deploying a Flask app with Redis Queue (RQ) Workers and Dashboard using Kubernetes
+.. slug: walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes
+.. date: 2016-07-01 14:12:07 UTC+10:00
+.. tags: kubernetes,docker,flask,redis,rq,jsonpath,yaml
 .. category: coding
 .. link: 
 .. description: 

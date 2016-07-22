@@ -7,21 +7,76 @@
 .. description: 
 .. type: text
 
+In this article, we walkthrough the steps to deploy a simple Flask_ app together
+with `Redis Queue (RQ)`_, a minimalistic job queue built on Redis_, using 
+Kubernetes_ to provision and manage the necessary deployments and services for 
+our stack.
+
 ..  image:: ../../images/rq-dashboard.png
     :align: center
 
+.. TEASER_END
+
+.. _Kubernetes: http://kubernetes.io/
+.. _Redis: http://redis.io/
+.. _Flask: http://flask.pocoo.org/
+.. _Redis Queue (RQ): http://python-rq.org/
+
+.. class:: well well-sm
+
 .. contents::
 .. section-numbering::
+
+Getting Started
+---------------
+
+Throughout this guide, we use a local single-node Kubernetes cluster that is
+provisioned and managed by Minikube_. The methods described herein can be 
+trivially adapted to Kubernetes cluster on other cloud platforms such as 
+`Amazon AWS ECS`_, `Google Container Engine (GKE)`_. The key difference is that
+the Minikube Kubernetes cluster does't support ``LoadBalancer``'s, so services 
+must be exposed with ``NodePort``. Both AWS EC2 and GKE support ``LoadBalancer``'s,
+so if you are using either of these platforms, or any others that support it, 
+you should specify ``LoadBalancer`` as the service type instead of ``NodePort``.
+
+That said, I still highly recommend using a local Minikube Kubernetes cluster 
+for more efficient development workflows, since it saves you having to wait ~10 
+minutes for load balancers to come alive, as is the case with AWS EC2. Let's go 
+ahead and get started by bringing up our local Kubernetes cluster:
+
+..  code:: console
+
+    $ minikube start
+    Starting local Kubernetes cluster...
+    Kubernetes is available at https://192.168.99.101:443.
+
+Let's create and navigate to the directory for the files relevant to this 
+deployment:
 
 ..  code:: console
 
     $ mkdir flask-redis-queue
     $ cd flask-redis-queue
 
+
+This guide assumes some familiarity with Flask integrated with RQ and will
+focus more on provisioning the various components using Docker and Kubernetes. 
+The post `Implementing a Redis Task Queue`_ from the `Flask by Example`_ blog post
+series provides a good starting point and should get you up to speed.
+
+
+.. _Minikube: http://kubernetes.io/docs/getting-started-guides/minikube/
+.. _Flask by Example: https://realpython.com/blog/python/flask-by-example-part-1-project-setup/
+.. _Implementing a Redis Task Queue: https://realpython.com/blog/python/flask-by-example-implementing-a-redis-task-queue/
+.. _Amazon AWS ECS: http://kubernetes.io/docs/getting-started-guides/aws/
+.. _Google Container Engine (GKE): cloud.google.com/container-engine‎
+
+
 Deploy the Redis master
 -----------------------
 
-a 
+redis-master-deployment.yaml
+''''''''''''''''''''''''''''
 
 ..  code:: console
 
@@ -72,6 +127,9 @@ a
 
     $ kubectl create -f redis-master-deployment.yaml
     deployment "redis-master" created
+
+redis-master-service.yaml
+'''''''''''''''''''''''''
 
 ..  code:: console
 

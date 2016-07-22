@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import unicode_literals
+from urllib.parse import quote
+
 import time
 
 # !! This is the configuration of Nikola. !! #
@@ -57,7 +59,8 @@ BLOG_DESCRIPTION = "Computer Science / Math / Software Engineering"  # (translat
 # it        Italian
 # ja        Japanese [NOT jp]
 # ko        Korean
-# nb        Norwegian Bokmål
+# lt        Lithuanian
+# nb        Norwegian (Bokmål)
 # nl        Dutch
 # pa        Punjabi
 # pl        Polish
@@ -171,11 +174,13 @@ THEME_COLOR = '#5670d4'
 POSTS = (
     ("posts/*.rst", "posts", "post.tmpl"),
     ("posts/*.txt", "posts", "post.tmpl"),
+    ("posts/*.html", "posts", "post.tmpl"),
     ("posts/*.ipynb", "posts", "post.tmpl"),
 )
 PAGES = (
     ("pages/*.rst", "", "story.tmpl"),
     ("pages/*.txt", "", "story.tmpl"),
+    ("pages/*.html", "", "story.tmpl"),
 )
 
 
@@ -795,7 +800,15 @@ LICENSE = ""
 
 # A small copyright notice for the page footer (in HTML).
 # (translatable)
-CONTENT_FOOTER = 'Contents &copy; {date}         <a href="mailto:{email}">{author}</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         {license}'
+CONTENT_FOOTER = """
+Contents &copy; {date}
+<a href="mailto:{email}">{author}</a> - Powered by
+<a href="https://getnikola.com" rel="nofollow">Nikola</a>
+{license}
+<a class='pull-right' href='https://ko-fi.com/A3476EX'>
+  <img src='https://img.shields.io/badge/{badge_subject}-{badge_status}-{badge_color}.svg?style={badge_style}'>
+</a>
+"""
 
 # Things that will be passed to CONTENT_FOOTER.format().  This is done
 # for translatability, as dicts are not formattable.  Nikola will
@@ -815,7 +828,11 @@ CONTENT_FOOTER_FORMATS = {
             "email": BLOG_EMAIL,
             "author": BLOG_AUTHOR,
             "date": time.gmtime().tm_year,
-            "license": LICENSE
+            "license": LICENSE,
+            "badge_subject": "Support",
+            "badge_status": quote("Buy Me a Coffee :)"),
+            "badge_color": "158cba",
+            "badge_style": "social",
         }
     )
 }
@@ -1107,7 +1124,8 @@ BODY_END = """
 # - description
 #
 # An example re is the following:
-# '(?P<date>\d{4}-\d{2}-\d{2})-(?P<slug>.*)-(?P<title>.*)\.md'
+# '.*\/(?P<date>\d{4}-\d{2}-\d{2})-(?P<slug>.*)-(?P<title>.*)\.rst'
+# (Note the '.*\/' in the beginning -- matches source paths relative to conf.py)
 # FILE_METADATA_REGEXP = None
 
 # If you hate "Filenames with Capital Letters and Spaces.md", you should

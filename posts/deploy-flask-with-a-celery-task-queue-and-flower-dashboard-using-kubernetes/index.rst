@@ -1,6 +1,6 @@
-.. title: Walkthrough: Deploying a Flask app with Celery Task Queue Workers and Flower Dashboard using Kubernetes
-.. slug: walkthrough-deploying-a-flask-app-with-celery-task-queue-workers-and-flower-dashboard-using-kubernetes
-.. date: 2016-07-07 12:38:53 UTC+10:00
+.. title: Deploy Flask with a Celery task queue and Flower dashboard using Kubernetes
+.. slug: deploy-flask-with-a-celery-task-queue-and-flower-dashboard-using-kubernetes
+.. date: 2016-08-16 12:09:47 UTC+10:00
 .. tags: kubernetes,docker,flask,redis,celery,flower,rabbitmq,jsonpath,yaml
 .. category: coding
 .. link: 

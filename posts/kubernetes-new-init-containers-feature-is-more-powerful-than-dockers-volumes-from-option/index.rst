@@ -1,7 +1,7 @@
 .. title: Kubernetes' new init containers feature is more powerful than Docker's --volumes-from option
 .. slug: kubernetes-new-init-containers-feature-is-more-powerful-than-dockers-volumes-from-option
 .. date: 2016-08-25 16:25:22 UTC+10:00
-.. tags: kubernetes,docker,docker compose,nginx,wget,busybox
+.. tags: kubernetes,docker,docker compose,nginx,wget,busybox,draft
 .. category: coding
 .. link: 
 .. description: 

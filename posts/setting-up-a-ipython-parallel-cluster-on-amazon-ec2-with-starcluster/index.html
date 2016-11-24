@@ -5,7 +5,6 @@ article: http://ogp.me/ns/article#
 " lang="en">
 <head>
 <meta charset="utf-8">
-<base href="http://louistiao.me/posts/setting-up-a-ipython-parallel-cluster-on-amazon-ec2-with-starcluster/">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Setting up a IPython Parallel Cluster on Amazon EC2 with StarCluster | Louis Tiao</title>
 <link href="../../assets/css/all.css" rel="stylesheet" type="text/css">
@@ -14,8 +13,8 @@ article: http://ogp.me/ns/article#
 <meta content="#5670d4" name="theme-color">
 <link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
 <link rel="canonical" href="http://louistiao.me/posts/setting-up-a-ipython-parallel-cluster-on-amazon-ec2-with-starcluster/">
-<link rel="icon" href="../../favicon_32x32.ico" sizes="32x32">
 <link rel="icon" href="../../favicon_16x16.ico" sizes="16x16">
+<link rel="icon" href="../../favicon_32x32.ico" sizes="32x32">
 <link rel="icon" href="../../favicon_256x256.ico" sizes="256x256">
 <script type="text/x-mathjax-config">
 MathJax.Hub.Config({
@@ -62,7 +61,7 @@ building, configuring, and managing clusters o">
 <meta property="article:tag" content="virtualenv">
 </head>
 <body>
-  <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+<a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
 
   <div class="container">
     <div class="header clearfix">
@@ -148,33 +147,33 @@ project, <a class="reference external" href="http://ipyparallel.readthedocs.io/e
 <h2>Getting Started</h2>
 <p>First we initialize a <tt class="docutils literal">virtualenv</tt> for our project with Python 2.7 and install
 StarCluster with <tt class="docutils literal">pip</tt>:</p>
-<pre class="code console"><a name="rest_code_d43f0e8896764ddb8fd473476d4d59b1-1"></a><span class="gp">$</span> mkvirtualenv starcluster --python<span class="o">=</span><span class="sb">`</span>which python2<span class="sb">`</span>
-<a name="rest_code_d43f0e8896764ddb8fd473476d4d59b1-2"></a><span class="gp">$</span> python -V
-<a name="rest_code_d43f0e8896764ddb8fd473476d4d59b1-3"></a><span class="go">Python 2.7.11</span>
-<a name="rest_code_d43f0e8896764ddb8fd473476d4d59b1-4"></a><span class="gp">$</span> pip install starcluster
+<pre class="code console"><a name="rest_code_f33a0cb00fef4f939bdab43bf390decc-1"></a><span class="gp">$</span> mkvirtualenv starcluster --python<span class="o">=</span><span class="sb">`</span>which python2<span class="sb">`</span>
+<a name="rest_code_f33a0cb00fef4f939bdab43bf390decc-2"></a><span class="gp">$</span> python -V
+<a name="rest_code_f33a0cb00fef4f939bdab43bf390decc-3"></a><span class="go">Python 2.7.11</span>
+<a name="rest_code_f33a0cb00fef4f939bdab43bf390decc-4"></a><span class="gp">$</span> pip install starcluster
 </pre>
 <p>Create a directory to contain the various configuration files:</p>
-<pre class="code console"><a name="rest_code_53b53360c2994c2db02b43871e5e0e5a-1"></a><span class="gp">$</span> mkdir &lt;starcluster-project&gt;
-<a name="rest_code_53b53360c2994c2db02b43871e5e0e5a-2"></a><span class="gp">$</span> <span class="nb">cd</span> &lt;starcluster-project&gt;
+<pre class="code console"><a name="rest_code_8df24c9ddd32425fae8d899193d2be9b-1"></a><span class="gp">$</span> mkdir &lt;starcluster-project&gt;
+<a name="rest_code_8df24c9ddd32425fae8d899193d2be9b-2"></a><span class="gp">$</span> <span class="nb">cd</span> &lt;starcluster-project&gt;
 </pre>
 <p>Initialize the StarCluster configuration file:</p>
-<pre class="code console"><a name="rest_code_ad8550a6fe4f4f9aa364891f75179366-1"></a><span class="gp">$</span> starcluster -c &lt;starcluster-project&gt;/starcluster.cfg <span class="nb">help</span>
-<a name="rest_code_ad8550a6fe4f4f9aa364891f75179366-2"></a><span class="go">StarCluster - (http://star.mit.edu/cluster) (v. 0.95.6)</span>
-<a name="rest_code_ad8550a6fe4f4f9aa364891f75179366-3"></a><span class="go">Software Tools for Academics and Researchers (STAR)</span>
-<a name="rest_code_ad8550a6fe4f4f9aa364891f75179366-4"></a><span class="go">Please submit bug reports to starcluster@mit.edu</span>
-<a name="rest_code_ad8550a6fe4f4f9aa364891f75179366-5"></a>
-<a name="rest_code_ad8550a6fe4f4f9aa364891f75179366-6"></a><span class="go">!!! ERROR - config file &lt;starcluster-project&gt;/starcluster.cfg does not exist</span>
-<a name="rest_code_ad8550a6fe4f4f9aa364891f75179366-7"></a>
-<a name="rest_code_ad8550a6fe4f4f9aa364891f75179366-8"></a><span class="go">Options:</span>
-<a name="rest_code_ad8550a6fe4f4f9aa364891f75179366-9"></a><span class="go">--------</span>
-<a name="rest_code_ad8550a6fe4f4f9aa364891f75179366-10"></a><span class="go">[1] Show the StarCluster config template</span>
-<a name="rest_code_ad8550a6fe4f4f9aa364891f75179366-11"></a><span class="go">[2] Write config template to &lt;starcluster-project&gt;/starcluster.cfg</span>
-<a name="rest_code_ad8550a6fe4f4f9aa364891f75179366-12"></a><span class="go">[q] Quit</span>
-<a name="rest_code_ad8550a6fe4f4f9aa364891f75179366-13"></a>
-<a name="rest_code_ad8550a6fe4f4f9aa364891f75179366-14"></a><span class="go">Please enter your selection: 2</span>
-<a name="rest_code_ad8550a6fe4f4f9aa364891f75179366-15"></a>
-<a name="rest_code_ad8550a6fe4f4f9aa364891f75179366-16"></a><span class="gp">&gt;</span>&gt;&gt; Config template written to &lt;starcluster-project&gt;/starcluster.cfg
-<a name="rest_code_ad8550a6fe4f4f9aa364891f75179366-17"></a><span class="gp">&gt;</span>&gt;&gt; Please customize the config template
+<pre class="code console"><a name="rest_code_c57d4cbf4b5d4515b19b1bdcb0fd44a6-1"></a><span class="gp">$</span> starcluster -c &lt;starcluster-project&gt;/starcluster.cfg <span class="nb">help</span>
+<a name="rest_code_c57d4cbf4b5d4515b19b1bdcb0fd44a6-2"></a><span class="go">StarCluster - (http://star.mit.edu/cluster) (v. 0.95.6)</span>
+<a name="rest_code_c57d4cbf4b5d4515b19b1bdcb0fd44a6-3"></a><span class="go">Software Tools for Academics and Researchers (STAR)</span>
+<a name="rest_code_c57d4cbf4b5d4515b19b1bdcb0fd44a6-4"></a><span class="go">Please submit bug reports to starcluster@mit.edu</span>
+<a name="rest_code_c57d4cbf4b5d4515b19b1bdcb0fd44a6-5"></a>
+<a name="rest_code_c57d4cbf4b5d4515b19b1bdcb0fd44a6-6"></a><span class="go">!!! ERROR - config file &lt;starcluster-project&gt;/starcluster.cfg does not exist</span>
+<a name="rest_code_c57d4cbf4b5d4515b19b1bdcb0fd44a6-7"></a>
+<a name="rest_code_c57d4cbf4b5d4515b19b1bdcb0fd44a6-8"></a><span class="go">Options:</span>
+<a name="rest_code_c57d4cbf4b5d4515b19b1bdcb0fd44a6-9"></a><span class="go">--------</span>
+<a name="rest_code_c57d4cbf4b5d4515b19b1bdcb0fd44a6-10"></a><span class="go">[1] Show the StarCluster config template</span>
+<a name="rest_code_c57d4cbf4b5d4515b19b1bdcb0fd44a6-11"></a><span class="go">[2] Write config template to &lt;starcluster-project&gt;/starcluster.cfg</span>
+<a name="rest_code_c57d4cbf4b5d4515b19b1bdcb0fd44a6-12"></a><span class="go">[q] Quit</span>
+<a name="rest_code_c57d4cbf4b5d4515b19b1bdcb0fd44a6-13"></a>
+<a name="rest_code_c57d4cbf4b5d4515b19b1bdcb0fd44a6-14"></a><span class="go">Please enter your selection: 2</span>
+<a name="rest_code_c57d4cbf4b5d4515b19b1bdcb0fd44a6-15"></a>
+<a name="rest_code_c57d4cbf4b5d4515b19b1bdcb0fd44a6-16"></a><span class="gp">&gt;</span>&gt;&gt; Config template written to &lt;starcluster-project&gt;/starcluster.cfg
+<a name="rest_code_c57d4cbf4b5d4515b19b1bdcb0fd44a6-17"></a><span class="gp">&gt;</span>&gt;&gt; Please customize the config template
 </pre>
 <p>Note that without the <tt class="docutils literal"><span class="pre">-c</span></tt> argument, the configuration file would have been
 initialized in the default location, which is <tt class="docutils literal"><span class="pre">~/.starcluster/config</span></tt>. Since
@@ -182,28 +181,28 @@ we may want to version control this configuration, we initialize and store
 this file in an alternate location, namely, <tt class="docutils literal"><span class="pre">&lt;starcluster-project&gt;/starcluster.cfg</span></tt>.</p>
 <p>Now that this file has been created, we can execute the previous command without
 errors:</p>
-<pre class="code console"><a name="rest_code_80b350cacca44fe4b7efbef4aecdd603-1"></a><span class="gp">$</span> starcluster -c &lt;starcluster-project&gt;/starcluster.cfg <span class="nb">help</span>
-<a name="rest_code_80b350cacca44fe4b7efbef4aecdd603-2"></a><span class="go">StarCluster - (http://star.mit.edu/cluster) (v. 0.95.6)</span>
-<a name="rest_code_80b350cacca44fe4b7efbef4aecdd603-3"></a><span class="go">Software Tools for Academics and Researchers (STAR)</span>
-<a name="rest_code_80b350cacca44fe4b7efbef4aecdd603-4"></a><span class="go">Please submit bug reports to starcluster@mit.edu</span>
-<a name="rest_code_80b350cacca44fe4b7efbef4aecdd603-5"></a>
-<a name="rest_code_80b350cacca44fe4b7efbef4aecdd603-6"></a><span class="go">Usage: StarCluster Command Line Interface:</span>
-<a name="rest_code_80b350cacca44fe4b7efbef4aecdd603-7"></a>
-<a name="rest_code_80b350cacca44fe4b7efbef4aecdd603-8"></a><span class="go">starcluster [global-opts] action [action-opts] [&lt;action-args&gt; ...]</span>
-<a name="rest_code_80b350cacca44fe4b7efbef4aecdd603-9"></a>
-<a name="rest_code_80b350cacca44fe4b7efbef4aecdd603-10"></a><span class="go">Available Commands:</span>
-<a name="rest_code_80b350cacca44fe4b7efbef4aecdd603-11"></a><span class="go">-------------------</span>
-<a name="rest_code_80b350cacca44fe4b7efbef4aecdd603-12"></a><span class="go">NOTE: Pass --help to any command for a list of its options and detailed usage information</span>
-<a name="rest_code_80b350cacca44fe4b7efbef4aecdd603-13"></a>
-<a name="rest_code_80b350cacca44fe4b7efbef4aecdd603-14"></a><span class="go">- start: Start a new cluster</span>
-<a name="rest_code_80b350cacca44fe4b7efbef4aecdd603-15"></a><span class="go">- stop: Stop a running EBS-backed cluster</span>
-<a name="rest_code_80b350cacca44fe4b7efbef4aecdd603-16"></a><span class="go">- terminate: Terminate a running or stopped cluster</span>
-<a name="rest_code_80b350cacca44fe4b7efbef4aecdd603-17"></a><span class="go">[...]</span>
+<pre class="code console"><a name="rest_code_6899d515a4764a44aa324eddb36679a9-1"></a><span class="gp">$</span> starcluster -c &lt;starcluster-project&gt;/starcluster.cfg <span class="nb">help</span>
+<a name="rest_code_6899d515a4764a44aa324eddb36679a9-2"></a><span class="go">StarCluster - (http://star.mit.edu/cluster) (v. 0.95.6)</span>
+<a name="rest_code_6899d515a4764a44aa324eddb36679a9-3"></a><span class="go">Software Tools for Academics and Researchers (STAR)</span>
+<a name="rest_code_6899d515a4764a44aa324eddb36679a9-4"></a><span class="go">Please submit bug reports to starcluster@mit.edu</span>
+<a name="rest_code_6899d515a4764a44aa324eddb36679a9-5"></a>
+<a name="rest_code_6899d515a4764a44aa324eddb36679a9-6"></a><span class="go">Usage: StarCluster Command Line Interface:</span>
+<a name="rest_code_6899d515a4764a44aa324eddb36679a9-7"></a>
+<a name="rest_code_6899d515a4764a44aa324eddb36679a9-8"></a><span class="go">starcluster [global-opts] action [action-opts] [&lt;action-args&gt; ...]</span>
+<a name="rest_code_6899d515a4764a44aa324eddb36679a9-9"></a>
+<a name="rest_code_6899d515a4764a44aa324eddb36679a9-10"></a><span class="go">Available Commands:</span>
+<a name="rest_code_6899d515a4764a44aa324eddb36679a9-11"></a><span class="go">-------------------</span>
+<a name="rest_code_6899d515a4764a44aa324eddb36679a9-12"></a><span class="go">NOTE: Pass --help to any command for a list of its options and detailed usage information</span>
+<a name="rest_code_6899d515a4764a44aa324eddb36679a9-13"></a>
+<a name="rest_code_6899d515a4764a44aa324eddb36679a9-14"></a><span class="go">- start: Start a new cluster</span>
+<a name="rest_code_6899d515a4764a44aa324eddb36679a9-15"></a><span class="go">- stop: Stop a running EBS-backed cluster</span>
+<a name="rest_code_6899d515a4764a44aa324eddb36679a9-16"></a><span class="go">- terminate: Terminate a running or stopped cluster</span>
+<a name="rest_code_6899d515a4764a44aa324eddb36679a9-17"></a><span class="go">[...]</span>
 </pre>
 <p>We can set the <tt class="docutils literal">STARCLUSTER_CONFIG</tt> environment variable so we don't have to
 provide the full path to the config file everytime we execute a <tt class="docutils literal">starcluster</tt>
 subcommand:</p>
-<pre class="code console"><a name="rest_code_f9c8c961ac6a4a1cb5ea9ec89ebc74a1-1"></a><span class="gp">$</span> <span class="nb">export</span> <span class="nv">STARCLUSTER_CONFIG</span><span class="o">=</span><span class="s2">"&lt;starcluster-project&gt;/starcluster.cfg"</span>
+<pre class="code console"><a name="rest_code_eb3d968f33de427388140b5707ea9fa8-1"></a><span class="gp">$</span> <span class="nb">export</span> <span class="nv">STARCLUSTER_CONFIG</span><span class="o">=</span><span class="s2">"&lt;starcluster-project&gt;/starcluster.cfg"</span>
 </pre>
 <p>Now we can simply run <tt class="docutils literal">starcluster help</tt> and get the same output as before.</p>
 <p>For further information, see <a class="reference external" href="http://star.mit.edu/cluster/docs/latest/manual/configuration.html#creating-the-configuration-file">Creating the configuration file</a></p>
@@ -214,20 +213,20 @@ subcommand:</p>
 section.</p>
 <p>You can (kind of) generate this with the <a class="reference external" href="https://aws.amazon.com/cli/">AWS Command Line Interface</a>, by
 creating a named profile with the name <tt class="docutils literal">aws info</tt>:</p>
-<pre class="code console"><a name="rest_code_dea207f4c9114ec3a70f4078a8d57750-1"></a><span class="gp">$</span> aws configure --profile<span class="o">=</span><span class="s1">'aws info'</span>
-<a name="rest_code_dea207f4c9114ec3a70f4078a8d57750-2"></a><span class="go">AWS Access Key ID [None]: ###</span>
-<a name="rest_code_dea207f4c9114ec3a70f4078a8d57750-3"></a><span class="go">AWS Secret Access Key [None]: ###</span>
-<a name="rest_code_dea207f4c9114ec3a70f4078a8d57750-4"></a><span class="go">Default region name [None]:</span>
-<a name="rest_code_dea207f4c9114ec3a70f4078a8d57750-5"></a><span class="go">Default output format [None]:</span>
-<a name="rest_code_dea207f4c9114ec3a70f4078a8d57750-6"></a><span class="gp">$</span> cat ~/.aws/credentials
-<a name="rest_code_dea207f4c9114ec3a70f4078a8d57750-7"></a><span class="go">[aws info]</span>
-<a name="rest_code_dea207f4c9114ec3a70f4078a8d57750-8"></a><span class="go">aws_access_key_id = ###</span>
-<a name="rest_code_dea207f4c9114ec3a70f4078a8d57750-9"></a><span class="go">aws_secret_access_key = ###</span>
+<pre class="code console"><a name="rest_code_44c95c9b56054800b280d7ed5e632b5e-1"></a><span class="gp">$</span> aws configure --profile<span class="o">=</span><span class="s1">'aws info'</span>
+<a name="rest_code_44c95c9b56054800b280d7ed5e632b5e-2"></a><span class="go">AWS Access Key ID [None]: ###</span>
+<a name="rest_code_44c95c9b56054800b280d7ed5e632b5e-3"></a><span class="go">AWS Secret Access Key [None]: ###</span>
+<a name="rest_code_44c95c9b56054800b280d7ed5e632b5e-4"></a><span class="go">Default region name [None]:</span>
+<a name="rest_code_44c95c9b56054800b280d7ed5e632b5e-5"></a><span class="go">Default output format [None]:</span>
+<a name="rest_code_44c95c9b56054800b280d7ed5e632b5e-6"></a><span class="gp">$</span> cat ~/.aws/credentials
+<a name="rest_code_44c95c9b56054800b280d7ed5e632b5e-7"></a><span class="go">[aws info]</span>
+<a name="rest_code_44c95c9b56054800b280d7ed5e632b5e-8"></a><span class="go">aws_access_key_id = ###</span>
+<a name="rest_code_44c95c9b56054800b280d7ed5e632b5e-9"></a><span class="go">aws_secret_access_key = ###</span>
 </pre>
 <p>You just need to include these credentials in the global config file (<tt class="docutils literal">starcluster.cfg</tt>
 in this tutorial):</p>
-<pre class="code ini"><a name="rest_code_ea37a05d89214c7ba7fa2101f6c231e5-1"></a><span class="k">[global]</span>
-<a name="rest_code_ea37a05d89214c7ba7fa2101f6c231e5-2"></a><span class="na">include</span> <span class="o">=</span> <span class="s">~/.aws/credentials</span>
+<pre class="code ini"><a name="rest_code_a87923a27e8540bcba79dac1af177789-1"></a><span class="k">[global]</span>
+<a name="rest_code_a87923a27e8540bcba79dac1af177789-2"></a><span class="na">include</span> <span class="o">=</span> <span class="s">~/.aws/credentials</span>
 </pre>
 <p>The full list of Regions and Endpoints can be found at
 <a class="reference external" href="http://docs.aws.amazon.com/general/latest/gr/rande.html#ec2_region">http://docs.aws.amazon.com/general/latest/gr/rande.html#ec2_region</a>, and
@@ -239,15 +238,15 @@ information on how to determine your Account ID can be found at
 <h2>Amazon EC2 Keypairs</h2>
 <p>The next step is to fill in your keypair information. If you don’t already
 have a keypair you can create one directly with StarCluster:</p>
-<pre class="code console"><a name="rest_code_4c5e0f9c36114676b45134f8c4a2fb02-1"></a><span class="gp">$</span> starcluster -c ./starcluster.cfg createkey starcluster -o ~/.ssh/starcluster.rsa
+<pre class="code console"><a name="rest_code_a8e7e8c34ffd41b189a21e9b308227ad-1"></a><span class="gp">$</span> starcluster -c ./starcluster.cfg createkey starcluster -o ~/.ssh/starcluster.rsa
 </pre>
 <p>You should be able to see the keypair you just created, and any other existing
 ones on Amazon EC2:</p>
-<pre class="code console"><a name="rest_code_02c3c4720ec8410bb4b218b4212402cd-1"></a><span class="gp">$</span> starcluster -c ./starcluster.cfg listkeypairs
+<pre class="code console"><a name="rest_code_673a2314a399451189c491bf038ba39a-1"></a><span class="gp">$</span> starcluster -c ./starcluster.cfg listkeypairs
 </pre>
 <p>You must define this key the the location of the private key in the config (<tt class="docutils literal">starcluster.cfg</tt>):</p>
-<pre class="code ini"><a name="rest_code_b34c2119e6b446458f6d403b6b60a67c-1"></a><span class="k">[key starcluster]</span>
-<a name="rest_code_b34c2119e6b446458f6d403b6b60a67c-2"></a><span class="na">KEY_LOCATION</span><span class="o">=</span><span class="s">~/.ssh/starcluster.rsa</span>
+<pre class="code ini"><a name="rest_code_cc0a975225974b988ad1cbcc249f14fa-1"></a><span class="k">[key starcluster]</span>
+<a name="rest_code_cc0a975225974b988ad1cbcc249f14fa-2"></a><span class="na">KEY_LOCATION</span><span class="o">=</span><span class="s">~/.ssh/starcluster.rsa</span>
 </pre>
 <p>For more information, see <a class="reference external" href="http://star.mit.edu/cluster/docs/latest/manual/configuration.html#amazon-ec2-keypairs">Amazon EC2 Keypairs</a>.</p>
 </div>
@@ -258,33 +257,33 @@ quite reasonable. You can find a description of every setting at
 <a class="reference external" href="http://star.mit.edu/cluster/docs/latest/manual/configuration.html#cluster-settings">http://star.mit.edu/cluster/docs/latest/manual/configuration.html#cluster-settings</a>.</p>
 <p>The only change you are required to make is to specifying the keypair we just created
 to be used by the cluster.</p>
-<pre class="code console"><a name="rest_code_628644800f804ef2999e979ee2da74cc-1"></a><span class="go">[cluster smallcluster]</span>
-<a name="rest_code_628644800f804ef2999e979ee2da74cc-2"></a><span class="gp">#</span> change this to the name of one of the keypair sections defined above
-<a name="rest_code_628644800f804ef2999e979ee2da74cc-3"></a><span class="go">KEYNAME = starcluster</span>
+<pre class="code console"><a name="rest_code_e9f17ba06b414193a19b122b8e394cc2-1"></a><span class="go">[cluster smallcluster]</span>
+<a name="rest_code_e9f17ba06b414193a19b122b8e394cc2-2"></a><span class="gp">#</span> change this to the name of one of the keypair sections defined above
+<a name="rest_code_e9f17ba06b414193a19b122b8e394cc2-3"></a><span class="go">KEYNAME = starcluster</span>
 </pre>
 <p>Depending on the AWS region you specified, you may need to modify the AMI Image
 ID, as not all AMIs are available in all across all regions. You can use the
 <tt class="docutils literal">listpublic</tt> subcommand to see the list of available AMIs. Here we list all
 available AMIs for the <tt class="docutils literal"><span class="pre">ap-southeast-2</span></tt> region:</p>
-<pre class="code console"><a name="rest_code_3037d96c36c74fd9959de318b6815848-1"></a><span class="gp">$</span> starcluster listpublic
-<a name="rest_code_3037d96c36c74fd9959de318b6815848-2"></a><span class="go">StarCluster - (http://star.mit.edu/cluster) (v. 0.95.6)</span>
-<a name="rest_code_3037d96c36c74fd9959de318b6815848-3"></a><span class="go">Software Tools for Academics and Researchers (STAR)</span>
-<a name="rest_code_3037d96c36c74fd9959de318b6815848-4"></a><span class="go">Please submit bug reports to starcluster@mit.edu</span>
-<a name="rest_code_3037d96c36c74fd9959de318b6815848-5"></a>
-<a name="rest_code_3037d96c36c74fd9959de318b6815848-6"></a><span class="gp">&gt;</span>&gt;&gt; Listing all public StarCluster images...
-<a name="rest_code_3037d96c36c74fd9959de318b6815848-7"></a>
-<a name="rest_code_3037d96c36c74fd9959de318b6815848-8"></a><span class="go">32bit Images:</span>
-<a name="rest_code_3037d96c36c74fd9959de318b6815848-9"></a><span class="go">-------------</span>
-<a name="rest_code_3037d96c36c74fd9959de318b6815848-10"></a><span class="go">[0] ami-d58719ef ap-southeast-2 starcluster-base-ubuntu-13.04-x86 (EBS)</span>
-<a name="rest_code_3037d96c36c74fd9959de318b6815848-11"></a><span class="go">[1] ami-1adf4f20 ap-southeast-2 starcluster-base-ubuntu-12.04-x86 (EBS)</span>
-<a name="rest_code_3037d96c36c74fd9959de318b6815848-12"></a>
-<a name="rest_code_3037d96c36c74fd9959de318b6815848-13"></a><span class="go">64bit Images:</span>
-<a name="rest_code_3037d96c36c74fd9959de318b6815848-14"></a><span class="go">--------------</span>
-<a name="rest_code_3037d96c36c74fd9959de318b6815848-15"></a><span class="go">[0] ami-cd841af7 ap-southeast-2 starcluster-base-ubuntu-13.04-x86_64-hvm (HVM-EBS)</span>
-<a name="rest_code_3037d96c36c74fd9959de318b6815848-16"></a><span class="go">[1] ami-e3841ad9 ap-southeast-2 starcluster-base-ubuntu-13.04-x86_64 (EBS)</span>
-<a name="rest_code_3037d96c36c74fd9959de318b6815848-17"></a><span class="go">[2] ami-18df4f22 ap-southeast-2 starcluster-base-ubuntu-12.04-x86_64 (EBS)</span>
-<a name="rest_code_3037d96c36c74fd9959de318b6815848-18"></a>
-<a name="rest_code_3037d96c36c74fd9959de318b6815848-19"></a><span class="go">total images: 5</span>
+<pre class="code console"><a name="rest_code_aed211c2a2ee4568b0939d6f6a5597e2-1"></a><span class="gp">$</span> starcluster listpublic
+<a name="rest_code_aed211c2a2ee4568b0939d6f6a5597e2-2"></a><span class="go">StarCluster - (http://star.mit.edu/cluster) (v. 0.95.6)</span>
+<a name="rest_code_aed211c2a2ee4568b0939d6f6a5597e2-3"></a><span class="go">Software Tools for Academics and Researchers (STAR)</span>
+<a name="rest_code_aed211c2a2ee4568b0939d6f6a5597e2-4"></a><span class="go">Please submit bug reports to starcluster@mit.edu</span>
+<a name="rest_code_aed211c2a2ee4568b0939d6f6a5597e2-5"></a>
+<a name="rest_code_aed211c2a2ee4568b0939d6f6a5597e2-6"></a><span class="gp">&gt;</span>&gt;&gt; Listing all public StarCluster images...
+<a name="rest_code_aed211c2a2ee4568b0939d6f6a5597e2-7"></a>
+<a name="rest_code_aed211c2a2ee4568b0939d6f6a5597e2-8"></a><span class="go">32bit Images:</span>
+<a name="rest_code_aed211c2a2ee4568b0939d6f6a5597e2-9"></a><span class="go">-------------</span>
+<a name="rest_code_aed211c2a2ee4568b0939d6f6a5597e2-10"></a><span class="go">[0] ami-d58719ef ap-southeast-2 starcluster-base-ubuntu-13.04-x86 (EBS)</span>
+<a name="rest_code_aed211c2a2ee4568b0939d6f6a5597e2-11"></a><span class="go">[1] ami-1adf4f20 ap-southeast-2 starcluster-base-ubuntu-12.04-x86 (EBS)</span>
+<a name="rest_code_aed211c2a2ee4568b0939d6f6a5597e2-12"></a>
+<a name="rest_code_aed211c2a2ee4568b0939d6f6a5597e2-13"></a><span class="go">64bit Images:</span>
+<a name="rest_code_aed211c2a2ee4568b0939d6f6a5597e2-14"></a><span class="go">--------------</span>
+<a name="rest_code_aed211c2a2ee4568b0939d6f6a5597e2-15"></a><span class="go">[0] ami-cd841af7 ap-southeast-2 starcluster-base-ubuntu-13.04-x86_64-hvm (HVM-EBS)</span>
+<a name="rest_code_aed211c2a2ee4568b0939d6f6a5597e2-16"></a><span class="go">[1] ami-e3841ad9 ap-southeast-2 starcluster-base-ubuntu-13.04-x86_64 (EBS)</span>
+<a name="rest_code_aed211c2a2ee4568b0939d6f6a5597e2-17"></a><span class="go">[2] ami-18df4f22 ap-southeast-2 starcluster-base-ubuntu-12.04-x86_64 (EBS)</span>
+<a name="rest_code_aed211c2a2ee4568b0939d6f6a5597e2-18"></a>
+<a name="rest_code_aed211c2a2ee4568b0939d6f6a5597e2-19"></a><span class="go">total images: 5</span>
 </pre>
 <p>Note that you can have multiple cluster templates, and are able to inherit
 settings existing templates. For more information, see <a class="reference external" href="http://star.mit.edu/cluster/docs/latest/manual/configuration.html#defining-multiple-cluster-templates">Defining Multiple Cluster Templates</a>.</p>
@@ -292,62 +291,62 @@ settings existing templates. For more information, see <a class="reference exter
 <div class="section" id="enable-the-ipython-cluster-plugin">
 <h2>Enable the IPython Cluster Plugin</h2>
 <p>Finally, you must define settings for the built-in <tt class="docutils literal">ipcluster</tt> plugin:</p>
-<pre class="code ini"><a name="rest_code_5c184327aa824c16b3b2b0e499450f58-1"></a><span class="c1"># The IPCluster plugin configures a parallel IPython cluster with optional</span>
-<a name="rest_code_5c184327aa824c16b3b2b0e499450f58-2"></a><span class="c1"># web notebook support. This allows you to run Python code in parallel with low</span>
-<a name="rest_code_5c184327aa824c16b3b2b0e499450f58-3"></a><span class="c1"># latency message passing via ZeroMQ.</span>
-<a name="rest_code_5c184327aa824c16b3b2b0e499450f58-4"></a><span class="k">[plugin ipcluster]</span>
-<a name="rest_code_5c184327aa824c16b3b2b0e499450f58-5"></a><span class="na">SETUP_CLASS</span> <span class="o">=</span> <span class="s">starcluster.plugins.ipcluster.IPCluster</span>
-<a name="rest_code_5c184327aa824c16b3b2b0e499450f58-6"></a><span class="c1"># Set a custom packer. Must be one of 'json', 'pickle', or 'msgpack'</span>
-<a name="rest_code_5c184327aa824c16b3b2b0e499450f58-7"></a><span class="c1"># This is optional.</span>
-<a name="rest_code_5c184327aa824c16b3b2b0e499450f58-8"></a><span class="na">PACKER</span> <span class="o">=</span> <span class="s">json</span>
+<pre class="code ini"><a name="rest_code_30c704a8ca914c5b9097273b57973a05-1"></a><span class="c1"># The IPCluster plugin configures a parallel IPython cluster with optional</span>
+<a name="rest_code_30c704a8ca914c5b9097273b57973a05-2"></a><span class="c1"># web notebook support. This allows you to run Python code in parallel with low</span>
+<a name="rest_code_30c704a8ca914c5b9097273b57973a05-3"></a><span class="c1"># latency message passing via ZeroMQ.</span>
+<a name="rest_code_30c704a8ca914c5b9097273b57973a05-4"></a><span class="k">[plugin ipcluster]</span>
+<a name="rest_code_30c704a8ca914c5b9097273b57973a05-5"></a><span class="na">SETUP_CLASS</span> <span class="o">=</span> <span class="s">starcluster.plugins.ipcluster.IPCluster</span>
+<a name="rest_code_30c704a8ca914c5b9097273b57973a05-6"></a><span class="c1"># Set a custom packer. Must be one of 'json', 'pickle', or 'msgpack'</span>
+<a name="rest_code_30c704a8ca914c5b9097273b57973a05-7"></a><span class="c1"># This is optional.</span>
+<a name="rest_code_30c704a8ca914c5b9097273b57973a05-8"></a><span class="na">PACKER</span> <span class="o">=</span> <span class="s">json</span>
 </pre>
 <p>We don't enable the IPython Notebook here, although this is quite straight-forward,
 and instructions can be found at <a class="reference external" href="http://star.mit.edu/cluster/docs/latest/plugins/ipython.html#using-the-ipython-html-notebook">http://star.mit.edu/cluster/docs/latest/plugins/ipython.html#using-the-ipython-html-notebook</a>.</p>
 <p>Lastly, you need to add <tt class="docutils literal">ipcluster</tt> to the list of plugins to be loaded after
 StarCluster's default setup routines</p>
-<pre class="code diff"><a name="rest_code_fc8a612bd0ec40f6afc9a822b6973670-1"></a>[cluster smallcluster]
-<a name="rest_code_fc8a612bd0ec40f6afc9a822b6973670-2"></a>plugins = ipcluster
+<pre class="code diff"><a name="rest_code_fc0b69137c6a4366823513c54f94524f-1"></a>[cluster smallcluster]
+<a name="rest_code_fc0b69137c6a4366823513c54f94524f-2"></a>plugins = ipcluster
 </pre>
 </div>
 <div class="section" id="starting-the-cluster">
 <h2>Starting the Cluster</h2>
 <p>Now we are finally ready to start the cluster:</p>
-<pre class="code console"><a name="rest_code_a23285273efb46a0be530410a20b7eed-1"></a><span class="gp">$</span> starcluster start mycluster
+<pre class="code console"><a name="rest_code_5e5f3b4a0d324337a641f7ca459dd4fe-1"></a><span class="gp">$</span> starcluster start mycluster
 </pre>
 <p>This will take about 5-10 minutes. Once the cluster has successfully started,
 you should first SSH into the master node as the <tt class="docutils literal">CLUSTER_USER</tt> (by default
 this is <tt class="docutils literal">sgeadmin</tt>). This is important as this will add the master node to
 the list of know hosts, which is required for the subsequent commands to work.</p>
-<pre class="code console"><a name="rest_code_2b156053ebde4003a3b921d73574052d-1"></a><span class="gp">$</span> starcluster sshmaster mycluster -u sgeadmin
-<a name="rest_code_2b156053ebde4003a3b921d73574052d-2"></a><span class="gp">$</span> ipython <span class="c1"># now you should be able to create a parallel client</span>
-<a name="rest_code_2b156053ebde4003a3b921d73574052d-3"></a><span class="go">[~]&gt; from IPython.parallel import Client</span>
-<a name="rest_code_2b156053ebde4003a3b921d73574052d-4"></a><span class="go">[~]&gt; rc = Client()</span>
-<a name="rest_code_2b156053ebde4003a3b921d73574052d-5"></a><span class="go">[~]&gt; view = rc[:]</span>
-<a name="rest_code_2b156053ebde4003a3b921d73574052d-6"></a><span class="go">[~]&gt; results = view.map_async(lambda x: x**30, range(8))</span>
-<a name="rest_code_2b156053ebde4003a3b921d73574052d-7"></a><span class="go">[~]&gt; print results.get()</span>
-<a name="rest_code_2b156053ebde4003a3b921d73574052d-8"></a><span class="go">[0,</span>
-<a name="rest_code_2b156053ebde4003a3b921d73574052d-9"></a><span class="go"> 1,</span>
-<a name="rest_code_2b156053ebde4003a3b921d73574052d-10"></a><span class="go"> 1073741824,</span>
-<a name="rest_code_2b156053ebde4003a3b921d73574052d-11"></a><span class="go"> 205891132094649L,</span>
-<a name="rest_code_2b156053ebde4003a3b921d73574052d-12"></a><span class="go"> 1152921504606846976L,</span>
-<a name="rest_code_2b156053ebde4003a3b921d73574052d-13"></a><span class="go"> 931322574615478515625L,</span>
-<a name="rest_code_2b156053ebde4003a3b921d73574052d-14"></a><span class="go"> 221073919720733357899776L,</span>
-<a name="rest_code_2b156053ebde4003a3b921d73574052d-15"></a><span class="go"> 22539340290692258087863249L]</span>
+<pre class="code console"><a name="rest_code_62986561a605418a961ee6a1090b11b4-1"></a><span class="gp">$</span> starcluster sshmaster mycluster -u sgeadmin
+<a name="rest_code_62986561a605418a961ee6a1090b11b4-2"></a><span class="gp">$</span> ipython <span class="c1"># now you should be able to create a parallel client</span>
+<a name="rest_code_62986561a605418a961ee6a1090b11b4-3"></a><span class="go">[~]&gt; from IPython.parallel import Client</span>
+<a name="rest_code_62986561a605418a961ee6a1090b11b4-4"></a><span class="go">[~]&gt; rc = Client()</span>
+<a name="rest_code_62986561a605418a961ee6a1090b11b4-5"></a><span class="go">[~]&gt; view = rc[:]</span>
+<a name="rest_code_62986561a605418a961ee6a1090b11b4-6"></a><span class="go">[~]&gt; results = view.map_async(lambda x: x**30, range(8))</span>
+<a name="rest_code_62986561a605418a961ee6a1090b11b4-7"></a><span class="go">[~]&gt; print results.get()</span>
+<a name="rest_code_62986561a605418a961ee6a1090b11b4-8"></a><span class="go">[0,</span>
+<a name="rest_code_62986561a605418a961ee6a1090b11b4-9"></a><span class="go"> 1,</span>
+<a name="rest_code_62986561a605418a961ee6a1090b11b4-10"></a><span class="go"> 1073741824,</span>
+<a name="rest_code_62986561a605418a961ee6a1090b11b4-11"></a><span class="go"> 205891132094649L,</span>
+<a name="rest_code_62986561a605418a961ee6a1090b11b4-12"></a><span class="go"> 1152921504606846976L,</span>
+<a name="rest_code_62986561a605418a961ee6a1090b11b4-13"></a><span class="go"> 931322574615478515625L,</span>
+<a name="rest_code_62986561a605418a961ee6a1090b11b4-14"></a><span class="go"> 221073919720733357899776L,</span>
+<a name="rest_code_62986561a605418a961ee6a1090b11b4-15"></a><span class="go"> 22539340290692258087863249L]</span>
 </pre>
 <p>You can now create a parallel client on your local machine that connects to and
 leverages the remote cluster. When you run <tt class="docutils literal">starcluster start mycluster</tt>, it
 generates and stores a JSON file containing the client's connection information
 in <tt class="docutils literal"><span class="pre">~/.starcluster/ipcluster/</span></tt>, with the name <tt class="docutils literal"><span class="pre">&lt;cluster&gt;-&lt;region&gt;.json'</span></tt></p>
-<pre class="code console"><a name="rest_code_1c50198208a94cb3bef9839de5257a0f-1"></a><span class="gp">$</span> ipython
-<a name="rest_code_1c50198208a94cb3bef9839de5257a0f-2"></a><span class="go">[~]&gt; from IPython.parallel import Client</span>
-<a name="rest_code_1c50198208a94cb3bef9839de5257a0f-3"></a><span class="go">[~]&gt; rc = Client('~/.starcluster/ipcluster/&lt;cluster&gt;-&lt;region&gt;.json'</span>
-<a name="rest_code_1c50198208a94cb3bef9839de5257a0f-4"></a><span class="go">                 sshkey='~/.ssh/starcluster.rsa')</span>
+<pre class="code console"><a name="rest_code_548ec07d202e4ae09f14632f88a91a68-1"></a><span class="gp">$</span> ipython
+<a name="rest_code_548ec07d202e4ae09f14632f88a91a68-2"></a><span class="go">[~]&gt; from IPython.parallel import Client</span>
+<a name="rest_code_548ec07d202e4ae09f14632f88a91a68-3"></a><span class="go">[~]&gt; rc = Client('~/.starcluster/ipcluster/&lt;cluster&gt;-&lt;region&gt;.json'</span>
+<a name="rest_code_548ec07d202e4ae09f14632f88a91a68-4"></a><span class="go">                 sshkey='~/.ssh/starcluster.rsa')</span>
 </pre>
 <p>See <a class="reference external" href="https://ipython.org/ipython-doc/2/parallel/parallel_intro.html">https://ipython.org/ipython-doc/2/parallel/parallel_intro.html</a> for an
 introduction to using IPython Parallel.</p>
 <p>You should also be able to use the IPython Parallel cluster with the
 <tt class="docutils literal"><span class="pre">--ipcluster</span></tt> option:</p>
-<pre class="code console"><a name="rest_code_b8a760d3f012447caa2006669c911ffe-1"></a><span class="gp">$</span> starcluster shell --ipcluster<span class="o">=</span>mycluster
+<pre class="code console"><a name="rest_code_89422e7660bc4217a40553682da6bbc4-1"></a><span class="gp">$</span> starcluster shell --ipcluster<span class="o">=</span>mycluster
 </pre>
 <p>The expected behavior is described below (taken from <a class="reference external" href="http://star.mit.edu/cluster/docs/latest/plugins/ipython.html#connecting-from-your-local-ipython-installation">http://star.mit.edu/cluster/docs/latest/plugins/ipython.html#connecting-from-your-local-ipython-installation</a>):</p>
 <blockquote>
@@ -355,19 +354,19 @@ introduction to using IPython Parallel.</p>
 session for you automatically. StarCluster will create a parallel client in a
 variable named ipclient and a corresponding view of the entire cluster in a
 variable named ipview which you can use to run parallel tasks on the remote cluster:</p>
-<pre class="code console"><a name="rest_code_824b309912dc4637b46a23c129f608ea-1"></a><span class="gp">$</span> starcluster shell --ipcluster<span class="o">=</span>mycluster
-<a name="rest_code_824b309912dc4637b46a23c129f608ea-2"></a><span class="go">[~]&gt; ipclient.ids</span>
-<a name="rest_code_824b309912dc4637b46a23c129f608ea-3"></a><span class="go">[0, 1, 2, 3]</span>
-<a name="rest_code_824b309912dc4637b46a23c129f608ea-4"></a><span class="go">[~]&gt; res = ipview.map_async(lambda x: x**30, range(8))</span>
-<a name="rest_code_824b309912dc4637b46a23c129f608ea-5"></a><span class="go">[~]&gt; print res.get()</span>
-<a name="rest_code_824b309912dc4637b46a23c129f608ea-6"></a><span class="go">[0,</span>
-<a name="rest_code_824b309912dc4637b46a23c129f608ea-7"></a><span class="go"> 1,</span>
-<a name="rest_code_824b309912dc4637b46a23c129f608ea-8"></a><span class="go"> 1073741824,</span>
-<a name="rest_code_824b309912dc4637b46a23c129f608ea-9"></a><span class="go"> 205891132094649L,</span>
-<a name="rest_code_824b309912dc4637b46a23c129f608ea-10"></a><span class="go"> 1152921504606846976L,</span>
-<a name="rest_code_824b309912dc4637b46a23c129f608ea-11"></a><span class="go"> 931322574615478515625L,</span>
-<a name="rest_code_824b309912dc4637b46a23c129f608ea-12"></a><span class="go"> 221073919720733357899776L,</span>
-<a name="rest_code_824b309912dc4637b46a23c129f608ea-13"></a><span class="go"> 22539340290692258087863249L]</span>
+<pre class="code console"><a name="rest_code_a25232f67c9b4fa296f926b664f82acf-1"></a><span class="gp">$</span> starcluster shell --ipcluster<span class="o">=</span>mycluster
+<a name="rest_code_a25232f67c9b4fa296f926b664f82acf-2"></a><span class="go">[~]&gt; ipclient.ids</span>
+<a name="rest_code_a25232f67c9b4fa296f926b664f82acf-3"></a><span class="go">[0, 1, 2, 3]</span>
+<a name="rest_code_a25232f67c9b4fa296f926b664f82acf-4"></a><span class="go">[~]&gt; res = ipview.map_async(lambda x: x**30, range(8))</span>
+<a name="rest_code_a25232f67c9b4fa296f926b664f82acf-5"></a><span class="go">[~]&gt; print res.get()</span>
+<a name="rest_code_a25232f67c9b4fa296f926b664f82acf-6"></a><span class="go">[0,</span>
+<a name="rest_code_a25232f67c9b4fa296f926b664f82acf-7"></a><span class="go"> 1,</span>
+<a name="rest_code_a25232f67c9b4fa296f926b664f82acf-8"></a><span class="go"> 1073741824,</span>
+<a name="rest_code_a25232f67c9b4fa296f926b664f82acf-9"></a><span class="go"> 205891132094649L,</span>
+<a name="rest_code_a25232f67c9b4fa296f926b664f82acf-10"></a><span class="go"> 1152921504606846976L,</span>
+<a name="rest_code_a25232f67c9b4fa296f926b664f82acf-11"></a><span class="go"> 931322574615478515625L,</span>
+<a name="rest_code_a25232f67c9b4fa296f926b664f82acf-12"></a><span class="go"> 221073919720733357899776L,</span>
+<a name="rest_code_a25232f67c9b4fa296f926b664f82acf-13"></a><span class="go"> 22539340290692258087863249L]</span>
 </pre>
 </blockquote>
 <p>However, at the time of writing, this feature appears to be broken.</p>
@@ -376,7 +375,7 @@ variable named ipview which you can use to run parallel tasks on the remote clus
 <h2>Tearing Down the Cluster</h2>
 <p>Once you are done with the cluster, remember to tear it down so you don't incur
 unnecessary costs:</p>
-<pre class="code console"><a name="rest_code_2a20bd66d129493896349bbcf5aac8f9-1"></a><span class="gp">$</span> starcluster terminate mycluster
+<pre class="code console"><a name="rest_code_0004684e85fb41b2a26711a4dd91c626-1"></a><span class="gp">$</span> starcluster terminate mycluster
 </pre>
 <p>For help or further information, refer to the <a class="reference external" href="http://star.mit.edu/cluster/docs/latest/index.html">official StarCluster documentation</a>.</p>
 <p>Best of Luck!</p>

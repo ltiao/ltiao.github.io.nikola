@@ -1,7 +1,7 @@
 .. title: Deploy Flask with a Celery task queue and Flower dashboard using Kubernetes
 .. slug: deploy-flask-with-a-celery-task-queue-and-flower-dashboard-using-kubernetes
 .. date: 2016-08-16 12:09:47 UTC+10:00
-.. tags: kubernetes,docker,flask,redis,celery,flower,rabbitmq,jsonpath,yaml
+.. tags: kubernetes,docker,flask,redis,celery,flower,rabbitmq,jsonpath,yaml,draft
 .. category: coding
 .. link: 
 .. description: 

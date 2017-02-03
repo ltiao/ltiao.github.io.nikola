@@ -20,19 +20,19 @@ concentrated on Algorithm Design and Analysis, Theoretical Computer Science,
 Artificial Intelligence and Machine Learning.
 
 I am currently a Software Engineer at `Data61 | CSIRO`_  (formerly `NICTA`_) on
-the `Spatial Analytics Systems Team`_, where I work among a group of leading 
-Machine Learning researchers with expertise in Nonparametric Bayesian Inference.
+the `Spatial Inference Systems Team`_, where I work among a group of leading 
+Machine Learning researchers and engineers with expertise in Nonparametric 
+Bayesian Inference.
 
 In my spare time, if I am not working on one of my `many incomplete side 
-projects`_ or hanging out with my Kindle, you'll either find me shooting hoops
-at the gym, or trying to get stronger at `Go`_.
+projects`_, you'll either find me shooting hoops at the gym or on the mats 
+training jiujitsu, in all likelihood being strangled, often by smaller opponents.
 
-Check out :doc:`my projects <projects>` if you're interested in the things I 
-make, and also :doc:`my dev stack <development-stack>` for what I like to make
-things with.
+Check out :doc:`my projects <projects>` for the things I've built and 
+:doc:`my dev stack <development-stack>` for what I build things with.
 
 .. _University of New South Wales: http://www.cse.unsw.edu.au
-.. _Spatial Analytics Systems Team: http://www.csiro.au/en/Research/D61/Areas/Imaging-and-visualisation/Visualisation/Terria
+.. _Spatial Inference Systems Team: http://www.csiro.au/en/Research/D61/Areas/Imaging-and-visualisation/Visualisation/Terria
 .. _Data61 | CSIRO: http://www.csiro.au/en/Research/D61
 .. _NICTA: http://www.nicta.com.au/about-nicta/
 .. _Data61: http://www.csiro.au/en/Research/D61
@@ -53,11 +53,7 @@ things with.
 
        The views expressed here are my own and do not reflect those of my employer.
 
-    .. pull-quote::
-        
-       Research is what I'm doing when I don't know what I'm doing.    
 
-       -- Wernher von Braun
 
     On the less theoretical CS aspect of things, I am a full-stack software engineer, 
     with experience in

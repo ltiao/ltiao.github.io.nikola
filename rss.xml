@@ -1,5 +1,3333 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Louis Tiao</title><link>http://louistiao.me/</link><description>Computer Science / Math / Software Engineering</description><atom:link href="http://louistiao.me/rss.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Fri, 24 Mar 2017 15:34:09 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Matplotlib Unchained</title><link>http://louistiao.me/posts/notebooks/matplotlib-unchained/</link><dc:creator>Louis Tiao</dc:creator><description>&lt;div tabindex="-1" id="notebook" class="border-box-sizing"&gt;
+<?xml-stylesheet type="text/xsl" href="assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Louis Tiao</title><link>http://louistiao.me/</link><description>Computer Science / Math / Software Engineering</description><atom:link href="http://louistiao.me/rss.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Sun, 30 Apr 2017 04:33:11 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Trigonometric functions with recursion and higher-order functions in Python</title><link>http://louistiao.me/posts/trigonometric-functions-with-recursion-and-higher-order-functions-in-python/</link><dc:creator>Louis Tiao</dc:creator><description>&lt;div tabindex="-1" id="notebook" class="border-box-sizing"&gt;
+    &lt;div class="container" id="notebook-container"&gt;
+
+&lt;div class="cell border-box-sizing code_cell rendered"&gt;
+&lt;div class="input"&gt;
+&lt;div class="prompt input_prompt"&gt;In [1]:&lt;/div&gt;
+&lt;div class="inner_cell"&gt;
+    &lt;div class="input_area"&gt;
+&lt;div class=" highlight hl-ipython3"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt;&lt;span class="k"&gt;matplotlib&lt;/span&gt; inline
+&lt;span class="o"&gt;%&lt;/span&gt;&lt;span class="k"&gt;config&lt;/span&gt; InlineBackend.figure_format = 'svg'
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;div class="cell border-box-sizing code_cell rendered"&gt;
+&lt;div class="input"&gt;
+&lt;div class="prompt input_prompt"&gt;In [2]:&lt;/div&gt;
+&lt;div class="inner_cell"&gt;
+    &lt;div class="input_area"&gt;
+&lt;div class=" highlight hl-ipython3"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;matplotlib.pyplot&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;plt&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
+
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;itertools&lt;/span&gt; &lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="n"&gt;count&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;islice&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;takewhile&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;functools&lt;/span&gt; &lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="n"&gt;reduce&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;partial&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;div class="cell border-box-sizing text_cell rendered"&gt;
+&lt;div class="prompt input_prompt"&gt;
+&lt;/div&gt;
+&lt;div class="inner_cell"&gt;
+&lt;div class="text_cell_render border-box-sizing rendered_html"&gt;
+&lt;p&gt;The Taylor series expansion for the trigonometric function $\sin{x}$ around the point $a=0$ (also known as the Maclaurin series in this case) is given by:&lt;/p&gt;
+$$
+\sin{x} = x - \frac{x^3}{3!} + \frac{x^5}{5!} - \dotsb \text{ for all } x 
+$$&lt;p&gt;The $k$th term of the expansion is given by&lt;/p&gt;
+$$
+\frac{(-1)^k}{(2k+1)!} x^{2k+1}
+$$&lt;p&gt;It is easy to evaluate this closed-form expression directly. However, it is more elegant and indeed more efficient to compute the terms bottom-up, by iteratively calculating the next term using the value of the previous term. This is just like computing factorials or a sequence of Fibonacci numbers using the bottom-up approach in dynamic programming.&lt;/p&gt;
+&lt;p&gt;For example, the following generator function yields an infinite sequence of factorials. It uses the value of the previous number in the sequence to compute the subsequent numbers.&lt;/p&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="cell border-box-sizing code_cell rendered"&gt;
+&lt;div class="input"&gt;
+&lt;div class="prompt input_prompt"&gt;In [3]:&lt;/div&gt;
+&lt;div class="inner_cell"&gt;
+    &lt;div class="input_area"&gt;
+&lt;div class=" highlight hl-ipython3"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;factorial&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+    &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;b&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
+    &lt;span class="k"&gt;while&lt;/span&gt; &lt;span class="kc"&gt;True&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="k"&gt;yield&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt;
+        &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="o"&gt;*=&lt;/span&gt; &lt;span class="n"&gt;b&lt;/span&gt;
+        &lt;span class="n"&gt;b&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;div class="cell border-box-sizing text_cell rendered"&gt;
+&lt;div class="prompt input_prompt"&gt;
+&lt;/div&gt;
+&lt;div class="inner_cell"&gt;
+&lt;div class="text_cell_render border-box-sizing rendered_html"&gt;
+&lt;p&gt;The &lt;code&gt;factorial&lt;/code&gt; generator function returns an iterable, and we can slice it to obain the factorials of the first 10 non-negative integers.&lt;/p&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="cell border-box-sizing code_cell rendered"&gt;
+&lt;div class="input"&gt;
+&lt;div class="prompt input_prompt"&gt;In [4]:&lt;/div&gt;
+&lt;div class="inner_cell"&gt;
+    &lt;div class="input_area"&gt;
+&lt;div class=" highlight hl-ipython3"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nb"&gt;list&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;islice&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;factorial&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt; &lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="output_wrapper"&gt;
+&lt;div class="output"&gt;
+
+
+&lt;div class="output_area"&gt;
+&lt;div class="prompt output_prompt"&gt;Out[4]:&lt;/div&gt;
+
+
+
+&lt;div class="output_text output_subarea output_execute_result"&gt;
+&lt;pre&gt;[1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880]&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;div class="cell border-box-sizing text_cell rendered"&gt;
+&lt;div class="prompt input_prompt"&gt;
+&lt;/div&gt;
+&lt;div class="inner_cell"&gt;
+&lt;div class="text_cell_render border-box-sizing rendered_html"&gt;
+&lt;p&gt;In like manner, we define a generator function which yields an infinite sequence of the terms in the Maclaurin series expansion of $\sin{x}$:&lt;/p&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="cell border-box-sizing code_cell rendered"&gt;
+&lt;div class="input"&gt;
+&lt;div class="prompt input_prompt"&gt;In [5]:&lt;/div&gt;
+&lt;div class="inner_cell"&gt;
+    &lt;div class="input_area"&gt;
+&lt;div class=" highlight hl-ipython3"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;sin_terms&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+
+    &lt;span class="n"&gt;curr&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;
+
+    &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;n&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;count&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="k"&gt;yield&lt;/span&gt; &lt;span class="n"&gt;curr&lt;/span&gt;
+        &lt;span class="n"&gt;curr&lt;/span&gt; &lt;span class="o"&gt;*=&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="o"&gt;**&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;
+        &lt;span class="n"&gt;curr&lt;/span&gt; &lt;span class="o"&gt;/=&lt;/span&gt; &lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;div class="cell border-box-sizing text_cell rendered"&gt;
+&lt;div class="prompt input_prompt"&gt;
+&lt;/div&gt;
+&lt;div class="inner_cell"&gt;
+&lt;div class="text_cell_render border-box-sizing rendered_html"&gt;
+&lt;p&gt;We can inspect the first 10 terms:&lt;/p&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="cell border-box-sizing code_cell rendered"&gt;
+&lt;div class="input"&gt;
+&lt;div class="prompt input_prompt"&gt;In [77]:&lt;/div&gt;
+&lt;div class="inner_cell"&gt;
+    &lt;div class="input_area"&gt;
+&lt;div class=" highlight hl-ipython3"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nb"&gt;list&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;islice&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;sin_terms&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;pi&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="output_wrapper"&gt;
+&lt;div class="output"&gt;
+
+
+&lt;div class="output_area"&gt;
+&lt;div class="prompt output_prompt"&gt;Out[77]:&lt;/div&gt;
+
+
+
+&lt;div class="output_text output_subarea output_execute_result"&gt;
+&lt;pre&gt;[3.141592653589793,
+ -5.167712780049969,
+ 2.550164039877345,
+ -0.599264529320792,
+ 0.08214588661112822,
+ -0.00737043094571435,
+ 0.00046630280576761245,
+ -2.191535344783021e-05,
+ 7.95205400147551e-07,
+ -2.2948428997269866e-08]&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;div class="cell border-box-sizing text_cell rendered"&gt;
+&lt;div class="prompt input_prompt"&gt;
+&lt;/div&gt;
+&lt;div class="inner_cell"&gt;
+&lt;div class="text_cell_render border-box-sizing rendered_html"&gt;
+&lt;p&gt;Note that it is trivial to generalize this to a Taylor series expansion, by supporting an optional keyword argument &lt;code&gt;a=0.&lt;/code&gt; and subtracting it from &lt;code&gt;x&lt;/code&gt; as the first operation in the function. We omit this here for the sake of simplicity.&lt;/p&gt;
+&lt;p&gt;Using &lt;code&gt;islice&lt;/code&gt; and our generator, we can implement the sine function with an option to specify how many terms to use in the approximation:&lt;/p&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="cell border-box-sizing code_cell rendered"&gt;
+&lt;div class="input"&gt;
+&lt;div class="prompt input_prompt"&gt;In [7]:&lt;/div&gt;
+&lt;div class="inner_cell"&gt;
+    &lt;div class="input_area"&gt;
+&lt;div class=" highlight hl-ipython3"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;sin1&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;lambda&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;terms&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;50&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;sum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;islice&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;sin_terms&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="n"&gt;terms&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;div class="cell border-box-sizing code_cell rendered"&gt;
+&lt;div class="input"&gt;
+&lt;div class="prompt input_prompt"&gt;In [8]:&lt;/div&gt;
+&lt;div class="inner_cell"&gt;
+    &lt;div class="input_area"&gt;
+&lt;div class=" highlight hl-ipython3"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;sin1&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;pi&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="output_wrapper"&gt;
+&lt;div class="output"&gt;
+
+
+&lt;div class="output_area"&gt;
+&lt;div class="prompt output_prompt"&gt;Out[8]:&lt;/div&gt;
+
+
+
+&lt;div class="output_text output_subarea output_execute_result"&gt;
+&lt;pre&gt;1.0000000000000002&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;div class="cell border-box-sizing code_cell rendered"&gt;
+&lt;div class="input"&gt;
+&lt;div class="prompt input_prompt"&gt;In [9]:&lt;/div&gt;
+&lt;div class="inner_cell"&gt;
+    &lt;div class="input_area"&gt;
+&lt;div class=" highlight hl-ipython3"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;sin1&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="output_wrapper"&gt;
+&lt;div class="output"&gt;
+
+
+&lt;div class="output_area"&gt;
+&lt;div class="prompt output_prompt"&gt;Out[9]:&lt;/div&gt;
+
+
+
+&lt;div class="output_text output_subarea output_execute_result"&gt;
+&lt;pre&gt;0.0&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;div class="cell border-box-sizing code_cell rendered"&gt;
+&lt;div class="input"&gt;
+&lt;div class="prompt input_prompt"&gt;In [10]:&lt;/div&gt;
+&lt;div class="inner_cell"&gt;
+    &lt;div class="input_area"&gt;
+&lt;div class=" highlight hl-ipython3"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;sin1&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;pi&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="output_wrapper"&gt;
+&lt;div class="output"&gt;
+
+
+&lt;div class="output_area"&gt;
+&lt;div class="prompt output_prompt"&gt;Out[10]:&lt;/div&gt;
+
+
+
+&lt;div class="output_text output_subarea output_execute_result"&gt;
+&lt;pre&gt;2.4790606536130346e-16&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;div class="cell border-box-sizing code_cell rendered"&gt;
+&lt;div class="input"&gt;
+&lt;div class="prompt input_prompt"&gt;In [11]:&lt;/div&gt;
+&lt;div class="inner_cell"&gt;
+    &lt;div class="input_area"&gt;
+&lt;div class=" highlight hl-ipython3"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;sin1&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;-.&lt;/span&gt;&lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;pi&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="output_wrapper"&gt;
+&lt;div class="output"&gt;
+
+
+&lt;div class="output_area"&gt;
+&lt;div class="prompt output_prompt"&gt;Out[11]:&lt;/div&gt;
+
+
+
+&lt;div class="output_text output_subarea output_execute_result"&gt;
+&lt;pre&gt;-1.0000000000000002&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;div class="cell border-box-sizing text_cell rendered"&gt;
+&lt;div class="prompt input_prompt"&gt;
+&lt;/div&gt;
+&lt;div class="inner_cell"&gt;
+&lt;div class="text_cell_render border-box-sizing rendered_html"&gt;
+&lt;p&gt;Now we can plot our Taylor polynomial approximation of increasing degrees against the NumPy implementation of $\sin{x}$. Before we do that, it will come in handy later if we first vectorize our function to accept array inputs:&lt;/p&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="cell border-box-sizing code_cell rendered"&gt;
+&lt;div class="input"&gt;
+&lt;div class="prompt input_prompt"&gt;In [12]:&lt;/div&gt;
+&lt;div class="inner_cell"&gt;
+    &lt;div class="input_area"&gt;
+&lt;div class=" highlight hl-ipython3"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;sin1&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;vectorize&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;sin1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;excluded&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;'terms'&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;div class="cell border-box-sizing code_cell rendered"&gt;
+&lt;div class="input"&gt;
+&lt;div class="prompt input_prompt"&gt;In [60]:&lt;/div&gt;
+&lt;div class="inner_cell"&gt;
+    &lt;div class="input_area"&gt;
+&lt;div class=" highlight hl-ipython3"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;linspace&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;pi&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;pi&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;100&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;div class="cell border-box-sizing code_cell rendered"&gt;
+&lt;div class="input"&gt;
+&lt;div class="prompt input_prompt"&gt;In [14]:&lt;/div&gt;
+&lt;div class="inner_cell"&gt;
+    &lt;div class="input_area"&gt;
+&lt;div class=" highlight hl-ipython3"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;fig&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;ax&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;plt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;subplots&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;figsize&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;8&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;6&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+
+&lt;span class="n"&gt;ax&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;grid&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kc"&gt;True&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;ax&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;set_ylim&lt;/span&gt;&lt;span class="p"&gt;((&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mf"&gt;1.25&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;1.25&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+
+&lt;span class="n"&gt;ax&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;plot&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sin&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="n"&gt;label&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;'$\sin{(x)}$'&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;t&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="nb"&gt;range&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;20&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;ax&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;plot&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;sin1&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;terms&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;t&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; 
+            &lt;span class="n"&gt;label&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;'$T_{{&lt;/span&gt;&lt;span class="si"&gt;{degree}&lt;/span&gt;&lt;span class="s1"&gt;}}(x)$'&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;format&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;degree&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;t&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+
+&lt;span class="n"&gt;plt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;legend&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;bbox_to_anchor&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mf"&gt;1.05&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="n"&gt;loc&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;borderaxespad&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mf"&gt;0.&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="n"&gt;plt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;show&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="output_wrapper"&gt;
+&lt;div class="output"&gt;
+
+
+&lt;div class="output_area"&gt;
+&lt;div class="prompt"&gt;&lt;/div&gt;
+
+
+&lt;div class="output_svg output_subarea "&gt;
+&lt;?xml version="1.0" encoding="utf-8" standalone="no"?&gt;
+
+&lt;!-- Created with matplotlib (http://matplotlib.org/) --&gt;
+&lt;svg height="360pt" version="1.1" viewbox="0 0 579 360" width="579pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"&gt;
+ &lt;defs&gt;
+  &lt;style type="text/css"&gt;
+*{stroke-linecap:butt;stroke-linejoin:round;}
+  &lt;/style&gt;
+ &lt;/defs&gt;
+ &lt;g id="figure_1"&gt;
+  &lt;g id="patch_1"&gt;
+   &lt;path d="M 0 360.738125 
+L 579.502813 360.738125 
+L 579.502813 0 
+L 0 0 
+z
+" style="fill:none;"&gt;&lt;/path&gt;
+  &lt;/g&gt;
+  &lt;g id="axes_1"&gt;
+   &lt;g id="patch_2"&gt;
+    &lt;path d="M 38.482813 336.86 
+L 484.882812 336.86 
+L 484.882812 10.7 
+L 38.482813 10.7 
+z
+" style="fill:#ffffff;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="matplotlib.axis_1"&gt;
+    &lt;g id="xtick_1"&gt;
+     &lt;g id="line2d_1"&gt;
+      &lt;path clip-path="url(#p4767cfbc72)" d="M 46.38958 336.86 
+L 46.38958 10.7 
+" style="fill:none;stroke:#b0b0b0;stroke-linecap:square;stroke-width:0.8;"&gt;&lt;/path&gt;
+     &lt;/g&gt;
+     &lt;g id="line2d_2"&gt;
+      &lt;defs&gt;
+       &lt;path d="M 0 0 
+L 0 3.5 
+" id="md14c0a2abe" style="stroke:#000000;stroke-width:0.8;"&gt;&lt;/path&gt;
+      &lt;/defs&gt;
+      &lt;g&gt;
+       &lt;use style="stroke:#000000;stroke-width:0.8;" x="46.38958" xlink:href="#md14c0a2abe" y="336.86"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+     &lt;g id="text_1"&gt;
+      &lt;!-- −10.0 --&gt;
+      &lt;defs&gt;
+       &lt;path d="M 10.59375 35.5 
+L 73.1875 35.5 
+L 73.1875 27.203125 
+L 10.59375 27.203125 
+z
+" id="DejaVuSans-2212"&gt;&lt;/path&gt;
+       &lt;path d="M 12.40625 8.296875 
+L 28.515625 8.296875 
+L 28.515625 63.921875 
+L 10.984375 60.40625 
+L 10.984375 69.390625 
+L 28.421875 72.90625 
+L 38.28125 72.90625 
+L 38.28125 8.296875 
+L 54.390625 8.296875 
+L 54.390625 0 
+L 12.40625 0 
+z
+" id="DejaVuSans-31"&gt;&lt;/path&gt;
+       &lt;path d="M 31.78125 66.40625 
+Q 24.171875 66.40625 20.328125 58.90625 
+Q 16.5 51.421875 16.5 36.375 
+Q 16.5 21.390625 20.328125 13.890625 
+Q 24.171875 6.390625 31.78125 6.390625 
+Q 39.453125 6.390625 43.28125 13.890625 
+Q 47.125 21.390625 47.125 36.375 
+Q 47.125 51.421875 43.28125 58.90625 
+Q 39.453125 66.40625 31.78125 66.40625 
+M 31.78125 74.21875 
+Q 44.046875 74.21875 50.515625 64.515625 
+Q 56.984375 54.828125 56.984375 36.375 
+Q 56.984375 17.96875 50.515625 8.265625 
+Q 44.046875 -1.421875 31.78125 -1.421875 
+Q 19.53125 -1.421875 13.0625 8.265625 
+Q 6.59375 17.96875 6.59375 36.375 
+Q 6.59375 54.828125 13.0625 64.515625 
+Q 19.53125 74.21875 31.78125 74.21875 
+" id="DejaVuSans-30"&gt;&lt;/path&gt;
+       &lt;path d="M 10.6875 12.40625 
+L 21 12.40625 
+L 21 0 
+L 10.6875 0 
+z
+" id="DejaVuSans-2e"&gt;&lt;/path&gt;
+      &lt;/defs&gt;
+      &lt;g transform="translate(31.066924 351.458437)scale(0.1 -0.1)"&gt;
+       &lt;use xlink:href="#DejaVuSans-2212"&gt;&lt;/use&gt;
+       &lt;use x="83.789062" xlink:href="#DejaVuSans-31"&gt;&lt;/use&gt;
+       &lt;use x="147.412109" xlink:href="#DejaVuSans-30"&gt;&lt;/use&gt;
+       &lt;use x="211.035156" xlink:href="#DejaVuSans-2e"&gt;&lt;/use&gt;
+       &lt;use x="242.822266" xlink:href="#DejaVuSans-30"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+    &lt;/g&gt;
+    &lt;g id="xtick_2"&gt;
+     &lt;g id="line2d_3"&gt;
+      &lt;path clip-path="url(#p4767cfbc72)" d="M 100.212888 336.86 
+L 100.212888 10.7 
+" style="fill:none;stroke:#b0b0b0;stroke-linecap:square;stroke-width:0.8;"&gt;&lt;/path&gt;
+     &lt;/g&gt;
+     &lt;g id="line2d_4"&gt;
+      &lt;g&gt;
+       &lt;use style="stroke:#000000;stroke-width:0.8;" x="100.212888" xlink:href="#md14c0a2abe" y="336.86"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+     &lt;g id="text_2"&gt;
+      &lt;!-- −7.5 --&gt;
+      &lt;defs&gt;
+       &lt;path d="M 8.203125 72.90625 
+L 55.078125 72.90625 
+L 55.078125 68.703125 
+L 28.609375 0 
+L 18.3125 0 
+L 43.21875 64.59375 
+L 8.203125 64.59375 
+z
+" id="DejaVuSans-37"&gt;&lt;/path&gt;
+       &lt;path d="M 10.796875 72.90625 
+L 49.515625 72.90625 
+L 49.515625 64.59375 
+L 19.828125 64.59375 
+L 19.828125 46.734375 
+Q 21.96875 47.46875 24.109375 47.828125 
+Q 26.265625 48.1875 28.421875 48.1875 
+Q 40.625 48.1875 47.75 41.5 
+Q 54.890625 34.8125 54.890625 23.390625 
+Q 54.890625 11.625 47.5625 5.09375 
+Q 40.234375 -1.421875 26.90625 -1.421875 
+Q 22.3125 -1.421875 17.546875 -0.640625 
+Q 12.796875 0.140625 7.71875 1.703125 
+L 7.71875 11.625 
+Q 12.109375 9.234375 16.796875 8.0625 
+Q 21.484375 6.890625 26.703125 6.890625 
+Q 35.15625 6.890625 40.078125 11.328125 
+Q 45.015625 15.765625 45.015625 23.390625 
+Q 45.015625 31 40.078125 35.4375 
+Q 35.15625 39.890625 26.703125 39.890625 
+Q 22.75 39.890625 18.8125 39.015625 
+Q 14.890625 38.140625 10.796875 36.28125 
+z
+" id="DejaVuSans-35"&gt;&lt;/path&gt;
+      &lt;/defs&gt;
+      &lt;g transform="translate(88.071482 351.458437)scale(0.1 -0.1)"&gt;
+       &lt;use xlink:href="#DejaVuSans-2212"&gt;&lt;/use&gt;
+       &lt;use x="83.789062" xlink:href="#DejaVuSans-37"&gt;&lt;/use&gt;
+       &lt;use x="147.412109" xlink:href="#DejaVuSans-2e"&gt;&lt;/use&gt;
+       &lt;use x="179.199219" xlink:href="#DejaVuSans-35"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+    &lt;/g&gt;
+    &lt;g id="xtick_3"&gt;
+     &lt;g id="line2d_5"&gt;
+      &lt;path clip-path="url(#p4767cfbc72)" d="M 154.036196 336.86 
+L 154.036196 10.7 
+" style="fill:none;stroke:#b0b0b0;stroke-linecap:square;stroke-width:0.8;"&gt;&lt;/path&gt;
+     &lt;/g&gt;
+     &lt;g id="line2d_6"&gt;
+      &lt;g&gt;
+       &lt;use style="stroke:#000000;stroke-width:0.8;" x="154.036196" xlink:href="#md14c0a2abe" y="336.86"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+     &lt;g id="text_3"&gt;
+      &lt;!-- −5.0 --&gt;
+      &lt;g transform="translate(141.89479 351.458437)scale(0.1 -0.1)"&gt;
+       &lt;use xlink:href="#DejaVuSans-2212"&gt;&lt;/use&gt;
+       &lt;use x="83.789062" xlink:href="#DejaVuSans-35"&gt;&lt;/use&gt;
+       &lt;use x="147.412109" xlink:href="#DejaVuSans-2e"&gt;&lt;/use&gt;
+       &lt;use x="179.199219" xlink:href="#DejaVuSans-30"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+    &lt;/g&gt;
+    &lt;g id="xtick_4"&gt;
+     &lt;g id="line2d_7"&gt;
+      &lt;path clip-path="url(#p4767cfbc72)" d="M 207.859504 336.86 
+L 207.859504 10.7 
+" style="fill:none;stroke:#b0b0b0;stroke-linecap:square;stroke-width:0.8;"&gt;&lt;/path&gt;
+     &lt;/g&gt;
+     &lt;g id="line2d_8"&gt;
+      &lt;g&gt;
+       &lt;use style="stroke:#000000;stroke-width:0.8;" x="207.859504" xlink:href="#md14c0a2abe" y="336.86"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+     &lt;g id="text_4"&gt;
+      &lt;!-- −2.5 --&gt;
+      &lt;defs&gt;
+       &lt;path d="M 19.1875 8.296875 
+L 53.609375 8.296875 
+L 53.609375 0 
+L 7.328125 0 
+L 7.328125 8.296875 
+Q 12.9375 14.109375 22.625 23.890625 
+Q 32.328125 33.6875 34.8125 36.53125 
+Q 39.546875 41.84375 41.421875 45.53125 
+Q 43.3125 49.21875 43.3125 52.78125 
+Q 43.3125 58.59375 39.234375 62.25 
+Q 35.15625 65.921875 28.609375 65.921875 
+Q 23.96875 65.921875 18.8125 64.3125 
+Q 13.671875 62.703125 7.8125 59.421875 
+L 7.8125 69.390625 
+Q 13.765625 71.78125 18.9375 73 
+Q 24.125 74.21875 28.421875 74.21875 
+Q 39.75 74.21875 46.484375 68.546875 
+Q 53.21875 62.890625 53.21875 53.421875 
+Q 53.21875 48.921875 51.53125 44.890625 
+Q 49.859375 40.875 45.40625 35.40625 
+Q 44.1875 33.984375 37.640625 27.21875 
+Q 31.109375 20.453125 19.1875 8.296875 
+" id="DejaVuSans-32"&gt;&lt;/path&gt;
+      &lt;/defs&gt;
+      &lt;g transform="translate(195.718098 351.458437)scale(0.1 -0.1)"&gt;
+       &lt;use xlink:href="#DejaVuSans-2212"&gt;&lt;/use&gt;
+       &lt;use x="83.789062" xlink:href="#DejaVuSans-32"&gt;&lt;/use&gt;
+       &lt;use x="147.412109" xlink:href="#DejaVuSans-2e"&gt;&lt;/use&gt;
+       &lt;use x="179.199219" xlink:href="#DejaVuSans-35"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+    &lt;/g&gt;
+    &lt;g id="xtick_5"&gt;
+     &lt;g id="line2d_9"&gt;
+      &lt;path clip-path="url(#p4767cfbc72)" d="M 261.682813 336.86 
+L 261.682813 10.7 
+" style="fill:none;stroke:#b0b0b0;stroke-linecap:square;stroke-width:0.8;"&gt;&lt;/path&gt;
+     &lt;/g&gt;
+     &lt;g id="line2d_10"&gt;
+      &lt;g&gt;
+       &lt;use style="stroke:#000000;stroke-width:0.8;" x="261.682813" xlink:href="#md14c0a2abe" y="336.86"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+     &lt;g id="text_5"&gt;
+      &lt;!-- 0.0 --&gt;
+      &lt;g transform="translate(253.73125 351.458437)scale(0.1 -0.1)"&gt;
+       &lt;use xlink:href="#DejaVuSans-30"&gt;&lt;/use&gt;
+       &lt;use x="63.623047" xlink:href="#DejaVuSans-2e"&gt;&lt;/use&gt;
+       &lt;use x="95.410156" xlink:href="#DejaVuSans-30"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+    &lt;/g&gt;
+    &lt;g id="xtick_6"&gt;
+     &lt;g id="line2d_11"&gt;
+      &lt;path clip-path="url(#p4767cfbc72)" d="M 315.506121 336.86 
+L 315.506121 10.7 
+" style="fill:none;stroke:#b0b0b0;stroke-linecap:square;stroke-width:0.8;"&gt;&lt;/path&gt;
+     &lt;/g&gt;
+     &lt;g id="line2d_12"&gt;
+      &lt;g&gt;
+       &lt;use style="stroke:#000000;stroke-width:0.8;" x="315.506121" xlink:href="#md14c0a2abe" y="336.86"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+     &lt;g id="text_6"&gt;
+      &lt;!-- 2.5 --&gt;
+      &lt;g transform="translate(307.554558 351.458437)scale(0.1 -0.1)"&gt;
+       &lt;use xlink:href="#DejaVuSans-32"&gt;&lt;/use&gt;
+       &lt;use x="63.623047" xlink:href="#DejaVuSans-2e"&gt;&lt;/use&gt;
+       &lt;use x="95.410156" xlink:href="#DejaVuSans-35"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+    &lt;/g&gt;
+    &lt;g id="xtick_7"&gt;
+     &lt;g id="line2d_13"&gt;
+      &lt;path clip-path="url(#p4767cfbc72)" d="M 369.329429 336.86 
+L 369.329429 10.7 
+" style="fill:none;stroke:#b0b0b0;stroke-linecap:square;stroke-width:0.8;"&gt;&lt;/path&gt;
+     &lt;/g&gt;
+     &lt;g id="line2d_14"&gt;
+      &lt;g&gt;
+       &lt;use style="stroke:#000000;stroke-width:0.8;" x="369.329429" xlink:href="#md14c0a2abe" y="336.86"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+     &lt;g id="text_7"&gt;
+      &lt;!-- 5.0 --&gt;
+      &lt;g transform="translate(361.377866 351.458437)scale(0.1 -0.1)"&gt;
+       &lt;use xlink:href="#DejaVuSans-35"&gt;&lt;/use&gt;
+       &lt;use x="63.623047" xlink:href="#DejaVuSans-2e"&gt;&lt;/use&gt;
+       &lt;use x="95.410156" xlink:href="#DejaVuSans-30"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+    &lt;/g&gt;
+    &lt;g id="xtick_8"&gt;
+     &lt;g id="line2d_15"&gt;
+      &lt;path clip-path="url(#p4767cfbc72)" d="M 423.152737 336.86 
+L 423.152737 10.7 
+" style="fill:none;stroke:#b0b0b0;stroke-linecap:square;stroke-width:0.8;"&gt;&lt;/path&gt;
+     &lt;/g&gt;
+     &lt;g id="line2d_16"&gt;
+      &lt;g&gt;
+       &lt;use style="stroke:#000000;stroke-width:0.8;" x="423.152737" xlink:href="#md14c0a2abe" y="336.86"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+     &lt;g id="text_8"&gt;
+      &lt;!-- 7.5 --&gt;
+      &lt;g transform="translate(415.201174 351.458437)scale(0.1 -0.1)"&gt;
+       &lt;use xlink:href="#DejaVuSans-37"&gt;&lt;/use&gt;
+       &lt;use x="63.623047" xlink:href="#DejaVuSans-2e"&gt;&lt;/use&gt;
+       &lt;use x="95.410156" xlink:href="#DejaVuSans-35"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+    &lt;/g&gt;
+    &lt;g id="xtick_9"&gt;
+     &lt;g id="line2d_17"&gt;
+      &lt;path clip-path="url(#p4767cfbc72)" d="M 476.976045 336.86 
+L 476.976045 10.7 
+" style="fill:none;stroke:#b0b0b0;stroke-linecap:square;stroke-width:0.8;"&gt;&lt;/path&gt;
+     &lt;/g&gt;
+     &lt;g id="line2d_18"&gt;
+      &lt;g&gt;
+       &lt;use style="stroke:#000000;stroke-width:0.8;" x="476.976045" xlink:href="#md14c0a2abe" y="336.86"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+     &lt;g id="text_9"&gt;
+      &lt;!-- 10.0 --&gt;
+      &lt;g transform="translate(465.843232 351.458437)scale(0.1 -0.1)"&gt;
+       &lt;use xlink:href="#DejaVuSans-31"&gt;&lt;/use&gt;
+       &lt;use x="63.623047" xlink:href="#DejaVuSans-30"&gt;&lt;/use&gt;
+       &lt;use x="127.246094" xlink:href="#DejaVuSans-2e"&gt;&lt;/use&gt;
+       &lt;use x="159.033203" xlink:href="#DejaVuSans-30"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+    &lt;/g&gt;
+   &lt;/g&gt;
+   &lt;g id="matplotlib.axis_2"&gt;
+    &lt;g id="ytick_1"&gt;
+     &lt;g id="line2d_19"&gt;
+      &lt;path clip-path="url(#p4767cfbc72)" d="M 38.482813 304.244 
+L 484.882812 304.244 
+" style="fill:none;stroke:#b0b0b0;stroke-linecap:square;stroke-width:0.8;"&gt;&lt;/path&gt;
+     &lt;/g&gt;
+     &lt;g id="line2d_20"&gt;
+      &lt;defs&gt;
+       &lt;path d="M 0 0 
+L -3.5 0 
+" id="m49097c35cd" style="stroke:#000000;stroke-width:0.8;"&gt;&lt;/path&gt;
+      &lt;/defs&gt;
+      &lt;g&gt;
+       &lt;use style="stroke:#000000;stroke-width:0.8;" x="38.482813" xlink:href="#m49097c35cd" y="304.244"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+     &lt;g id="text_10"&gt;
+      &lt;!-- −1.0 --&gt;
+      &lt;g transform="translate(7.2 308.043219)scale(0.1 -0.1)"&gt;
+       &lt;use xlink:href="#DejaVuSans-2212"&gt;&lt;/use&gt;
+       &lt;use x="83.789062" xlink:href="#DejaVuSans-31"&gt;&lt;/use&gt;
+       &lt;use x="147.412109" xlink:href="#DejaVuSans-2e"&gt;&lt;/use&gt;
+       &lt;use x="179.199219" xlink:href="#DejaVuSans-30"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+    &lt;/g&gt;
+    &lt;g id="ytick_2"&gt;
+     &lt;g id="line2d_21"&gt;
+      &lt;path clip-path="url(#p4767cfbc72)" d="M 38.482813 239.012 
+L 484.882812 239.012 
+" style="fill:none;stroke:#b0b0b0;stroke-linecap:square;stroke-width:0.8;"&gt;&lt;/path&gt;
+     &lt;/g&gt;
+     &lt;g id="line2d_22"&gt;
+      &lt;g&gt;
+       &lt;use style="stroke:#000000;stroke-width:0.8;" x="38.482813" xlink:href="#m49097c35cd" y="239.012"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+     &lt;g id="text_11"&gt;
+      &lt;!-- −0.5 --&gt;
+      &lt;g transform="translate(7.2 242.811219)scale(0.1 -0.1)"&gt;
+       &lt;use xlink:href="#DejaVuSans-2212"&gt;&lt;/use&gt;
+       &lt;use x="83.789062" xlink:href="#DejaVuSans-30"&gt;&lt;/use&gt;
+       &lt;use x="147.412109" xlink:href="#DejaVuSans-2e"&gt;&lt;/use&gt;
+       &lt;use x="179.199219" xlink:href="#DejaVuSans-35"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+    &lt;/g&gt;
+    &lt;g id="ytick_3"&gt;
+     &lt;g id="line2d_23"&gt;
+      &lt;path clip-path="url(#p4767cfbc72)" d="M 38.482813 173.78 
+L 484.882812 173.78 
+" style="fill:none;stroke:#b0b0b0;stroke-linecap:square;stroke-width:0.8;"&gt;&lt;/path&gt;
+     &lt;/g&gt;
+     &lt;g id="line2d_24"&gt;
+      &lt;g&gt;
+       &lt;use style="stroke:#000000;stroke-width:0.8;" x="38.482813" xlink:href="#m49097c35cd" y="173.78"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+     &lt;g id="text_12"&gt;
+      &lt;!-- 0.0 --&gt;
+      &lt;g transform="translate(15.579688 177.579219)scale(0.1 -0.1)"&gt;
+       &lt;use xlink:href="#DejaVuSans-30"&gt;&lt;/use&gt;
+       &lt;use x="63.623047" xlink:href="#DejaVuSans-2e"&gt;&lt;/use&gt;
+       &lt;use x="95.410156" xlink:href="#DejaVuSans-30"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+    &lt;/g&gt;
+    &lt;g id="ytick_4"&gt;
+     &lt;g id="line2d_25"&gt;
+      &lt;path clip-path="url(#p4767cfbc72)" d="M 38.482813 108.548 
+L 484.882812 108.548 
+" style="fill:none;stroke:#b0b0b0;stroke-linecap:square;stroke-width:0.8;"&gt;&lt;/path&gt;
+     &lt;/g&gt;
+     &lt;g id="line2d_26"&gt;
+      &lt;g&gt;
+       &lt;use style="stroke:#000000;stroke-width:0.8;" x="38.482813" xlink:href="#m49097c35cd" y="108.548"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+     &lt;g id="text_13"&gt;
+      &lt;!-- 0.5 --&gt;
+      &lt;g transform="translate(15.579688 112.347219)scale(0.1 -0.1)"&gt;
+       &lt;use xlink:href="#DejaVuSans-30"&gt;&lt;/use&gt;
+       &lt;use x="63.623047" xlink:href="#DejaVuSans-2e"&gt;&lt;/use&gt;
+       &lt;use x="95.410156" xlink:href="#DejaVuSans-35"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+    &lt;/g&gt;
+    &lt;g id="ytick_5"&gt;
+     &lt;g id="line2d_27"&gt;
+      &lt;path clip-path="url(#p4767cfbc72)" d="M 38.482813 43.316 
+L 484.882812 43.316 
+" style="fill:none;stroke:#b0b0b0;stroke-linecap:square;stroke-width:0.8;"&gt;&lt;/path&gt;
+     &lt;/g&gt;
+     &lt;g id="line2d_28"&gt;
+      &lt;g&gt;
+       &lt;use style="stroke:#000000;stroke-width:0.8;" x="38.482813" xlink:href="#m49097c35cd" y="43.316"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+     &lt;g id="text_14"&gt;
+      &lt;!-- 1.0 --&gt;
+      &lt;g transform="translate(15.579688 47.115219)scale(0.1 -0.1)"&gt;
+       &lt;use xlink:href="#DejaVuSans-31"&gt;&lt;/use&gt;
+       &lt;use x="63.623047" xlink:href="#DejaVuSans-2e"&gt;&lt;/use&gt;
+       &lt;use x="95.410156" xlink:href="#DejaVuSans-30"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+    &lt;/g&gt;
+   &lt;/g&gt;
+   &lt;g id="line2d_29"&gt;
+    &lt;path clip-path="url(#p4767cfbc72)" d="M 58.773722 173.78 
+L 62.872895 198.470474 
+L 66.972069 222.268571 
+L 71.071242 244.314164 
+L 75.170416 263.810468 
+L 79.269589 280.052837 
+L 83.368763 292.454229 
+L 87.467936 300.566424 
+L 91.56711 304.096229 
+L 95.666284 302.916065 
+L 99.765457 297.068587 
+L 103.864631 286.765138 
+L 107.963804 272.378112 
+L 112.062978 254.427494 
+L 116.162151 233.562065 
+L 120.261325 210.535956 
+L 124.360498 186.181392 
+L 128.459672 161.378608 
+L 132.558846 137.024044 
+L 136.658019 113.997935 
+L 140.757193 93.132506 
+L 144.856366 75.181888 
+L 148.95554 60.794862 
+L 153.054713 50.491413 
+L 157.153887 44.643935 
+L 161.25306 43.463771 
+L 165.352234 46.993576 
+L 169.451408 55.105771 
+L 173.550581 67.507163 
+L 177.649755 83.749532 
+L 181.748928 103.245836 
+L 185.848102 125.291429 
+L 189.947275 149.089526 
+L 194.046449 173.78 
+L 198.145622 198.470474 
+L 202.244796 222.268571 
+L 206.34397 244.314164 
+L 210.443143 263.810468 
+L 214.542317 280.052837 
+L 218.64149 292.454229 
+L 222.740664 300.566424 
+L 226.839837 304.096229 
+L 230.939011 302.916065 
+L 235.038184 297.068587 
+L 239.137358 286.765138 
+L 243.236532 272.378112 
+L 247.335705 254.427494 
+L 251.434879 233.562065 
+L 255.534052 210.535956 
+L 259.633226 186.181392 
+L 263.732399 161.378608 
+L 267.831573 137.024044 
+L 271.930746 113.997935 
+L 276.02992 93.132506 
+L 280.129093 75.181888 
+L 284.228267 60.794862 
+L 288.327441 50.491413 
+L 292.426614 44.643935 
+L 296.525788 43.463771 
+L 300.624961 46.993576 
+L 304.724135 55.105771 
+L 308.823308 67.507163 
+L 312.922482 83.749532 
+L 317.021655 103.245836 
+L 321.120829 125.291429 
+L 325.220003 149.089526 
+L 329.319176 173.78 
+L 333.41835 198.470474 
+L 337.517523 222.268571 
+L 341.616697 244.314164 
+L 345.71587 263.810468 
+L 349.815044 280.052837 
+L 353.914217 292.454229 
+L 358.013391 300.566424 
+L 362.112565 304.096229 
+L 366.211738 302.916065 
+L 370.310912 297.068587 
+L 374.410085 286.765138 
+L 378.509259 272.378112 
+L 382.608432 254.427494 
+L 386.707606 233.562065 
+L 390.806779 210.535956 
+L 394.905953 186.181392 
+L 399.005127 161.378608 
+L 403.1043 137.024044 
+L 407.203474 113.997935 
+L 411.302647 93.132506 
+L 415.401821 75.181888 
+L 419.500994 60.794862 
+L 423.600168 50.491413 
+L 427.699341 44.643935 
+L 431.798515 43.463771 
+L 435.897689 46.993576 
+L 439.996862 55.105771 
+L 444.096036 67.507163 
+L 448.195209 83.749532 
+L 452.294383 103.245836 
+L 456.393556 125.291429 
+L 460.49273 149.089526 
+L 464.591903 173.78 
+" style="fill:none;stroke:#1f77b4;stroke-linecap:square;stroke-width:1.5;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="line2d_30"&gt;
+    &lt;path clip-path="url(#p4767cfbc72)" d="M 176.128099 -1 
+L 177.649755 17.67016 
+L 181.748928 60.587107 
+L 185.848102 98.412306 
+L 189.947275 132.602641 
+L 194.046449 163.966418 
+L 198.145622 192.822683 
+L 202.244796 219.139838 
+L 206.34397 242.654724 
+L 210.443143 262.973356 
+L 214.542317 279.654508 
+L 218.64149 292.277315 
+L 222.740664 300.494082 
+L 226.839837 304.069486 
+L 230.939011 302.90735 
+L 235.038184 297.066172 
+L 239.137358 286.764599 
+L 243.236532 272.378024 
+L 247.335705 254.427485 
+L 251.434879 233.562064 
+L 255.534052 210.535956 
+L 259.633226 186.181392 
+L 263.732399 161.378608 
+L 267.831573 137.024044 
+L 271.930746 113.997936 
+L 276.02992 93.132515 
+L 280.129093 75.181976 
+L 284.228267 60.795401 
+L 288.327441 50.493828 
+L 292.426614 44.65265 
+L 296.525788 43.490514 
+L 300.624961 47.065918 
+L 304.724135 55.282685 
+L 308.823308 67.905492 
+L 312.922482 84.586644 
+L 317.021655 104.905276 
+L 321.120829 128.420162 
+L 325.220003 154.737317 
+L 329.319176 183.593582 
+L 333.41835 214.957359 
+L 337.517523 249.147694 
+L 341.616697 286.972893 
+L 345.71587 329.88984 
+L 348.311569 361.738125 
+" style="fill:none;stroke:#ff7f0e;stroke-linecap:square;stroke-width:1.5;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="line2d_31"&gt;
+    &lt;path clip-path="url(#p4767cfbc72)" d="M 98.050178 -1 
+L 99.765457 50.087635 
+L 103.864631 125.851966 
+L 107.963804 168.751826 
+L 112.062978 188.505864 
+L 116.162151 192.164707 
+L 120.261325 184.891941 
+L 124.360498 170.523899 
+L 128.459672 151.963964 
+L 132.558846 131.454512 
+L 136.658019 110.759657 
+L 140.757193 91.284119 
+L 144.856366 74.147446 
+L 148.95554 60.22804 
+L 153.054713 50.187788 
+L 157.153887 44.485216 
+L 161.25306 43.382959 
+L 165.352234 46.953587 
+L 169.451408 55.086588 
+L 173.550581 67.498266 
+L 177.649755 83.745556 
+L 181.748928 103.24413 
+L 185.848102 125.290729 
+L 189.947275 149.089252 
+L 194.046449 173.779899 
+L 198.145622 198.470439 
+L 202.244796 222.268559 
+L 206.34397 244.31416 
+L 210.443143 263.810467 
+L 214.542317 280.052837 
+L 218.64149 292.454229 
+L 222.740664 300.566424 
+L 226.839837 304.096229 
+L 230.939011 302.916065 
+L 235.038184 297.068587 
+L 239.137358 286.765138 
+L 243.236532 272.378112 
+L 247.335705 254.427494 
+L 251.434879 233.562065 
+L 255.534052 210.535956 
+L 259.633226 186.181392 
+L 263.732399 161.378608 
+L 267.831573 137.024044 
+L 271.930746 113.997935 
+L 276.02992 93.132506 
+L 280.129093 75.181888 
+L 284.228267 60.794862 
+L 288.327441 50.491413 
+L 292.426614 44.643935 
+L 296.525788 43.463771 
+L 300.624961 46.993576 
+L 304.724135 55.105771 
+L 308.823308 67.507163 
+L 312.922482 83.749533 
+L 317.021655 103.24584 
+L 321.120829 125.291441 
+L 325.220003 149.089561 
+L 329.319176 173.780101 
+L 333.41835 198.470748 
+L 337.517523 222.269271 
+L 341.616697 244.31587 
+L 345.71587 263.814444 
+L 349.815044 280.061734 
+L 353.914217 292.473412 
+L 358.013391 300.606413 
+L 362.112565 304.177041 
+L 366.211738 303.074784 
+L 370.310912 297.372212 
+L 374.410085 287.33196 
+L 378.509259 273.412554 
+L 382.608432 256.275881 
+L 386.707606 236.800343 
+L 390.806779 216.105488 
+L 394.905953 195.596036 
+L 399.005127 177.036101 
+L 403.1043 162.668059 
+L 407.203474 155.395293 
+L 411.302647 159.054136 
+L 415.401821 178.808174 
+L 419.500994 221.708034 
+L 423.600168 297.472365 
+L 425.757906 361.738125 
+" style="fill:none;stroke:#2ca02c;stroke-linecap:square;stroke-width:1.5;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="line2d_32"&gt;
+    &lt;path clip-path="url(#p4767cfbc72)" d="M 58.773722 156.832685 
+L 62.872895 188.248718 
+L 66.972069 216.169 
+L 71.071242 240.714803 
+L 75.170416 261.711073 
+L 79.269589 278.843125 
+L 83.368763 291.765973 
+L 87.467936 300.18002 
+L 91.56711 303.882292 
+L 95.666284 302.799333 
+L 99.765457 297.005864 
+L 103.864631 286.731974 
+L 107.963804 272.360872 
+L 112.062978 254.41869 
+L 116.162151 233.557653 
+L 120.261325 210.533789 
+L 124.360498 186.180349 
+L 128.459672 161.378118 
+L 132.558846 137.023819 
+L 136.658019 113.997834 
+L 140.757193 93.132462 
+L 144.856366 75.181869 
+L 148.95554 60.794854 
+L 153.054713 50.49141 
+L 157.153887 44.643934 
+L 161.25306 43.463771 
+L 165.352234 46.993575 
+L 169.451408 55.105771 
+L 173.550581 67.507163 
+L 177.649755 83.749532 
+L 181.748928 103.245836 
+L 185.848102 125.291429 
+L 189.947275 149.089526 
+L 194.046449 173.78 
+L 198.145622 198.470474 
+L 202.244796 222.268571 
+L 206.34397 244.314164 
+L 210.443143 263.810468 
+L 214.542317 280.052837 
+L 218.64149 292.454229 
+L 222.740664 300.566424 
+L 226.839837 304.096229 
+L 230.939011 302.916065 
+L 235.038184 297.068587 
+L 239.137358 286.765138 
+L 243.236532 272.378112 
+L 247.335705 254.427494 
+L 251.434879 233.562065 
+L 255.534052 210.535956 
+L 259.633226 186.181392 
+L 263.732399 161.378608 
+L 267.831573 137.024044 
+L 271.930746 113.997935 
+L 276.02992 93.132506 
+L 280.129093 75.181888 
+L 284.228267 60.794862 
+L 288.327441 50.491413 
+L 292.426614 44.643935 
+L 296.525788 43.463771 
+L 300.624961 46.993576 
+L 304.724135 55.105771 
+L 308.823308 67.507163 
+L 312.922482 83.749532 
+L 317.021655 103.245836 
+L 321.120829 125.291429 
+L 325.220003 149.089526 
+L 329.319176 173.78 
+L 333.41835 198.470474 
+L 337.517523 222.268571 
+L 341.616697 244.314164 
+L 345.71587 263.810468 
+L 349.815044 280.052837 
+L 353.914217 292.454229 
+L 358.013391 300.566425 
+L 362.112565 304.096229 
+L 366.211738 302.916066 
+L 370.310912 297.06859 
+L 374.410085 286.765146 
+L 378.509259 272.378131 
+L 382.608432 254.427538 
+L 386.707606 233.562166 
+L 390.806779 210.536181 
+L 394.905953 186.181882 
+L 399.005127 161.379651 
+L 403.1043 137.026211 
+L 407.203474 114.002347 
+L 411.302647 93.14131 
+L 415.401821 75.199128 
+L 419.500994 60.828026 
+L 423.600168 50.554136 
+L 427.699341 44.760667 
+L 431.798515 43.677708 
+L 435.897689 47.37998 
+L 439.996862 55.794027 
+L 444.096036 68.716875 
+L 448.195209 85.848927 
+L 452.294383 106.845197 
+L 456.393556 131.391 
+L 460.49273 159.311282 
+L 464.591903 190.727315 
+" style="fill:none;stroke:#d62728;stroke-linecap:square;stroke-width:1.5;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="line2d_33"&gt;
+    &lt;path clip-path="url(#p4767cfbc72)" d="M 58.773722 173.778022 
+L 62.872895 198.469463 
+L 66.972069 222.268061 
+L 71.071242 244.31391 
+L 75.170416 263.810344 
+L 79.269589 280.052777 
+L 83.368763 292.4542 
+L 87.467936 300.566411 
+L 91.56711 304.096223 
+L 95.666284 302.916062 
+L 99.765457 297.068586 
+L 103.864631 286.765138 
+L 107.963804 272.378112 
+L 112.062978 254.427494 
+L 116.162151 233.562065 
+L 120.261325 210.535956 
+L 124.360498 186.181392 
+L 128.459672 161.378608 
+L 132.558846 137.024044 
+L 136.658019 113.997935 
+L 140.757193 93.132506 
+L 144.856366 75.181888 
+L 148.95554 60.794862 
+L 153.054713 50.491413 
+L 157.153887 44.643935 
+L 161.25306 43.463771 
+L 165.352234 46.993576 
+L 169.451408 55.105771 
+L 173.550581 67.507163 
+L 177.649755 83.749532 
+L 181.748928 103.245836 
+L 185.848102 125.291429 
+L 189.947275 149.089526 
+L 194.046449 173.78 
+L 198.145622 198.470474 
+L 202.244796 222.268571 
+L 206.34397 244.314164 
+L 210.443143 263.810468 
+L 214.542317 280.052837 
+L 218.64149 292.454229 
+L 222.740664 300.566424 
+L 226.839837 304.096229 
+L 230.939011 302.916065 
+L 235.038184 297.068587 
+L 239.137358 286.765138 
+L 243.236532 272.378112 
+L 247.335705 254.427494 
+L 251.434879 233.562065 
+L 255.534052 210.535956 
+L 259.633226 186.181392 
+L 263.732399 161.378608 
+L 267.831573 137.024044 
+L 271.930746 113.997935 
+L 276.02992 93.132506 
+L 280.129093 75.181888 
+L 284.228267 60.794862 
+L 288.327441 50.491413 
+L 292.426614 44.643935 
+L 296.525788 43.463771 
+L 300.624961 46.993576 
+L 304.724135 55.105771 
+L 308.823308 67.507163 
+L 312.922482 83.749532 
+L 317.021655 103.245836 
+L 321.120829 125.291429 
+L 325.220003 149.089526 
+L 329.319176 173.78 
+L 333.41835 198.470474 
+L 337.517523 222.268571 
+L 341.616697 244.314164 
+L 345.71587 263.810468 
+L 349.815044 280.052837 
+L 353.914217 292.454229 
+L 358.013391 300.566424 
+L 362.112565 304.096229 
+L 366.211738 302.916065 
+L 370.310912 297.068587 
+L 374.410085 286.765138 
+L 378.509259 272.378112 
+L 382.608432 254.427494 
+L 386.707606 233.562065 
+L 390.806779 210.535956 
+L 394.905953 186.181392 
+L 399.005127 161.378608 
+L 403.1043 137.024044 
+L 407.203474 113.997935 
+L 411.302647 93.132506 
+L 415.401821 75.181888 
+L 419.500994 60.794862 
+L 423.600168 50.491414 
+L 427.699341 44.643938 
+L 431.798515 43.463777 
+L 435.897689 46.993589 
+L 439.996862 55.1058 
+L 444.096036 67.507223 
+L 448.195209 83.749656 
+L 452.294383 103.24609 
+L 456.393556 125.291939 
+L 460.49273 149.090537 
+L 464.591903 173.781978 
+" style="fill:none;stroke:#9467bd;stroke-linecap:square;stroke-width:1.5;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_3"&gt;
+    &lt;path d="M 38.482813 336.86 
+L 38.482813 10.7 
+" style="fill:none;stroke:#000000;stroke-linecap:square;stroke-linejoin:miter;stroke-width:0.8;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_4"&gt;
+    &lt;path d="M 484.882812 336.86 
+L 484.882812 10.7 
+" style="fill:none;stroke:#000000;stroke-linecap:square;stroke-linejoin:miter;stroke-width:0.8;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_5"&gt;
+    &lt;path d="M 38.482813 336.86 
+L 484.882812 336.86 
+" style="fill:none;stroke:#000000;stroke-linecap:square;stroke-linejoin:miter;stroke-width:0.8;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_6"&gt;
+    &lt;path d="M 38.482813 10.7 
+L 484.882812 10.7 
+" style="fill:none;stroke:#000000;stroke-linecap:square;stroke-linejoin:miter;stroke-width:0.8;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="legend_1"&gt;
+    &lt;g id="patch_7"&gt;
+     &lt;path d="M 509.202812 87.090625 
+L 570.302812 87.090625 
+Q 572.302812 87.090625 572.302812 85.090625 
+L 572.302812 12.7 
+Q 572.302812 10.7 570.302812 10.7 
+L 509.202812 10.7 
+Q 507.202812 10.7 507.202812 12.7 
+L 507.202812 85.090625 
+Q 507.202812 87.090625 509.202812 87.090625 
+z
+" style="fill:#ffffff;opacity:0.8;stroke:#cccccc;stroke-linejoin:miter;"&gt;&lt;/path&gt;
+    &lt;/g&gt;
+    &lt;g id="line2d_34"&gt;
+     &lt;path d="M 511.202812 18.798437 
+L 531.202812 18.798437 
+" style="fill:none;stroke:#1f77b4;stroke-linecap:square;stroke-width:1.5;"&gt;&lt;/path&gt;
+    &lt;/g&gt;
+    &lt;g id="line2d_35"&gt;&lt;/g&gt;
+    &lt;g id="text_15"&gt;
+     &lt;!-- $\sin{(x)}$ --&gt;
+     &lt;defs&gt;
+      &lt;path d="M 44.28125 53.078125 
+L 44.28125 44.578125 
+Q 40.484375 46.53125 36.375 47.5 
+Q 32.28125 48.484375 27.875 48.484375 
+Q 21.1875 48.484375 17.84375 46.4375 
+Q 14.5 44.390625 14.5 40.28125 
+Q 14.5 37.15625 16.890625 35.375 
+Q 19.28125 33.59375 26.515625 31.984375 
+L 29.59375 31.296875 
+Q 39.15625 29.25 43.1875 25.515625 
+Q 47.21875 21.78125 47.21875 15.09375 
+Q 47.21875 7.46875 41.1875 3.015625 
+Q 35.15625 -1.421875 24.609375 -1.421875 
+Q 20.21875 -1.421875 15.453125 -0.5625 
+Q 10.6875 0.296875 5.421875 2 
+L 5.421875 11.28125 
+Q 10.40625 8.6875 15.234375 7.390625 
+Q 20.0625 6.109375 24.8125 6.109375 
+Q 31.15625 6.109375 34.5625 8.28125 
+Q 37.984375 10.453125 37.984375 14.40625 
+Q 37.984375 18.0625 35.515625 20.015625 
+Q 33.0625 21.96875 24.703125 23.78125 
+L 21.578125 24.515625 
+Q 13.234375 26.265625 9.515625 29.90625 
+Q 5.8125 33.546875 5.8125 39.890625 
+Q 5.8125 47.609375 11.28125 51.796875 
+Q 16.75 56 26.8125 56 
+Q 31.78125 56 36.171875 55.265625 
+Q 40.578125 54.546875 44.28125 53.078125 
+" id="DejaVuSans-73"&gt;&lt;/path&gt;
+      &lt;path d="M 9.421875 54.6875 
+L 18.40625 54.6875 
+L 18.40625 0 
+L 9.421875 0 
+z
+M 9.421875 75.984375 
+L 18.40625 75.984375 
+L 18.40625 64.59375 
+L 9.421875 64.59375 
+z
+" id="DejaVuSans-69"&gt;&lt;/path&gt;
+      &lt;path d="M 54.890625 33.015625 
+L 54.890625 0 
+L 45.90625 0 
+L 45.90625 32.71875 
+Q 45.90625 40.484375 42.875 44.328125 
+Q 39.84375 48.1875 33.796875 48.1875 
+Q 26.515625 48.1875 22.3125 43.546875 
+Q 18.109375 38.921875 18.109375 30.90625 
+L 18.109375 0 
+L 9.078125 0 
+L 9.078125 54.6875 
+L 18.109375 54.6875 
+L 18.109375 46.1875 
+Q 21.34375 51.125 25.703125 53.5625 
+Q 30.078125 56 35.796875 56 
+Q 45.21875 56 50.046875 50.171875 
+Q 54.890625 44.34375 54.890625 33.015625 
+" id="DejaVuSans-6e"&gt;&lt;/path&gt;
+      &lt;path d="M 31 75.875 
+Q 24.46875 64.65625 21.28125 53.65625 
+Q 18.109375 42.671875 18.109375 31.390625 
+Q 18.109375 20.125 21.3125 9.0625 
+Q 24.515625 -2 31 -13.1875 
+L 23.1875 -13.1875 
+Q 15.875 -1.703125 12.234375 9.375 
+Q 8.59375 20.453125 8.59375 31.390625 
+Q 8.59375 42.28125 12.203125 53.3125 
+Q 15.828125 64.359375 23.1875 75.875 
+z
+" id="DejaVuSans-28"&gt;&lt;/path&gt;
+      &lt;path d="M 60.015625 54.6875 
+L 34.90625 27.875 
+L 50.296875 0 
+L 39.984375 0 
+L 28.421875 21.6875 
+L 8.296875 0 
+L -2.59375 0 
+L 24.3125 28.8125 
+L 10.015625 54.6875 
+L 20.3125 54.6875 
+L 30.8125 34.90625 
+L 49.125 54.6875 
+z
+" id="DejaVuSans-Oblique-78"&gt;&lt;/path&gt;
+      &lt;path d="M 8.015625 75.875 
+L 15.828125 75.875 
+Q 23.140625 64.359375 26.78125 53.3125 
+Q 30.421875 42.28125 30.421875 31.390625 
+Q 30.421875 20.453125 26.78125 9.375 
+Q 23.140625 -1.703125 15.828125 -13.1875 
+L 8.015625 -13.1875 
+Q 14.5 -2 17.703125 9.0625 
+Q 20.90625 20.125 20.90625 31.390625 
+Q 20.90625 42.671875 17.703125 53.65625 
+Q 14.5 64.65625 8.015625 75.875 
+" id="DejaVuSans-29"&gt;&lt;/path&gt;
+     &lt;/defs&gt;
+     &lt;g transform="translate(539.202812 22.298437)scale(0.1 -0.1)"&gt;
+      &lt;use transform="translate(0 0.015625)" xlink:href="#DejaVuSans-73"&gt;&lt;/use&gt;
+      &lt;use transform="translate(52.099609 0.015625)" xlink:href="#DejaVuSans-69"&gt;&lt;/use&gt;
+      &lt;use transform="translate(79.882812 0.015625)" xlink:href="#DejaVuSans-6e"&gt;&lt;/use&gt;
+      &lt;use transform="translate(143.261719 0.015625)" xlink:href="#DejaVuSans-28"&gt;&lt;/use&gt;
+      &lt;use transform="translate(182.275391 0.015625)" xlink:href="#DejaVuSans-Oblique-78"&gt;&lt;/use&gt;
+      &lt;use transform="translate(241.455078 0.015625)" xlink:href="#DejaVuSans-29"&gt;&lt;/use&gt;
+     &lt;/g&gt;
+    &lt;/g&gt;
+    &lt;g id="line2d_36"&gt;
+     &lt;path d="M 511.202812 33.476562 
+L 531.202812 33.476562 
+" style="fill:none;stroke:#ff7f0e;stroke-linecap:square;stroke-width:1.5;"&gt;&lt;/path&gt;
+    &lt;/g&gt;
+    &lt;g id="line2d_37"&gt;&lt;/g&gt;
+    &lt;g id="text_16"&gt;
+     &lt;!-- $T_{7}(x)$ --&gt;
+     &lt;defs&gt;
+      &lt;path d="M 5.90625 72.90625 
+L 67.578125 72.90625 
+L 66.015625 64.59375 
+L 39.984375 64.59375 
+L 27.484375 0 
+L 17.578125 0 
+L 30.078125 64.59375 
+L 4.296875 64.59375 
+z
+" id="DejaVuSans-Oblique-54"&gt;&lt;/path&gt;
+     &lt;/defs&gt;
+     &lt;g transform="translate(539.202812 36.976562)scale(0.1 -0.1)"&gt;
+      &lt;use transform="translate(0 0.125)" xlink:href="#DejaVuSans-Oblique-54"&gt;&lt;/use&gt;
+      &lt;use transform="translate(61.083984 -16.28125)scale(0.7)" xlink:href="#DejaVuSans-37"&gt;&lt;/use&gt;
+      &lt;use transform="translate(108.354492 0.125)" xlink:href="#DejaVuSans-28"&gt;&lt;/use&gt;
+      &lt;use transform="translate(147.368164 0.125)" xlink:href="#DejaVuSans-Oblique-78"&gt;&lt;/use&gt;
+      &lt;use transform="translate(206.547852 0.125)" xlink:href="#DejaVuSans-29"&gt;&lt;/use&gt;
+     &lt;/g&gt;
+    &lt;/g&gt;
+    &lt;g id="line2d_38"&gt;
+     &lt;path d="M 511.202812 48.154687 
+L 531.202812 48.154687 
+" style="fill:none;stroke:#2ca02c;stroke-linecap:square;stroke-width:1.5;"&gt;&lt;/path&gt;
+    &lt;/g&gt;
+    &lt;g id="line2d_39"&gt;&lt;/g&gt;
+    &lt;g id="text_17"&gt;
+     &lt;!-- $T_{15}(x)$ --&gt;
+     &lt;g transform="translate(539.202812 51.654687)scale(0.1 -0.1)"&gt;
+      &lt;use transform="translate(0 0.125)" xlink:href="#DejaVuSans-Oblique-54"&gt;&lt;/use&gt;
+      &lt;use transform="translate(61.083984 -16.28125)scale(0.7)" xlink:href="#DejaVuSans-31"&gt;&lt;/use&gt;
+      &lt;use transform="translate(105.620117 -16.28125)scale(0.7)" xlink:href="#DejaVuSans-35"&gt;&lt;/use&gt;
+      &lt;use transform="translate(152.890625 0.125)" xlink:href="#DejaVuSans-28"&gt;&lt;/use&gt;
+      &lt;use transform="translate(191.904297 0.125)" xlink:href="#DejaVuSans-Oblique-78"&gt;&lt;/use&gt;
+      &lt;use transform="translate(251.083984 0.125)" xlink:href="#DejaVuSans-29"&gt;&lt;/use&gt;
+     &lt;/g&gt;
+    &lt;/g&gt;
+    &lt;g id="line2d_40"&gt;
+     &lt;path d="M 511.202812 62.832812 
+L 531.202812 62.832812 
+" style="fill:none;stroke:#d62728;stroke-linecap:square;stroke-width:1.5;"&gt;&lt;/path&gt;
+    &lt;/g&gt;
+    &lt;g id="line2d_41"&gt;&lt;/g&gt;
+    &lt;g id="text_18"&gt;
+     &lt;!-- $T_{23}(x)$ --&gt;
+     &lt;defs&gt;
+      &lt;path d="M 40.578125 39.3125 
+Q 47.65625 37.796875 51.625 33 
+Q 55.609375 28.21875 55.609375 21.1875 
+Q 55.609375 10.40625 48.1875 4.484375 
+Q 40.765625 -1.421875 27.09375 -1.421875 
+Q 22.515625 -1.421875 17.65625 -0.515625 
+Q 12.796875 0.390625 7.625 2.203125 
+L 7.625 11.71875 
+Q 11.71875 9.328125 16.59375 8.109375 
+Q 21.484375 6.890625 26.8125 6.890625 
+Q 36.078125 6.890625 40.9375 10.546875 
+Q 45.796875 14.203125 45.796875 21.1875 
+Q 45.796875 27.640625 41.28125 31.265625 
+Q 36.765625 34.90625 28.71875 34.90625 
+L 20.21875 34.90625 
+L 20.21875 43.015625 
+L 29.109375 43.015625 
+Q 36.375 43.015625 40.234375 45.921875 
+Q 44.09375 48.828125 44.09375 54.296875 
+Q 44.09375 59.90625 40.109375 62.90625 
+Q 36.140625 65.921875 28.71875 65.921875 
+Q 24.65625 65.921875 20.015625 65.03125 
+Q 15.375 64.15625 9.8125 62.3125 
+L 9.8125 71.09375 
+Q 15.4375 72.65625 20.34375 73.4375 
+Q 25.25 74.21875 29.59375 74.21875 
+Q 40.828125 74.21875 47.359375 69.109375 
+Q 53.90625 64.015625 53.90625 55.328125 
+Q 53.90625 49.265625 50.4375 45.09375 
+Q 46.96875 40.921875 40.578125 39.3125 
+" id="DejaVuSans-33"&gt;&lt;/path&gt;
+     &lt;/defs&gt;
+     &lt;g transform="translate(539.202812 66.332812)scale(0.1 -0.1)"&gt;
+      &lt;use transform="translate(0 0.125)" xlink:href="#DejaVuSans-Oblique-54"&gt;&lt;/use&gt;
+      &lt;use transform="translate(61.083984 -16.28125)scale(0.7)" xlink:href="#DejaVuSans-32"&gt;&lt;/use&gt;
+      &lt;use transform="translate(105.620117 -16.28125)scale(0.7)" xlink:href="#DejaVuSans-33"&gt;&lt;/use&gt;
+      &lt;use transform="translate(152.890625 0.125)" xlink:href="#DejaVuSans-28"&gt;&lt;/use&gt;
+      &lt;use transform="translate(191.904297 0.125)" xlink:href="#DejaVuSans-Oblique-78"&gt;&lt;/use&gt;
+      &lt;use transform="translate(251.083984 0.125)" xlink:href="#DejaVuSans-29"&gt;&lt;/use&gt;
+     &lt;/g&gt;
+    &lt;/g&gt;
+    &lt;g id="line2d_42"&gt;
+     &lt;path d="M 511.202812 77.510937 
+L 531.202812 77.510937 
+" style="fill:none;stroke:#9467bd;stroke-linecap:square;stroke-width:1.5;"&gt;&lt;/path&gt;
+    &lt;/g&gt;
+    &lt;g id="line2d_43"&gt;&lt;/g&gt;
+    &lt;g id="text_19"&gt;
+     &lt;!-- $T_{31}(x)$ --&gt;
+     &lt;g transform="translate(539.202812 81.010937)scale(0.1 -0.1)"&gt;
+      &lt;use transform="translate(0 0.125)" xlink:href="#DejaVuSans-Oblique-54"&gt;&lt;/use&gt;
+      &lt;use transform="translate(61.083984 -16.28125)scale(0.7)" xlink:href="#DejaVuSans-33"&gt;&lt;/use&gt;
+      &lt;use transform="translate(105.620117 -16.28125)scale(0.7)" xlink:href="#DejaVuSans-31"&gt;&lt;/use&gt;
+      &lt;use transform="translate(152.890625 0.125)" xlink:href="#DejaVuSans-28"&gt;&lt;/use&gt;
+      &lt;use transform="translate(191.904297 0.125)" xlink:href="#DejaVuSans-Oblique-78"&gt;&lt;/use&gt;
+      &lt;use transform="translate(251.083984 0.125)" xlink:href="#DejaVuSans-29"&gt;&lt;/use&gt;
+     &lt;/g&gt;
+    &lt;/g&gt;
+   &lt;/g&gt;
+  &lt;/g&gt;
+ &lt;/g&gt;
+ &lt;defs&gt;
+  &lt;clippath id="p4767cfbc72"&gt;
+   &lt;rect height="326.16" width="446.4" x="38.482813" y="10.7"&gt;&lt;/rect&gt;
+  &lt;/clippath&gt;
+ &lt;/defs&gt;
+&lt;/svg&gt;
+
+&lt;/div&gt;
+
+&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;div class="cell border-box-sizing text_cell rendered"&gt;
+&lt;div class="prompt input_prompt"&gt;
+&lt;/div&gt;
+&lt;div class="inner_cell"&gt;
+&lt;div class="text_cell_render border-box-sizing rendered_html"&gt;
+&lt;p&gt;The Taylor polynomial of 23 degrees appears to be making a decent approximation. Where we fall short with our implementation is that it is difficult to know what the approximation error is, let alone know upfront how many terms are actually required to obtain a good approximation.&lt;/p&gt;
+&lt;p&gt;What we really want is to continue adding terms to our approximation until the absolute value of the next term falls below some tolerable error threshold, since the error in the approximation will be no greater than the value of that term.&lt;/p&gt;
+&lt;p&gt;For example, if we use 5 terms to approximate $\sin{x}$:&lt;/p&gt;
+$$
+\sin{x} \approx x - \frac{x^3}{3!} + \frac{x^5}{5!} - \frac{x^7}{7!} + \frac{x^9}{9!}
+$$&lt;p&gt;The error in this approximation is no greater than $\frac{{\mid x \mid}^{11}}{11!}$. In fact, for $x \in (-1, 1)$, the error is no greater than $2.6 \times 10^{-8}$:&lt;/p&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="cell border-box-sizing code_cell rendered"&gt;
+&lt;div class="input"&gt;
+&lt;div class="prompt input_prompt"&gt;In [15]:&lt;/div&gt;
+&lt;div class="inner_cell"&gt;
+    &lt;div class="input_area"&gt;
+&lt;div class=" highlight hl-ipython3"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;fac&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;lambda&lt;/span&gt; &lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;next&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;islice&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;factorial&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt; &lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;div class="cell border-box-sizing code_cell rendered"&gt;
+&lt;div class="input"&gt;
+&lt;div class="prompt input_prompt"&gt;In [16]:&lt;/div&gt;
+&lt;div class="inner_cell"&gt;
+    &lt;div class="input_area"&gt;
+&lt;div class=" highlight hl-ipython3"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;max&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;abs&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;linspace&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;100&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;&lt;span class="o"&gt;**&lt;/span&gt;&lt;span class="mi"&gt;11&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;fac&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;11&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="output_wrapper"&gt;
+&lt;div class="output"&gt;
+
+
+&lt;div class="output_area"&gt;
+&lt;div class="prompt output_prompt"&gt;Out[16]:&lt;/div&gt;
+
+
+
+&lt;div class="output_text output_subarea output_execute_result"&gt;
+&lt;pre&gt;2.505210838544172e-08&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;div class="cell border-box-sizing text_cell rendered"&gt;
+&lt;div class="prompt input_prompt"&gt;
+&lt;/div&gt;
+&lt;div class="inner_cell"&gt;
+&lt;div class="text_cell_render border-box-sizing rendered_html"&gt;
+&lt;p&gt;We can use the higher-order function &lt;code&gt;takewhile&lt;/code&gt; to continuously obtain more terms to use in our approximation until the value of the term falls below some threshold. Here we take terms from the generator until it falls below $1 \times 10^{-20}$:&lt;/p&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="cell border-box-sizing code_cell rendered"&gt;
+&lt;div class="input"&gt;
+&lt;div class="prompt input_prompt"&gt;In [70]:&lt;/div&gt;
+&lt;div class="inner_cell"&gt;
+    &lt;div class="input_area"&gt;
+&lt;div class=" highlight hl-ipython3"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nb"&gt;list&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;takewhile&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;lambda&lt;/span&gt; &lt;span class="n"&gt;t&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;abs&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;t&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="mf"&gt;1e-20&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;sin_terms&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;pi&lt;/span&gt;&lt;span class="p"&gt;)))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="output_wrapper"&gt;
+&lt;div class="output"&gt;
+
+
+&lt;div class="output_area"&gt;
+&lt;div class="prompt output_prompt"&gt;Out[70]:&lt;/div&gt;
+
+
+
+&lt;div class="output_text output_subarea output_execute_result"&gt;
+&lt;pre&gt;[3.141592653589793,
+ -5.167712780049969,
+ 2.550164039877345,
+ -0.599264529320792,
+ 0.08214588661112822,
+ -0.00737043094571435,
+ 0.00046630280576761245,
+ -2.191535344783021e-05,
+ 7.95205400147551e-07,
+ -2.2948428997269866e-08,
+ 5.392664662608127e-10,
+ -1.051847171693206e-11,
+ 1.73021924583611e-13,
+ -2.4325611799933874e-15,
+ 2.956701542854909e-17,
+ -3.1377929634482263e-19]&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;div class="cell border-box-sizing text_cell rendered"&gt;
+&lt;div class="prompt input_prompt"&gt;
+&lt;/div&gt;
+&lt;div class="inner_cell"&gt;
+&lt;div class="text_cell_render border-box-sizing rendered_html"&gt;
+&lt;p&gt;Now we can define a sine function with an option to specify the maximum error that we can tolerate:&lt;/p&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="cell border-box-sizing code_cell rendered"&gt;
+&lt;div class="input"&gt;
+&lt;div class="prompt input_prompt"&gt;In [46]:&lt;/div&gt;
+&lt;div class="inner_cell"&gt;
+    &lt;div class="input_area"&gt;
+&lt;div class=" highlight hl-ipython3"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;sin2&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;lambda&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;max_tol&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mf"&gt;1e-20&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; \
+    &lt;span class="nb"&gt;sum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;takewhile&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;lambda&lt;/span&gt; &lt;span class="n"&gt;t&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;abs&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;t&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;max_tol&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;sin_terms&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;)))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;div class="cell border-box-sizing code_cell rendered"&gt;
+&lt;div class="input"&gt;
+&lt;div class="prompt input_prompt"&gt;In [47]:&lt;/div&gt;
+&lt;div class="inner_cell"&gt;
+    &lt;div class="input_area"&gt;
+&lt;div class=" highlight hl-ipython3"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;sin2&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;pi&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;max_tol&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mf"&gt;1e-15&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="output_wrapper"&gt;
+&lt;div class="output"&gt;
+
+
+&lt;div class="output_area"&gt;
+&lt;div class="prompt output_prompt"&gt;Out[47]:&lt;/div&gt;
+
+
+
+&lt;div class="output_text output_subarea output_execute_result"&gt;
+&lt;pre&gt;1.0&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;div class="cell border-box-sizing text_cell rendered"&gt;
+&lt;div class="prompt input_prompt"&gt;
+&lt;/div&gt;
+&lt;div class="inner_cell"&gt;
+&lt;div class="text_cell_render border-box-sizing rendered_html"&gt;
+&lt;p&gt;Again, we vectorize it to accept array inputs:&lt;/p&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="cell border-box-sizing code_cell rendered"&gt;
+&lt;div class="input"&gt;
+&lt;div class="prompt input_prompt"&gt;In [71]:&lt;/div&gt;
+&lt;div class="inner_cell"&gt;
+    &lt;div class="input_area"&gt;
+&lt;div class=" highlight hl-ipython3"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;sin2&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;vectorize&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;sin2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;excluded&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;'max_tol'&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;div class="cell border-box-sizing text_cell rendered"&gt;
+&lt;div class="prompt input_prompt"&gt;
+&lt;/div&gt;
+&lt;div class="inner_cell"&gt;
+&lt;div class="text_cell_render border-box-sizing rendered_html"&gt;
+&lt;p&gt;As a sanity check, we can ensure that given an array of $x$ values around a neighborhood of 0 as input, our implementation produces outputs that are element-wise equal to that of the NumPy implementation, within a certain tolerance.&lt;/p&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="cell border-box-sizing code_cell rendered"&gt;
+&lt;div class="input"&gt;
+&lt;div class="prompt input_prompt"&gt;In [72]:&lt;/div&gt;
+&lt;div class="inner_cell"&gt;
+    &lt;div class="input_area"&gt;
+&lt;div class=" highlight hl-ipython3"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;linspace&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;pi&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;pi&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;100&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;div class="cell border-box-sizing code_cell rendered"&gt;
+&lt;div class="input"&gt;
+&lt;div class="prompt input_prompt"&gt;In [73]:&lt;/div&gt;
+&lt;div class="inner_cell"&gt;
+    &lt;div class="input_area"&gt;
+&lt;div class=" highlight hl-ipython3"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;allclose&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sin&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="n"&gt;sin2&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="output_wrapper"&gt;
+&lt;div class="output"&gt;
+
+
+&lt;div class="output_area"&gt;
+&lt;div class="prompt output_prompt"&gt;Out[73]:&lt;/div&gt;
+
+
+
+&lt;div class="output_text output_subarea output_execute_result"&gt;
+&lt;pre&gt;True&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;div class="cell border-box-sizing text_cell rendered"&gt;
+&lt;div class="prompt input_prompt"&gt;
+&lt;/div&gt;
+&lt;div class="inner_cell"&gt;
+&lt;div class="text_cell_render border-box-sizing rendered_html"&gt;
+&lt;p&gt;When we plot the error, it is no surprise that it increases exponentially as we get further away from 0.&lt;/p&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="cell border-box-sizing code_cell rendered"&gt;
+&lt;div class="input"&gt;
+&lt;div class="prompt input_prompt"&gt;In [75]:&lt;/div&gt;
+&lt;div class="inner_cell"&gt;
+    &lt;div class="input_area"&gt;
+&lt;div class=" highlight hl-ipython3"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;fig&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;ax&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;plt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;subplots&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;figsize&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;8&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;6&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+
+&lt;span class="n"&gt;ax&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;bar&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sin&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;sin2&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;&lt;span class="o"&gt;**&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;width&lt;/span&gt;&lt;span class="o"&gt;=.&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;log&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="kc"&gt;True&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="n"&gt;ax&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;set_xlabel&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'$x$'&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;ax&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;set_ylabel&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'error'&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="n"&gt;plt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;show&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="output_wrapper"&gt;
+&lt;div class="output"&gt;
+
+
+&lt;div class="output_area"&gt;
+&lt;div class="prompt"&gt;&lt;/div&gt;
+
+
+&lt;div class="output_svg output_subarea "&gt;
+&lt;?xml version="1.0" encoding="utf-8" standalone="no"?&gt;
+
+&lt;!-- Created with matplotlib (http://matplotlib.org/) --&gt;
+&lt;svg height="374pt" version="1.1" viewbox="0 0 512 374" width="512pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"&gt;
+ &lt;defs&gt;
+  &lt;style type="text/css"&gt;
+*{stroke-linecap:butt;stroke-linejoin:round;}
+  &lt;/style&gt;
+ &lt;/defs&gt;
+ &lt;g id="figure_1"&gt;
+  &lt;g id="patch_1"&gt;
+   &lt;path d="M 0 374.41625 
+L 512.878125 374.41625 
+L 512.878125 0 
+L 0 0 
+z
+" style="fill:none;"&gt;&lt;/path&gt;
+  &lt;/g&gt;
+  &lt;g id="axes_1"&gt;
+   &lt;g id="patch_2"&gt;
+    &lt;path d="M 55.778125 336.86 
+L 502.178125 336.86 
+L 502.178125 10.7 
+L 55.778125 10.7 
+z
+" style="fill:#ffffff;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_3"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 76.069034 7261.910347 
+L 77.356695 7261.910347 
+L 77.356695 37.998318 
+L 76.069034 37.998318 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_4"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 80.155201 7261.910347 
+L 81.442862 7261.910347 
+L 81.442862 25.525455 
+L 80.155201 25.525455 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_5"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 84.241368 7261.910347 
+L 85.529028 7261.910347 
+L 85.529028 33.236431 
+L 84.241368 33.236431 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_6"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 88.327535 7261.910347 
+L 89.615195 7261.910347 
+L 89.615195 71.919708 
+L 88.327535 71.919708 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_7"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 92.413702 7261.910347 
+L 93.701362 7261.910347 
+L 93.701362 44.906207 
+L 92.413702 44.906207 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_8"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 96.499868 7261.910347 
+L 97.787529 7261.910347 
+L 97.787529 44.096644 
+L 96.499868 44.096644 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_9"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 100.586035 7261.910347 
+L 101.873696 7261.910347 
+L 101.873696 68.73516 
+L 100.586035 68.73516 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_10"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 104.672202 7261.910347 
+L 105.959863 7261.910347 
+L 105.959863 102.171368 
+L 104.672202 102.171368 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_11"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 108.758369 7261.910347 
+L 110.04603 7261.910347 
+L 110.04603 59.189427 
+L 108.758369 59.189427 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_12"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 112.844536 7261.910347 
+L 114.132197 7261.910347 
+L 114.132197 171.132133 
+L 112.844536 171.132133 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_13"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 116.930703 7261.910347 
+L 118.218364 7261.910347 
+L 118.218364 106.413913 
+L 116.930703 106.413913 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_14"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 121.01687 7261.910347 
+L 122.30453 7261.910347 
+L 122.30453 90.779212 
+L 121.01687 90.779212 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_15"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 125.103037 7261.910347 
+L 126.390697 7261.910347 
+L 126.390697 88.162503 
+L 125.103037 88.162503 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_16"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 129.189204 7261.910347 
+L 130.476864 7261.910347 
+L 130.476864 95.626046 
+L 129.189204 95.626046 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_17"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 133.27537 7261.910347 
+L 134.563031 7261.910347 
+L 134.563031 105.074168 
+L 133.27537 105.074168 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_18"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 137.361537 7261.910347 
+L 138.649198 7261.910347 
+L 138.649198 123.068951 
+L 137.361537 123.068951 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_19"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 141.447704 7261.910347 
+L 142.735365 7261.910347 
+L 142.735365 143.238729 
+L 141.447704 143.238729 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_20"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 145.533871 7261.910347 
+L 146.821532 7261.910347 
+L 146.821532 142.833218 
+L 145.533871 142.833218 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_21"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 149.620038 7261.910347 
+L 150.907699 7261.910347 
+L 150.907699 125.132307 
+L 149.620038 125.132307 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_22"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 153.706205 7261.910347 
+L 154.993865 7261.910347 
+L 154.993865 152.734085 
+L 153.706205 152.734085 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_23"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 157.792372 7261.910347 
+L 159.080032 7261.910347 
+L 159.080032 201.513056 
+L 157.792372 201.513056 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_24"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 161.878539 7261.910347 
+L 163.166199 7261.910347 
+L 163.166199 172.000853 
+L 161.878539 172.000853 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_25"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 165.964705 7261.910347 
+L 167.252366 7261.910347 
+L 167.252366 187.931197 
+L 165.964705 187.931197 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_26"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 170.050872 7261.910347 
+L 171.338533 7261.910347 
+L 171.338533 200.54438 
+L 170.050872 200.54438 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_27"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 174.137039 7261.910347 
+L 175.4247 7261.910347 
+L 175.4247 220.980977 
+L 174.137039 220.980977 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_28"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 178.223206 7261.910347 
+L 179.510867 7261.910347 
+L 179.510867 221.524112 
+L 178.223206 221.524112 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_29"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 182.309373 7261.910347 
+L 183.597034 7261.910347 
+L 183.597034 187.684866 
+L 182.309373 187.684866 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_30"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 186.39554 7261.910347 
+L 187.683201 7261.910347 
+L 187.683201 217.506574 
+L 186.39554 217.506574 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_31"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 190.481707 7261.910347 
+L 191.769367 7261.910347 
+L 191.769367 225.090324 
+L 190.481707 225.090324 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_32"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 194.567874 7261.910347 
+L 195.855534 7261.910347 
+L 195.855534 198.574202 
+L 194.567874 198.574202 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_33"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 198.654041 7261.910347 
+L 199.941701 7261.910347 
+L 199.941701 230.835342 
+L 198.654041 230.835342 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_34"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 202.740207 7261.910347 
+L 204.027868 7261.910347 
+L 204.027868 237.703508 
+L 202.740207 237.703508 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_35"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 206.826374 7261.910347 
+L 208.114035 7261.910347 
+L 208.114035 230.939448 
+L 206.826374 230.939448 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_36"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 210.912541 7261.910347 
+L 212.200202 7261.910347 
+L 212.200202 217.051225 
+L 210.912541 217.051225 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_37"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 214.998708 7261.910347 
+L 216.286369 7261.910347 
+L 216.286369 289.601487 
+L 214.998708 289.601487 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_38"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 219.084875 7261.910347 
+L 220.372536 7261.910347 
+L 220.372536 251.178159 
+L 219.084875 251.178159 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_39"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 223.171042 7261.910347 
+L 224.458702 7261.910347 
+L 224.458702 7261.910347 
+L 223.171042 7261.910347 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_40"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 227.257209 7261.910347 
+L 228.544869 7261.910347 
+L 228.544869 247.412926 
+L 227.257209 247.412926 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_41"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 231.343376 7261.910347 
+L 232.631036 7261.910347 
+L 232.631036 320.847185 
+L 231.343376 320.847185 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_42"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 235.429542 7261.910347 
+L 236.717203 7261.910347 
+L 236.717203 273.978639 
+L 235.429542 273.978639 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_43"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 239.515709 7261.910347 
+L 240.80337 7261.910347 
+L 240.80337 305.224336 
+L 239.515709 305.224336 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_44"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 243.601876 7261.910347 
+L 244.889537 7261.910347 
+L 244.889537 320.847185 
+L 243.601876 320.847185 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_45"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 247.688043 7261.910347 
+L 248.975704 7261.910347 
+L 248.975704 305.224336 
+L 247.688043 305.224336 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_46"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 251.77421 7261.910347 
+L 253.061871 7261.910347 
+L 253.061871 289.601487 
+L 251.77421 289.601487 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_47"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 255.860377 7261.910347 
+L 257.148037 7261.910347 
+L 257.148037 7261.910347 
+L 255.860377 7261.910347 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_48"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 259.946544 7261.910347 
+L 261.234204 7261.910347 
+L 261.234204 7261.910347 
+L 259.946544 7261.910347 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_49"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 264.032711 7261.910347 
+L 265.320371 7261.910347 
+L 265.320371 305.224336 
+L 264.032711 305.224336 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_50"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 268.118877 7261.910347 
+L 269.406538 7261.910347 
+L 269.406538 305.224336 
+L 268.118877 305.224336 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_51"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 272.205044 7261.910347 
+L 273.492705 7261.910347 
+L 273.492705 320.847185 
+L 272.205044 320.847185 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_52"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 276.291211 7261.910347 
+L 277.578872 7261.910347 
+L 277.578872 7261.910347 
+L 276.291211 7261.910347 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_53"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 280.377378 7261.910347 
+L 281.665039 7261.910347 
+L 281.665039 7261.910347 
+L 280.377378 7261.910347 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_54"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 284.463545 7261.910347 
+L 285.751206 7261.910347 
+L 285.751206 320.847185 
+L 284.463545 320.847185 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_55"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 288.549712 7261.910347 
+L 289.837373 7261.910347 
+L 289.837373 305.224336 
+L 288.549712 305.224336 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_56"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 292.635879 7261.910347 
+L 293.923539 7261.910347 
+L 293.923539 305.224336 
+L 292.635879 305.224336 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_57"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 296.722046 7261.910347 
+L 298.009706 7261.910347 
+L 298.009706 305.224336 
+L 296.722046 305.224336 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_58"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 300.808213 7261.910347 
+L 302.095873 7261.910347 
+L 302.095873 305.224336 
+L 300.808213 305.224336 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_59"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 304.894379 7261.910347 
+L 306.18204 7261.910347 
+L 306.18204 305.224336 
+L 304.894379 305.224336 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_60"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 308.980546 7261.910347 
+L 310.268207 7261.910347 
+L 310.268207 305.224336 
+L 308.980546 305.224336 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_61"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 313.066713 7261.910347 
+L 314.354374 7261.910347 
+L 314.354374 320.847185 
+L 313.066713 320.847185 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_62"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 317.15288 7261.910347 
+L 318.440541 7261.910347 
+L 318.440541 305.224336 
+L 317.15288 305.224336 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_63"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 321.239047 7261.910347 
+L 322.526708 7261.910347 
+L 322.526708 273.978639 
+L 321.239047 273.978639 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_64"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 325.325214 7261.910347 
+L 326.612874 7261.910347 
+L 326.612874 305.224336 
+L 325.325214 305.224336 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_65"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 329.411381 7261.910347 
+L 330.699041 7261.910347 
+L 330.699041 264.839858 
+L 329.411381 264.839858 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_66"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 333.497548 7261.910347 
+L 334.785208 7261.910347 
+L 334.785208 7261.910347 
+L 333.497548 7261.910347 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_67"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 337.583714 7261.910347 
+L 338.871375 7261.910347 
+L 338.871375 251.178159 
+L 337.583714 251.178159 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_68"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 341.669881 7261.910347 
+L 342.957542 7261.910347 
+L 342.957542 289.601487 
+L 341.669881 289.601487 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_69"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 345.756048 7261.910347 
+L 347.043709 7261.910347 
+L 347.043709 230.939448 
+L 345.756048 230.939448 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_70"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 349.842215 7261.910347 
+L 351.129876 7261.910347 
+L 351.129876 236.603826 
+L 349.842215 236.603826 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_71"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 353.928382 7261.910347 
+L 355.216043 7261.910347 
+L 355.216043 264.839858 
+L 353.928382 264.839858 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_72"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 358.014549 7261.910347 
+L 359.302209 7261.910347 
+L 359.302209 230.835342 
+L 358.014549 230.835342 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_73"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 362.100716 7261.910347 
+L 363.388376 7261.910347 
+L 363.388376 198.574202 
+L 362.100716 198.574202 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_74"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 366.186883 7261.910347 
+L 367.474543 7261.910347 
+L 367.474543 225.090324 
+L 366.186883 225.090324 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_75"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 370.273049 7261.910347 
+L 371.56071 7261.910347 
+L 371.56071 197.507642 
+L 370.273049 197.507642 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_76"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 374.359216 7261.910347 
+L 375.646877 7261.910347 
+L 375.646877 193.684206 
+L 374.359216 193.684206 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_77"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 378.445383 7261.910347 
+L 379.733044 7261.910347 
+L 379.733044 195.000726 
+L 378.445383 195.000726 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_78"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 382.53155 7261.910347 
+L 383.819211 7261.910347 
+L 383.819211 220.980977 
+L 382.53155 220.980977 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_79"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 386.617717 7261.910347 
+L 387.905378 7261.910347 
+L 387.905378 200.54438 
+L 386.617717 200.54438 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_80"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 390.703884 7261.910347 
+L 391.991545 7261.910347 
+L 391.991545 187.931197 
+L 390.703884 187.931197 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_81"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 394.790051 7261.910347 
+L 396.077711 7261.910347 
+L 396.077711 173.095954 
+L 394.790051 173.095954 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_82"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 398.876218 7261.910347 
+L 400.163878 7261.910347 
+L 400.163878 165.499613 
+L 398.876218 165.499613 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_83"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 402.962385 7261.910347 
+L 404.250045 7261.910347 
+L 404.250045 152.734085 
+L 402.962385 152.734085 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_84"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 407.048551 7261.910347 
+L 408.336212 7261.910347 
+L 408.336212 125.132307 
+L 407.048551 125.132307 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_85"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 411.134718 7261.910347 
+L 412.422379 7261.910347 
+L 412.422379 142.833218 
+L 411.134718 142.833218 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_86"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 415.220885 7261.910347 
+L 416.508546 7261.910347 
+L 416.508546 143.238729 
+L 415.220885 143.238729 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_87"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 419.307052 7261.910347 
+L 420.594713 7261.910347 
+L 420.594713 162.7605 
+L 419.307052 162.7605 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_88"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 423.393219 7261.910347 
+L 424.68088 7261.910347 
+L 424.68088 116.259779 
+L 423.393219 116.259779 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_89"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 427.479386 7261.910347 
+L 428.767046 7261.910347 
+L 428.767046 95.626046 
+L 427.479386 95.626046 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_90"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 431.565553 7261.910347 
+L 432.853213 7261.910347 
+L 432.853213 88.162503 
+L 431.565553 88.162503 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_91"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 435.65172 7261.910347 
+L 436.93938 7261.910347 
+L 436.93938 90.779212 
+L 435.65172 90.779212 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_92"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 439.737886 7261.910347 
+L 441.025547 7261.910347 
+L 441.025547 106.413913 
+L 439.737886 106.413913 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_93"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 443.824053 7261.910347 
+L 445.111714 7261.910347 
+L 445.111714 72.954713 
+L 443.824053 72.954713 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_94"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 447.91022 7261.910347 
+L 449.197881 7261.910347 
+L 449.197881 73.087448 
+L 447.91022 73.087448 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_95"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 451.996387 7261.910347 
+L 453.284048 7261.910347 
+L 453.284048 102.171368 
+L 451.996387 102.171368 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_96"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 456.082554 7261.910347 
+L 457.370215 7261.910347 
+L 457.370215 68.73516 
+L 456.082554 68.73516 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_97"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 460.168721 7261.910347 
+L 461.456382 7261.910347 
+L 461.456382 44.096644 
+L 460.168721 44.096644 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_98"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 464.254888 7261.910347 
+L 465.542548 7261.910347 
+L 465.542548 36.064484 
+L 464.254888 36.064484 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_99"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 468.341055 7261.910347 
+L 469.628715 7261.910347 
+L 469.628715 50.632962 
+L 468.341055 50.632962 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_100"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 472.427222 7261.910347 
+L 473.714882 7261.910347 
+L 473.714882 34.947456 
+L 472.427222 34.947456 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_101"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 476.513388 7261.910347 
+L 477.801049 7261.910347 
+L 477.801049 25.525455 
+L 476.513388 25.525455 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_102"&gt;
+    &lt;path clip-path="url(#p14e61e2263)" d="M 480.599555 7261.910347 
+L 481.887216 7261.910347 
+L 481.887216 37.998318 
+L 480.599555 37.998318 
+z
+" style="fill:#1f77b4;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="matplotlib.axis_1"&gt;
+    &lt;g id="xtick_1"&gt;
+     &lt;g id="line2d_1"&gt;
+      &lt;defs&gt;
+       &lt;path d="M 0 0 
+L 0 3.5 
+" id="m1fec329a5b" style="stroke:#000000;stroke-width:0.8;"&gt;&lt;/path&gt;
+      &lt;/defs&gt;
+      &lt;g&gt;
+       &lt;use style="stroke:#000000;stroke-width:0.8;" x="85.829029" xlink:href="#m1fec329a5b" y="336.86"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+     &lt;g id="text_1"&gt;
+      &lt;!-- −15 --&gt;
+      &lt;defs&gt;
+       &lt;path d="M 10.59375 35.5 
+L 73.1875 35.5 
+L 73.1875 27.203125 
+L 10.59375 27.203125 
+z
+" id="DejaVuSans-2212"&gt;&lt;/path&gt;
+       &lt;path d="M 12.40625 8.296875 
+L 28.515625 8.296875 
+L 28.515625 63.921875 
+L 10.984375 60.40625 
+L 10.984375 69.390625 
+L 28.421875 72.90625 
+L 38.28125 72.90625 
+L 38.28125 8.296875 
+L 54.390625 8.296875 
+L 54.390625 0 
+L 12.40625 0 
+z
+" id="DejaVuSans-31"&gt;&lt;/path&gt;
+       &lt;path d="M 10.796875 72.90625 
+L 49.515625 72.90625 
+L 49.515625 64.59375 
+L 19.828125 64.59375 
+L 19.828125 46.734375 
+Q 21.96875 47.46875 24.109375 47.828125 
+Q 26.265625 48.1875 28.421875 48.1875 
+Q 40.625 48.1875 47.75 41.5 
+Q 54.890625 34.8125 54.890625 23.390625 
+Q 54.890625 11.625 47.5625 5.09375 
+Q 40.234375 -1.421875 26.90625 -1.421875 
+Q 22.3125 -1.421875 17.546875 -0.640625 
+Q 12.796875 0.140625 7.71875 1.703125 
+L 7.71875 11.625 
+Q 12.109375 9.234375 16.796875 8.0625 
+Q 21.484375 6.890625 26.703125 6.890625 
+Q 35.15625 6.890625 40.078125 11.328125 
+Q 45.015625 15.765625 45.015625 23.390625 
+Q 45.015625 31 40.078125 35.4375 
+Q 35.15625 39.890625 26.703125 39.890625 
+Q 22.75 39.890625 18.8125 39.015625 
+Q 14.890625 38.140625 10.796875 36.28125 
+z
+" id="DejaVuSans-35"&gt;&lt;/path&gt;
+      &lt;/defs&gt;
+      &lt;g transform="translate(75.276685 351.458437)scale(0.1 -0.1)"&gt;
+       &lt;use xlink:href="#DejaVuSans-2212"&gt;&lt;/use&gt;
+       &lt;use x="83.789062" xlink:href="#DejaVuSans-31"&gt;&lt;/use&gt;
+       &lt;use x="147.412109" xlink:href="#DejaVuSans-35"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+    &lt;/g&gt;
+    &lt;g id="xtick_2"&gt;
+     &lt;g id="line2d_2"&gt;
+      &lt;g&gt;
+       &lt;use style="stroke:#000000;stroke-width:0.8;" x="150.212061" xlink:href="#m1fec329a5b" y="336.86"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+     &lt;g id="text_2"&gt;
+      &lt;!-- −10 --&gt;
+      &lt;defs&gt;
+       &lt;path d="M 31.78125 66.40625 
+Q 24.171875 66.40625 20.328125 58.90625 
+Q 16.5 51.421875 16.5 36.375 
+Q 16.5 21.390625 20.328125 13.890625 
+Q 24.171875 6.390625 31.78125 6.390625 
+Q 39.453125 6.390625 43.28125 13.890625 
+Q 47.125 21.390625 47.125 36.375 
+Q 47.125 51.421875 43.28125 58.90625 
+Q 39.453125 66.40625 31.78125 66.40625 
+M 31.78125 74.21875 
+Q 44.046875 74.21875 50.515625 64.515625 
+Q 56.984375 54.828125 56.984375 36.375 
+Q 56.984375 17.96875 50.515625 8.265625 
+Q 44.046875 -1.421875 31.78125 -1.421875 
+Q 19.53125 -1.421875 13.0625 8.265625 
+Q 6.59375 17.96875 6.59375 36.375 
+Q 6.59375 54.828125 13.0625 64.515625 
+Q 19.53125 74.21875 31.78125 74.21875 
+" id="DejaVuSans-30"&gt;&lt;/path&gt;
+      &lt;/defs&gt;
+      &lt;g transform="translate(139.659717 351.458437)scale(0.1 -0.1)"&gt;
+       &lt;use xlink:href="#DejaVuSans-2212"&gt;&lt;/use&gt;
+       &lt;use x="83.789062" xlink:href="#DejaVuSans-31"&gt;&lt;/use&gt;
+       &lt;use x="147.412109" xlink:href="#DejaVuSans-30"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+    &lt;/g&gt;
+    &lt;g id="xtick_3"&gt;
+     &lt;g id="line2d_3"&gt;
+      &lt;g&gt;
+       &lt;use style="stroke:#000000;stroke-width:0.8;" x="214.595093" xlink:href="#m1fec329a5b" y="336.86"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+     &lt;g id="text_3"&gt;
+      &lt;!-- −5 --&gt;
+      &lt;g transform="translate(207.223999 351.458437)scale(0.1 -0.1)"&gt;
+       &lt;use xlink:href="#DejaVuSans-2212"&gt;&lt;/use&gt;
+       &lt;use x="83.789062" xlink:href="#DejaVuSans-35"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+    &lt;/g&gt;
+    &lt;g id="xtick_4"&gt;
+     &lt;g id="line2d_4"&gt;
+      &lt;g&gt;
+       &lt;use style="stroke:#000000;stroke-width:0.8;" x="278.978125" xlink:href="#m1fec329a5b" y="336.86"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+     &lt;g id="text_4"&gt;
+      &lt;!-- 0 --&gt;
+      &lt;g transform="translate(275.796875 351.458437)scale(0.1 -0.1)"&gt;
+       &lt;use xlink:href="#DejaVuSans-30"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+    &lt;/g&gt;
+    &lt;g id="xtick_5"&gt;
+     &lt;g id="line2d_5"&gt;
+      &lt;g&gt;
+       &lt;use style="stroke:#000000;stroke-width:0.8;" x="343.361157" xlink:href="#m1fec329a5b" y="336.86"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+     &lt;g id="text_5"&gt;
+      &lt;!-- 5 --&gt;
+      &lt;g transform="translate(340.179907 351.458437)scale(0.1 -0.1)"&gt;
+       &lt;use xlink:href="#DejaVuSans-35"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+    &lt;/g&gt;
+    &lt;g id="xtick_6"&gt;
+     &lt;g id="line2d_6"&gt;
+      &lt;g&gt;
+       &lt;use style="stroke:#000000;stroke-width:0.8;" x="407.744189" xlink:href="#m1fec329a5b" y="336.86"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+     &lt;g id="text_6"&gt;
+      &lt;!-- 10 --&gt;
+      &lt;g transform="translate(401.381689 351.458437)scale(0.1 -0.1)"&gt;
+       &lt;use xlink:href="#DejaVuSans-31"&gt;&lt;/use&gt;
+       &lt;use x="63.623047" xlink:href="#DejaVuSans-30"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+    &lt;/g&gt;
+    &lt;g id="xtick_7"&gt;
+     &lt;g id="line2d_7"&gt;
+      &lt;g&gt;
+       &lt;use style="stroke:#000000;stroke-width:0.8;" x="472.127221" xlink:href="#m1fec329a5b" y="336.86"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+     &lt;g id="text_7"&gt;
+      &lt;!-- 15 --&gt;
+      &lt;g transform="translate(465.764721 351.458437)scale(0.1 -0.1)"&gt;
+       &lt;use xlink:href="#DejaVuSans-31"&gt;&lt;/use&gt;
+       &lt;use x="63.623047" xlink:href="#DejaVuSans-35"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+    &lt;/g&gt;
+    &lt;g id="text_8"&gt;
+     &lt;!-- $x$ --&gt;
+     &lt;defs&gt;
+      &lt;path d="M 60.015625 54.6875 
+L 34.90625 27.875 
+L 50.296875 0 
+L 39.984375 0 
+L 28.421875 21.6875 
+L 8.296875 0 
+L -2.59375 0 
+L 24.3125 28.8125 
+L 10.015625 54.6875 
+L 20.3125 54.6875 
+L 30.8125 34.90625 
+L 49.125 54.6875 
+z
+" id="DejaVuSans-Oblique-78"&gt;&lt;/path&gt;
+     &lt;/defs&gt;
+     &lt;g transform="translate(275.978125 365.136562)scale(0.1 -0.1)"&gt;
+      &lt;use transform="translate(0 0.3125)" xlink:href="#DejaVuSans-Oblique-78"&gt;&lt;/use&gt;
+     &lt;/g&gt;
+    &lt;/g&gt;
+   &lt;/g&gt;
+   &lt;g id="matplotlib.axis_2"&gt;
+    &lt;g id="ytick_1"&gt;
+     &lt;g id="line2d_8"&gt;
+      &lt;defs&gt;
+       &lt;path d="M 0 0 
+L -3.5 0 
+" id="m4f66e7700a" style="stroke:#000000;stroke-width:0.8;"&gt;&lt;/path&gt;
+      &lt;/defs&gt;
+      &lt;g&gt;
+       &lt;use style="stroke:#000000;stroke-width:0.8;" x="55.778125" xlink:href="#m4f66e7700a" y="307.581035"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+     &lt;g id="text_9"&gt;
+      &lt;!-- ${10^{-32}}$ --&gt;
+      &lt;defs&gt;
+       &lt;path d="M 40.578125 39.3125 
+Q 47.65625 37.796875 51.625 33 
+Q 55.609375 28.21875 55.609375 21.1875 
+Q 55.609375 10.40625 48.1875 4.484375 
+Q 40.765625 -1.421875 27.09375 -1.421875 
+Q 22.515625 -1.421875 17.65625 -0.515625 
+Q 12.796875 0.390625 7.625 2.203125 
+L 7.625 11.71875 
+Q 11.71875 9.328125 16.59375 8.109375 
+Q 21.484375 6.890625 26.8125 6.890625 
+Q 36.078125 6.890625 40.9375 10.546875 
+Q 45.796875 14.203125 45.796875 21.1875 
+Q 45.796875 27.640625 41.28125 31.265625 
+Q 36.765625 34.90625 28.71875 34.90625 
+L 20.21875 34.90625 
+L 20.21875 43.015625 
+L 29.109375 43.015625 
+Q 36.375 43.015625 40.234375 45.921875 
+Q 44.09375 48.828125 44.09375 54.296875 
+Q 44.09375 59.90625 40.109375 62.90625 
+Q 36.140625 65.921875 28.71875 65.921875 
+Q 24.65625 65.921875 20.015625 65.03125 
+Q 15.375 64.15625 9.8125 62.3125 
+L 9.8125 71.09375 
+Q 15.4375 72.65625 20.34375 73.4375 
+Q 25.25 74.21875 29.59375 74.21875 
+Q 40.828125 74.21875 47.359375 69.109375 
+Q 53.90625 64.015625 53.90625 55.328125 
+Q 53.90625 49.265625 50.4375 45.09375 
+Q 46.96875 40.921875 40.578125 39.3125 
+" id="DejaVuSans-33"&gt;&lt;/path&gt;
+       &lt;path d="M 19.1875 8.296875 
+L 53.609375 8.296875 
+L 53.609375 0 
+L 7.328125 0 
+L 7.328125 8.296875 
+Q 12.9375 14.109375 22.625 23.890625 
+Q 32.328125 33.6875 34.8125 36.53125 
+Q 39.546875 41.84375 41.421875 45.53125 
+Q 43.3125 49.21875 43.3125 52.78125 
+Q 43.3125 58.59375 39.234375 62.25 
+Q 35.15625 65.921875 28.609375 65.921875 
+Q 23.96875 65.921875 18.8125 64.3125 
+Q 13.671875 62.703125 7.8125 59.421875 
+L 7.8125 69.390625 
+Q 13.765625 71.78125 18.9375 73 
+Q 24.125 74.21875 28.421875 74.21875 
+Q 39.75 74.21875 46.484375 68.546875 
+Q 53.21875 62.890625 53.21875 53.421875 
+Q 53.21875 48.921875 51.53125 44.890625 
+Q 49.859375 40.875 45.40625 35.40625 
+Q 44.1875 33.984375 37.640625 27.21875 
+Q 31.109375 20.453125 19.1875 8.296875 
+" id="DejaVuSans-32"&gt;&lt;/path&gt;
+      &lt;/defs&gt;
+      &lt;g transform="translate(20.878125 311.380254)scale(0.1 -0.1)"&gt;
+       &lt;use transform="translate(0 0.765625)" xlink:href="#DejaVuSans-31"&gt;&lt;/use&gt;
+       &lt;use transform="translate(63.623047 0.765625)" xlink:href="#DejaVuSans-30"&gt;&lt;/use&gt;
+       &lt;use transform="translate(128.203125 39.046875)scale(0.7)" xlink:href="#DejaVuSans-2212"&gt;&lt;/use&gt;
+       &lt;use transform="translate(186.855469 39.046875)scale(0.7)" xlink:href="#DejaVuSans-33"&gt;&lt;/use&gt;
+       &lt;use transform="translate(231.391602 39.046875)scale(0.7)" xlink:href="#DejaVuSans-32"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+    &lt;/g&gt;
+    &lt;g id="ytick_2"&gt;
+     &lt;g id="line2d_9"&gt;
+      &lt;g&gt;
+       &lt;use style="stroke:#000000;stroke-width:0.8;" x="55.778125" xlink:href="#m4f66e7700a" y="255.683055"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+     &lt;g id="text_10"&gt;
+      &lt;!-- ${10^{-30}}$ --&gt;
+      &lt;g transform="translate(20.878125 259.482274)scale(0.1 -0.1)"&gt;
+       &lt;use transform="translate(0 0.765625)" xlink:href="#DejaVuSans-31"&gt;&lt;/use&gt;
+       &lt;use transform="translate(63.623047 0.765625)" xlink:href="#DejaVuSans-30"&gt;&lt;/use&gt;
+       &lt;use transform="translate(128.203125 39.046875)scale(0.7)" xlink:href="#DejaVuSans-2212"&gt;&lt;/use&gt;
+       &lt;use transform="translate(186.855469 39.046875)scale(0.7)" xlink:href="#DejaVuSans-33"&gt;&lt;/use&gt;
+       &lt;use transform="translate(231.391602 39.046875)scale(0.7)" xlink:href="#DejaVuSans-30"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+    &lt;/g&gt;
+    &lt;g id="ytick_3"&gt;
+     &lt;g id="line2d_10"&gt;
+      &lt;g&gt;
+       &lt;use style="stroke:#000000;stroke-width:0.8;" x="55.778125" xlink:href="#m4f66e7700a" y="203.785075"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+     &lt;g id="text_11"&gt;
+      &lt;!-- ${10^{-28}}$ --&gt;
+      &lt;defs&gt;
+       &lt;path d="M 31.78125 34.625 
+Q 24.75 34.625 20.71875 30.859375 
+Q 16.703125 27.09375 16.703125 20.515625 
+Q 16.703125 13.921875 20.71875 10.15625 
+Q 24.75 6.390625 31.78125 6.390625 
+Q 38.8125 6.390625 42.859375 10.171875 
+Q 46.921875 13.96875 46.921875 20.515625 
+Q 46.921875 27.09375 42.890625 30.859375 
+Q 38.875 34.625 31.78125 34.625 
+M 21.921875 38.8125 
+Q 15.578125 40.375 12.03125 44.71875 
+Q 8.5 49.078125 8.5 55.328125 
+Q 8.5 64.0625 14.71875 69.140625 
+Q 20.953125 74.21875 31.78125 74.21875 
+Q 42.671875 74.21875 48.875 69.140625 
+Q 55.078125 64.0625 55.078125 55.328125 
+Q 55.078125 49.078125 51.53125 44.71875 
+Q 48 40.375 41.703125 38.8125 
+Q 48.828125 37.15625 52.796875 32.3125 
+Q 56.78125 27.484375 56.78125 20.515625 
+Q 56.78125 9.90625 50.3125 4.234375 
+Q 43.84375 -1.421875 31.78125 -1.421875 
+Q 19.734375 -1.421875 13.25 4.234375 
+Q 6.78125 9.90625 6.78125 20.515625 
+Q 6.78125 27.484375 10.78125 32.3125 
+Q 14.796875 37.15625 21.921875 38.8125 
+M 18.3125 54.390625 
+Q 18.3125 48.734375 21.84375 45.5625 
+Q 25.390625 42.390625 31.78125 42.390625 
+Q 38.140625 42.390625 41.71875 45.5625 
+Q 45.3125 48.734375 45.3125 54.390625 
+Q 45.3125 60.0625 41.71875 63.234375 
+Q 38.140625 66.40625 31.78125 66.40625 
+Q 25.390625 66.40625 21.84375 63.234375 
+Q 18.3125 60.0625 18.3125 54.390625 
+" id="DejaVuSans-38"&gt;&lt;/path&gt;
+      &lt;/defs&gt;
+      &lt;g transform="translate(20.878125 207.584294)scale(0.1 -0.1)"&gt;
+       &lt;use transform="translate(0 0.765625)" xlink:href="#DejaVuSans-31"&gt;&lt;/use&gt;
+       &lt;use transform="translate(63.623047 0.765625)" xlink:href="#DejaVuSans-30"&gt;&lt;/use&gt;
+       &lt;use transform="translate(128.203125 39.046875)scale(0.7)" xlink:href="#DejaVuSans-2212"&gt;&lt;/use&gt;
+       &lt;use transform="translate(186.855469 39.046875)scale(0.7)" xlink:href="#DejaVuSans-32"&gt;&lt;/use&gt;
+       &lt;use transform="translate(231.391602 39.046875)scale(0.7)" xlink:href="#DejaVuSans-38"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+    &lt;/g&gt;
+    &lt;g id="ytick_4"&gt;
+     &lt;g id="line2d_11"&gt;
+      &lt;g&gt;
+       &lt;use style="stroke:#000000;stroke-width:0.8;" x="55.778125" xlink:href="#m4f66e7700a" y="151.887096"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+     &lt;g id="text_12"&gt;
+      &lt;!-- ${10^{-26}}$ --&gt;
+      &lt;defs&gt;
+       &lt;path d="M 33.015625 40.375 
+Q 26.375 40.375 22.484375 35.828125 
+Q 18.609375 31.296875 18.609375 23.390625 
+Q 18.609375 15.53125 22.484375 10.953125 
+Q 26.375 6.390625 33.015625 6.390625 
+Q 39.65625 6.390625 43.53125 10.953125 
+Q 47.40625 15.53125 47.40625 23.390625 
+Q 47.40625 31.296875 43.53125 35.828125 
+Q 39.65625 40.375 33.015625 40.375 
+M 52.59375 71.296875 
+L 52.59375 62.3125 
+Q 48.875 64.0625 45.09375 64.984375 
+Q 41.3125 65.921875 37.59375 65.921875 
+Q 27.828125 65.921875 22.671875 59.328125 
+Q 17.53125 52.734375 16.796875 39.40625 
+Q 19.671875 43.65625 24.015625 45.921875 
+Q 28.375 48.1875 33.59375 48.1875 
+Q 44.578125 48.1875 50.953125 41.515625 
+Q 57.328125 34.859375 57.328125 23.390625 
+Q 57.328125 12.15625 50.6875 5.359375 
+Q 44.046875 -1.421875 33.015625 -1.421875 
+Q 20.359375 -1.421875 13.671875 8.265625 
+Q 6.984375 17.96875 6.984375 36.375 
+Q 6.984375 53.65625 15.1875 63.9375 
+Q 23.390625 74.21875 37.203125 74.21875 
+Q 40.921875 74.21875 44.703125 73.484375 
+Q 48.484375 72.75 52.59375 71.296875 
+" id="DejaVuSans-36"&gt;&lt;/path&gt;
+      &lt;/defs&gt;
+      &lt;g transform="translate(20.878125 155.686314)scale(0.1 -0.1)"&gt;
+       &lt;use transform="translate(0 0.765625)" xlink:href="#DejaVuSans-31"&gt;&lt;/use&gt;
+       &lt;use transform="translate(63.623047 0.765625)" xlink:href="#DejaVuSans-30"&gt;&lt;/use&gt;
+       &lt;use transform="translate(128.203125 39.046875)scale(0.7)" xlink:href="#DejaVuSans-2212"&gt;&lt;/use&gt;
+       &lt;use transform="translate(186.855469 39.046875)scale(0.7)" xlink:href="#DejaVuSans-32"&gt;&lt;/use&gt;
+       &lt;use transform="translate(231.391602 39.046875)scale(0.7)" xlink:href="#DejaVuSans-36"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+    &lt;/g&gt;
+    &lt;g id="ytick_5"&gt;
+     &lt;g id="line2d_12"&gt;
+      &lt;g&gt;
+       &lt;use style="stroke:#000000;stroke-width:0.8;" x="55.778125" xlink:href="#m4f66e7700a" y="99.989116"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+     &lt;g id="text_13"&gt;
+      &lt;!-- ${10^{-24}}$ --&gt;
+      &lt;defs&gt;
+       &lt;path d="M 37.796875 64.3125 
+L 12.890625 25.390625 
+L 37.796875 25.390625 
+z
+M 35.203125 72.90625 
+L 47.609375 72.90625 
+L 47.609375 25.390625 
+L 58.015625 25.390625 
+L 58.015625 17.1875 
+L 47.609375 17.1875 
+L 47.609375 0 
+L 37.796875 0 
+L 37.796875 17.1875 
+L 4.890625 17.1875 
+L 4.890625 26.703125 
+z
+" id="DejaVuSans-34"&gt;&lt;/path&gt;
+      &lt;/defs&gt;
+      &lt;g transform="translate(20.878125 103.788334)scale(0.1 -0.1)"&gt;
+       &lt;use transform="translate(0 0.765625)" xlink:href="#DejaVuSans-31"&gt;&lt;/use&gt;
+       &lt;use transform="translate(63.623047 0.765625)" xlink:href="#DejaVuSans-30"&gt;&lt;/use&gt;
+       &lt;use transform="translate(128.203125 39.046875)scale(0.7)" xlink:href="#DejaVuSans-2212"&gt;&lt;/use&gt;
+       &lt;use transform="translate(186.855469 39.046875)scale(0.7)" xlink:href="#DejaVuSans-32"&gt;&lt;/use&gt;
+       &lt;use transform="translate(231.391602 39.046875)scale(0.7)" xlink:href="#DejaVuSans-34"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+    &lt;/g&gt;
+    &lt;g id="ytick_6"&gt;
+     &lt;g id="line2d_13"&gt;
+      &lt;g&gt;
+       &lt;use style="stroke:#000000;stroke-width:0.8;" x="55.778125" xlink:href="#m4f66e7700a" y="48.091136"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+     &lt;g id="text_14"&gt;
+      &lt;!-- ${10^{-22}}$ --&gt;
+      &lt;g transform="translate(20.878125 51.890354)scale(0.1 -0.1)"&gt;
+       &lt;use transform="translate(0 0.765625)" xlink:href="#DejaVuSans-31"&gt;&lt;/use&gt;
+       &lt;use transform="translate(63.623047 0.765625)" xlink:href="#DejaVuSans-30"&gt;&lt;/use&gt;
+       &lt;use transform="translate(128.203125 39.046875)scale(0.7)" xlink:href="#DejaVuSans-2212"&gt;&lt;/use&gt;
+       &lt;use transform="translate(186.855469 39.046875)scale(0.7)" xlink:href="#DejaVuSans-32"&gt;&lt;/use&gt;
+       &lt;use transform="translate(231.391602 39.046875)scale(0.7)" xlink:href="#DejaVuSans-32"&gt;&lt;/use&gt;
+      &lt;/g&gt;
+     &lt;/g&gt;
+    &lt;/g&gt;
+    &lt;g id="text_15"&gt;
+     &lt;!-- error --&gt;
+     &lt;defs&gt;
+      &lt;path d="M 56.203125 29.59375 
+L 56.203125 25.203125 
+L 14.890625 25.203125 
+Q 15.484375 15.921875 20.484375 11.0625 
+Q 25.484375 6.203125 34.421875 6.203125 
+Q 39.59375 6.203125 44.453125 7.46875 
+Q 49.3125 8.734375 54.109375 11.28125 
+L 54.109375 2.78125 
+Q 49.265625 0.734375 44.1875 -0.34375 
+Q 39.109375 -1.421875 33.890625 -1.421875 
+Q 20.796875 -1.421875 13.15625 6.1875 
+Q 5.515625 13.8125 5.515625 26.8125 
+Q 5.515625 40.234375 12.765625 48.109375 
+Q 20.015625 56 32.328125 56 
+Q 43.359375 56 49.78125 48.890625 
+Q 56.203125 41.796875 56.203125 29.59375 
+M 47.21875 32.234375 
+Q 47.125 39.59375 43.09375 43.984375 
+Q 39.0625 48.390625 32.421875 48.390625 
+Q 24.90625 48.390625 20.390625 44.140625 
+Q 15.875 39.890625 15.1875 32.171875 
+z
+" id="DejaVuSans-65"&gt;&lt;/path&gt;
+      &lt;path d="M 41.109375 46.296875 
+Q 39.59375 47.171875 37.8125 47.578125 
+Q 36.03125 48 33.890625 48 
+Q 26.265625 48 22.1875 43.046875 
+Q 18.109375 38.09375 18.109375 28.8125 
+L 18.109375 0 
+L 9.078125 0 
+L 9.078125 54.6875 
+L 18.109375 54.6875 
+L 18.109375 46.1875 
+Q 20.953125 51.171875 25.484375 53.578125 
+Q 30.03125 56 36.53125 56 
+Q 37.453125 56 38.578125 55.875 
+Q 39.703125 55.765625 41.0625 55.515625 
+z
+" id="DejaVuSans-72"&gt;&lt;/path&gt;
+      &lt;path d="M 30.609375 48.390625 
+Q 23.390625 48.390625 19.1875 42.75 
+Q 14.984375 37.109375 14.984375 27.296875 
+Q 14.984375 17.484375 19.15625 11.84375 
+Q 23.34375 6.203125 30.609375 6.203125 
+Q 37.796875 6.203125 41.984375 11.859375 
+Q 46.1875 17.53125 46.1875 27.296875 
+Q 46.1875 37.015625 41.984375 42.703125 
+Q 37.796875 48.390625 30.609375 48.390625 
+M 30.609375 56 
+Q 42.328125 56 49.015625 48.375 
+Q 55.71875 40.765625 55.71875 27.296875 
+Q 55.71875 13.875 49.015625 6.21875 
+Q 42.328125 -1.421875 30.609375 -1.421875 
+Q 18.84375 -1.421875 12.171875 6.21875 
+Q 5.515625 13.875 5.515625 27.296875 
+Q 5.515625 40.765625 12.171875 48.375 
+Q 18.84375 56 30.609375 56 
+" id="DejaVuSans-6f"&gt;&lt;/path&gt;
+     &lt;/defs&gt;
+     &lt;g transform="translate(14.798438 186.08)rotate(-90)scale(0.1 -0.1)"&gt;
+      &lt;use xlink:href="#DejaVuSans-65"&gt;&lt;/use&gt;
+      &lt;use x="61.523438" xlink:href="#DejaVuSans-72"&gt;&lt;/use&gt;
+      &lt;use x="102.621094" xlink:href="#DejaVuSans-72"&gt;&lt;/use&gt;
+      &lt;use x="143.703125" xlink:href="#DejaVuSans-6f"&gt;&lt;/use&gt;
+      &lt;use x="204.884766" xlink:href="#DejaVuSans-72"&gt;&lt;/use&gt;
+     &lt;/g&gt;
+    &lt;/g&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_103"&gt;
+    &lt;path d="M 55.778125 336.86 
+L 55.778125 10.7 
+" style="fill:none;stroke:#000000;stroke-linecap:square;stroke-linejoin:miter;stroke-width:0.8;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_104"&gt;
+    &lt;path d="M 502.178125 336.86 
+L 502.178125 10.7 
+" style="fill:none;stroke:#000000;stroke-linecap:square;stroke-linejoin:miter;stroke-width:0.8;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_105"&gt;
+    &lt;path d="M 55.778125 336.86 
+L 502.178125 336.86 
+" style="fill:none;stroke:#000000;stroke-linecap:square;stroke-linejoin:miter;stroke-width:0.8;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+   &lt;g id="patch_106"&gt;
+    &lt;path d="M 55.778125 10.7 
+L 502.178125 10.7 
+" style="fill:none;stroke:#000000;stroke-linecap:square;stroke-linejoin:miter;stroke-width:0.8;"&gt;&lt;/path&gt;
+   &lt;/g&gt;
+  &lt;/g&gt;
+ &lt;/g&gt;
+ &lt;defs&gt;
+  &lt;clippath id="p14e61e2263"&gt;
+   &lt;rect height="326.16" width="446.4" x="55.778125" y="10.7"&gt;&lt;/rect&gt;
+  &lt;/clippath&gt;
+ &lt;/defs&gt;
+&lt;/svg&gt;
+
+&lt;/div&gt;
+
+&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;div class="cell border-box-sizing text_cell rendered"&gt;
+&lt;div class="prompt input_prompt"&gt;
+&lt;/div&gt;
+&lt;div class="inner_cell"&gt;
+&lt;div class="text_cell_render border-box-sizing rendered_html"&gt;
+&lt;p&gt;To wrap this up, we provide a recursive implementation of our generator function:&lt;/p&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="cell border-box-sizing code_cell rendered"&gt;
+&lt;div class="input"&gt;
+&lt;div class="prompt input_prompt"&gt;In [76]:&lt;/div&gt;
+&lt;div class="inner_cell"&gt;
+    &lt;div class="input_area"&gt;
+&lt;div class=" highlight hl-ipython3"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;sin_terms&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;curr&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="kc"&gt;None&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;curr&lt;/span&gt; &lt;span class="ow"&gt;is&lt;/span&gt; &lt;span class="kc"&gt;None&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="n"&gt;curr&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;
+
+    &lt;span class="k"&gt;yield&lt;/span&gt; &lt;span class="n"&gt;curr&lt;/span&gt;
+    &lt;span class="k"&gt;yield from&lt;/span&gt; &lt;span class="n"&gt;sin_terms&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;curr&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="o"&gt;**&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)),&lt;/span&gt; &lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;div class="cell border-box-sizing text_cell rendered"&gt;
+&lt;div class="prompt input_prompt"&gt;
+&lt;/div&gt;
+&lt;div class="inner_cell"&gt;
+&lt;div class="text_cell_render border-box-sizing rendered_html"&gt;
+&lt;p&gt;This is still considered a bottom-up approach, as we are still computing the current terms using the results of the previous terms, and no memoization is necessary. It is interesting to see recursion used in a generator function, and the use of the new &lt;code&gt;yield from&lt;/code&gt; expression, &lt;a href="https://docs.python.org/3/whatsnew/3.3.html#pep-380"&gt;introduced in Python 3.3&lt;/a&gt;, which delegates part of its &lt;code&gt;yield&lt;/code&gt; operations to another generator.&lt;/p&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="cell border-box-sizing text_cell rendered"&gt;
+&lt;div class="prompt input_prompt"&gt;
+&lt;/div&gt;
+&lt;div class="inner_cell"&gt;
+&lt;div class="text_cell_render border-box-sizing rendered_html"&gt;
+&lt;p&gt;Now, it is trivial to adapt this implementation to $\cos{x}$. In fact, the body of the for-loop remains the same, the only change required is in the initial values of &lt;code&gt;curr&lt;/code&gt; and &lt;code&gt;n&lt;/code&gt;.&lt;/p&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="cell border-box-sizing code_cell rendered"&gt;
+&lt;div class="input"&gt;
+&lt;div class="prompt input_prompt"&gt;In [81]:&lt;/div&gt;
+&lt;div class="inner_cell"&gt;
+    &lt;div class="input_area"&gt;
+&lt;div class=" highlight hl-ipython3"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;cos_terms&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+
+    &lt;span class="n"&gt;curr&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
+
+    &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;n&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;count&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="k"&gt;yield&lt;/span&gt; &lt;span class="n"&gt;curr&lt;/span&gt;
+        &lt;span class="n"&gt;curr&lt;/span&gt; &lt;span class="o"&gt;*=&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="o"&gt;**&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;
+        &lt;span class="n"&gt;curr&lt;/span&gt; &lt;span class="o"&gt;/=&lt;/span&gt; &lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;div class="cell border-box-sizing code_cell rendered"&gt;
+&lt;div class="input"&gt;
+&lt;div class="prompt input_prompt"&gt;In [82]:&lt;/div&gt;
+&lt;div class="inner_cell"&gt;
+    &lt;div class="input_area"&gt;
+&lt;div class=" highlight hl-ipython3"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;cos_terms&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;curr&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="kc"&gt;None&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;curr&lt;/span&gt; &lt;span class="ow"&gt;is&lt;/span&gt; &lt;span class="kc"&gt;None&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="n"&gt;curr&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
+
+    &lt;span class="k"&gt;yield&lt;/span&gt; &lt;span class="n"&gt;curr&lt;/span&gt;
+    &lt;span class="k"&gt;yield from&lt;/span&gt; &lt;span class="n"&gt;cos_terms&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;curr&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="o"&gt;**&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)),&lt;/span&gt; &lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;div class="cell border-box-sizing text_cell rendered"&gt;
+&lt;div class="prompt input_prompt"&gt;
+&lt;/div&gt;
+&lt;div class="inner_cell"&gt;
+&lt;div class="text_cell_render border-box-sizing rendered_html"&gt;
+&lt;p&gt;It would be useful and instructive to implement other common functions with recursion and the higher-order functions used in this notebook. It might even be possible to generalize further and implement a higher-order function which takes the initial values and parameters of the sequence as input, and returns a generator function as output. But we'll save that for another time.&lt;/p&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+</description><guid>http://louistiao.me/posts/trigonometric-functions-with-recursion-and-higher-order-functions-in-python/</guid><pubDate>Sat, 29 Apr 2017 06:09:20 GMT</pubDate></item><item><title>Matplotlib Unchained</title><link>http://louistiao.me/posts/notebooks/matplotlib-unchained/</link><dc:creator>Louis Tiao</dc:creator><description>&lt;div tabindex="-1" id="notebook" class="border-box-sizing"&gt;
     &lt;div class="container" id="notebook-container"&gt;
 
 &lt;div class="cell border-box-sizing text_cell rendered"&gt;
@@ -692,25 +4020,4 @@ $$
 &lt;p&gt;In his blog post &lt;a href="http://jakevdp.github.io/blog/2013/05/12/embedding-matplotlib-animations/"&gt;Embedding Matplotlib Animations in IPython Notebooks&lt;/a&gt;, Jake VanderPlas presents a slick hack for embedding Matplotlib Animations in IPython Notebooks, which involves writing it as a video to a &lt;a href="https://docs.python.org/2/library/tempfile.html"&gt;tempfile&lt;/a&gt;, and then re-encoding it in Base64 as a HTML5 Video.&lt;/p&gt;
 &lt;p&gt;Unfortunately (or rather fortunately), this hack has been largely rendered obsolete by the heavy development efforts dedicated to both Matplotlib and IPython Notebook (&lt;a href="https://blog.jupyter.org/2015/08/12/first-release-of-jupyter/"&gt;since renamed to Jupyter Notebook&lt;/a&gt;) in recent years. In particular, &lt;a href="http://matplotlib.org/users/whats_new.html#new-in-matplotlib-1-5"&gt;Matplotlib 1.5.1&lt;/a&gt; now &lt;a href="http://matplotlib.org/users/whats_new.html#display-hook-for-animations-in-the-ipython-notebook"&gt;supports inline display of animations in the notebook&lt;/a&gt; with the &lt;code&gt;to_html5_video&lt;/code&gt; method, which converts the animation to an h264 encoded video and embeddeds it directly in the notebook.&lt;/p&gt;
 &lt;p&gt;In this notebook, we reproduce Jake VanderPlas' blog post with this new feature.&lt;/p&gt;
-&lt;p&gt;&lt;a href="http://louistiao.me/posts/notebooks/embedding-matplotlib-animations-in-jupyter-notebooks/"&gt;Read more…&lt;/a&gt; (2 min remaining to read)&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;</description><guid>http://louistiao.me/posts/notebooks/embedding-matplotlib-animations-in-jupyter-notebooks/</guid><pubDate>Sat, 16 Apr 2016 11:10:04 GMT</pubDate></item><item><title>Installing Cartopy on Mac OSX (10.11)</title><link>http://louistiao.me/posts/installing-cartopy-on-mac-osx-1011/</link><dc:creator>Louis Tiao</dc:creator><description>&lt;div&gt;&lt;p&gt;So you develop on Mac OS X (10.11) and have installed the external
-dependencies (&lt;a class="reference external" href="https://trac.osgeo.org/geos/"&gt;geos&lt;/a&gt; 3.5.0, &lt;a class="reference external" href="https://trac.osgeo.org/proj/"&gt;proj&lt;/a&gt; 4.9.2) of &lt;a class="reference external" href="http://scitools.org.uk/cartopy/"&gt;Cartopy&lt;/a&gt; with &lt;a class="reference external" href="http://brew.sh/"&gt;Homebrew&lt;/a&gt;:&lt;/p&gt;
-&lt;pre class="code console"&gt;&lt;a name="rest_code_6ee0e0cb4962451e849417b587edb44b-1"&gt;&lt;/a&gt;&lt;span class="gp"&gt;$&lt;/span&gt; brew install geos
-&lt;a name="rest_code_6ee0e0cb4962451e849417b587edb44b-2"&gt;&lt;/a&gt;&lt;span class="gp"&gt;$&lt;/span&gt; brew install proj
-&lt;/pre&gt;&lt;p&gt;Moreover, you have created a &lt;tt class="docutils literal"&gt;virtualenv&lt;/tt&gt; and installed the Python
-dependencies (Cython, NumPy):&lt;/p&gt;
-&lt;pre class="code console"&gt;&lt;a name="rest_code_b781fb9954b647a587b1ed70614a4286-1"&gt;&lt;/a&gt;&lt;span class="gp"&gt;$&lt;/span&gt; mkvirtualenv cartopy_venv
-&lt;a name="rest_code_b781fb9954b647a587b1ed70614a4286-2"&gt;&lt;/a&gt;&lt;span class="gp"&gt;(cartopy_venv)$&lt;/span&gt; pip install cython
-&lt;a name="rest_code_b781fb9954b647a587b1ed70614a4286-3"&gt;&lt;/a&gt;&lt;span class="gp"&gt;(cartopy_venv)$&lt;/span&gt; pip install numpy
-&lt;/pre&gt;&lt;p&gt;Yet, when you finally go install Cartopy, you still encounter the following
-seemingly inexplicable error:&lt;/p&gt;
-&lt;pre class="code console"&gt;&lt;a name="rest_code_558bb49516eb4936bf884665b3097796-1"&gt;&lt;/a&gt;&lt;span class="gp"&gt;(cartopy_venv)$&lt;/span&gt; pip install cartopy
-&lt;a name="rest_code_558bb49516eb4936bf884665b3097796-2"&gt;&lt;/a&gt;&lt;span class="go"&gt;[...]&lt;/span&gt;
-&lt;a name="rest_code_558bb49516eb4936bf884665b3097796-3"&gt;&lt;/a&gt;&lt;span class="go"&gt;clang -fno-strict-aliasing -fno-common -dynamic -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk/System/Library/Frameworks/Tk.framework/Versions/8.5/Headers -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I/usr/local/Cellar/python/2.7.11/Frameworks/Python.framework/Versions/2.7/include -I./lib/cartopy -I-I/usr/local/Cellar/proj/4.9.2/include -I/usr/local/Cellar/geos/3.5.0/include -I/usr/local/Cellar/python/2.7.11/Frameworks/Python.framework/Versions/2.7/include/python2.7 -c lib/cartopy/trace.cpp -o build/temp.macosx-10.11-x86_64-2.7/lib/cartopy/trace.o&lt;/span&gt;
-&lt;a name="rest_code_558bb49516eb4936bf884665b3097796-4"&gt;&lt;/a&gt;&lt;span class="go"&gt;lib/cartopy/trace.cpp:249:10: fatal error: 'proj_api.h' file not found&lt;/span&gt;
-&lt;a name="rest_code_558bb49516eb4936bf884665b3097796-5"&gt;&lt;/a&gt;&lt;span class="gp"&gt;#&lt;/span&gt;include &lt;span class="s2"&gt;"proj_api.h"&lt;/span&gt;
-&lt;a name="rest_code_558bb49516eb4936bf884665b3097796-6"&gt;&lt;/a&gt;&lt;span class="go"&gt;         ^&lt;/span&gt;
-&lt;a name="rest_code_558bb49516eb4936bf884665b3097796-7"&gt;&lt;/a&gt;&lt;span class="go"&gt;1 error generated.&lt;/span&gt;
-&lt;a name="rest_code_558bb49516eb4936bf884665b3097796-8"&gt;&lt;/a&gt;&lt;span class="go"&gt;error: command 'clang' failed with exit status 1&lt;/span&gt;
-&lt;a name="rest_code_558bb49516eb4936bf884665b3097796-9"&gt;&lt;/a&gt;
-&lt;a name="rest_code_558bb49516eb4936bf884665b3097796-10"&gt;&lt;/a&gt;&lt;span class="go"&gt;----------------------------------------&lt;/span&gt;
-&lt;/pre&gt;&lt;p&gt;&lt;a href="http://louistiao.me/posts/installing-cartopy-on-mac-osx-1011/"&gt;Read more…&lt;/a&gt; (1 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>cartopy</category><category>cython</category><category>geos</category><category>numpy</category><category>proj.4</category><guid>http://louistiao.me/posts/installing-cartopy-on-mac-osx-1011/</guid><pubDate>Thu, 31 Mar 2016 12:33:50 GMT</pubDate></item></channel></rss>
+&lt;p&gt;&lt;a href="http://louistiao.me/posts/notebooks/embedding-matplotlib-animations-in-jupyter-notebooks/"&gt;Read more…&lt;/a&gt; (2 min remaining to read)&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;</description><guid>http://louistiao.me/posts/notebooks/embedding-matplotlib-animations-in-jupyter-notebooks/</guid><pubDate>Sat, 16 Apr 2016 11:10:04 GMT</pubDate></item></channel></rss>

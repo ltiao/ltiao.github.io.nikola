@@ -18,7 +18,19 @@ article: http://ogp.me/ns/article#
 <link rel="icon" href="../../../favicon_16x16.ico" sizes="16x16">
 <link rel="icon" href="../../../favicon_32x32.ico" sizes="32x32">
 <link rel="icon" href="../../../favicon_256x256.ico" sizes="256x256">
-<!--[if lt IE 9]><script src="../../../assets/js/html5.js"></script><![endif]--><!--
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+    },
+    displayAlign: 'center', // Change this to 'left' if you want left-aligned equations.
+    "HTML-CSS": {
+        styles: {'.MathJax_Display': {"margin": 0}}
+    }
+});
+</script><!--[if lt IE 9]><script src="../../../assets/js/html5.js"></script><![endif]--><!--
 
     /\\\\\\\\\\\\\\\  /\\\\\\\\\\\     /\\\\\\\\\          /\\\\\              
     \///////\\\/////  \/////\\\///    /\\\\\\\\\\\\\      /\\\///\\\           
@@ -111,7 +123,7 @@ The QuickDraw">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>This is the first part in what will hopefully be a series of notes <sup class="footnote-ref" id="fnref-fn"><a href="#fn-fn" rel="footnote">1</a></sup> on my exploration of the recently released <a href="https://quickdraw.withgoogle.com/data">Google QuickDraw dataset</a>, using the concurrently released <a href="http://arxiv.org/abs/1704.03477" title="D. Ha and D. Eck, 'A Neural Representation of Sketch Drawings,' Apr. 2017.">SketchRNN model</a>.</p>
-<p>The QuickDraw dataset is curated from the millions of drawings contributed by over 15 million people around the world who participated in the <a href="https://aiexperiments.withgoogle.com/quick-draw">"Quick, Draw!" A.I. Experiment</a> where participants were given the challenge of drawing objects belonging to a particular class (such as "cat") in under 20 seconds.</p>
+<p>The QuickDraw dataset is curated from the millions of drawings contributed by over 15 million people around the world who participated in the <a href="https://aiexperiments.withgoogle.com/quick-draw">"Quick, Draw!" A.I. Experiment</a>, in which they were given the challenge of drawing objects belonging to a particular class (such as "cat") in under 20 seconds.</p>
 <p>SketchRNN is a very impressive generative model that was trained to produce vector drawings using this dataset. It was of particular interest to me because it cleverly combines many of the latest tools and techniques recently developed in machine learning, such as <a href="https://arxiv.org/abs/1312.6114" title="D. P. Kingma and M. Welling, 'Auto-Encoding Variational Bayes,' Dec. 2013.">Variational Autoencoders</a>, HyperLSTMs (a <a href="https://arxiv.org/abs/1609.09106" title="D. Ha, A. Dai, and Q. V. Le, 'HyperNetworks,' Sep. 2016.">HyperNetwork</a> for LSTM), <a href="https://arxiv.org/abs/1703.03664" title="S. Reed et al., 'Parallel Multiscale Autoregressive Density Estimation,' Mar. 2017.">Autoregressive models</a>, <a href="https://arxiv.org/abs/1607.06450" title="J. L. Ba, J. R. Kiros, and G. E. Hinton, 'Layer Normalization,' Jul. 2016.">Layer Normalization</a>, <a href="https://arxiv.org/abs/1603.05118" title="S. Semeniuta, A. Severyn, and E. Barth, 'Recurrent Dropout without Memory Loss,' Mar. 2016.">Recurrent Dropout</a>, the <a href="https://arxiv.org/abs/1412.6980" title="D. P. Kingma and J. Ba, 'Adam: A Method for Stochastic Optimization,' Dec. 2014.">Adam optimizer</a>, and others.</p>
 <p>This notebook was based on the <a href="https://github.com/tensorflow/magenta/blob/9ed2479678a81b5a016d39c6024d10aa6be05e1f/magenta/models/sketch_rnn/sketch_rnn.ipynb">notebook included</a> with the <a href="https://github.com/tensorflow/magenta/tree/master/magenta/models/sketch_rnn">code release</a>. I've made significant stylistic changes and some minor changes to ensure Python 3 compatibility as Magenta only supports Python 2 currently.</p>
 <div class="footnotes">
@@ -226,7 +238,9 @@ The QuickDraw">
 
 
 <div class="output_area">
+
 <div class="prompt"></div>
+
 
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>INFO:tensorflow:TensorFlow Version: 1.1.0
@@ -280,7 +294,9 @@ The QuickDraw">
 
 
 <div class="output_area">
+
 <div class="prompt output_prompt">Out[7]:</div>
+
 
 
 
@@ -313,7 +329,9 @@ The QuickDraw">
 
 
 <div class="output_area">
+
 <div class="prompt"></div>
+
 
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>INFO:tensorflow:/tmp/sketch_rnn/models/sketch_rnn.zip already exists, using cached copy
@@ -354,7 +372,9 @@ INFO:tensorflow:Unzipping complete.
 
 
 <div class="output_area">
+
 <div class="prompt"></div>
+
 
 <div class="output_subarea output_stream output_stdout output_text">
 <pre><span class="ansi-blue-intense-fg ansi-bold">/tmp/sketch_rnn/</span>
@@ -428,7 +448,9 @@ INFO:tensorflow:Unzipping complete.
 
 
 <div class="output_area">
+
 <div class="prompt"></div>
+
 
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>INFO:tensorflow:Downloading http://github.com/hardmaru/sketch-rnn-datasets/raw/master/aaron_sheep/aaron_sheep.npz
@@ -482,7 +504,9 @@ INFO:tensorflow:normalizing_scale_factor 18.5198.
 
 
 <div class="output_area">
+
 <div class="prompt output_prompt">Out[12]:</div>
+
 
 
 
@@ -524,7 +548,9 @@ INFO:tensorflow:normalizing_scale_factor 18.5198.
 
 
 <div class="output_area">
+
 <div class="prompt output_prompt">Out[122]:</div>
+
 
 
 
@@ -620,7 +646,9 @@ INFO:tensorflow:normalizing_scale_factor 18.5198.
 
 
 <div class="output_area">
+
 <div class="prompt"></div>
+
 
 
 <div class="output_svg output_subarea ">
@@ -846,7 +874,9 @@ L 174.939885 110.468059
 
 
 <div class="output_area">
+
 <div class="prompt"></div>
+
 
 
 <div class="output_svg output_subarea ">
@@ -6798,7 +6828,9 @@ L 532.665797 256.832233
 
 
 <div class="output_area">
+
 <div class="prompt output_prompt">Out[137]:</div>
+
 
 
 
@@ -6850,7 +6882,9 @@ L 532.665797 256.832233
 
 
 <div class="output_area">
+
 <div class="prompt output_prompt">Out[138]:</div>
+
 
 
 
@@ -6887,7 +6921,9 @@ L 532.665797 256.832233
 
 
 <div class="output_area">
+
 <div class="prompt output_prompt">Out[139]:</div>
+
 
 
 
@@ -6931,7 +6967,9 @@ L 532.665797 256.832233
 
 
 <div class="output_area">
+
 <div class="prompt output_prompt">Out[140]:</div>
+
 
 
 
@@ -6991,8 +7029,18 @@ L 532.665797 256.832233
 
 
         </section><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML" integrity="sha256-yYfngbEKv4RENfGDvNUqJTqGFcKf31NJEe9OTnnMH3Y=" crossorigin="anonymous"></script><script type="text/x-mathjax-config">
-        MathJax.Hub.Config({tex2jax: {inlineMath: [['$latex ','$'], ['\\(','\\)']]}});
-        </script></article><script>var disqus_shortname="ltiao";(function(){var a=document.createElement("script");a.async=true;a.src="https://"+disqus_shortname+".disqus.com/count.js";(document.getElementsByTagName("head")[0]||document.getElementsByTagName("body")[0]).appendChild(a)}());</script>
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+    },
+    displayAlign: 'center', // Change this to 'left' if you want left-aligned equations.
+    "HTML-CSS": {
+        styles: {'.MathJax_Display': {"margin": 0}}
+    }
+});
+</script></article><script>var disqus_shortname="ltiao";(function(){var a=document.createElement("script");a.async=true;a.src="https://"+disqus_shortname+".disqus.com/count.js";(document.getElementsByTagName("head")[0]||document.getElementsByTagName("body")[0]).appendChild(a)}());</script>
 </div>
         <!--End of body content-->
       </div>
@@ -7005,17 +7053,21 @@ Contents © 2017
 <a href="https://getnikola.com" rel="nofollow">Nikola</a>
 
 
-<div class="pull-right">
+<span class="pull-right">
+
   <a class="twitter-follow-button" href="https://twitter.com/louistiao" data-show-count="false" data-show-screen-name="false">
-  Follow @louistiao</a>
+  Follow @louistiao
+  </a>
 
   <a class="github-button" href="https://github.com/ltiao" aria-label="Follow @ltiao on GitHub" data-show-count="false">
-  Follow @ltiao</a>
+  Follow @ltiao
+  </a>
 
-  <a href="https://ko-fi.com/A3476EX">
-    <object type="image/svg+xml" style="pointer-events: none;" data="https://img.shields.io/badge/Support-Buy%20Me%20a%20Coffee%20%3A%29-158cba.svg?style=social">
+  <a href="https://beerpay.io/ltiao/ltiao.github.io">
+    <object type="image/svg+xml" style="pointer-events: none;" data="https://img.shields.io/beerpay/ltiao/ltiao.github.io.svg?style=flat">
   </object></a>
-</div>
+
+</span>
 
 
             

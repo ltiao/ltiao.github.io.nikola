@@ -121,15 +121,18 @@ The QuickDraw dataset is curated fro">
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="../../../sketchrnn/aaron_sheep_tsne.svg" alt="t-SNE Visualization of Sheep Sketches" title="t-SNE Visualization of Sheep Sketches"></p>
 <p>This is the third part in a series of notes on my exploration of the recently released <a href="https://quickdraw.withgoogle.com/data">Google QuickDraw dataset</a> <sup class="footnote-ref" id="fnref-1"><a href="#fn-1" rel="footnote">1</a></sup>, using the concurrently released <a href="http://arxiv.org/abs/1704.03477" title="D. Ha and D. Eck, 'A Neural Representation of Sketch Drawings,' Apr. 2017.">SketchRNN model</a>.</p>
 <p>The QuickDraw dataset is curated from the millions of drawings contributed by over 15 million people around the world who participated in the <a href="https://aiexperiments.withgoogle.com/quick-draw">"Quick, Draw!" A.I. Experiment</a>, in which they were given the challenge of drawing objects belonging to a particular class (such as "cat") in under 20 seconds.</p>
-<p>SketchRNN is a very impressive generative model that was trained to produce vector drawings using this dataset. It was of particular interest to me because it cleverly assembles many of the latest tools and techniques recently developed in machine learning, such as <a href="https://arxiv.org/abs/1312.6114" title="D. P. Kingma and M. Welling, 'Auto-Encoding Variational Bayes,' Dec. 2013.">Variational Autoencoders</a>, HyperLSTMs (a <a href="https://arxiv.org/abs/1609.09106" title="D. Ha, A. Dai, and Q. V. Le, 'HyperNetworks,' Sep. 2016.">HyperNetwork</a> for LSTM), <a href="https://arxiv.org/abs/1703.03664" title="S. Reed et al., 'Parallel Multiscale Autoregressive Density Estimation,' Mar. 2017.">Autoregressive models</a>, <a href="https://arxiv.org/abs/1607.06450" title="J. L. Ba, J. R. Kiros, and G. E. Hinton, 'Layer Normalization,' Jul. 2016.">Layer Normalization</a>, <a href="https://arxiv.org/abs/1603.05118" title="S. Semeniuta, A. Severyn, and E. Barth, 'Recurrent Dropout without Memory Loss,' Mar. 2016.">Recurrent Dropout</a>, the <a href="https://arxiv.org/abs/1412.6980" title="D. P. Kingma and J. Ba, 'Adam: A Method for Stochastic Optimization,' Dec. 2014.">Adam optimizer</a>, among others.</p>
+<p>SketchRNN is an impressive generative model that was trained to produce vector drawings using this dataset. It was of particular interest to me because it cleverly assembles many of the latest tools and techniques recently developed in machine learning, such as <a href="https://arxiv.org/abs/1312.6114" title="D. P. Kingma and M. Welling, 'Auto-Encoding Variational Bayes,' Dec. 2013.">Variational Autoencoders</a>, HyperLSTMs (a <a href="https://arxiv.org/abs/1609.09106" title="D. Ha, A. Dai, and Q. V. Le, 'HyperNetworks,' Sep. 2016.">HyperNetwork</a> for LSTM), <a href="https://arxiv.org/abs/1703.03664" title="S. Reed et al., 'Parallel Multiscale Autoregressive Density Estimation,' Mar. 2017.">Autoregressive models</a>, <a href="https://arxiv.org/abs/1607.06450" title="J. L. Ba, J. R. Kiros, and G. E. Hinton, 'Layer Normalization,' Jul. 2016.">Layer Normalization</a>, <a href="https://arxiv.org/abs/1603.05118" title="S. Semeniuta, A. Severyn, and E. Barth, 'Recurrent Dropout without Memory Loss,' Mar. 2016.">Recurrent Dropout</a>, the <a href="https://arxiv.org/abs/1412.6980" title="D. P. Kingma and J. Ba, 'Adam: A Method for Stochastic Optimization,' Dec. 2014.">Adam optimizer</a>, among others.</p>
+<!-- TEASER_END -->
+
 <p>Again, I've discarded the markdown cells or codeblocks that were intended to explain or demonstrate something, retaining only the code I need to run the experiments in this notebook. Everything up to the section <a href="#Principal-Component-Analysis-in-the-Latent-Space">Principal Component Analysis in the Latent Space</a> was copied directly from previous notebooks. Feel free to skip right ahead to that section, as that is where the really interesting analysis happens. Everything before was mostly utility functions to facilitate visualization. Here are links to the <a href="../exploring-the-google-quickdraw-dataset-with-sketchrnn-part-1/">first</a> and <a href="../exploring-the-google-quickdraw-dataset-with-sketchrnn-part-2/">second</a> note.</p>
 <p>These notebooks were derived from the <a href="https://github.com/tensorflow/magenta/blob/9ed2479678a81b5a016d39c6024d10aa6be05e1f/magenta/models/sketch_rnn/sketch_rnn.ipynb">notebook included</a> with the <a href="https://github.com/tensorflow/magenta/tree/master/magenta/models/sketch_rnn">code release</a>. I've made significant stylistic changes and some minor changes to ensure Python 3 forward compatibility<sup class="footnote-ref" id="fnref-2"><a href="#fn-2" rel="footnote">2</a></sup>.</p>
 <div class="footnotes">
 <hr>
 <ol>
-<li id="fn-1"><p>This is somewhat misleading, as we are mainly exploring the <a href="http://www.aaronkoblin.com/project/the-sheep-market/">Aaron Koblin Sheep Market</a> (<a href="https://github.com/hardmaru/sketch-rnn-datasets/tree/master/aaron_sheep">aaron-sheep</a>) dataset, a smaller lightweight dataset provided with the <code>sketch-rnn</code> release, along with a notebook that demos various models already pre-trained on this dataset. It is a natural starting point for experimenting with <code>sketch-rnn</code>. Since the dataset schema is the same as that of the QuickDraw dataset, operations performed here on this dataset are done without loss of generality.<a href="#fnref-1" rev="footnote">↩</a></p></li>
+<li id="fn-1"><p>This is somewhat misleading as we are mainly exploring the <a href="http://www.aaronkoblin.com/project/the-sheep-market/">Aaron Koblin Sheep Market</a> (<a href="https://github.com/hardmaru/sketch-rnn-datasets/tree/master/aaron_sheep">aaron-sheep</a>) dataset, a smaller lightweight dataset provided with the <code>sketch-rnn</code> release, along with a notebook that demos various models already pre-trained on this dataset. It was a natural starting point for experimenting with <code>sketch-rnn</code>. Since the dataset schema is the same as that of the QuickDraw dataset, the experiments performed here on this dataset are done without loss of generality.<a href="#fnref-1" rev="footnote">↩</a></p></li>
 <li id="fn-2"><p>Magenta only supports Python 2 currently.<a href="#fnref-2" rev="footnote">↩</a></p></li>
 </ol>
 </div>
@@ -674,7 +677,7 @@ INFO:tensorflow:Restoring parameters from /tmp/sketch_rnn/models/aaron_sheep/lay
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Principal-Component-Analysis-in-the-Latent-Space">Principal Component Analysis in the Latent Space<a class="anchor-link" href="#Principal-Component-Analysis-in-the-Latent-Space">¶</a>
+<h3 id="Exploring-the-Latent-Space-with-Principal-Component-Analysis">Exploring the Latent Space with Principal Component Analysis<a class="anchor-link" href="#Exploring-the-Latent-Space-with-Principal-Component-Analysis">¶</a>
 </h3>
 <blockquote>
 <p>What do you call a baby eigensheep? A lamb, duh.</p>
@@ -1070,7 +1073,7 @@ L 377.420313 10.7
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>We'd like to visualize the original sketches at their corresponding points on this plot. Each point corresponds to the latent code of a sketch, reduced to 2 dimensions. However, the plot is slightly too dense to fit sufficiently large sketches without overlapping them. Therefore, we restrict our attention to a smaller region that encompasses 80% of the data points, discarding those outside of the 5th and 95th percentiles in both aces. The blue shaded rectangle highlights our region of interest.</p>
+<p>We'd like to visualize the original sketches at their corresponding points on this plot. Each point corresponds to the latent code of a sketch, reduced to 2 dimensions. However, the plot is slightly too dense to fit sufficiently large sketches without overlapping them. Therefore, we restrict our attention to a smaller region that encompasses 80% of the data points, discarding those outside of the 5th and 95th percentiles in both axes. The blue shaded rectangle highlights our region of interest.</p>
 
 </div>
 </div>
@@ -65513,7 +65516,7 @@ L 548.40499 528.050379
 <div class="text_cell_render border-box-sizing rendered_html">
 <h5 id="Eigensheep-Decomposition">Eigensheep Decomposition<a class="anchor-link" href="#Eigensheep-Decomposition">¶</a>
 </h5>
-<p>The principal components of the learned latent representation of sheep sketches is often referred to as the <em>eigensheep</em>... by me. And now by you.</p>
+<p>The principal components of the learned latent representation of sheep sketches are often referred to as the <em>eigensheep</em>... by me. And now by you.</p>
 <p>Using the decoder, we can visualize the sketch representation of the first 2 eigensheep. These eigensheep are the orthogonal weight vectors that transform the latent representations into the 2-dimensional subspace we've been working in. They are just 128-dimensional vectors which, by themselves, are largely inscrutable. By treating them as latent codes, and reconstructing them as sketches with the decoder, we might be able to distill some meaningful interpretation.</p>
 
 </div>
@@ -88434,7 +88437,7 @@ L 537.571358 253.82245
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>This reminds me a bit of <a href="https://en.wikipedia.org/wiki/Eigenface">eigenfaces</a> in facial recognition datasets, where you get dark blurs that highlight the most prominent features of a human face -- the eyes, nose, and mouth. The results are usually terrifying images of unsettling faces with <a href="http://crockpotveggies.com/uploads/tinderbox_eigenfaces_models.jpg">deep, dark, sunken eyes</a> and <a href="http://1.bp.blogspot.com/-b6C0IpjVsRM/UXrHbCh-lxI/AAAAAAAAWro/_jiN1yy2vlM/s1600/eigface.png">creepy smiles</a>.</p>
-<p>The reconstructions of the eigensheep above at lower temperature setting reveal more interesting patterns. For the first eigensheep, at $\tau=0.1$, you mostly see a pattern of round, black heads with two long, round legs, and some kind of tail (or possibly cape?) This axis seems to be along the direction that consists of variations in the structure of the head and legs of the sheep, and it would make sense that this accounts for most of the variance in the sketches. A look at the variation in the grid of reconstructed sketches above, going from left to right, seems to be consistent with this conjecture.</p>
+<p>The reconstructions of the eigensheep above at lower temperature setting reveal more interesting patterns. For the first eigensheep, at $\tau=0.1$, you mostly see a pattern of round, black heads with two long, round legs, and some kind of tail (or possibly <a href="http://worms.wikia.com/wiki/Super_Sheep">cape</a>?) This axis seems to be along the direction that consists of variations in the structure of the head and legs of the sheep, and it would make sense that this accounts for most of the variance in the sketches. A look at the variation in the grid of reconstructed sketches above, going from left to right, seems to be consistent with this conjecture.</p>
 <p>Looking at the second eigensheep, again concentrating on the samples generated with the lower temperatures, we see some roughly scribbled circles representing the body, with 3-4 loosely attached legs and a tiny round head. Unlike the first principal axis, this one seems to be along the direction that consists of variations primarily in the structure of the body of thye sheep. Again, studying the transitions from top to bottom in the grid above seems consistent with this.</p>
 
 </div>
@@ -88447,6 +88450,23 @@ L 537.571358 253.82245
 <div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="t-SNE-Visualization">t-SNE Visualization<a class="anchor-link" href="#t-SNE-Visualization">¶</a>
 </h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The t-distributed Stochastic Neighbor Embedding (t-SNE) is a popular non-linear dimensionality reduction technique that is commonly-used to visualize high-dimensional data. It is a member of a class of embedding methods that seeks to embed data points in a lower dimensional space in such a way that it preserves the pairwise distances of the points in the original higher dimensions. t-SNE does so in a non-linear fashion and adapts to the underlying data, performing different transformations on different regions <sup class="footnote-ref" id="fnref-distill"><a href="#fn-distill" rel="footnote">1</a></sup>.</p>
+<p>deep learning, representation learning</p>
+<div class="footnotes">
+<hr>
+<ol>
+<li id="fn-distill"><p>Wattenberg, et al., "How to Use t-SNE Effectively", Distill, 2016. <a href="http://doi.org/10.23915/distill.00002">http://doi.org/10.23915/distill.00002</a><a href="#fnref-distill" rev="footnote">↩</a></p></li>
+</ol>
+</div>
+
 </div>
 </div>
 </div>
@@ -126951,8 +126971,15 @@ L 283.864703 337.927674
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
+<p>future work</p>
 <ul>
-<li><a href="http://cs231n.github.io/understanding-cnn/">Understanding and Visualizing Convolutional Neural Networks</a></li>
+<li>the larger, quick draw dataset</li>
+<li>
+<p>multiple classes</p>
+</li>
+<li>
+<p><a href="http://cs231n.github.io/understanding-cnn/">Understanding and Visualizing Convolutional Neural Networks</a></p>
+</li>
 <li><a href="http://colah.github.io/posts/2014-10-Visualizing-MNIST/">Visualizing MNIST</a></li>
 <li><a href="http://colah.github.io/posts/2015-01-Visualizing-Representations/">Visualizing Representations</a></li>
 <li><a href="https://erikbern.com/2016/01/21/analyzing-50k-fonts-using-deep-neural-networks.html">Analyzing 50k fonts using deep neural networks</a></li>

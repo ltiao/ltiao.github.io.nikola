@@ -906,27 +906,29 @@ LICENSE = ""
 # the default right now)
 # (translatable)
 SOCIAL_BUTTONS_CODE = """
-<div class="pull-right">
+<span class="pull-right">
+
   <a class="twitter-follow-button"
     href="https://twitter.com/louistiao"
     data-show-count="false"
     data-show-screen-name="false">
-  Follow @louistiao</a>
+  Follow @louistiao
+  </a>
 
   <a class="github-button"
     href="https://github.com/ltiao"
     aria-label="Follow @ltiao on GitHub"
     data-show-count="false">
-  Follow @ltiao</a>
+  Follow @ltiao
+  </a>
 
   <a href="https://ko-fi.com/A3476EX">
-    <object type="image/svg+xml" style='pointer-events: none;' data='https://img.shields.io/badge/{subject}-{status}-{color}.svg?style={style}'>
+    <object type="image/svg+xml" style="pointer-events: none;"
+      data="https://img.shields.io/badge/Support--yellow.svg?style=social"/>
   </a>
-</div>
-""".format(subject='Support',
-           status=quote("Buy Me a Coffee :)"),
-           color='158cba',
-           style='social')
+
+</span>
+"""
 
 # A small copyright notice for the page footer (in HTML).
 # (translatable)
@@ -1051,25 +1053,25 @@ PRETTY_URLS = True
 
 # If you want support for the $.$ syntax (which may conflict with running
 # text!), just use this config:
-# MATHJAX_CONFIG = """
-# <script type="text/x-mathjax-config">
-# MathJax.Hub.Config({
-#     tex2jax: {
-#         inlineMath: [ ['$','$'], ["\\\(","\\\)"] ],
-#         displayMath: [ ['$$','$$'], ["\\\[","\\\]"] ],
-#         processEscapes: true
-#     },
-#     displayAlign: 'center', // Change this to 'left' if you want left-aligned equations.
-#     "HTML-CSS": {
-#         styles: {'.MathJax_Display': {"margin": 0}}
-#     }
-# });
-# </script>
-# """
+MATHJAX_CONFIG = """
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\\(","\\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\\[","\\\]"] ],
+        processEscapes: true
+    },
+    displayAlign: 'center', // Change this to 'left' if you want left-aligned equations.
+    "HTML-CSS": {
+        styles: {'.MathJax_Display': {"margin": 0}}
+    }
+});
+</script>
+"""
 
 # Want to use KaTeX instead of MathJax? While KaTeX may not support every
 # feature yet, it's faster and the output looks better.
-# USE_KATEX = False
+# USE_KATEX = True
 
 # KaTeX auto-render settings. If you want support for the $.$ syntax (wihch may
 # conflict with running text!), just use this config:

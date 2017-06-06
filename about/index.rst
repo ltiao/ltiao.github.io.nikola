@@ -26,7 +26,7 @@ and graduated with first-class honours in 2015.
 Until 2017, I was a software engineer at `NICTA`_ (now incorporated under the 
 `CSIRO`_ as `Data61`_) in the `Inference Systems`_ team, where I worked among a
 group of leading machine learning researchers and engineers with expertise in 
-Bayesian statistics. Presently, I am still working there on a part-time basis.
+Bayesian statistics. Presently, I work at Data61 on a part-time basis.
 
 In my spare time, if I am not working on one of my `many incomplete side 
 projects`_, you'll either find me shooting hoops at the gym, or on the mats 

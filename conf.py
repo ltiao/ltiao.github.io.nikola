@@ -185,10 +185,10 @@ THEME_COLOR = '#5670d4'
 #     )
 
 POSTS = (
+    ("posts/notebooks/*.ipynb", "notes", "post.tmpl"),
+    ("posts/personal/*.md", "personal", "post.tmpl"),
     ("posts/*.rst", "posts", "post.tmpl"),
     ("posts/*.md", "posts", "post.tmpl"),
-    ("posts/*.txt", "posts", "post.tmpl"),
-    ("posts/*.html", "posts", "post.tmpl"),
     ("posts/*.ipynb", "posts", "post.tmpl"),
 )
 PAGES = (
@@ -345,11 +345,15 @@ POSTS_SECTIONS = True
 
 # Associate a description with a section. For use in meta description on
 # section index pages or elsewhere in themes.
-# POSTS_SECTION_DESCRIPTIONS = {
-#     DEFAULT_LANG: {
-#         'how-to': 'Learn how-to things properly with these amazing tutorials.',
-#     },
-# }
+POSTS_SECTION_DESCRIPTIONS = {
+    DEFAULT_LANG: {
+        'notes': ("My disorganized collection of notes. Though unlikely to be"
+                  "helpful on their own to anyone but myself. They do contain"
+                  "useful snippets that I'd like to keep pubicly accessible"
+                  "somewhere so I may refer to it even if away from my own"
+                  " computer."),
+    },
+}
 
 # Sections are determined by their output directory as set in POSTS by default,
 # but can alternatively be determined from file metadata instead.
@@ -359,10 +363,7 @@ POSTS_SECTIONS = True
 # metadata label. Unless overwritten below, names will use title cased and
 # hyphens replaced by spaces.
 # POSTS_SECTION_NAME = {
-#    DEFAULT_LANG: {
-#        'posts': 'Blog Posts',
-#        'uncategorized': 'Odds and Ends',
-#    },
+#    DEFAULT_LANG: {},
 # }
 
 # Titles for per-section index pages. Can be either one string where "{name}"
@@ -370,7 +371,7 @@ POSTS_SECTIONS = True
 # that the INDEX_PAGES option is also applied to section page titles.
 # POSTS_SECTION_TITLE = {
 #     DEFAULT_LANG: {
-#         'how-to': 'How-to and Tutorials',
+#         'notes': '',
 #     },
 # }
 
@@ -511,7 +512,7 @@ HIDDEN_AUTHORS = ['Guest']
 # Final location for the main blog page and sibling paginated pages is
 # output / TRANSLATION[lang] / INDEX_PATH / index-*.html
 # (translatable)
-INDEX_PATH = "posts"
+INDEX_PATH = "all"
 
 # Optional HTML that displayed on “main” blog index.html files.
 # May be used for a greeting. (translatable)

@@ -185,7 +185,10 @@ THEME_COLOR = '#5670d4'
 #     )
 
 POSTS = (
-    ("posts/notebooks/*.ipynb", "notes", "post.tmpl"),
+    ("posts/notes/notebooks/*.ipynb", "notes", "post.tmpl"),
+    ("posts/notes/*.rst", "notes", "post.tmpl"),
+    ("posts/notes/*.md", "notes", "post.tmpl"),
+    ("posts/personal/*.rst", "personal", "post.tmpl"),
     ("posts/personal/*.md", "personal", "post.tmpl"),
     ("posts/*.rst", "posts", "post.tmpl"),
     ("posts/*.md", "posts", "post.tmpl"),

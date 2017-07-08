@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html prefix="
+og: http://ogp.me/ns#
+article: http://ogp.me/ns/article#
+" lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="description" content="Computer Science / Math / Software Engineering">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Louis Tiao (old posts, page 3) | Louis Tiao</title>
+<link href="../assets/css/all.css" rel="stylesheet" type="text/css">
+<link href="../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
+<link href="../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
+<link href="../assets/css/override_nikola_ipython.css" rel="stylesheet" type="text/css">
+<meta name="theme-color" content="#5670d4">
+<meta name="generator" content="Nikola (getnikola.com)">
+<link rel="alternate" type="application/rss+xml" title="RSS" href="../rss.xml">
+<link rel="canonical" href="http://louistiao.me/content/index-3.html">
+<link rel="icon" href="../favicon_16x16.ico" sizes="16x16">
+<link rel="icon" href="../favicon_32x32.ico" sizes="32x32">
+<link rel="icon" href="../favicon_256x256.ico" sizes="256x256">
+<link rel="prev" href="index-4.html" type="text/html">
+<link rel="next" href="index-2.html" type="text/html">
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+    },
+    displayAlign: 'center', // Change this to 'left' if you want left-aligned equations.
+    "HTML-CSS": {
+        styles: {'.MathJax_Display': {"margin": 0}}
+    }
+});
+</script><!--[if lt IE 9]><script src="../assets/js/html5.js"></script><![endif]--><!--
+
+    /\\\\\\\\\\\\\\\  /\\\\\\\\\\\     /\\\\\\\\\          /\\\\\              
+    \///////\\\/////  \/////\\\///    /\\\\\\\\\\\\\      /\\\///\\\           
+           \/\\\           \/\\\      /\\\/////////\\\   /\\\/  \///\\\        
+            \/\\\           \/\\\     \/\\\       \/\\\  /\\\      \//\\\      
+             \/\\\           \/\\\     \/\\\\\\\\\\\\\\\ \/\\\       \/\\\     
+              \/\\\           \/\\\     \/\\\/////////\\\ \//\\\      /\\\     
+               \/\\\           \/\\\     \/\\\       \/\\\  \///\\\  /\\\      
+                \/\\\        /\\\\\\\\\\\ \/\\\       \/\\\    \///\\\\\/      
+                 \///        \///////////  \///        \///       \/////       
+
+-->
+</head>
+<body>
+<a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+  <div class="container">
+    <div class="header clearfix">
+      <nav><ul class="nav nav-pills pull-right">
+<li>
+<a href="../">About</a>
+                </li>
+<li>
+<a href="../projects/">Projects</a>
+                </li>
+<li>
+<a href="../posts/">Posts</a>
+                </li>
+<li>
+<a href="../archive.html">Archive</a>
+
+          
+        </li>
+</ul></nav><a href="http://louistiao.me/">
+
+        <h3 class="text-muted">
+          <span id="blog-title">Louis Tiao</span>
+        </h3>
+      </a>
+    </div>
+
+<!-- TODO Figure out what to do with this stuff -->
+<!--     <div class="row">
+
+      <ul class="nav nav-pills pull-right">
+          
+      </ul>
+    </div> -->
+
+    <div id="content" role="main">
+      <div class="body-content">
+        <!--Body content-->
+        <div class="row">
+          
+    
+    
+<div class="postindex">
+    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="../posts/numpy-mgrid-vs-meshgrid/" class="u-url">NumPy mgrid vs. meshgrid</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                Louis Tiao
+            </span></p>
+            <p class="dateline"><a href="../posts/numpy-mgrid-vs-meshgrid/" rel="bookmark"><time class="published dt-published" datetime="2015-10-30T16:00:19+11:00" title="2015-10-30 16:00">2015-10-30 16:00</time></a></p>
+                <p class="commentline">            <a href="../posts/numpy-mgrid-vs-meshgrid/#disqus_thread" data-disqus-identifier="cache/content/posts/numpy-mgrid-vs-meshgrid.html">Comments</a>
+
+
+        </p>
+</div>
+    </header><div class="p-summary entry-summary">
+    <div>
+<p>The <a class="reference external" href="http://docs.scipy.org/doc/numpy/reference/generated/numpy.meshgrid.html">meshgrid</a> function is useful for creating coordinate arrays to
+vectorize function evaluations over a grid. Experienced NumPy users will have
+noticed some discrepancy between <tt class="docutils literal">meshgrid</tt> and the <a class="reference external" href="http://docs.scipy.org/doc/numpy/reference/generated/numpy.mgrid.html">mgrid</a>, a function
+that is used just as often, for exactly the same purpose. What is the
+discrepancy, and why does a discrepancy even exist when <em>"there should be one
+- and preferably only one - obvious way to do it."</em> <a class="footnote-reference" href="../posts/numpy-mgrid-vs-meshgrid/#id2" id="id1">[1]</a></p>
+<p>First, recall that <tt class="docutils literal">meshgrid</tt> behaves as follows:</p>
+<pre class="code pycon"><a name="rest_code_1ca4b5dee60146d6a10e5d4c528f24a9-1"></a><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<a name="rest_code_1ca4b5dee60146d6a10e5d4c528f24a9-2"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mi">12</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<a name="rest_code_1ca4b5dee60146d6a10e5d4c528f24a9-3"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">x1</span>
+<a name="rest_code_1ca4b5dee60146d6a10e5d4c528f24a9-4"></a><span class="go">array([[1, 3, 5, 7, 9],</span>
+<a name="rest_code_1ca4b5dee60146d6a10e5d4c528f24a9-5"></a><span class="go">       [1, 3, 5, 7, 9],</span>
+<a name="rest_code_1ca4b5dee60146d6a10e5d4c528f24a9-6"></a><span class="go">       [1, 3, 5, 7, 9]])</span>
+<a name="rest_code_1ca4b5dee60146d6a10e5d4c528f24a9-7"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">y1</span>
+<a name="rest_code_1ca4b5dee60146d6a10e5d4c528f24a9-8"></a><span class="go">array([[-12, -12, -12, -12, -12],</span>
+<a name="rest_code_1ca4b5dee60146d6a10e5d4c528f24a9-9"></a><span class="go">       [ -9,  -9,  -9,  -9,  -9],</span>
+<a name="rest_code_1ca4b5dee60146d6a10e5d4c528f24a9-10"></a><span class="go">       [ -6,  -6,  -6,  -6,  -6]])</span>
+</pre>
+<p class="more"><a href="../posts/numpy-mgrid-vs-meshgrid/">Read more…</a></p>
+</div>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="../posts/configuring-the-namecheap-dns-for-your-nikola-site-on-github-pages/" class="u-url">Configuring the Namecheap DNS for your Nikola site on Github Pages</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                Louis Tiao
+            </span></p>
+            <p class="dateline"><a href="../posts/configuring-the-namecheap-dns-for-your-nikola-site-on-github-pages/" rel="bookmark"><time class="published dt-published" datetime="2015-10-07T22:49:06+11:00" title="2015-10-07 22:49">2015-10-07 22:49</time></a></p>
+                <p class="commentline">            <a href="../posts/configuring-the-namecheap-dns-for-your-nikola-site-on-github-pages/#disqus_thread" data-disqus-identifier="cache/content/posts/configuring-the-namecheap-dns-for-your-nikola-site-on-github-pages.html">Comments</a>
+
+
+        </p>
+</div>
+    </header><div class="p-summary entry-summary">
+    <div>
+<p>Namecheap overhauled their Account Panel a few weeks ago
+(<a class="reference external" href="https://blog.namecheap.com/ready-to-roll-your-new-account-panel/">https://blog.namecheap.com/ready-to-roll-your-new-account-panel/</a>).
+Nonetheless, the popular guide on <a class="reference external" href="http://davidensinger.com/2013/03/setting-the-dns-for-github-pages-on-namecheap/">Setting the DNS for GitHub Pages on Namecheap</a>
+is still applicable and the instructions remain practically the same, if not
+even simpler now due to the new interface.</p>
+<p class="more"><a href="../posts/configuring-the-namecheap-dns-for-your-nikola-site-on-github-pages/">Read more…</a></p>
+</div>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="../posts/quotes-one-broken-window-starts-the-process-toward-decay/" class="u-url">Quotes: "One broken window starts the process toward decay"</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                Louis Tiao
+            </span></p>
+            <p class="dateline"><a href="../posts/quotes-one-broken-window-starts-the-process-toward-decay/" rel="bookmark"><time class="published dt-published" datetime="2015-10-01T14:15:08+10:00" title="2015-10-01 14:15">2015-10-01 14:15</time></a></p>
+                <p class="commentline">            <a href="../posts/quotes-one-broken-window-starts-the-process-toward-decay/#disqus_thread" data-disqus-identifier="cache/content/posts/quotes-one-broken-window-starts-the-process-toward-decay.html">Comments</a>
+
+
+        </p>
+</div>
+    </header><div class="p-summary entry-summary">
+    <blockquote class="pull-quote">
+<p>A building with broken windows looks like nobody cares about it. So other
+people stop caring. They allow more windows to become broken. Eventually
+they actively break them. They despoil the facade with graffiti and allow
+garbage to collect. One broken window starts the process toward decay.</p>
+<p class="attribution">—Robert C. Martin, Clean Code: A Handbook of Agile Software Craftsmanship</p>
+</blockquote>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="../posts/quotes-its-harder-to-read-code-than-to-write-it/" class="u-url">Quotes: "It's harder to read code than to write it"</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                Louis Tiao
+            </span></p>
+            <p class="dateline"><a href="../posts/quotes-its-harder-to-read-code-than-to-write-it/" rel="bookmark"><time class="published dt-published" datetime="2015-10-01T14:12:35+10:00" title="2015-10-01 14:12">2015-10-01 14:12</time></a></p>
+                <p class="commentline">            <a href="../posts/quotes-its-harder-to-read-code-than-to-write-it/#disqus_thread" data-disqus-identifier="cache/content/posts/quotes-its-harder-to-read-code-than-to-write-it.html">Comments</a>
+
+
+        </p>
+</div>
+    </header><div class="p-summary entry-summary">
+    <blockquote class="pull-quote">
+<p>We're programmers. Programmers are, in their hearts, architects, and the
+first thing they want to do when they get to a site is to bulldoze the place
+flat and build something grand. We're not excited by incremental renovation:
+tinkering, improving, planting flower beds.</p>
+<p>There's a subtle reason that programmers always want to throw away the code
+and start over. The reason is that they think the old code is a mess. And
+here is the interesting observation: they are probably wrong. The reason
+that they think the old code is a mess is because of a cardinal, fundamental
+law of programming:</p>
+<p>It’s harder to read code than to write it.</p>
+<p class="attribution">—Joel Spolsky, <a class="reference external" href="http://www.joelonsoftware.com/articles/fog0000000069.html">Things You Should Never Do, Part I</a></p>
+</blockquote>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="../posts/creating-a-nikola-theme-with-sass-compiled-bootstrap/" class="u-url">Creating a Nikola theme with Sass-compiled Bootstrap</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                Louis Tiao
+            </span></p>
+            <p class="dateline"><a href="../posts/creating-a-nikola-theme-with-sass-compiled-bootstrap/" rel="bookmark"><time class="published dt-published" datetime="2015-09-28T22:59:54+10:00" title="2015-09-28 22:59">2015-09-28 22:59</time></a></p>
+                <p class="commentline">            <a href="../posts/creating-a-nikola-theme-with-sass-compiled-bootstrap/#disqus_thread" data-disqus-identifier="cache/content/posts/creating-a-nikola-theme-with-sass-compiled-bootstrap.html">Comments</a>
+
+
+        </p>
+</div>
+    </header><div class="p-summary entry-summary">
+    <div class="section" id="initializing-the-theme">
+<h2>Initializing the Theme</h2>
+<p>First, create a new Nikola theme. I prefer to do this by creating a
+<a class="reference external" href="https://github.com/new">new repository on Github</a> so that it can be initialized with a README,
+LICENSE, <tt class="docutils literal">.gitignore</tt>, etc. Once that's done, clone the newly created repo
+into <tt class="docutils literal"><span class="pre">&lt;site-root&gt;/themes</span></tt>.</p>
+<p class="more"><a href="../posts/creating-a-nikola-theme-with-sass-compiled-bootstrap/">Read more…</a></p>
+</div>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="../posts/installing-nlopt-with-python-support-on-mac-os-x-1010/" class="u-url">Installing NLOpt with Python support on Mac OS X (10.10)</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                Louis Tiao
+            </span></p>
+            <p class="dateline"><a href="../posts/installing-nlopt-with-python-support-on-mac-os-x-1010/" rel="bookmark"><time class="published dt-published" datetime="2015-07-17T15:39:17+10:00" title="2015-07-17 15:39">2015-07-17 15:39</time></a></p>
+                <p class="commentline">            <a href="../posts/installing-nlopt-with-python-support-on-mac-os-x-1010/#disqus_thread" data-disqus-identifier="cache/content/posts/installing-nlopt-with-python-support-on-mac-os-x-1010.html">Comments</a>
+
+
+        </p>
+</div>
+    </header><div class="p-summary entry-summary">
+    <div>
+<p><a class="reference external" href="http://ab-initio.mit.edu/wiki/index.php/NLopt">NLOpt</a> is a popular open-source library for nonlinear optimization. It can be
+somewhat tricky to install it with Python support on Mac OS X, especially
+isolated under a virtual environment. This article outlines the different ways
+of making NLopt play nicely with your Python development environment, whatever
+that may be.</p>
+<p class="more"><a href="../posts/installing-nlopt-with-python-support-on-mac-os-x-1010/">Read more…</a></p>
+</div>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="../posts/project-euler/problem-42-coded-triangle-numbers/" class="u-url">Project Euler Problem 42: Coded triangle numbers</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                Louis Tiao
+            </span></p>
+            <p class="dateline"><a href="../posts/project-euler/problem-42-coded-triangle-numbers/" rel="bookmark"><time class="published dt-published" datetime="2015-04-18T00:31:37+10:00" title="2015-04-18 00:31">2015-04-18 00:31</time></a></p>
+                <p class="commentline">            <a href="../posts/project-euler/problem-42-coded-triangle-numbers/#disqus_thread" data-disqus-identifier="cache/content/posts/project-euler/problem-42-coded-triangle-numbers.html">Comments</a>
+
+
+        </p>
+</div>
+    </header><div class="p-summary entry-summary">
+    <div tabindex="-1" id="notebook" class="border-box-sizing">
+    <div class="container" id="notebook-container">
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The nth term of the sequence of triangle numbers is given by, $T_n = \frac{n(n+1)}{2}$; so the first ten triangle numbers are:</p>
+<p>1, 3, 6, 10, 15, 21, 28, 36, 45, 55, ...</p>
+<p>By converting each letter in a word to a number corresponding to its alphabetical position and adding these values we form a word value. For example, the word value for SKY is 19 + 11 + 25 = 55 = $T_{10}$. If the word value is a triangle number then we shall call the word a triangle word.</p>
+<p>Using <a href="../posts/p042_words.txt">words.txt</a> (right click and 'Save Link/Target As...'), a 16K text file containing nearly two-thousand common English words, how many are triangle words?</p>
+<p class="more"><a href="../posts/project-euler/problem-42-coded-triangle-numbers/">Read more…</a></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="../posts/project-euler/problem-43-sub-string-divisibility/" class="u-url">Project Euler Problem 43: Sub-string divisibility</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                Louis Tiao
+            </span></p>
+            <p class="dateline"><a href="../posts/project-euler/problem-43-sub-string-divisibility/" rel="bookmark"><time class="published dt-published" datetime="2015-04-17T22:52:15+10:00" title="2015-04-17 22:52">2015-04-17 22:52</time></a></p>
+                <p class="commentline">            <a href="../posts/project-euler/problem-43-sub-string-divisibility/#disqus_thread" data-disqus-identifier="cache/content/posts/project-euler/problem-43-sub-string-divisibility.html">Comments</a>
+
+
+        </p>
+</div>
+    </header><div class="p-summary entry-summary">
+    <div tabindex="-1" id="notebook" class="border-box-sizing">
+    <div class="container" id="notebook-container">
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The number, 1406357289, is a 0 to 9 pandigital number because it is made up of each of the digits 0 to 9 in some order, but it also has a rather interesting sub-string divisibility property.</p>
+<p>Let $d_1$ be the 1st digit, $d_2$ be the 2nd digit, and so on. In this way, we note the following:</p>
+<p>$d_2d_3d_4=406$ is divisible by 2</p>
+<p>$d_3d_4d_5=063$ is divisible by 3</p>
+<p>$d_4d_5d_6=635$ is divisible by 5</p>
+<p>$d_5d_6d_7=357$ is divisible by 7</p>
+<p>$d_6d_7d_8=572$ is divisible by 11</p>
+<p>$d_7d_8d_9=728$ is divisible by 13</p>
+<p>$d_8d_9d_{10}=289$ is divisible by 17</p>
+<p>Find the sum of all 0 to 9 pandigital numbers with this property.</p>
+<p class="more"><a href="../posts/project-euler/problem-43-sub-string-divisibility/">Read more…</a></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="../posts/project-euler/problem-44-pentagon-numbers/" class="u-url">Project Euler Problem 44: Pentagon numbers</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                Louis Tiao
+            </span></p>
+            <p class="dateline"><a href="../posts/project-euler/problem-44-pentagon-numbers/" rel="bookmark"><time class="published dt-published" datetime="2015-04-08T13:54:47+10:00" title="2015-04-08 13:54">2015-04-08 13:54</time></a></p>
+                <p class="commentline">            <a href="../posts/project-euler/problem-44-pentagon-numbers/#disqus_thread" data-disqus-identifier="cache/content/posts/project-euler/problem-44-pentagon-numbers.html">Comments</a>
+
+
+        </p>
+</div>
+    </header><div class="p-summary entry-summary">
+    <div tabindex="-1" id="notebook" class="border-box-sizing">
+    <div class="container" id="notebook-container">
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Pentagonal numbers are generated by the formula, $P_n=\frac{n(3n−1)}{2}$. The first ten pentagonal numbers are:</p>
+<p>1, 5, 12, 22, 35, 51, 70, 92, 117, 145, ...</p>
+<p>It can be seen that $P_4 + P_7 = 22 + 70 = 92 = P_8$. However, their difference, $70 − 22 = 48$, is not pentagonal.</p>
+<p>Find the pair of pentagonal numbers, $P_j$ and $P_k$, for which their sum and difference are pentagonal and $D = |P_k − P_j|$ is minimised; what is the value of $D$?</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [1]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">polygonal</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">s</span> <span class="o">-</span> <span class="mi">2</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">b</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">a</span>
+        <span class="n">b</span> <span class="o">+=</span> <span class="n">c</span>
+        <span class="n">a</span> <span class="o">+=</span> <span class="n">b</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [2]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">sum_diff_polygonal</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="n">seen</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">polygonal</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">i</span> <span class="o">-</span> <span class="n">j</span>
+            <span class="n">q</span> <span class="o">=</span> <span class="n">j</span>
+            <span class="c1"># we already know `p+q=i` is s-gonal </span>
+            <span class="c1"># since `i` must be; just need to check </span>
+            <span class="c1"># that `p` and `p-q` are as well</span>
+            <span class="k">if</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">seen</span> <span class="ow">and</span> <span class="n">p</span><span class="o">-</span><span class="n">q</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">p</span><span class="p">,</span> <span class="n">q</span>    
+        <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [3]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">it</span> <span class="o">=</span> <span class="n">sum_diff_polygonal</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [4]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">next</span><span class="p">(</span><span class="n">it</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[4]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>(7042750, 1560090)</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p class="more"><a href="../posts/project-euler/problem-44-pentagon-numbers/">Read more…</a></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="../posts/project-euler/problem-45-triangular-pentagonal-and-hexagonal/" class="u-url">Project Euler Problem 45: Triangular, pentagonal, and hexagonal</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                Louis Tiao
+            </span></p>
+            <p class="dateline"><a href="../posts/project-euler/problem-45-triangular-pentagonal-and-hexagonal/" rel="bookmark"><time class="published dt-published" datetime="2015-04-06T00:53:16+10:00" title="2015-04-06 00:53">2015-04-06 00:53</time></a></p>
+                <p class="commentline">            <a href="../posts/project-euler/problem-45-triangular-pentagonal-and-hexagonal/#disqus_thread" data-disqus-identifier="cache/content/posts/project-euler/problem-45-triangular-pentagonal-and-hexagonal.html">Comments</a>
+
+
+        </p>
+</div>
+    </header><div class="p-summary entry-summary">
+    <div tabindex="-1" id="notebook" class="border-box-sizing">
+    <div class="container" id="notebook-container">
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Triangle, pentagonal, and hexagonal numbers are generated by the following formulae:</p>
+<p>Triangle</p>
+$$T_n = \frac{n(n+1)}{2} \\ 1, 3, 6, 10, 15, \dotsc$$<p>Pentagonal</p>
+$$P_n = \frac{n(3n−1)}{2} \\ 1, 5, 12, 22, 35, \dotsc$$<p>Hexagonal</p>
+$$H_n = n(2n−1) \\ 1, 6, 15, 28, 45, \dotsc$$<p>It can be verified that $T_{285} = P_{165} = H_{143} = 40755$.</p>
+<p>Find the next triangle number that is also pentagonal and hexagonal.</p>
+<p class="more"><a href="../posts/project-euler/problem-45-triangular-pentagonal-and-hexagonal/">Read more…</a></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+    </div>
+    </article>
+</div>
+        <nav class="postindexpager"><ul class="pager">
+<li class="previous">
+                <a href="index-4.html" rel="prev">Newer posts</a>
+            </li>
+            <li class="next">
+                <a href="index-2.html" rel="next">Older posts</a>
+            </li>
+        </ul></nav><script>var disqus_shortname="ltiao";(function(){var a=document.createElement("script");a.async=true;a.src="https://"+disqus_shortname+".disqus.com/count.js";(document.getElementsByTagName("head")[0]||document.getElementsByTagName("body")[0]).appendChild(a)}());</script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML" integrity="sha256-SDRP1VVYu+tgAGKhddBSl5+ezofHKZeI+OzxakbIe/Y=" crossorigin="anonymous"></script><script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+    },
+    displayAlign: 'center', // Change this to 'left' if you want left-aligned equations.
+    "HTML-CSS": {
+        styles: {'.MathJax_Display': {"margin": 0}}
+    }
+});
+</script>
+</div>
+        <!--End of body content-->
+      </div>
+    </div>
+
+    <footer id="footer" class="footer">
+        
+Contents © 2017
+<a href="mailto:louistiao@me.com">Louis Tiao</a> - Powered by
+<a href="https://getnikola.com" rel="nofollow">Nikola</a>
+
+
+<span class="pull-right">
+
+  <a class="twitter-follow-button" href="https://twitter.com/louistiao" data-show-count="false" data-show-screen-name="false">
+  Follow @louistiao
+  </a>
+
+  <a class="github-button" href="https://github.com/ltiao" aria-label="Follow @ltiao on GitHub" data-show-count="false">
+  Follow @ltiao
+  </a>
+
+  <a href="https://ko-fi.com/A3476EX">
+    <object type="image/svg+xml" style="pointer-events: none;" data="https://img.shields.io/badge/Support--yellow.svg?style=social"></object>
+  </a>
+
+</span>
+
+
+            
+    </footer>
+</div> <!-- /container -->
+
+            <script src="../assets/js/all-nocdn.js"></script><script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script><!-- fancy dates --><script>
+    moment.locale("en");
+    fancydates(0, "YYYY-MM-DD HH:mm");
+    </script><!-- end fancy dates --><!-- Google Analytics --><script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-43722566-1', 'auto');
+  ga('send', 'pageview');
+
+</script><!-- GitHub Buttons --><script async defer src="https://buttons.github.io/buttons.js"></script><!-- Twitter Widgets --><script>window.twttr = (function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0],
+    t = window.twttr || {};
+  if (d.getElementById(id)) return t;
+  js = d.createElement(s);
+  js.id = id;
+  js.src = "https://platform.twitter.com/widgets.js";
+  fjs.parentNode.insertBefore(js, fjs);
+
+  t._e = [];
+  t.ready = function(f) {
+    t._e.push(f);
+  };
+
+  return t;
+}(document, "script", "twitter-wjs"));</script>
+</body>
+</html>

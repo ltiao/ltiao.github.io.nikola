@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html prefix="
+og: http://ogp.me/ns#
+article: http://ogp.me/ns/article#
+" lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="description" content="Computer Science / Math / Software Engineering">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Louis Tiao (old posts, page 5) | Louis Tiao</title>
+<link href="../assets/css/all.css" rel="stylesheet" type="text/css">
+<link href="../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
+<link href="../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
+<link href="../assets/css/override_nikola_ipython.css" rel="stylesheet" type="text/css">
+<meta name="theme-color" content="#5670d4">
+<meta name="generator" content="Nikola (getnikola.com)">
+<link rel="alternate" type="application/rss+xml" title="RSS" href="../rss.xml">
+<link rel="canonical" href="http://louistiao.me/content/index-5.html">
+<link rel="icon" href="../favicon_16x16.ico" sizes="16x16">
+<link rel="icon" href="../favicon_32x32.ico" sizes="32x32">
+<link rel="icon" href="../favicon_256x256.ico" sizes="256x256">
+<link rel="prev" href="." type="text/html">
+<link rel="next" href="index-4.html" type="text/html">
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+    },
+    displayAlign: 'center', // Change this to 'left' if you want left-aligned equations.
+    "HTML-CSS": {
+        styles: {'.MathJax_Display': {"margin": 0}}
+    }
+});
+</script><!--[if lt IE 9]><script src="../assets/js/html5.js"></script><![endif]--><!--
+
+    /\\\\\\\\\\\\\\\  /\\\\\\\\\\\     /\\\\\\\\\          /\\\\\              
+    \///////\\\/////  \/////\\\///    /\\\\\\\\\\\\\      /\\\///\\\           
+           \/\\\           \/\\\      /\\\/////////\\\   /\\\/  \///\\\        
+            \/\\\           \/\\\     \/\\\       \/\\\  /\\\      \//\\\      
+             \/\\\           \/\\\     \/\\\\\\\\\\\\\\\ \/\\\       \/\\\     
+              \/\\\           \/\\\     \/\\\/////////\\\ \//\\\      /\\\     
+               \/\\\           \/\\\     \/\\\       \/\\\  \///\\\  /\\\      
+                \/\\\        /\\\\\\\\\\\ \/\\\       \/\\\    \///\\\\\/      
+                 \///        \///////////  \///        \///       \/////       
+
+-->
+</head>
+<body>
+<a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+  <div class="container">
+    <div class="header clearfix">
+      <nav><ul class="nav nav-pills pull-right">
+<li>
+<a href="../">About</a>
+                </li>
+<li>
+<a href="../projects/">Projects</a>
+                </li>
+<li>
+<a href="../posts/">Posts</a>
+                </li>
+<li>
+<a href="../archive.html">Archive</a>
+
+          
+        </li>
+</ul></nav><a href="http://louistiao.me/">
+
+        <h3 class="text-muted">
+          <span id="blog-title">Louis Tiao</span>
+        </h3>
+      </a>
+    </div>
+
+<!-- TODO Figure out what to do with this stuff -->
+<!--     <div class="row">
+
+      <ul class="nav nav-pills pull-right">
+          
+      </ul>
+    </div> -->
+
+    <div id="content" role="main">
+      <div class="body-content">
+        <!--Body content-->
+        <div class="row">
+          
+    
+    
+<div class="postindex">
+    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="../posts/re-implementing-the-kubernetes-guestbook-example-with-flask-and-nginx/" class="u-url">Re-implementing the Kubernetes Guestbook Example with Flask and NGINX</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                Louis Tiao
+            </span></p>
+            <p class="dateline"><a href="../posts/re-implementing-the-kubernetes-guestbook-example-with-flask-and-nginx/" rel="bookmark"><time class="published dt-published" datetime="2016-05-25T14:10:00+10:00" title="2016-05-25 14:10">2016-05-25 14:10</time></a></p>
+                <p class="commentline">            <a href="../posts/re-implementing-the-kubernetes-guestbook-example-with-flask-and-nginx/#disqus_thread" data-disqus-identifier="cache/content/posts/re-implementing-the-kubernetes-guestbook-example-with-flask-and-nginx.html">Comments</a>
+
+
+        </p>
+</div>
+    </header><div class="p-summary entry-summary">
+    <div>
+<p>The official <a class="reference external" href="http://kubernetes.io/">Kubernetes</a> <a class="reference external" href="http://kubernetes.io/docs/user-guide/walkthrough/">walkthrough guides</a> often points to the <a class="reference external" href="https://github.com/kubernetes/kubernetes/tree/master/examples/guestbook">guestbook
+application</a> as a quintessential example of how a simple, but complete multi-tier
+web application can be deployed with Kubernetes. As described in the <a class="reference external" href="https://github.com/kubernetes/kubernetes/blob/master/examples/guestbook/README.md">README</a>, it
+consists of a web frontend, a redis master (for storage), and a replicated set of
+redis 'slaves'.</p>
+<img alt="//cloud.google.com/container-engine/images/guestbook.png" class="align-center" src="//cloud.google.com/container-engine/images/guestbook.png"><p>This seemed like an ideal starting point for deploying my <a class="reference external" href="http://flask.pocoo.org/">Flask</a> applications
+with a similar stack, and also makes use of redis master/slaves. The difficulty
+I found with readily making use of this example as a starting point is that the
+frontend is implemented in PHP, which is considerably different to modern paradigms
+(Node.js, Flask/Django, Rails, etc.) As described in the README:</p>
+<blockquote>
+A frontend pod is a simple PHP server that is configured to talk to either
+the slave or master services, depending on whether the client request is a
+read or a write. It exposes a simple AJAX interface, and serves an
+Angular-based UX. Again we'll create a set of replicated frontend pods
+instantiated by a Deployment — this time, with three replicas.</blockquote>
+<p>I figured re-implementing the frontend pod in with Flask would require minimal
+changes - the UI would remain mostly the same, and the actual interaction with
+the redis master/slaves is quite trivial.</p>
+<p class="more"><a href="../posts/re-implementing-the-kubernetes-guestbook-example-with-flask-and-nginx/">Read more…</a></p>
+</div>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="../posts/a-better-approach-for-initializing-new-nikola-themes-since-v775/" class="u-url">A Better Approach For Initializing New Nikola Themes (since v7.7.5)</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                Louis Tiao
+            </span></p>
+            <p class="dateline"><a href="../posts/a-better-approach-for-initializing-new-nikola-themes-since-v775/" rel="bookmark"><time class="published dt-published" datetime="2016-05-18T12:20:24+10:00" title="2016-05-18 12:20">2016-05-18 12:20</time></a></p>
+                <p class="commentline">            <a href="../posts/a-better-approach-for-initializing-new-nikola-themes-since-v775/#disqus_thread" data-disqus-identifier="cache/content/posts/a-better-approach-for-initializing-new-nikola-themes-since-v775.html">Comments</a>
+
+
+        </p>
+</div>
+    </header><div class="p-summary entry-summary">
+    <div>
+<p>A few months ago, I wrote a post on <a class="reference external" href="../posts/creating-a-nikola-theme-with-sass-compiled-bootstrap/">Creating a Nikola theme with Sass-compiled Bootstrap</a>.
+Since then, <a class="reference external" href="https://getnikola.com/changes.html#new-in-v7-7-5">Nikola 7.7.5</a> has added several new features which makes it less
+tedious to get started with your custom theme.</p>
+<div class="section" id="initializing-the-theme">
+<h2>Initializing the Theme</h2>
+<p>First, I initialize a theme named <tt class="docutils literal">tiao</tt>, which automatically creates the
+necessary directories and files for me.</p>
+<pre class="code console"><a name="rest_code_53226ba9e55c4dfcaf3bf4e5164025dd-1"></a><span class="gp">$</span> nikola theme --new<span class="o">=</span>tiao --engine<span class="o">=</span>jinja --parent<span class="o">=</span>bootstrap3-jinja
+<a name="rest_code_53226ba9e55c4dfcaf3bf4e5164025dd-2"></a><span class="go">[2016-05-18T02:29:49Z] INFO: theme: Creating theme tiao with parent bootstrap3-jinja and engine jinja in themes/tiao</span>
+<a name="rest_code_53226ba9e55c4dfcaf3bf4e5164025dd-3"></a><span class="go">[2016-05-18T02:29:49Z] INFO: theme: Created directory themes/tiao</span>
+<a name="rest_code_53226ba9e55c4dfcaf3bf4e5164025dd-4"></a><span class="go">[2016-05-18T02:29:49Z] INFO: theme: Created file themes/tiao/parent</span>
+<a name="rest_code_53226ba9e55c4dfcaf3bf4e5164025dd-5"></a><span class="go">[2016-05-18T02:29:49Z] INFO: theme: Created file themes/tiao/engine</span>
+<a name="rest_code_53226ba9e55c4dfcaf3bf4e5164025dd-6"></a><span class="go">[2016-05-18T02:29:49Z] INFO: theme: Theme themes/tiao created successfully.</span>
+<a name="rest_code_53226ba9e55c4dfcaf3bf4e5164025dd-7"></a><span class="go">[2016-05-18T02:29:49Z] NOTICE: theme: Remember to set THEME="tiao" in conf.py to use this theme.</span>
+<a name="rest_code_53226ba9e55c4dfcaf3bf4e5164025dd-8"></a>
+<a name="rest_code_53226ba9e55c4dfcaf3bf4e5164025dd-9"></a><span class="gp">$</span> tree themes/tiao
+<a name="rest_code_53226ba9e55c4dfcaf3bf4e5164025dd-10"></a><span class="go">themes/tiao</span>
+<a name="rest_code_53226ba9e55c4dfcaf3bf4e5164025dd-11"></a><span class="go">├── engine</span>
+<a name="rest_code_53226ba9e55c4dfcaf3bf4e5164025dd-12"></a><span class="go">└── parent</span>
+<a name="rest_code_53226ba9e55c4dfcaf3bf4e5164025dd-13"></a>
+<a name="rest_code_53226ba9e55c4dfcaf3bf4e5164025dd-14"></a><span class="go">0 directories, 2 files</span>
+</pre>
+<p class="more"><a href="../posts/a-better-approach-for-initializing-new-nikola-themes-since-v775/">Read more…</a></p>
+</div>
+</div>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="../posts/quick-reference-deleting-local-and-remote-git-branches/" class="u-url">Quick Reference: Deleting Local and Remote Git Branches</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                Louis Tiao
+            </span></p>
+            <p class="dateline"><a href="../posts/quick-reference-deleting-local-and-remote-git-branches/" rel="bookmark"><time class="published dt-published" datetime="2016-05-11T17:16:05+10:00" title="2016-05-11 17:16">2016-05-11 17:16</time></a></p>
+                <p class="commentline">            <a href="../posts/quick-reference-deleting-local-and-remote-git-branches/#disqus_thread" data-disqus-identifier="cache/content/posts/quick-reference-deleting-local-and-remote-git-branches.html">Comments</a>
+
+
+        </p>
+</div>
+    </header><div class="p-summary entry-summary">
+    <div>
+<p>From <a class="reference external" href="http://stackoverflow.com/questions/2003505/delete-a-git-branch-both-locally-and-remotely">http://stackoverflow.com/questions/2003505/delete-a-git-branch-both-locally-and-remotely</a>:</p>
+<p>Deleting a Local Git Branch:</p>
+<pre class="code console"><a name="rest_code_3579cec1ec3242a4b801e3564801d666-1"></a><span class="gp">$</span> git branch -D &lt;branch-name&gt;
+<a name="rest_code_3579cec1ec3242a4b801e3564801d666-2"></a><span class="go">Deleted branch &lt;branch-name&gt; (was &lt;commit-hash&gt;).</span>
+</pre>
+<p>Deleting a Remote Git Branch (available as of <a class="reference external" href="https://github.com/git/git/blob/c2c5f6b1e479f2c38e0e01345350620944e3527f/Documentation/RelNotes/1.7.0.txt#L154">Git 1.7.0</a>)</p>
+<pre class="code console"><a name="rest_code_d395d8ebbe6541d2914a42df1cf4654c-1"></a><span class="gp">$</span> git push origin --delete &lt;branch-name&gt;
+<a name="rest_code_d395d8ebbe6541d2914a42df1cf4654c-2"></a><span class="go">To &lt;git-remote-origin-url&gt;</span>
+<a name="rest_code_d395d8ebbe6541d2914a42df1cf4654c-3"></a><span class="go"> - [deleted]         &lt;branch-name&gt;</span>
+</pre>
+</div>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="../posts/setting-up-a-ipython-parallel-cluster-on-amazon-ec2-with-starcluster/" class="u-url">Setting up a IPython Parallel Cluster on Amazon EC2 with StarCluster</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                Louis Tiao
+            </span></p>
+            <p class="dateline"><a href="../posts/setting-up-a-ipython-parallel-cluster-on-amazon-ec2-with-starcluster/" rel="bookmark"><time class="published dt-published" datetime="2016-05-03T22:55:55+10:00" title="2016-05-03 22:55">2016-05-03 22:55</time></a></p>
+                <p class="commentline">            <a href="../posts/setting-up-a-ipython-parallel-cluster-on-amazon-ec2-with-starcluster/#disqus_thread" data-disqus-identifier="cache/content/posts/setting-up-a-ipython-parallel-cluster-on-amazon-ec2-with-starcluster.html">Comments</a>
+
+
+        </p>
+</div>
+    </header><div class="p-summary entry-summary">
+    <div>
+<p><a class="reference external" href="http://star.mit.edu/cluster/">StarCluster</a> is an open source cluster-computing toolkit for Amazon’s Elastic
+Compute Cloud (EC2) that is designed to automate and simplify the process of
+building, configuring, and managing clusters of virtual machines on Amazon’s
+EC2 cloud. StarCluster makes it easy to create a cluster computing environment
+in the cloud for distributed and parallel computing applications.</p>
+<p class="more"><a href="../posts/setting-up-a-ipython-parallel-cluster-on-amazon-ec2-with-starcluster/">Read more…</a></p>
+</div>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="../notes/visualizing-and-animating-optimization-algorithms-with-matplotlib/" class="u-url">Visualizing and Animating Optimization Algorithms with Matplotlib</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                Louis Tiao
+            </span></p>
+            <p class="dateline"><a href="../notes/visualizing-and-animating-optimization-algorithms-with-matplotlib/" rel="bookmark"><time class="published dt-published" datetime="2016-04-26T22:13:17+10:00" title="2016-04-26 22:13">2016-04-26 22:13</time></a></p>
+                <p class="commentline">            <a href="../notes/visualizing-and-animating-optimization-algorithms-with-matplotlib/#disqus_thread" data-disqus-identifier="cache/content/notes/notebooks/visualizing-and-animating-optimization-algorithms-with-matplotlib.html">Comments</a>
+
+
+        </p>
+</div>
+    </header><div class="p-summary entry-summary">
+    <div tabindex="-1" id="notebook" class="border-box-sizing">
+    <div class="container" id="notebook-container">
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>In this series of notebooks, we demonstrate some useful patterns and recipes for visualizing animating optimization algorithms using Matplotlib.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [1]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">%</span><span class="k">matplotlib</span> inline
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [2]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">autograd.numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">mpl_toolkits.mplot3d</span> <span class="k">import</span> <span class="n">Axes3D</span>
+<span class="kn">from</span> <span class="nn">matplotlib.colors</span> <span class="k">import</span> <span class="n">LogNorm</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="k">import</span> <span class="n">animation</span>
+<span class="kn">from</span> <span class="nn">IPython.display</span> <span class="k">import</span> <span class="n">HTML</span>
+
+<span class="kn">from</span> <span class="nn">autograd</span> <span class="k">import</span> <span class="n">elementwise_grad</span><span class="p">,</span> <span class="n">value_and_grad</span>
+<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="k">import</span> <span class="n">minimize</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="k">import</span> <span class="n">zip_longest</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="k">import</span> <span class="n">partial</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We shall restrict our attention to 3-dimensional problems for right now (i.e. optimizing over only 2 parameters), though what follows can be extended to higher dimensions by plotting all pairs of parameters against each other, effectively projecting the problem to 3-dimensions.</p>
+<p>The Wikipedia article on <a href="https://en.wikipedia.org/wiki/Test_functions_for_optimization">Test functions for optimization</a> has a few functions that are useful for evaluating optimization algorithms. In particular, we shall look at <strong>Beale's function</strong>:</p>
+$$
+f(x, y) = (1.5 - x + xy)^2 + (2.25 - x + xy^2)^2 + (2.625 - x + xy^3)^2
+$$
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [3]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">f</span>  <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="p">(</span><span class="mf">1.5</span> <span class="o">-</span> <span class="n">x</span> <span class="o">+</span> <span class="n">x</span><span class="o">*</span><span class="n">y</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="mf">2.25</span> <span class="o">-</span> <span class="n">x</span> <span class="o">+</span> <span class="n">x</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="mf">2.625</span> <span class="o">-</span> <span class="n">x</span> <span class="o">+</span> <span class="n">x</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p class="more"><a href="../notes/visualizing-and-animating-optimization-algorithms-with-matplotlib/">Read more…</a></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+    </div>
+    </article>
+</div>
+        <nav class="postindexpager"><ul class="pager">
+<li class="previous">
+                <a href="." rel="prev">Newer posts</a>
+            </li>
+            <li class="next">
+                <a href="index-4.html" rel="next">Older posts</a>
+            </li>
+        </ul></nav><script>var disqus_shortname="ltiao";(function(){var a=document.createElement("script");a.async=true;a.src="https://"+disqus_shortname+".disqus.com/count.js";(document.getElementsByTagName("head")[0]||document.getElementsByTagName("body")[0]).appendChild(a)}());</script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML" integrity="sha256-SDRP1VVYu+tgAGKhddBSl5+ezofHKZeI+OzxakbIe/Y=" crossorigin="anonymous"></script><script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+    },
+    displayAlign: 'center', // Change this to 'left' if you want left-aligned equations.
+    "HTML-CSS": {
+        styles: {'.MathJax_Display': {"margin": 0}}
+    }
+});
+</script>
+</div>
+        <!--End of body content-->
+      </div>
+    </div>
+
+    <footer id="footer" class="footer">
+        
+Contents © 2017
+<a href="mailto:louistiao@me.com">Louis Tiao</a> - Powered by
+<a href="https://getnikola.com" rel="nofollow">Nikola</a>
+
+
+<span class="pull-right">
+
+  <a class="twitter-follow-button" href="https://twitter.com/louistiao" data-show-count="false" data-show-screen-name="false">
+  Follow @louistiao
+  </a>
+
+  <a class="github-button" href="https://github.com/ltiao" aria-label="Follow @ltiao on GitHub" data-show-count="false">
+  Follow @ltiao
+  </a>
+
+  <a href="https://ko-fi.com/A3476EX">
+    <object type="image/svg+xml" style="pointer-events: none;" data="https://img.shields.io/badge/Support--yellow.svg?style=social"></object>
+  </a>
+
+</span>
+
+
+            
+    </footer>
+</div> <!-- /container -->
+
+            <script src="../assets/js/all-nocdn.js"></script><script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script><!-- fancy dates --><script>
+    moment.locale("en");
+    fancydates(0, "YYYY-MM-DD HH:mm");
+    </script><!-- end fancy dates --><!-- Google Analytics --><script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-43722566-1', 'auto');
+  ga('send', 'pageview');
+
+</script><!-- GitHub Buttons --><script async defer src="https://buttons.github.io/buttons.js"></script><!-- Twitter Widgets --><script>window.twttr = (function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0],
+    t = window.twttr || {};
+  if (d.getElementById(id)) return t;
+  js = d.createElement(s);
+  js.id = id;
+  js.src = "https://platform.twitter.com/widgets.js";
+  fjs.parentNode.insertBefore(js, fjs);
+
+  t._e = [];
+  t.ready = function(f) {
+    t._e.push(f);
+  };
+
+  return t;
+}(document, "script", "twitter-wjs"));</script>
+</body>
+</html>

@@ -111,7 +111,7 @@ resources on functional programming in Python and this p">
                     Louis Tiao
             </span></p>
             <p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2016-02-08T14:42:56+11:00" itemprop="datePublished" title="2016-02-08 14:42">2016-02-08 14:42</time></a></p>
-                <p class="commentline">            <a href="#disqus_thread" data-disqus-identifier="cache/posts/adding-__name__-and-__doc__-attributes-to-functoolspartial-objects.html">Comments</a>
+                <p class="commentline">            <a href="#disqus_thread" data-disqus-identifier="cache/content/posts/adding-__name__-and-__doc__-attributes-to-functoolspartial-objects.html">Comments</a>
 
 
                     </p>
@@ -129,62 +129,62 @@ degree of proficiency with both.</p>
 <div class="section" id="the-problem">
 <h2>The Problem</h2>
 <p>Consider the sum squared residuals function defined below:</p>
-<pre class="code python"><a name="rest_code_7b04c35a7fcc4ad0b725a1a0dc00b4d4-1"></a><span class="k">def</span> <span class="nf">sse</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">):</span>
-<a name="rest_code_7b04c35a7fcc4ad0b725a1a0dc00b4d4-2"></a>    <span class="sd">"""Sum squared error function"""</span>
-<a name="rest_code_7b04c35a7fcc4ad0b725a1a0dc00b4d4-3"></a>    <span class="n">z</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="o">-</span> <span class="n">y</span>
-<a name="rest_code_7b04c35a7fcc4ad0b725a1a0dc00b4d4-4"></a>    <span class="k">return</span> <span class="o">.</span><span class="mi">5</span> <span class="o">*</span> <span class="n">z</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+<pre class="code python"><a name="rest_code_0d923f96f1624cdeb90f689953fa5ad6-1"></a><span class="k">def</span> <span class="nf">sse</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">):</span>
+<a name="rest_code_0d923f96f1624cdeb90f689953fa5ad6-2"></a>    <span class="sd">"""Sum squared error function"""</span>
+<a name="rest_code_0d923f96f1624cdeb90f689953fa5ad6-3"></a>    <span class="n">z</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="o">-</span> <span class="n">y</span>
+<a name="rest_code_0d923f96f1624cdeb90f689953fa5ad6-4"></a>    <span class="k">return</span> <span class="o">.</span><span class="mi">5</span> <span class="o">*</span> <span class="n">z</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
 </pre>
 <p>In actual regression problems, we would minimize with respect to weights <tt class="docutils literal">w</tt>
 and keep <tt class="docutils literal">X</tt> and <tt class="docutils literal">y</tt> fixed. For example, consider the following synthetic
 regression problem:</p>
-<pre class="code pycon"><a name="rest_code_826a3403df5d4f7db62e70077896da0a-1"></a><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-<a name="rest_code_826a3403df5d4f7db62e70077896da0a-2"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">:</span> <span class="mf">2.</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="o">.</span><span class="mi">5</span><span class="o">*</span><span class="n">y</span> <span class="o">-</span> <span class="mf">1.2</span><span class="o">*</span><span class="n">z</span> <span class="c1"># true weights [2., .5, -1.2]</span>
-<a name="rest_code_826a3403df5d4f7db62e70077896da0a-3"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="c1"># 10 samples, 3 features</span>
-<a name="rest_code_826a3403df5d4f7db62e70077896da0a-4"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">X</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">+</span> <span class="o">.</span><span class="mi">25</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="c1"># Gaussian noise, scale 0.25</span>
-<a name="rest_code_826a3403df5d4f7db62e70077896da0a-5"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">sse</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span> <span class="c1"># try weights [1., 1., 1.]</span>
-<a name="rest_code_826a3403df5d4f7db62e70077896da0a-6"></a><span class="go">12.013621162428603</span>
+<pre class="code pycon"><a name="rest_code_da2657b6f2674288b029159e1c3e01ef-1"></a><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<a name="rest_code_da2657b6f2674288b029159e1c3e01ef-2"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">:</span> <span class="mf">2.</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="o">.</span><span class="mi">5</span><span class="o">*</span><span class="n">y</span> <span class="o">-</span> <span class="mf">1.2</span><span class="o">*</span><span class="n">z</span> <span class="c1"># true weights [2., .5, -1.2]</span>
+<a name="rest_code_da2657b6f2674288b029159e1c3e01ef-3"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="c1"># 10 samples, 3 features</span>
+<a name="rest_code_da2657b6f2674288b029159e1c3e01ef-4"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">X</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">+</span> <span class="o">.</span><span class="mi">25</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="c1"># Gaussian noise, scale 0.25</span>
+<a name="rest_code_da2657b6f2674288b029159e1c3e01ef-5"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">sse</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span> <span class="c1"># try weights [1., 1., 1.]</span>
+<a name="rest_code_da2657b6f2674288b029159e1c3e01ef-6"></a><span class="go">12.013621162428603</span>
 </pre>
 <p>We could partially apply <tt class="docutils literal">X</tt> and <tt class="docutils literal">y</tt> to the function <tt class="docutils literal">sse</tt>, and obtain
 a function of only the weights <tt class="docutils literal">w</tt>, and pass that to an optimizer, for example.</p>
-<pre class="code pycon"><a name="rest_code_0a9574bfc048475ab0987e31753e680a-1"></a><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
-<a name="rest_code_0a9574bfc048475ab0987e31753e680a-2"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">sse_w</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">sse</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-<a name="rest_code_0a9574bfc048475ab0987e31753e680a-3"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">sse_w</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span> <span class="c1"># try weights [1., 1., 1.]</span>
-<a name="rest_code_0a9574bfc048475ab0987e31753e680a-4"></a><span class="go">12.013621162428603</span>
+<pre class="code pycon"><a name="rest_code_87dd06612f96478390f774f316455c19-1"></a><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+<a name="rest_code_87dd06612f96478390f774f316455c19-2"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">sse_w</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">sse</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<a name="rest_code_87dd06612f96478390f774f316455c19-3"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">sse_w</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span> <span class="c1"># try weights [1., 1., 1.]</span>
+<a name="rest_code_87dd06612f96478390f774f316455c19-4"></a><span class="go">12.013621162428603</span>
 </pre>
 <p>Now <tt class="docutils literal">sse_w</tt> is a <a class="reference external" href="https://docs.python.org/2/library/functools.html#partial-objects">partial object</a> which is <em>callable</em> and takes a single
 weights parameter. The only potential issue is that the <tt class="docutils literal">__name__</tt> and
 <tt class="docutils literal">__doc__</tt> attributes are not created automatically, i.e. for function <tt class="docutils literal">sse</tt>
 defined earlier, we have</p>
-<pre class="code pycon"><a name="rest_code_3f24c8f3922a4d9ab459ade3f9ecf9ab-1"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">sse</span><span class="o">.</span><span class="vm">__name__</span>
-<a name="rest_code_3f24c8f3922a4d9ab459ade3f9ecf9ab-2"></a><span class="go">'sse'</span>
-<a name="rest_code_3f24c8f3922a4d9ab459ade3f9ecf9ab-3"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">sse</span><span class="o">.</span><span class="vm">__doc__</span>
-<a name="rest_code_3f24c8f3922a4d9ab459ade3f9ecf9ab-4"></a><span class="go">'Sum squared error function'</span>
+<pre class="code pycon"><a name="rest_code_e1720fe32d034652af674a18e6f9f581-1"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">sse</span><span class="o">.</span><span class="vm">__name__</span>
+<a name="rest_code_e1720fe32d034652af674a18e6f9f581-2"></a><span class="go">'sse'</span>
+<a name="rest_code_e1720fe32d034652af674a18e6f9f581-3"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">sse</span><span class="o">.</span><span class="vm">__doc__</span>
+<a name="rest_code_e1720fe32d034652af674a18e6f9f581-4"></a><span class="go">'Sum squared error function'</span>
 </pre>
 <p>whereas for the partially applied function <tt class="docutils literal">sse_w</tt>, we get</p>
-<pre class="code pycon"><a name="rest_code_99ea5f7e54fe464bbbc74cf9c5ddaf94-1"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">sse_w</span><span class="o">.</span><span class="vm">__name__</span>
-<a name="rest_code_99ea5f7e54fe464bbbc74cf9c5ddaf94-2"></a><span class="gt">Traceback (most recent call last):</span>
-<a name="rest_code_99ea5f7e54fe464bbbc74cf9c5ddaf94-3"></a>  File <span class="nb">"&lt;stdin&gt;"</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-<a name="rest_code_99ea5f7e54fe464bbbc74cf9c5ddaf94-4"></a><span class="gr">AttributeError</span>: <span class="n">'functools.partial' object has no attribute '__name__'</span>
-<a name="rest_code_99ea5f7e54fe464bbbc74cf9c5ddaf94-5"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">sse_w</span><span class="o">.</span><span class="vm">__doc__</span>
-<a name="rest_code_99ea5f7e54fe464bbbc74cf9c5ddaf94-6"></a><span class="go">'partial(func, *args, **keywords) - new function with partial application\n    of the given arguments and keywords.\n'</span>
+<pre class="code pycon"><a name="rest_code_72c83a32f941445982eb2d199327eb7b-1"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">sse_w</span><span class="o">.</span><span class="vm">__name__</span>
+<a name="rest_code_72c83a32f941445982eb2d199327eb7b-2"></a><span class="gt">Traceback (most recent call last):</span>
+<a name="rest_code_72c83a32f941445982eb2d199327eb7b-3"></a>  File <span class="nb">"&lt;stdin&gt;"</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<a name="rest_code_72c83a32f941445982eb2d199327eb7b-4"></a><span class="gr">AttributeError</span>: <span class="n">'functools.partial' object has no attribute '__name__'</span>
+<a name="rest_code_72c83a32f941445982eb2d199327eb7b-5"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">sse_w</span><span class="o">.</span><span class="vm">__doc__</span>
+<a name="rest_code_72c83a32f941445982eb2d199327eb7b-6"></a><span class="go">'partial(func, *args, **keywords) - new function with partial application\n    of the given arguments and keywords.\n'</span>
 </pre>
 <p>If we don't intend on using <tt class="docutils literal">sse</tt> by itself later down the track, and don't
 need to do anything special with the <tt class="docutils literal">__name__</tt> and <tt class="docutils literal">__doc__</tt> of the
 partially applied version, we can simply propagate these properties from the
 original, using the <a class="reference external" href="https://docs.python.org/2/library/functools.html#functools.update_wrapper">update_wrapper</a> function.</p>
-<pre class="code python"><a name="rest_code_39d6c6d20a934214bc1bd46b0a43fb06-1"></a><span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span><span class="p">,</span> <span class="n">update_wrapper</span>
-<a name="rest_code_39d6c6d20a934214bc1bd46b0a43fb06-2"></a>
-<a name="rest_code_39d6c6d20a934214bc1bd46b0a43fb06-3"></a><span class="k">def</span> <span class="nf">wrapped_partial</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<a name="rest_code_39d6c6d20a934214bc1bd46b0a43fb06-4"></a>    <span class="n">partial_func</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-<a name="rest_code_39d6c6d20a934214bc1bd46b0a43fb06-5"></a>    <span class="n">update_wrapper</span><span class="p">(</span><span class="n">partial_func</span><span class="p">,</span> <span class="n">func</span><span class="p">)</span>
-<a name="rest_code_39d6c6d20a934214bc1bd46b0a43fb06-6"></a>    <span class="k">return</span> <span class="n">partial_func</span>
+<pre class="code python"><a name="rest_code_d95c64758c6e43968024617f29967c14-1"></a><span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span><span class="p">,</span> <span class="n">update_wrapper</span>
+<a name="rest_code_d95c64758c6e43968024617f29967c14-2"></a>
+<a name="rest_code_d95c64758c6e43968024617f29967c14-3"></a><span class="k">def</span> <span class="nf">wrapped_partial</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<a name="rest_code_d95c64758c6e43968024617f29967c14-4"></a>    <span class="n">partial_func</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<a name="rest_code_d95c64758c6e43968024617f29967c14-5"></a>    <span class="n">update_wrapper</span><span class="p">(</span><span class="n">partial_func</span><span class="p">,</span> <span class="n">func</span><span class="p">)</span>
+<a name="rest_code_d95c64758c6e43968024617f29967c14-6"></a>    <span class="k">return</span> <span class="n">partial_func</span>
 </pre>
 <p>Now we get</p>
-<pre class="code pycon"><a name="rest_code_50761f9ec7584542b53a97490ded268a-1"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">sse_w</span> <span class="o">=</span> <span class="n">wrapped_partial</span><span class="p">(</span><span class="n">sse</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-<a name="rest_code_50761f9ec7584542b53a97490ded268a-2"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">sse_w</span><span class="o">.</span><span class="vm">__name__</span>
-<a name="rest_code_50761f9ec7584542b53a97490ded268a-3"></a><span class="go">'sse'</span>
-<a name="rest_code_50761f9ec7584542b53a97490ded268a-4"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">sse_w</span><span class="o">.</span><span class="vm">__doc__</span>
-<a name="rest_code_50761f9ec7584542b53a97490ded268a-5"></a><span class="go">'Sum squared error function'</span>
+<pre class="code pycon"><a name="rest_code_a7fc0898a57b48e09dfc30dc439f7033-1"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">sse_w</span> <span class="o">=</span> <span class="n">wrapped_partial</span><span class="p">(</span><span class="n">sse</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<a name="rest_code_a7fc0898a57b48e09dfc30dc439f7033-2"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">sse_w</span><span class="o">.</span><span class="vm">__name__</span>
+<a name="rest_code_a7fc0898a57b48e09dfc30dc439f7033-3"></a><span class="go">'sse'</span>
+<a name="rest_code_a7fc0898a57b48e09dfc30dc439f7033-4"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">sse_w</span><span class="o">.</span><span class="vm">__doc__</span>
+<a name="rest_code_a7fc0898a57b48e09dfc30dc439f7033-5"></a><span class="go">'Sum squared error function'</span>
 </pre>
 <p>so that the partially applied function looks more like the original function,
 since it has the metadata of the original, rather than the metadata of
@@ -198,43 +198,43 @@ with libraries with interfaces that require it. For example, consider
 differentiation.</p>
 <p>We differentiate the <tt class="docutils literal">sse</tt> function with respect to the weights, the 2nd
 parameter (counting from 0), and get:</p>
-<pre class="code pycon"><a name="rest_code_14291e71a1bd48ec9d0cc32e75e77f49-1"></a><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">autograd</span> <span class="kn">import</span> <span class="n">grad</span>
-<a name="rest_code_14291e71a1bd48ec9d0cc32e75e77f49-2"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">grad</span><span class="p">(</span><span class="n">sse</span><span class="p">,</span> <span class="n">argnum</span><span class="o">=</span><span class="mi">2</span><span class="p">)(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
-<a name="rest_code_14291e71a1bd48ec9d0cc32e75e77f49-3"></a><span class="go">array([-3.83312179,  9.40730972,  7.11817447])</span>
+<pre class="code pycon"><a name="rest_code_3b23f67a351c46e38a68ff7937864fe7-1"></a><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">autograd</span> <span class="kn">import</span> <span class="n">grad</span>
+<a name="rest_code_3b23f67a351c46e38a68ff7937864fe7-2"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">grad</span><span class="p">(</span><span class="n">sse</span><span class="p">,</span> <span class="n">argnum</span><span class="o">=</span><span class="mi">2</span><span class="p">)(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+<a name="rest_code_3b23f67a351c46e38a68ff7937864fe7-3"></a><span class="go">array([-3.83312179,  9.40730972,  7.11817447])</span>
 </pre>
 <p>Note that we cannot differentiate <tt class="docutils literal">partial(sse, X, y)</tt> but can differentiate
 <tt class="docutils literal">wrapped_partial(sse, X, y)</tt> with no problem:</p>
-<pre class="code pycon"><a name="rest_code_eb3264566c1947fcbaad1f2648f8e50a-1"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">grad</span><span class="p">(</span><span class="n">partial</span><span class="p">(</span><span class="n">sse</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">))(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
-<a name="rest_code_eb3264566c1947fcbaad1f2648f8e50a-2"></a><span class="gt">Traceback (most recent call last):</span>
-<a name="rest_code_eb3264566c1947fcbaad1f2648f8e50a-3"></a>    <span class="o">...</span>
-<a name="rest_code_eb3264566c1947fcbaad1f2648f8e50a-4"></a><span class="gr">AttributeError</span>: <span class="n">'functools.partial' object has no attribute '__name__'</span>
-<a name="rest_code_eb3264566c1947fcbaad1f2648f8e50a-5"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">grad</span><span class="p">(</span><span class="n">wrapped_partial</span><span class="p">(</span><span class="n">sse</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">))(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
-<a name="rest_code_eb3264566c1947fcbaad1f2648f8e50a-6"></a><span class="go">array([-3.83312179,  9.40730972,  7.11817447])</span>
+<pre class="code pycon"><a name="rest_code_6406f0fa77a14c21ab4c20b22391b48f-1"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">grad</span><span class="p">(</span><span class="n">partial</span><span class="p">(</span><span class="n">sse</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">))(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+<a name="rest_code_6406f0fa77a14c21ab4c20b22391b48f-2"></a><span class="gt">Traceback (most recent call last):</span>
+<a name="rest_code_6406f0fa77a14c21ab4c20b22391b48f-3"></a>    <span class="o">...</span>
+<a name="rest_code_6406f0fa77a14c21ab4c20b22391b48f-4"></a><span class="gr">AttributeError</span>: <span class="n">'functools.partial' object has no attribute '__name__'</span>
+<a name="rest_code_6406f0fa77a14c21ab4c20b22391b48f-5"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">grad</span><span class="p">(</span><span class="n">wrapped_partial</span><span class="p">(</span><span class="n">sse</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">))(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+<a name="rest_code_6406f0fa77a14c21ab4c20b22391b48f-6"></a><span class="go">array([-3.83312179,  9.40730972,  7.11817447])</span>
 </pre>
 <p>In this case, <tt class="docutils literal">autograd</tt> obviously makes use of the <tt class="docutils literal">__name__</tt> attribute of
 a given function to attach a name and docstring of its own:</p>
-<pre class="code pycon"><a name="rest_code_57163cf57b1445768eeb5f76d64fe3e7-1"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">grad</span><span class="p">(</span><span class="n">sse</span><span class="p">,</span> <span class="n">argnum</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span>
-<a name="rest_code_57163cf57b1445768eeb5f76d64fe3e7-2"></a><span class="go">'gradient_sse_wrt_argnum_2'</span>
-<a name="rest_code_57163cf57b1445768eeb5f76d64fe3e7-3"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">grad</span><span class="p">(</span><span class="n">wrapped_partial</span><span class="p">(</span><span class="n">sse</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span><span class="o">.</span><span class="vm">__name__</span>
-<a name="rest_code_57163cf57b1445768eeb5f76d64fe3e7-4"></a><span class="go">'gradient_sse_wrt_argnum_0'</span>
-<a name="rest_code_57163cf57b1445768eeb5f76d64fe3e7-5"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">grad</span><span class="p">(</span><span class="n">sse</span><span class="p">,</span> <span class="n">argnum</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="vm">__doc__</span>
-<a name="rest_code_57163cf57b1445768eeb5f76d64fe3e7-6"></a><span class="go">'Gradient of function sse with respect to argument number 2. Has the same arguments as sse but the return value has type ofargument 2'</span>
-<a name="rest_code_57163cf57b1445768eeb5f76d64fe3e7-7"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">grad</span><span class="p">(</span><span class="n">wrapped_partial</span><span class="p">(</span><span class="n">sse</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span><span class="o">.</span><span class="vm">__doc__</span>
-<a name="rest_code_57163cf57b1445768eeb5f76d64fe3e7-8"></a><span class="go">'Gradient of function sse with respect to argument number 0. Has the same arguments as sse but the return value has type ofargument 0'</span>
+<pre class="code pycon"><a name="rest_code_e0738b106bc74f80809beb9ef9c65cf4-1"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">grad</span><span class="p">(</span><span class="n">sse</span><span class="p">,</span> <span class="n">argnum</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span>
+<a name="rest_code_e0738b106bc74f80809beb9ef9c65cf4-2"></a><span class="go">'gradient_sse_wrt_argnum_2'</span>
+<a name="rest_code_e0738b106bc74f80809beb9ef9c65cf4-3"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">grad</span><span class="p">(</span><span class="n">wrapped_partial</span><span class="p">(</span><span class="n">sse</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span><span class="o">.</span><span class="vm">__name__</span>
+<a name="rest_code_e0738b106bc74f80809beb9ef9c65cf4-4"></a><span class="go">'gradient_sse_wrt_argnum_0'</span>
+<a name="rest_code_e0738b106bc74f80809beb9ef9c65cf4-5"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">grad</span><span class="p">(</span><span class="n">sse</span><span class="p">,</span> <span class="n">argnum</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="vm">__doc__</span>
+<a name="rest_code_e0738b106bc74f80809beb9ef9c65cf4-6"></a><span class="go">'Gradient of function sse with respect to argument number 2. Has the same arguments as sse but the return value has type ofargument 2'</span>
+<a name="rest_code_e0738b106bc74f80809beb9ef9c65cf4-7"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">grad</span><span class="p">(</span><span class="n">wrapped_partial</span><span class="p">(</span><span class="n">sse</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span><span class="o">.</span><span class="vm">__doc__</span>
+<a name="rest_code_e0738b106bc74f80809beb9ef9c65cf4-8"></a><span class="go">'Gradient of function sse with respect to argument number 0. Has the same arguments as sse but the return value has type ofargument 0'</span>
 </pre>
 <p>Finally, we can use a gradient-based optimization method to minimize the <tt class="docutils literal">sse</tt>
 with respect to weights <tt class="docutils literal">w</tt>. We use the <cite>L-BFGS-B</cite> method from <tt class="docutils literal">scipy.optimize</tt>
 with <tt class="docutils literal">w = [1., 1., 1.]</tt> as the starting point. We get:</p>
-<pre class="code pycon"><a name="rest_code_bef123e401b84e9c804d543f71432cf3-1"></a><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">minimize</span>
-<a name="rest_code_bef123e401b84e9c804d543f71432cf3-2"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">res</span> <span class="o">=</span> <span class="n">minimize</span><span class="p">(</span><span class="n">sse_w</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="n">method</span><span class="o">=</span><span class="s1">'L-BFGS-B'</span><span class="p">,</span> <span class="n">jac</span><span class="o">=</span><span class="n">grad</span><span class="p">(</span><span class="n">sse_w</span><span class="p">))</span>
-<a name="rest_code_bef123e401b84e9c804d543f71432cf3-3"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">res</span><span class="o">.</span><span class="n">success</span>
-<a name="rest_code_bef123e401b84e9c804d543f71432cf3-4"></a><span class="go">True</span>
-<a name="rest_code_bef123e401b84e9c804d543f71432cf3-5"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">res</span><span class="o">.</span><span class="n">nit</span>
-<a name="rest_code_bef123e401b84e9c804d543f71432cf3-6"></a><span class="go">7</span>
-<a name="rest_code_bef123e401b84e9c804d543f71432cf3-7"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">res</span><span class="o">.</span><span class="n">fun</span>
-<a name="rest_code_bef123e401b84e9c804d543f71432cf3-8"></a><span class="go">0.20607947299232429</span>
-<a name="rest_code_bef123e401b84e9c804d543f71432cf3-9"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">res</span><span class="o">.</span><span class="n">x</span>
-<a name="rest_code_bef123e401b84e9c804d543f71432cf3-10"></a><span class="go">array([ 2.10921327,  0.37558212, -1.20400518])</span>
+<pre class="code pycon"><a name="rest_code_a4631290f1a748459b29af586afda914-1"></a><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">minimize</span>
+<a name="rest_code_a4631290f1a748459b29af586afda914-2"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">res</span> <span class="o">=</span> <span class="n">minimize</span><span class="p">(</span><span class="n">sse_w</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="n">method</span><span class="o">=</span><span class="s1">'L-BFGS-B'</span><span class="p">,</span> <span class="n">jac</span><span class="o">=</span><span class="n">grad</span><span class="p">(</span><span class="n">sse_w</span><span class="p">))</span>
+<a name="rest_code_a4631290f1a748459b29af586afda914-3"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">res</span><span class="o">.</span><span class="n">success</span>
+<a name="rest_code_a4631290f1a748459b29af586afda914-4"></a><span class="go">True</span>
+<a name="rest_code_a4631290f1a748459b29af586afda914-5"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">res</span><span class="o">.</span><span class="n">nit</span>
+<a name="rest_code_a4631290f1a748459b29af586afda914-6"></a><span class="go">7</span>
+<a name="rest_code_a4631290f1a748459b29af586afda914-7"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">res</span><span class="o">.</span><span class="n">fun</span>
+<a name="rest_code_a4631290f1a748459b29af586afda914-8"></a><span class="go">0.20607947299232429</span>
+<a name="rest_code_a4631290f1a748459b29af586afda914-9"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">res</span><span class="o">.</span><span class="n">x</span>
+<a name="rest_code_a4631290f1a748459b29af586afda914-10"></a><span class="go">array([ 2.10921327,  0.37558212, -1.20400518])</span>
 </pre>
 <p>We see that the optimization converged successfully in 7 iterations to
 <tt class="docutils literal">[ 2.10921327,  0.37558212, <span class="pre">-1.20400518]</span></tt>, which is close to the true weights
@@ -278,7 +278,7 @@ original function.</p>
         var disqus_shortname ="ltiao",
             disqus_url="http://louistiao.me/posts/adding-__name__-and-__doc__-attributes-to-functoolspartial-objects/",
         disqus_title="Adding __name__ and __doc__ attributes to functools.partial objects",
-        disqus_identifier="cache/posts/adding-__name__-and-__doc__-attributes-to-functoolspartial-objects.html",
+        disqus_identifier="cache/content/posts/adding-__name__-and-__doc__-attributes-to-functoolspartial-objects.html",
         disqus_config = function () {
             this.language = "en";
         };

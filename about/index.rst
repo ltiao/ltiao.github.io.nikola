@@ -14,8 +14,8 @@
 Hi. My name is Louis. I am a PhD student in machine learning at the `University
 of Sydney`_. I am advised by Assoc. Prof. `Fabio Ramos`_, jointly with Dr. 
 `Edwin Bonilla`_ at UNSW and Adj. Prof. `Richard Nock`_ at ANU/Data61. My main 
-research interests lie at the intersection of Bayesian statistics, deep learning, 
-generative models.
+research interests lie at the intersection of Bayesian statistics, deep learning
+and generative models.
 
 Previously, I studied computer science at the `University of New South Wales`_ 
 (UNSW), where I minored in mathematics and had an emphasis on algorithm design 

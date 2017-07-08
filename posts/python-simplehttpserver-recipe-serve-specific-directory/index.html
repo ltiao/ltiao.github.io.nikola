@@ -107,7 +107,7 @@ Note however that HandlerClass is passed as ">
                     Louis Tiao
             </span></p>
             <p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2015-12-10T17:38:27+11:00" itemprop="datePublished" title="2015-12-10 17:38">2015-12-10 17:38</time></a></p>
-                <p class="commentline">            <a href="#disqus_thread" data-disqus-identifier="cache/posts/python-simplehttpserver-recipe-serve-specific-directory.html">Comments</a>
+                <p class="commentline">            <a href="#disqus_thread" data-disqus-identifier="cache/content/posts/python-simplehttpserver-recipe-serve-specific-directory.html">Comments</a>
 
 
                     </p>
@@ -130,61 +130,61 @@ We just have to instead prepend the  argument we propagated to
 <li>Lastly we modify the <tt class="docutils literal">test</tt> function to take multiple optional arguments
 (port and base path) using the excellent module <tt class="docutils literal">argparse</tt>.</li>
 </ul>
-<!-- TEASER_END --><pre class="code python"><a name="rest_code_da0c1bb627f54741b4c69ffa30fd05bd-1"></a><span class="ch">#! /usr/bin/env python</span>
-<a name="rest_code_da0c1bb627f54741b4c69ffa30fd05bd-2"></a>
-<a name="rest_code_da0c1bb627f54741b4c69ffa30fd05bd-3"></a><span class="kn">import</span> <span class="nn">posixpath</span>
-<a name="rest_code_da0c1bb627f54741b4c69ffa30fd05bd-4"></a><span class="kn">import</span> <span class="nn">argparse</span>
-<a name="rest_code_da0c1bb627f54741b4c69ffa30fd05bd-5"></a><span class="kn">import</span> <span class="nn">urllib</span>
-<a name="rest_code_da0c1bb627f54741b4c69ffa30fd05bd-6"></a><span class="kn">import</span> <span class="nn">os</span>
-<a name="rest_code_da0c1bb627f54741b4c69ffa30fd05bd-7"></a>
-<a name="rest_code_da0c1bb627f54741b4c69ffa30fd05bd-8"></a><span class="kn">from</span> <span class="nn">SimpleHTTPServer</span> <span class="kn">import</span> <span class="n">SimpleHTTPRequestHandler</span>
-<a name="rest_code_da0c1bb627f54741b4c69ffa30fd05bd-9"></a><span class="kn">from</span> <span class="nn">BaseHTTPServer</span> <span class="kn">import</span> <span class="n">HTTPServer</span>
-<a name="rest_code_da0c1bb627f54741b4c69ffa30fd05bd-10"></a>
-<a name="rest_code_da0c1bb627f54741b4c69ffa30fd05bd-11"></a>
-<a name="rest_code_da0c1bb627f54741b4c69ffa30fd05bd-12"></a><span class="k">class</span> <span class="nc">RootedHTTPServer</span><span class="p">(</span><span class="n">HTTPServer</span><span class="p">):</span>
-<a name="rest_code_da0c1bb627f54741b4c69ffa30fd05bd-13"></a>
-<a name="rest_code_da0c1bb627f54741b4c69ffa30fd05bd-14"></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_path</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<a name="rest_code_da0c1bb627f54741b4c69ffa30fd05bd-15"></a>        <span class="n">HTTPServer</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-<a name="rest_code_da0c1bb627f54741b4c69ffa30fd05bd-16"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">RequestHandlerClass</span><span class="o">.</span><span class="n">base_path</span> <span class="o">=</span> <span class="n">base_path</span>
-<a name="rest_code_da0c1bb627f54741b4c69ffa30fd05bd-17"></a>
-<a name="rest_code_da0c1bb627f54741b4c69ffa30fd05bd-18"></a>
-<a name="rest_code_da0c1bb627f54741b4c69ffa30fd05bd-19"></a><span class="k">class</span> <span class="nc">RootedHTTPRequestHandler</span><span class="p">(</span><span class="n">SimpleHTTPRequestHandler</span><span class="p">):</span>
-<a name="rest_code_da0c1bb627f54741b4c69ffa30fd05bd-20"></a>
-<a name="rest_code_da0c1bb627f54741b4c69ffa30fd05bd-21"></a>    <span class="k">def</span> <span class="nf">translate_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
-<a name="rest_code_da0c1bb627f54741b4c69ffa30fd05bd-22"></a>        <span class="n">path</span> <span class="o">=</span> <span class="n">posixpath</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">urllib</span><span class="o">.</span><span class="n">unquote</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
-<a name="rest_code_da0c1bb627f54741b4c69ffa30fd05bd-23"></a>        <span class="n">words</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'/'</span><span class="p">)</span>
-<a name="rest_code_da0c1bb627f54741b4c69ffa30fd05bd-24"></a>        <span class="n">words</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="n">words</span><span class="p">)</span>
-<a name="rest_code_da0c1bb627f54741b4c69ffa30fd05bd-25"></a>        <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_path</span>
-<a name="rest_code_da0c1bb627f54741b4c69ffa30fd05bd-26"></a>        <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">words</span><span class="p">:</span>
-<a name="rest_code_da0c1bb627f54741b4c69ffa30fd05bd-27"></a>            <span class="n">drive</span><span class="p">,</span> <span class="n">word</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitdrive</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
-<a name="rest_code_da0c1bb627f54741b4c69ffa30fd05bd-28"></a>            <span class="n">head</span><span class="p">,</span> <span class="n">word</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
-<a name="rest_code_da0c1bb627f54741b4c69ffa30fd05bd-29"></a>            <span class="k">if</span> <span class="n">word</span> <span class="ow">in</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">curdir</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">pardir</span><span class="p">):</span>
-<a name="rest_code_da0c1bb627f54741b4c69ffa30fd05bd-30"></a>                <span class="k">continue</span>
-<a name="rest_code_da0c1bb627f54741b4c69ffa30fd05bd-31"></a>            <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">word</span><span class="p">)</span>
-<a name="rest_code_da0c1bb627f54741b4c69ffa30fd05bd-32"></a>        <span class="k">return</span> <span class="n">path</span>
-<a name="rest_code_da0c1bb627f54741b4c69ffa30fd05bd-33"></a>
-<a name="rest_code_da0c1bb627f54741b4c69ffa30fd05bd-34"></a>
-<a name="rest_code_da0c1bb627f54741b4c69ffa30fd05bd-35"></a><span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="n">HandlerClass</span><span class="o">=</span><span class="n">RootedHTTPRequestHandler</span><span class="p">,</span> <span class="n">ServerClass</span><span class="o">=</span><span class="n">RootedHTTPServer</span><span class="p">):</span>
-<a name="rest_code_da0c1bb627f54741b4c69ffa30fd05bd-36"></a>
-<a name="rest_code_da0c1bb627f54741b4c69ffa30fd05bd-37"></a>    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
-<a name="rest_code_da0c1bb627f54741b4c69ffa30fd05bd-38"></a>    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">'--port'</span><span class="p">,</span> <span class="s1">'-p'</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">8000</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
-<a name="rest_code_da0c1bb627f54741b4c69ffa30fd05bd-39"></a>    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">'--dir'</span><span class="p">,</span> <span class="s1">'-d'</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span>
-<a name="rest_code_da0c1bb627f54741b4c69ffa30fd05bd-40"></a>    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
-<a name="rest_code_da0c1bb627f54741b4c69ffa30fd05bd-41"></a>
-<a name="rest_code_da0c1bb627f54741b4c69ffa30fd05bd-42"></a>    <span class="n">server_address</span> <span class="o">=</span> <span class="p">(</span><span class="s1">''</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">port</span><span class="p">)</span>
-<a name="rest_code_da0c1bb627f54741b4c69ffa30fd05bd-43"></a>
-<a name="rest_code_da0c1bb627f54741b4c69ffa30fd05bd-44"></a>    <span class="n">httpd</span> <span class="o">=</span> <span class="n">ServerClass</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">dir</span><span class="p">,</span> <span class="n">server_address</span><span class="p">,</span> <span class="n">HandlerClass</span><span class="p">)</span>
-<a name="rest_code_da0c1bb627f54741b4c69ffa30fd05bd-45"></a>
-<a name="rest_code_da0c1bb627f54741b4c69ffa30fd05bd-46"></a>    <span class="n">sa</span> <span class="o">=</span> <span class="n">httpd</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">getsockname</span><span class="p">()</span>
-<a name="rest_code_da0c1bb627f54741b4c69ffa30fd05bd-47"></a>    <span class="k">print</span> <span class="s2">"Serving HTTP on"</span><span class="p">,</span> <span class="n">sa</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">"port"</span><span class="p">,</span> <span class="n">sa</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s2">"..."</span>
-<a name="rest_code_da0c1bb627f54741b4c69ffa30fd05bd-48"></a>    <span class="n">httpd</span><span class="o">.</span><span class="n">serve_forever</span><span class="p">()</span>
-<a name="rest_code_da0c1bb627f54741b4c69ffa30fd05bd-49"></a>
-<a name="rest_code_da0c1bb627f54741b4c69ffa30fd05bd-50"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">'__main__'</span><span class="p">:</span>
-<a name="rest_code_da0c1bb627f54741b4c69ffa30fd05bd-51"></a>    <span class="n">test</span><span class="p">()</span>
+<!-- TEASER_END --><pre class="code python"><a name="rest_code_92e746a5d42c4409a24bdec991e4eddd-1"></a><span class="ch">#! /usr/bin/env python</span>
+<a name="rest_code_92e746a5d42c4409a24bdec991e4eddd-2"></a>
+<a name="rest_code_92e746a5d42c4409a24bdec991e4eddd-3"></a><span class="kn">import</span> <span class="nn">posixpath</span>
+<a name="rest_code_92e746a5d42c4409a24bdec991e4eddd-4"></a><span class="kn">import</span> <span class="nn">argparse</span>
+<a name="rest_code_92e746a5d42c4409a24bdec991e4eddd-5"></a><span class="kn">import</span> <span class="nn">urllib</span>
+<a name="rest_code_92e746a5d42c4409a24bdec991e4eddd-6"></a><span class="kn">import</span> <span class="nn">os</span>
+<a name="rest_code_92e746a5d42c4409a24bdec991e4eddd-7"></a>
+<a name="rest_code_92e746a5d42c4409a24bdec991e4eddd-8"></a><span class="kn">from</span> <span class="nn">SimpleHTTPServer</span> <span class="kn">import</span> <span class="n">SimpleHTTPRequestHandler</span>
+<a name="rest_code_92e746a5d42c4409a24bdec991e4eddd-9"></a><span class="kn">from</span> <span class="nn">BaseHTTPServer</span> <span class="kn">import</span> <span class="n">HTTPServer</span>
+<a name="rest_code_92e746a5d42c4409a24bdec991e4eddd-10"></a>
+<a name="rest_code_92e746a5d42c4409a24bdec991e4eddd-11"></a>
+<a name="rest_code_92e746a5d42c4409a24bdec991e4eddd-12"></a><span class="k">class</span> <span class="nc">RootedHTTPServer</span><span class="p">(</span><span class="n">HTTPServer</span><span class="p">):</span>
+<a name="rest_code_92e746a5d42c4409a24bdec991e4eddd-13"></a>
+<a name="rest_code_92e746a5d42c4409a24bdec991e4eddd-14"></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_path</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<a name="rest_code_92e746a5d42c4409a24bdec991e4eddd-15"></a>        <span class="n">HTTPServer</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<a name="rest_code_92e746a5d42c4409a24bdec991e4eddd-16"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">RequestHandlerClass</span><span class="o">.</span><span class="n">base_path</span> <span class="o">=</span> <span class="n">base_path</span>
+<a name="rest_code_92e746a5d42c4409a24bdec991e4eddd-17"></a>
+<a name="rest_code_92e746a5d42c4409a24bdec991e4eddd-18"></a>
+<a name="rest_code_92e746a5d42c4409a24bdec991e4eddd-19"></a><span class="k">class</span> <span class="nc">RootedHTTPRequestHandler</span><span class="p">(</span><span class="n">SimpleHTTPRequestHandler</span><span class="p">):</span>
+<a name="rest_code_92e746a5d42c4409a24bdec991e4eddd-20"></a>
+<a name="rest_code_92e746a5d42c4409a24bdec991e4eddd-21"></a>    <span class="k">def</span> <span class="nf">translate_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+<a name="rest_code_92e746a5d42c4409a24bdec991e4eddd-22"></a>        <span class="n">path</span> <span class="o">=</span> <span class="n">posixpath</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">urllib</span><span class="o">.</span><span class="n">unquote</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+<a name="rest_code_92e746a5d42c4409a24bdec991e4eddd-23"></a>        <span class="n">words</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'/'</span><span class="p">)</span>
+<a name="rest_code_92e746a5d42c4409a24bdec991e4eddd-24"></a>        <span class="n">words</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="n">words</span><span class="p">)</span>
+<a name="rest_code_92e746a5d42c4409a24bdec991e4eddd-25"></a>        <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_path</span>
+<a name="rest_code_92e746a5d42c4409a24bdec991e4eddd-26"></a>        <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">words</span><span class="p">:</span>
+<a name="rest_code_92e746a5d42c4409a24bdec991e4eddd-27"></a>            <span class="n">drive</span><span class="p">,</span> <span class="n">word</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitdrive</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
+<a name="rest_code_92e746a5d42c4409a24bdec991e4eddd-28"></a>            <span class="n">head</span><span class="p">,</span> <span class="n">word</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
+<a name="rest_code_92e746a5d42c4409a24bdec991e4eddd-29"></a>            <span class="k">if</span> <span class="n">word</span> <span class="ow">in</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">curdir</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">pardir</span><span class="p">):</span>
+<a name="rest_code_92e746a5d42c4409a24bdec991e4eddd-30"></a>                <span class="k">continue</span>
+<a name="rest_code_92e746a5d42c4409a24bdec991e4eddd-31"></a>            <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">word</span><span class="p">)</span>
+<a name="rest_code_92e746a5d42c4409a24bdec991e4eddd-32"></a>        <span class="k">return</span> <span class="n">path</span>
+<a name="rest_code_92e746a5d42c4409a24bdec991e4eddd-33"></a>
+<a name="rest_code_92e746a5d42c4409a24bdec991e4eddd-34"></a>
+<a name="rest_code_92e746a5d42c4409a24bdec991e4eddd-35"></a><span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="n">HandlerClass</span><span class="o">=</span><span class="n">RootedHTTPRequestHandler</span><span class="p">,</span> <span class="n">ServerClass</span><span class="o">=</span><span class="n">RootedHTTPServer</span><span class="p">):</span>
+<a name="rest_code_92e746a5d42c4409a24bdec991e4eddd-36"></a>
+<a name="rest_code_92e746a5d42c4409a24bdec991e4eddd-37"></a>    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
+<a name="rest_code_92e746a5d42c4409a24bdec991e4eddd-38"></a>    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">'--port'</span><span class="p">,</span> <span class="s1">'-p'</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">8000</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+<a name="rest_code_92e746a5d42c4409a24bdec991e4eddd-39"></a>    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">'--dir'</span><span class="p">,</span> <span class="s1">'-d'</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span>
+<a name="rest_code_92e746a5d42c4409a24bdec991e4eddd-40"></a>    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+<a name="rest_code_92e746a5d42c4409a24bdec991e4eddd-41"></a>
+<a name="rest_code_92e746a5d42c4409a24bdec991e4eddd-42"></a>    <span class="n">server_address</span> <span class="o">=</span> <span class="p">(</span><span class="s1">''</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">port</span><span class="p">)</span>
+<a name="rest_code_92e746a5d42c4409a24bdec991e4eddd-43"></a>
+<a name="rest_code_92e746a5d42c4409a24bdec991e4eddd-44"></a>    <span class="n">httpd</span> <span class="o">=</span> <span class="n">ServerClass</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">dir</span><span class="p">,</span> <span class="n">server_address</span><span class="p">,</span> <span class="n">HandlerClass</span><span class="p">)</span>
+<a name="rest_code_92e746a5d42c4409a24bdec991e4eddd-45"></a>
+<a name="rest_code_92e746a5d42c4409a24bdec991e4eddd-46"></a>    <span class="n">sa</span> <span class="o">=</span> <span class="n">httpd</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">getsockname</span><span class="p">()</span>
+<a name="rest_code_92e746a5d42c4409a24bdec991e4eddd-47"></a>    <span class="k">print</span> <span class="s2">"Serving HTTP on"</span><span class="p">,</span> <span class="n">sa</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">"port"</span><span class="p">,</span> <span class="n">sa</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s2">"..."</span>
+<a name="rest_code_92e746a5d42c4409a24bdec991e4eddd-48"></a>    <span class="n">httpd</span><span class="o">.</span><span class="n">serve_forever</span><span class="p">()</span>
+<a name="rest_code_92e746a5d42c4409a24bdec991e4eddd-49"></a>
+<a name="rest_code_92e746a5d42c4409a24bdec991e4eddd-50"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">'__main__'</span><span class="p">:</span>
+<a name="rest_code_92e746a5d42c4409a24bdec991e4eddd-51"></a>    <span class="n">test</span><span class="p">()</span>
 </pre>
-<pre class="code console"><a name="rest_code_bbca3c9cad8d4b888f4b04cd8d20c414-1"></a><span class="gp">$</span> python server.py ~/Documents
+<pre class="code console"><a name="rest_code_1d7bc3fd93854c2f9ea8120e2474e707-1"></a><span class="gp">$</span> python server.py ~/Documents
 </pre>
-<pre class="code console"><a name="rest_code_d5fccc9b70f942948f4c57611e603cb5-1"></a><span class="gp">$</span> python server.py ~/Documents <span class="m">5000</span>
+<pre class="code console"><a name="rest_code_c3b68df107f94bdea1718c4697f0aea1-1"></a><span class="gp">$</span> python server.py ~/Documents <span class="m">5000</span>
 </pre>
 </div>
     </div>
@@ -204,7 +204,7 @@ We just have to instead prepend the  argument we propagated to
         var disqus_shortname ="ltiao",
             disqus_url="http://louistiao.me/posts/python-simplehttpserver-recipe-serve-specific-directory/",
         disqus_title="Python SimpleHTTPServer Recipe: Serve specific directory",
-        disqus_identifier="cache/posts/python-simplehttpserver-recipe-serve-specific-directory.html",
+        disqus_identifier="cache/content/posts/python-simplehttpserver-recipe-serve-specific-directory.html",
         disqus_config = function () {
             this.language = "en";
         };

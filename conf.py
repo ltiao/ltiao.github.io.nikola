@@ -185,14 +185,14 @@ THEME_COLOR = '#5670d4'
 #     )
 
 POSTS = (
-    ("posts/notes/notebooks/*.ipynb", "notes", "post.tmpl"),
-    ("posts/notes/*.rst", "notes", "post.tmpl"),
-    ("posts/notes/*.md", "notes", "post.tmpl"),
-    ("posts/personal/*.rst", "personal", "post.tmpl"),
-    ("posts/personal/*.md", "personal", "post.tmpl"),
-    ("posts/*.rst", "posts", "post.tmpl"),
-    ("posts/*.md", "posts", "post.tmpl"),
-    ("posts/*.ipynb", "posts", "post.tmpl"),
+    ("content/notes/notebooks/*.ipynb", "notes", "post.tmpl"),
+    ("content/notes/*.rst", "notes", "post.tmpl"),
+    ("content/notes/*.md", "notes", "post.tmpl"),
+    ("content/personal/*.rst", "personal", "post.tmpl"),
+    ("content/personal/*.md", "personal", "post.tmpl"),
+    ("content/posts/*.rst", "posts", "post.tmpl"),
+    ("content/posts/*.md", "posts", "post.tmpl"),
+    ("content/posts/*.ipynb", "posts", "post.tmpl"),
 )
 PAGES = (
     ("pages/*.rst", "", "story.tmpl"),
@@ -515,7 +515,7 @@ HIDDEN_AUTHORS = ['Guest']
 # Final location for the main blog page and sibling paginated pages is
 # output / TRANSLATION[lang] / INDEX_PATH / index-*.html
 # (translatable)
-INDEX_PATH = "all"
+INDEX_PATH = "content"
 
 # Optional HTML that displayed on “main” blog index.html files.
 # May be used for a greeting. (translatable)

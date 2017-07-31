@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html prefix="
+og: http://ogp.me/ns#
+article: http://ogp.me/ns/article#
+" lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Working with Samples of Distributions over Convolutional Kernels | Louis Tiao</title>
+<link href="../../assets/css/all.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/override_nikola_ipython.css" rel="stylesheet" type="text/css">
+<meta name="theme-color" content="#5670d4">
+<meta name="generator" content="Nikola (getnikola.com)">
+<link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
+<link rel="canonical" href="http://louistiao.me/notes/working-with-samples-of-distributions-over-convolutional-kernels/">
+<link rel="icon" href="../../favicon_16x16.ico" sizes="16x16">
+<link rel="icon" href="../../favicon_32x32.ico" sizes="32x32">
+<link rel="icon" href="../../favicon_256x256.ico" sizes="256x256">
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+    },
+    displayAlign: 'center', // Change this to 'left' if you want left-aligned equations.
+    "HTML-CSS": {
+        styles: {'.MathJax_Display': {"margin": 0}}
+    }
+});
+</script><!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><!--
+
+    /\\\\\\\\\\\\\\\  /\\\\\\\\\\\     /\\\\\\\\\          /\\\\\              
+    \///////\\\/////  \/////\\\///    /\\\\\\\\\\\\\      /\\\///\\\           
+           \/\\\           \/\\\      /\\\/////////\\\   /\\\/  \///\\\        
+            \/\\\           \/\\\     \/\\\       \/\\\  /\\\      \//\\\      
+             \/\\\           \/\\\     \/\\\\\\\\\\\\\\\ \/\\\       \/\\\     
+              \/\\\           \/\\\     \/\\\/////////\\\ \//\\\      /\\\     
+               \/\\\           \/\\\     \/\\\       \/\\\  \///\\\  /\\\      
+                \/\\\        /\\\\\\\\\\\ \/\\\       \/\\\    \///\\\\\/      
+                 \///        \///////////  \///        \///       \/////       
+
+--><meta name="author" content="Louis Tiao">
+<link rel="prev" href="../variational-inference-with-implicit-approximate-inference-models-fhuszars-explaining-away-example-pt-1-wip/" title="Variational Inference with Implicit Approximate Inference Models - @fhuszar's Explaining Away Example Pt. 1 (WIP)" type="text/html">
+<meta property="og:site_name" content="Louis Tiao">
+<meta property="og:title" content="Working with Samples of Distributions over Convolutional Kernels">
+<meta property="og:url" content="http://louistiao.me/notes/working-with-samples-of-distributions-over-convolutional-kernels/">
+<meta property="og:description" content="In [1]:
+
+    
+%matplotlib inline
+%config InlineBackend.figure_format = 'svg'
+
+
+
+
+
+
+
+
+
+In [2]:
+
+    
+import numpy as np
+import tensorflow as tf
+
+import matplotlib.pyplot as plt
+
+from tensorflow.example">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2017-07-29T21:02:26+10:00">
+</head>
+<body>
+<a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+  <div class="container">
+    <div class="header clearfix">
+      <nav><ul class="nav nav-pills pull-right">
+<li>
+<a href="../../">About</a>
+                </li>
+<li>
+<a href="../../projects/">Projects</a>
+                </li>
+<li>
+<a href="../../posts/">Posts</a>
+                </li>
+<li>
+<a href="../../archive.html">Archive</a>
+
+          
+        </li>
+</ul></nav><a href="http://louistiao.me/">
+
+        <h3 class="text-muted">
+          <span id="blog-title">Louis Tiao</span>
+        </h3>
+      </a>
+    </div>
+
+<!-- TODO Figure out what to do with this stuff -->
+<!--     <div class="row">
+
+      <ul class="nav nav-pills pull-right">
+    <li>
+    <a href="/notes/working-with-samples-of-distributions-over-convolutional-kernels/index.ipynb" id="sourcelink">Source</a>
+    </li>
+          
+      </ul>
+    </div> -->
+
+    <div id="content" role="main">
+      <div class="body-content">
+        <!--Body content-->
+        <div class="row">
+          
+<article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">Working with Samples of Distributions over Convolutional Kernels</a></h1>
+
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                    Louis Tiao
+            </span></p>
+            <p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2017-07-29T21:02:26+10:00" itemprop="datePublished" title="2017-07-29 21:02">2017-07-29 21:02</time></a></p>
+                <p class="commentline">            <a href="#disqus_thread" data-disqus-identifier="cache/content/notes/notebooks/working-with-samples-of-distributions-over-convolutional-kernels.html">Comments</a>
+
+
+                    </p>
+<p class="sourceline"><a href="index.ipynb" class="sourcelink">Source</a></p>
+
+        </div>
+        
+    </header><div class="e-content entry-content" itemprop="articleBody text">
+    <div tabindex="-1" id="notebook" class="border-box-sizing">
+    <div class="container" id="notebook-container">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [1]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">%</span><span class="k">matplotlib</span> inline
+<span class="o">%</span><span class="k">config</span> InlineBackend.figure_format = 'svg'
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [2]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="kn">from</span> <span class="nn">tensorflow.examples.tutorials.mnist</span> <span class="k">import</span> <span class="n">input_data</span> <span class="k">as</span> <span class="n">mnist_data</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [3]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">tf</span><span class="o">.</span><span class="n">__version__</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[3]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>'1.2.1'</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [4]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">sess</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">InteractiveSession</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [5]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">mnist</span> <span class="o">=</span> <span class="n">mnist_data</span><span class="o">.</span><span class="n">read_data_sets</span><span class="p">(</span><span class="s2">"/home/tiao/Desktop/MNIST"</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Extracting /home/tiao/Desktop/MNIST/train-images-idx3-ubyte.gz
+Extracting /home/tiao/Desktop/MNIST/train-labels-idx1-ubyte.gz
+Extracting /home/tiao/Desktop/MNIST/t10k-images-idx3-ubyte.gz
+Extracting /home/tiao/Desktop/MNIST/t10k-labels-idx1-ubyte.gz
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [6]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># 50 single-channel (grayscale) 28x28 images</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">mnist</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">images</span><span class="p">[:</span><span class="mi">50</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">x</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[6]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>(50, 28, 28, 1)</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [7]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+
+<span class="c1"># showing an arbitrarily chosen image</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">5</span><span class="p">],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">'gray'</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
+
+<div class="output_svg output_subarea ">
+<?xml version="1.0" encoding="utf-8" standalone="no"?><!-- Created with matplotlib (http://matplotlib.org/) --><svg height="306pt" version="1.1" viewbox="0 0 309 306" width="309pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><defs><style type="text/css">
+*{stroke-linecap:butt;stroke-linejoin:round;}
+  </style></defs><g id="figure_1"><g id="patch_1"><path d="M 0 306.378125 
+L 309.425 306.378125 
+L 309.425 0 
+L 0 0 
+z
+" style="fill:none;"></path></g><g id="axes_1"><g id="patch_2"><path d="M 26.925 282.5 
+L 298.725 282.5 
+L 298.725 10.7 
+L 26.925 10.7 
+z
+" style="fill:#ffffff;"></path></g><g clip-path="url(#pa3004b8c68)"><image height="272" id="image78cca79e19" transform="scale(1 -1)translate(0 -272)" width="272" x="26.925" xlink:href="data:image/png;base64,
+iVBORw0KGgoAAAANSUhEUgAAARAAAAEQCAYAAAB4CisVAAAABHNCSVQICAgIfAhkiAAAB91JREFUeJzt3U2Iznsfx/GZO9GxECmykJKYKEJsxGYmbCgPk2IhC0VZiVLKikRJHkoiC8JGHhY2LCgi2ZBn2dmw8BBCk5p7eXfOvfh/feYaM3Pm9Vp/+l3/OU7vfot/19Xe1tbW2wYQ+M9APwAwdAkIEBMQICYgQExAgJiAADEBAWICAsQEBIgJCBATECAmIEBMQICYgAAxAQFiAgLEBASICQgQExAgJiBATECAmIAAMQEBYgICxAQEiAkIEBMQICYgQGzEQD/Av9nEiRNLu71797b0c7u6uho379+/L511+fLl0u7gwYOlHf8ubiBATECAmIAAMQEBYgICxAQEiAkIEBMQICYgQKy9ra2td6AfYjDp7Ows7Y4ePdq4GTt2bOmsSZMmlXa9vYP3n+rVq1eNmwsXLpTOqr7V2tPTU9rRf9xAgJiAADEBAWICAsQEBIgJCBATECAmIEBMQICYN1H/Ydu2baXdkSNHWvaZnz59Ku3u3LnTss9cvnx5aTdy5MjSrr29vXFTfZP2wYMHpd3mzZtLu2fPnpV2/D43ECAmIEBMQICYgAAxAQFiAgLEBASICQgQGzYvki1btqy0u3r1ass+8/jx46Xdvn37SrvPnz/35XH+Zvz48aXdjBkzSrvK1xVOnjy5dFbV8+fPS7uFCxc2bn78+NHXxxmW3ECAmIAAMQEBYgICxAQEiAkIEBMQICYgQExAgNiIgX6AP2XOnDml3ahRo0q7Q4cONW527txZOmsgfPjwobS7d+9eaTd79uzGzaVLl0pndXV1lXazZs0q7ebOndu4qf6d/J0bCBATECAmIEBMQICYgAAxAQFiAgLEBASICQgQGzZvolZVfwB6zZo1jZuTJ0+Wznrz5k1pN5h9+fKlcbNy5crSWVeuXCntli5dWtrRf9xAgJiAADEBAWICAsQEBIgJCBATECAmIEBs2LxI9vjx49Kup6entJsyZUrj5sGDB6Wznjx5Utrt37+/tLt161bjpvp3tlL1M6v/3To7O0u7X79+lXb8PjcQICYgQExAgJiAADEBAWICAsQEBIgJCBATECDW3tbWVvsOv2Giu7u7tDt79mzjZuTIkaWz2tvbS7vq1y1W3uS8fv166awTJ06Udh8/fmzczJs3r3TWw4cPS7uXL1+WdtUf4eb3uYEAMQEBYgICxAQEiAkIEBMQICYgQExAgJiAADFvooamTp3auDlz5kzprCVLlpR21TdRW6n6Vujt27cbNxs2bCidNWbMmNJu7dq1pd3NmzdLO36fGwgQExAgJiBATECAmIAAMQEBYgICxAQEiAkIEPMm6iCwaNGi0m79+vWl3datW/vyOJHK97pW36S9du1aabdq1arSjv7jBgLEBASICQgQExAgJiBATECAmIAAMQEBYl4kG0JmzpxZ2j158qSfn+T/tfJFsqotW7aUdqdOnWrp5/I/biBATECAmIAAMQEBYgICxAQEiAkIEBMQICYgQMybqEPI/fv3S7uFCxc2br5//14669GjR6XdmzdvGjfVH8MePXp0adfT01PaHTt2rHGzZ8+e0lk/f/4s7YYLNxAgJiBATECAmIAAMQEBYgICxAQEiAkIEBMQIOZN1CHk+fPnpd2MGTMaN/Pnzy+dVX0TtWLevHml3cOHD1v2mVU3btwo7bq7u0u7b9++9eVxhgw3ECAmIEBMQICYgAAxAQFiAgLEBASICQgQGzHQD8DAmDhx4h//zOpLaQsWLCjtzp07V9p1dHQ0bpYtW1Y66+LFi6XdihUrSruhzg0EiAkIEBMQICYgQExAgJiAADEBAWICAsQEBIj5SsMh5MWLF6Vd5SsNHz9+XDpr+fLlpd379+9Lu1aq/gj3unXrGje7du0qnTVu3LjSbsKECaXdUOcGAsQEBIgJCBATECAmIEBMQICYgAAxAQFiAgLEvIk6hGzcuLG0O3PmTMs+8/Xr16Vd5Uennz592tfH6TenT58u7TZt2lTaXbt2rXGzevXq0lmDmRsIEBMQICYgQExAgJiAADEBAWICAsQEBIgJCBAbMdAPQN358+dLu5kzZzZutm/fXjpr+vTppd39+/cbN4cPHy6ddfny5dLu7du3pd2XL18aN6NGjSqdVTVt2rTGzV9//VU668ePH319nH7jBgLEBASICQgQExAgJiBATECAmIAAMQEBYr7ScJg6cOBAabdjx47Srr29vXHT2zsw/6vduXOncbNkyZLSWdW/4d27d42bjo6O0llfv34t7QaCGwgQExAgJiBATECAmIAAMQEBYgICxAQEiAkIEPOVhsPU7t27S7uenp7Sbtu2bY2bMWPGlM5qtcWLF//xz7x582bjZjC/YVrlBgLEBASICQgQExAgJiBATECAmIAAMQEBYgICxHwnKi2xaNGixs2WLVtKZ23YsKGvj/Pb7t69W9pVf/j77NmzjZuPHz+WzhrM3ECAmIAAMQEBYgICxAQEiAkIEBMQICYgQMyLZEDMDQSICQgQExAgJiBATECAmIAAMQEBYgICxAQEiAkIEBMQICYgQExAgJiAADEBAWICAsQEBIgJCBATECAmIEBMQICYgAAxAQFiAgLEBASICQgQExAgJiBATECAmIAAMQEBYgICxAQEiAkIEBMQICYgQExAgJiAADEBAWICAsQEBIgJCBATECAmIEBMQICYgAAxAQFiAgLE/gugOkEilTJ6xwAAAABJRU5ErkJggg==" y="-10.5"></image></g><g id="matplotlib.axis_1"><g id="xtick_1"><g id="line2d_1"><defs><path d="M 0 0 
+L 0 3.5 
+" id="m422327f259" style="stroke:#000000;stroke-width:0.8;"></path></defs><g><use style="stroke:#000000;stroke-width:0.8;" x="31.778571" xlink:href="#m422327f259" y="282.5"></use></g></g><g id="text_1"><!-- 0 --><defs><path d="M 31.78125 66.40625 
+Q 24.171875 66.40625 20.328125 58.90625 
+Q 16.5 51.421875 16.5 36.375 
+Q 16.5 21.390625 20.328125 13.890625 
+Q 24.171875 6.390625 31.78125 6.390625 
+Q 39.453125 6.390625 43.28125 13.890625 
+Q 47.125 21.390625 47.125 36.375 
+Q 47.125 51.421875 43.28125 58.90625 
+Q 39.453125 66.40625 31.78125 66.40625 
+z
+M 31.78125 74.21875 
+Q 44.046875 74.21875 50.515625 64.515625 
+Q 56.984375 54.828125 56.984375 36.375 
+Q 56.984375 17.96875 50.515625 8.265625 
+Q 44.046875 -1.421875 31.78125 -1.421875 
+Q 19.53125 -1.421875 13.0625 8.265625 
+Q 6.59375 17.96875 6.59375 36.375 
+Q 6.59375 54.828125 13.0625 64.515625 
+Q 19.53125 74.21875 31.78125 74.21875 
+z
+" id="DejaVuSans-30"></path></defs><g transform="translate(28.597321 297.098437)scale(0.1 -0.1)"><use xlink:href="#DejaVuSans-30"></use></g></g></g><g id="xtick_2"><g id="line2d_2"><g><use style="stroke:#000000;stroke-width:0.8;" x="80.314286" xlink:href="#m422327f259" y="282.5"></use></g></g><g id="text_2"><!-- 5 --><defs><path d="M 10.796875 72.90625 
+L 49.515625 72.90625 
+L 49.515625 64.59375 
+L 19.828125 64.59375 
+L 19.828125 46.734375 
+Q 21.96875 47.46875 24.109375 47.828125 
+Q 26.265625 48.1875 28.421875 48.1875 
+Q 40.625 48.1875 47.75 41.5 
+Q 54.890625 34.8125 54.890625 23.390625 
+Q 54.890625 11.625 47.5625 5.09375 
+Q 40.234375 -1.421875 26.90625 -1.421875 
+Q 22.3125 -1.421875 17.546875 -0.640625 
+Q 12.796875 0.140625 7.71875 1.703125 
+L 7.71875 11.625 
+Q 12.109375 9.234375 16.796875 8.0625 
+Q 21.484375 6.890625 26.703125 6.890625 
+Q 35.15625 6.890625 40.078125 11.328125 
+Q 45.015625 15.765625 45.015625 23.390625 
+Q 45.015625 31 40.078125 35.4375 
+Q 35.15625 39.890625 26.703125 39.890625 
+Q 22.75 39.890625 18.8125 39.015625 
+Q 14.890625 38.140625 10.796875 36.28125 
+z
+" id="DejaVuSans-35"></path></defs><g transform="translate(77.133036 297.098437)scale(0.1 -0.1)"><use xlink:href="#DejaVuSans-35"></use></g></g></g><g id="xtick_3"><g id="line2d_3"><g><use style="stroke:#000000;stroke-width:0.8;" x="128.85" xlink:href="#m422327f259" y="282.5"></use></g></g><g id="text_3"><!-- 10 --><defs><path d="M 12.40625 8.296875 
+L 28.515625 8.296875 
+L 28.515625 63.921875 
+L 10.984375 60.40625 
+L 10.984375 69.390625 
+L 28.421875 72.90625 
+L 38.28125 72.90625 
+L 38.28125 8.296875 
+L 54.390625 8.296875 
+L 54.390625 0 
+L 12.40625 0 
+z
+" id="DejaVuSans-31"></path></defs><g transform="translate(122.4875 297.098437)scale(0.1 -0.1)"><use xlink:href="#DejaVuSans-31"></use><use x="63.623047" xlink:href="#DejaVuSans-30"></use></g></g></g><g id="xtick_4"><g id="line2d_4"><g><use style="stroke:#000000;stroke-width:0.8;" x="177.385714" xlink:href="#m422327f259" y="282.5"></use></g></g><g id="text_4"><!-- 15 --><g transform="translate(171.023214 297.098437)scale(0.1 -0.1)"><use xlink:href="#DejaVuSans-31"></use><use x="63.623047" xlink:href="#DejaVuSans-35"></use></g></g></g><g id="xtick_5"><g id="line2d_5"><g><use style="stroke:#000000;stroke-width:0.8;" x="225.921429" xlink:href="#m422327f259" y="282.5"></use></g></g><g id="text_5"><!-- 20 --><defs><path d="M 19.1875 8.296875 
+L 53.609375 8.296875 
+L 53.609375 0 
+L 7.328125 0 
+L 7.328125 8.296875 
+Q 12.9375 14.109375 22.625 23.890625 
+Q 32.328125 33.6875 34.8125 36.53125 
+Q 39.546875 41.84375 41.421875 45.53125 
+Q 43.3125 49.21875 43.3125 52.78125 
+Q 43.3125 58.59375 39.234375 62.25 
+Q 35.15625 65.921875 28.609375 65.921875 
+Q 23.96875 65.921875 18.8125 64.3125 
+Q 13.671875 62.703125 7.8125 59.421875 
+L 7.8125 69.390625 
+Q 13.765625 71.78125 18.9375 73 
+Q 24.125 74.21875 28.421875 74.21875 
+Q 39.75 74.21875 46.484375 68.546875 
+Q 53.21875 62.890625 53.21875 53.421875 
+Q 53.21875 48.921875 51.53125 44.890625 
+Q 49.859375 40.875 45.40625 35.40625 
+Q 44.1875 33.984375 37.640625 27.21875 
+Q 31.109375 20.453125 19.1875 8.296875 
+z
+" id="DejaVuSans-32"></path></defs><g transform="translate(219.558929 297.098437)scale(0.1 -0.1)"><use xlink:href="#DejaVuSans-32"></use><use x="63.623047" xlink:href="#DejaVuSans-30"></use></g></g></g><g id="xtick_6"><g id="line2d_6"><g><use style="stroke:#000000;stroke-width:0.8;" x="274.457143" xlink:href="#m422327f259" y="282.5"></use></g></g><g id="text_6"><!-- 25 --><g transform="translate(268.094643 297.098437)scale(0.1 -0.1)"><use xlink:href="#DejaVuSans-32"></use><use x="63.623047" xlink:href="#DejaVuSans-35"></use></g></g></g></g><g id="matplotlib.axis_2"><g id="ytick_1"><g id="line2d_7"><defs><path d="M 0 0 
+L -3.5 0 
+" id="m9255177f82" style="stroke:#000000;stroke-width:0.8;"></path></defs><g><use style="stroke:#000000;stroke-width:0.8;" x="26.925" xlink:href="#m9255177f82" y="15.553571"></use></g></g><g id="text_7"><!-- 0 --><g transform="translate(13.5625 19.35279)scale(0.1 -0.1)"><use xlink:href="#DejaVuSans-30"></use></g></g></g><g id="ytick_2"><g id="line2d_8"><g><use style="stroke:#000000;stroke-width:0.8;" x="26.925" xlink:href="#m9255177f82" y="64.089286"></use></g></g><g id="text_8"><!-- 5 --><g transform="translate(13.5625 67.888504)scale(0.1 -0.1)"><use xlink:href="#DejaVuSans-35"></use></g></g></g><g id="ytick_3"><g id="line2d_9"><g><use style="stroke:#000000;stroke-width:0.8;" x="26.925" xlink:href="#m9255177f82" y="112.625"></use></g></g><g id="text_9"><!-- 10 --><g transform="translate(7.2 116.424219)scale(0.1 -0.1)"><use xlink:href="#DejaVuSans-31"></use><use x="63.623047" xlink:href="#DejaVuSans-30"></use></g></g></g><g id="ytick_4"><g id="line2d_10"><g><use style="stroke:#000000;stroke-width:0.8;" x="26.925" xlink:href="#m9255177f82" y="161.160714"></use></g></g><g id="text_10"><!-- 15 --><g transform="translate(7.2 164.959933)scale(0.1 -0.1)"><use xlink:href="#DejaVuSans-31"></use><use x="63.623047" xlink:href="#DejaVuSans-35"></use></g></g></g><g id="ytick_5"><g id="line2d_11"><g><use style="stroke:#000000;stroke-width:0.8;" x="26.925" xlink:href="#m9255177f82" y="209.696429"></use></g></g><g id="text_11"><!-- 20 --><g transform="translate(7.2 213.495647)scale(0.1 -0.1)"><use xlink:href="#DejaVuSans-32"></use><use x="63.623047" xlink:href="#DejaVuSans-30"></use></g></g></g><g id="ytick_6"><g id="line2d_12"><g><use style="stroke:#000000;stroke-width:0.8;" x="26.925" xlink:href="#m9255177f82" y="258.232143"></use></g></g><g id="text_12"><!-- 25 --><g transform="translate(7.2 262.031362)scale(0.1 -0.1)"><use xlink:href="#DejaVuSans-32"></use><use x="63.623047" xlink:href="#DejaVuSans-35"></use></g></g></g></g><g id="patch_3"><path d="M 26.925 282.5 
+L 26.925 10.7 
+" style="fill:none;stroke:#000000;stroke-linecap:square;stroke-linejoin:miter;stroke-width:0.8;"></path></g><g id="patch_4"><path d="M 298.725 282.5 
+L 298.725 10.7 
+" style="fill:none;stroke:#000000;stroke-linecap:square;stroke-linejoin:miter;stroke-width:0.8;"></path></g><g id="patch_5"><path d="M 26.925 282.5 
+L 298.725 282.5 
+" style="fill:none;stroke:#000000;stroke-linecap:square;stroke-linejoin:miter;stroke-width:0.8;"></path></g><g id="patch_6"><path d="M 26.925 10.7 
+L 298.725 10.7 
+" style="fill:none;stroke:#000000;stroke-linecap:square;stroke-linejoin:miter;stroke-width:0.8;"></path></g></g></g><defs><clippath id="pa3004b8c68"><rect height="271.8" width="271.8" x="26.925" y="10.7"></rect></clippath></defs></svg>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Standard-2D-Convolution-with-conv2d">Standard 2D Convolution with <code>conv2d</code><a class="anchor-link" href="#Standard-2D-Convolution-with-conv2d">¶</a>
+</h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [8]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># 32 kernels of size 5x5x1</span>
+<span class="n">kernel</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">truncated_normal</span><span class="p">([</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">32</span><span class="p">],</span> <span class="n">stddev</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+<span class="n">kernel</span><span class="o">.</span><span class="n">get_shape</span><span class="p">()</span><span class="o">.</span><span class="n">as_list</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[8]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[5, 5, 1, 32]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [9]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">x_conved</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">conv2d</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">kernel</span><span class="p">,</span> 
+                        <span class="n">strides</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> 
+                        <span class="n">padding</span><span class="o">=</span><span class="s1">'SAME'</span><span class="p">)</span>
+<span class="n">x_conved</span><span class="o">.</span><span class="n">get_shape</span><span class="p">()</span><span class="o">.</span><span class="n">as_list</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[9]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[50, 28, 28, 32]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [10]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">x_conved</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[10]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>(28, 28)</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [11]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+
+<span class="c1"># showing what the 0th filter looks like</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">kernel</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">eval</span><span class="p">(),</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">'gray'</span><span class="p">)</span>
+
+<span class="c1"># show the previous arbitrarily chosen image</span>
+<span class="c1"># convolved with the 0th filter</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">x_conved</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">eval</span><span class="p">(),</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">'gray'</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
+
+<div class="output_svg output_subarea ">
+<?xml version="1.0" encoding="utf-8" standalone="no"?><!-- Created with matplotlib (http://matplotlib.org/) --><svg height="252pt" version="1.1" viewbox="0 0 522 252" width="522pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><defs><style type="text/css">
+*{stroke-linecap:butt;stroke-linejoin:round;}
+  </style></defs><g id="figure_1"><g id="patch_1"><path d="M 0 252.018125 
+L 522.629773 252.018125 
+L 522.629773 0 
+L 0 0 
+z
+" style="fill:none;"></path></g><g id="axes_1"><g id="patch_2"><path d="M 20.5625 228.14 
+L 238.0025 228.14 
+L 238.0025 10.7 
+L 20.5625 10.7 
+z
+" style="fill:#ffffff;"></path></g><g clip-path="url(#p786cb37951)"><image height="218" id="imagee91f42ba54" transform="scale(1 -1)translate(0 -218)" width="218" x="20.5625" xlink:href="data:image/png;base64,
+iVBORw0KGgoAAAANSUhEUgAAANoAAADaCAYAAADAHVzbAAAABHNCSVQICAgIfAhkiAAAAylJREFUeJzt1aFNpGEYhdFlgxgHkpCpAEkH1IGlm3FYQJDpATPBUwJ1YJBsC/9nnjdkz6ngmif37OPj4+fPL/H09DQ9YcnLy8v0hCXPz8/TEzY7HA7TE5b8nR4A/wOhQUBoEBAaBIQGAaFBQGgQEBoEhAYBoUFAaBAQGgSEBgGhQUBoEBAaBIQGAaFBQGgQEBoEhAYBoUFAaBAQGgSEBgGhQUBoEBAaBIQGAaFBQGgQEBoEhAYBoUFAaBAQGgSEBgGhQUBoEBAaBIQGAaFBQGgQOLu+vv6ZHrHV6XSanrDk5uZmesKSz8/P6QmbPT4+Tk9Y4tEgIDQICA0CQoOA0CAgNAgIDQJCg4DQICA0CAgNAkKDgNAgIDQICA0CQoOA0CAgNAgIDQJCg4DQICA0CAgNAkKDgNAgIDQICA0CQoOA0CAgNAgIDQJCg4DQICA0CAgNAkKDgNAgIDQICA0CQoOA0CAgNAic3d/f/0yP2Gq/309PWPL6+jo9YcnDw8P0hM2+vr6mJyzxaBAQGgSEBgGhQUBoEBAaBIQGAaFBQGgQEBoEhAYBoUFAaBAQGgSEBgGhQUBoEBAaBIQGAaFBQGgQEBoEhAYBoUFAaBAQGgSEBgGhQUBoEBAaBIQGAaFBQGgQEBoEhAYBoUFAaBAQGgSEBgGhQUBoEBAaBIQGgfO7u7vpDZu9v79PT1hydXU1PWHJ9/f39ITNdrvd9IQlHg0CQoOA0CAgNAgIDQJCg4DQICA0CAgNAkKDgNAgIDQICA0CQoOA0CAgNAgIDQJCg4DQICA0CAgNAkKDgNAgIDQICA0CQoOA0CAgNAgIDQJCg4DQICA0CAgNAkKDgNAgIDQICA0CQoOA0CAgNAgIDQJCg8D57e3t9IbNLi4upicsuby8nJ6w5O3tbXrCZsfjcXrCEo8GAaFBQGgQEBoEhAYBoUFAaBAQGgSEBgGhQUBoEBAaBIQGAaFBQGgQEBoEhAYBoUFAaBAQGgSEBgGhQUBoEBAaBIQGAaFBQGgQEBoEhAYBoUFAaBAQGgSEBgGhQUBoEBAaBIQGAaFBQGgQEBoEhAYBoUFAaBD4B5U5J+pAjGloAAAAAElFTkSuQmCC" y="-10.14"></image></g><g id="matplotlib.axis_1"><g id="xtick_1"><g id="line2d_1"><defs><path d="M 0 0 
+L 0 3.5 
+" id="mb14126b705" style="stroke:#000000;stroke-width:0.8;"></path></defs><g><use style="stroke:#000000;stroke-width:0.8;" x="42.3065" xlink:href="#mb14126b705" y="228.14"></use></g></g><g id="text_1"><!-- 0 --><defs><path d="M 31.78125 66.40625 
+Q 24.171875 66.40625 20.328125 58.90625 
+Q 16.5 51.421875 16.5 36.375 
+Q 16.5 21.390625 20.328125 13.890625 
+Q 24.171875 6.390625 31.78125 6.390625 
+Q 39.453125 6.390625 43.28125 13.890625 
+Q 47.125 21.390625 47.125 36.375 
+Q 47.125 51.421875 43.28125 58.90625 
+Q 39.453125 66.40625 31.78125 66.40625 
+z
+M 31.78125 74.21875 
+Q 44.046875 74.21875 50.515625 64.515625 
+Q 56.984375 54.828125 56.984375 36.375 
+Q 56.984375 17.96875 50.515625 8.265625 
+Q 44.046875 -1.421875 31.78125 -1.421875 
+Q 19.53125 -1.421875 13.0625 8.265625 
+Q 6.59375 17.96875 6.59375 36.375 
+Q 6.59375 54.828125 13.0625 64.515625 
+Q 19.53125 74.21875 31.78125 74.21875 
+z
+" id="DejaVuSans-30"></path></defs><g transform="translate(39.12525 242.738437)scale(0.1 -0.1)"><use xlink:href="#DejaVuSans-30"></use></g></g></g><g id="xtick_2"><g id="line2d_2"><g><use style="stroke:#000000;stroke-width:0.8;" x="85.7945" xlink:href="#mb14126b705" y="228.14"></use></g></g><g id="text_2"><!-- 1 --><defs><path d="M 12.40625 8.296875 
+L 28.515625 8.296875 
+L 28.515625 63.921875 
+L 10.984375 60.40625 
+L 10.984375 69.390625 
+L 28.421875 72.90625 
+L 38.28125 72.90625 
+L 38.28125 8.296875 
+L 54.390625 8.296875 
+L 54.390625 0 
+L 12.40625 0 
+z
+" id="DejaVuSans-31"></path></defs><g transform="translate(82.61325 242.738437)scale(0.1 -0.1)"><use xlink:href="#DejaVuSans-31"></use></g></g></g><g id="xtick_3"><g id="line2d_3"><g><use style="stroke:#000000;stroke-width:0.8;" x="129.2825" xlink:href="#mb14126b705" y="228.14"></use></g></g><g id="text_3"><!-- 2 --><defs><path d="M 19.1875 8.296875 
+L 53.609375 8.296875 
+L 53.609375 0 
+L 7.328125 0 
+L 7.328125 8.296875 
+Q 12.9375 14.109375 22.625 23.890625 
+Q 32.328125 33.6875 34.8125 36.53125 
+Q 39.546875 41.84375 41.421875 45.53125 
+Q 43.3125 49.21875 43.3125 52.78125 
+Q 43.3125 58.59375 39.234375 62.25 
+Q 35.15625 65.921875 28.609375 65.921875 
+Q 23.96875 65.921875 18.8125 64.3125 
+Q 13.671875 62.703125 7.8125 59.421875 
+L 7.8125 69.390625 
+Q 13.765625 71.78125 18.9375 73 
+Q 24.125 74.21875 28.421875 74.21875 
+Q 39.75 74.21875 46.484375 68.546875 
+Q 53.21875 62.890625 53.21875 53.421875 
+Q 53.21875 48.921875 51.53125 44.890625 
+Q 49.859375 40.875 45.40625 35.40625 
+Q 44.1875 33.984375 37.640625 27.21875 
+Q 31.109375 20.453125 19.1875 8.296875 
+z
+" id="DejaVuSans-32"></path></defs><g transform="translate(126.10125 242.738437)scale(0.1 -0.1)"><use xlink:href="#DejaVuSans-32"></use></g></g></g><g id="xtick_4"><g id="line2d_4"><g><use style="stroke:#000000;stroke-width:0.8;" x="172.7705" xlink:href="#mb14126b705" y="228.14"></use></g></g><g id="text_4"><!-- 3 --><defs><path d="M 40.578125 39.3125 
+Q 47.65625 37.796875 51.625 33 
+Q 55.609375 28.21875 55.609375 21.1875 
+Q 55.609375 10.40625 48.1875 4.484375 
+Q 40.765625 -1.421875 27.09375 -1.421875 
+Q 22.515625 -1.421875 17.65625 -0.515625 
+Q 12.796875 0.390625 7.625 2.203125 
+L 7.625 11.71875 
+Q 11.71875 9.328125 16.59375 8.109375 
+Q 21.484375 6.890625 26.8125 6.890625 
+Q 36.078125 6.890625 40.9375 10.546875 
+Q 45.796875 14.203125 45.796875 21.1875 
+Q 45.796875 27.640625 41.28125 31.265625 
+Q 36.765625 34.90625 28.71875 34.90625 
+L 20.21875 34.90625 
+L 20.21875 43.015625 
+L 29.109375 43.015625 
+Q 36.375 43.015625 40.234375 45.921875 
+Q 44.09375 48.828125 44.09375 54.296875 
+Q 44.09375 59.90625 40.109375 62.90625 
+Q 36.140625 65.921875 28.71875 65.921875 
+Q 24.65625 65.921875 20.015625 65.03125 
+Q 15.375 64.15625 9.8125 62.3125 
+L 9.8125 71.09375 
+Q 15.4375 72.65625 20.34375 73.4375 
+Q 25.25 74.21875 29.59375 74.21875 
+Q 40.828125 74.21875 47.359375 69.109375 
+Q 53.90625 64.015625 53.90625 55.328125 
+Q 53.90625 49.265625 50.4375 45.09375 
+Q 46.96875 40.921875 40.578125 39.3125 
+z
+" id="DejaVuSans-33"></path></defs><g transform="translate(169.58925 242.738437)scale(0.1 -0.1)"><use xlink:href="#DejaVuSans-33"></use></g></g></g><g id="xtick_5"><g id="line2d_5"><g><use style="stroke:#000000;stroke-width:0.8;" x="216.2585" xlink:href="#mb14126b705" y="228.14"></use></g></g><g id="text_5"><!-- 4 --><defs><path d="M 37.796875 64.3125 
+L 12.890625 25.390625 
+L 37.796875 25.390625 
+z
+M 35.203125 72.90625 
+L 47.609375 72.90625 
+L 47.609375 25.390625 
+L 58.015625 25.390625 
+L 58.015625 17.1875 
+L 47.609375 17.1875 
+L 47.609375 0 
+L 37.796875 0 
+L 37.796875 17.1875 
+L 4.890625 17.1875 
+L 4.890625 26.703125 
+z
+" id="DejaVuSans-34"></path></defs><g transform="translate(213.07725 242.738437)scale(0.1 -0.1)"><use xlink:href="#DejaVuSans-34"></use></g></g></g></g><g id="matplotlib.axis_2"><g id="ytick_1"><g id="line2d_6"><defs><path d="M 0 0 
+L -3.5 0 
+" id="m1e13ca3e66" style="stroke:#000000;stroke-width:0.8;"></path></defs><g><use style="stroke:#000000;stroke-width:0.8;" x="20.5625" xlink:href="#m1e13ca3e66" y="32.444"></use></g></g><g id="text_6"><!-- 0 --><g transform="translate(7.2 36.243219)scale(0.1 -0.1)"><use xlink:href="#DejaVuSans-30"></use></g></g></g><g id="ytick_2"><g id="line2d_7"><g><use style="stroke:#000000;stroke-width:0.8;" x="20.5625" xlink:href="#m1e13ca3e66" y="75.932"></use></g></g><g id="text_7"><!-- 1 --><g transform="translate(7.2 79.731219)scale(0.1 -0.1)"><use xlink:href="#DejaVuSans-31"></use></g></g></g><g id="ytick_3"><g id="line2d_8"><g><use style="stroke:#000000;stroke-width:0.8;" x="20.5625" xlink:href="#m1e13ca3e66" y="119.42"></use></g></g><g id="text_8"><!-- 2 --><g transform="translate(7.2 123.219219)scale(0.1 -0.1)"><use xlink:href="#DejaVuSans-32"></use></g></g></g><g id="ytick_4"><g id="line2d_9"><g><use style="stroke:#000000;stroke-width:0.8;" x="20.5625" xlink:href="#m1e13ca3e66" y="162.908"></use></g></g><g id="text_9"><!-- 3 --><g transform="translate(7.2 166.707219)scale(0.1 -0.1)"><use xlink:href="#DejaVuSans-33"></use></g></g></g><g id="ytick_5"><g id="line2d_10"><g><use style="stroke:#000000;stroke-width:0.8;" x="20.5625" xlink:href="#m1e13ca3e66" y="206.396"></use></g></g><g id="text_10"><!-- 4 --><g transform="translate(7.2 210.195219)scale(0.1 -0.1)"><use xlink:href="#DejaVuSans-34"></use></g></g></g></g><g id="patch_3"><path d="M 20.5625 228.14 
+L 20.5625 10.7 
+" style="fill:none;stroke:#000000;stroke-linecap:square;stroke-linejoin:miter;stroke-width:0.8;"></path></g><g id="patch_4"><path d="M 238.0025 228.14 
+L 238.0025 10.7 
+" style="fill:none;stroke:#000000;stroke-linecap:square;stroke-linejoin:miter;stroke-width:0.8;"></path></g><g id="patch_5"><path d="M 20.5625 228.14 
+L 238.0025 228.14 
+" style="fill:none;stroke:#000000;stroke-linecap:square;stroke-linejoin:miter;stroke-width:0.8;"></path></g><g id="patch_6"><path d="M 20.5625 10.7 
+L 238.0025 10.7 
+" style="fill:none;stroke:#000000;stroke-linecap:square;stroke-linejoin:miter;stroke-width:0.8;"></path></g></g><g id="axes_2"><g id="patch_7"><path d="M 294.489773 228.14 
+L 511.929773 228.14 
+L 511.929773 10.7 
+L 294.489773 10.7 
+z
+" style="fill:#ffffff;"></path></g><g clip-path="url(#pffaaf38e28)"><image height="218" id="imageb9a70543eb" transform="scale(1 -1)translate(0 -218)" width="218" x="294.489773" xlink:href="data:image/png;base64,
+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" y="-10.14"></image></g><g id="matplotlib.axis_3"><g id="xtick_6"><g id="line2d_11"><g><use style="stroke:#000000;stroke-width:0.8;" x="298.37263" xlink:href="#mb14126b705" y="228.14"></use></g></g><g id="text_11"><!-- 0 --><g transform="translate(295.19138 242.738437)scale(0.1 -0.1)"><use xlink:href="#DejaVuSans-30"></use></g></g></g><g id="xtick_7"><g id="line2d_12"><g><use style="stroke:#000000;stroke-width:0.8;" x="337.201201" xlink:href="#mb14126b705" y="228.14"></use></g></g><g id="text_12"><!-- 5 --><defs><path d="M 10.796875 72.90625 
+L 49.515625 72.90625 
+L 49.515625 64.59375 
+L 19.828125 64.59375 
+L 19.828125 46.734375 
+Q 21.96875 47.46875 24.109375 47.828125 
+Q 26.265625 48.1875 28.421875 48.1875 
+Q 40.625 48.1875 47.75 41.5 
+Q 54.890625 34.8125 54.890625 23.390625 
+Q 54.890625 11.625 47.5625 5.09375 
+Q 40.234375 -1.421875 26.90625 -1.421875 
+Q 22.3125 -1.421875 17.546875 -0.640625 
+Q 12.796875 0.140625 7.71875 1.703125 
+L 7.71875 11.625 
+Q 12.109375 9.234375 16.796875 8.0625 
+Q 21.484375 6.890625 26.703125 6.890625 
+Q 35.15625 6.890625 40.078125 11.328125 
+Q 45.015625 15.765625 45.015625 23.390625 
+Q 45.015625 31 40.078125 35.4375 
+Q 35.15625 39.890625 26.703125 39.890625 
+Q 22.75 39.890625 18.8125 39.015625 
+Q 14.890625 38.140625 10.796875 36.28125 
+z
+" id="DejaVuSans-35"></path></defs><g transform="translate(334.019951 242.738437)scale(0.1 -0.1)"><use xlink:href="#DejaVuSans-35"></use></g></g></g><g id="xtick_8"><g id="line2d_13"><g><use style="stroke:#000000;stroke-width:0.8;" x="376.029773" xlink:href="#mb14126b705" y="228.14"></use></g></g><g id="text_13"><!-- 10 --><g transform="translate(369.667273 242.738437)scale(0.1 -0.1)"><use xlink:href="#DejaVuSans-31"></use><use x="63.623047" xlink:href="#DejaVuSans-30"></use></g></g></g><g id="xtick_9"><g id="line2d_14"><g><use style="stroke:#000000;stroke-width:0.8;" x="414.858344" xlink:href="#mb14126b705" y="228.14"></use></g></g><g id="text_14"><!-- 15 --><g transform="translate(408.495844 242.738437)scale(0.1 -0.1)"><use xlink:href="#DejaVuSans-31"></use><use x="63.623047" xlink:href="#DejaVuSans-35"></use></g></g></g><g id="xtick_10"><g id="line2d_15"><g><use style="stroke:#000000;stroke-width:0.8;" x="453.686916" xlink:href="#mb14126b705" y="228.14"></use></g></g><g id="text_15"><!-- 20 --><g transform="translate(447.324416 242.738437)scale(0.1 -0.1)"><use xlink:href="#DejaVuSans-32"></use><use x="63.623047" xlink:href="#DejaVuSans-30"></use></g></g></g><g id="xtick_11"><g id="line2d_16"><g><use style="stroke:#000000;stroke-width:0.8;" x="492.515487" xlink:href="#mb14126b705" y="228.14"></use></g></g><g id="text_16"><!-- 25 --><g transform="translate(486.152987 242.738437)scale(0.1 -0.1)"><use xlink:href="#DejaVuSans-32"></use><use x="63.623047" xlink:href="#DejaVuSans-35"></use></g></g></g></g><g id="matplotlib.axis_4"><g id="ytick_6"><g id="line2d_17"><g><use style="stroke:#000000;stroke-width:0.8;" x="294.489773" xlink:href="#m1e13ca3e66" y="14.582857"></use></g></g><g id="text_17"><!-- 0 --><g transform="translate(281.127273 18.382076)scale(0.1 -0.1)"><use xlink:href="#DejaVuSans-30"></use></g></g></g><g id="ytick_7"><g id="line2d_18"><g><use style="stroke:#000000;stroke-width:0.8;" x="294.489773" xlink:href="#m1e13ca3e66" y="53.411429"></use></g></g><g id="text_18"><!-- 5 --><g transform="translate(281.127273 57.210647)scale(0.1 -0.1)"><use xlink:href="#DejaVuSans-35"></use></g></g></g><g id="ytick_8"><g id="line2d_19"><g><use style="stroke:#000000;stroke-width:0.8;" x="294.489773" xlink:href="#m1e13ca3e66" y="92.24"></use></g></g><g id="text_19"><!-- 10 --><g transform="translate(274.764773 96.039219)scale(0.1 -0.1)"><use xlink:href="#DejaVuSans-31"></use><use x="63.623047" xlink:href="#DejaVuSans-30"></use></g></g></g><g id="ytick_9"><g id="line2d_20"><g><use style="stroke:#000000;stroke-width:0.8;" x="294.489773" xlink:href="#m1e13ca3e66" y="131.068571"></use></g></g><g id="text_20"><!-- 15 --><g transform="translate(274.764773 134.86779)scale(0.1 -0.1)"><use xlink:href="#DejaVuSans-31"></use><use x="63.623047" xlink:href="#DejaVuSans-35"></use></g></g></g><g id="ytick_10"><g id="line2d_21"><g><use style="stroke:#000000;stroke-width:0.8;" x="294.489773" xlink:href="#m1e13ca3e66" y="169.897143"></use></g></g><g id="text_21"><!-- 20 --><g transform="translate(274.764773 173.696362)scale(0.1 -0.1)"><use xlink:href="#DejaVuSans-32"></use><use x="63.623047" xlink:href="#DejaVuSans-30"></use></g></g></g><g id="ytick_11"><g id="line2d_22"><g><use style="stroke:#000000;stroke-width:0.8;" x="294.489773" xlink:href="#m1e13ca3e66" y="208.725714"></use></g></g><g id="text_22"><!-- 25 --><g transform="translate(274.764773 212.524933)scale(0.1 -0.1)"><use xlink:href="#DejaVuSans-32"></use><use x="63.623047" xlink:href="#DejaVuSans-35"></use></g></g></g></g><g id="patch_8"><path d="M 294.489773 228.14 
+L 294.489773 10.7 
+" style="fill:none;stroke:#000000;stroke-linecap:square;stroke-linejoin:miter;stroke-width:0.8;"></path></g><g id="patch_9"><path d="M 511.929773 228.14 
+L 511.929773 10.7 
+" style="fill:none;stroke:#000000;stroke-linecap:square;stroke-linejoin:miter;stroke-width:0.8;"></path></g><g id="patch_10"><path d="M 294.489773 228.14 
+L 511.929773 228.14 
+" style="fill:none;stroke:#000000;stroke-linecap:square;stroke-linejoin:miter;stroke-width:0.8;"></path></g><g id="patch_11"><path d="M 294.489773 10.7 
+L 511.929773 10.7 
+" style="fill:none;stroke:#000000;stroke-linecap:square;stroke-linejoin:miter;stroke-width:0.8;"></path></g></g></g><defs><clippath id="p786cb37951"><rect height="217.44" width="217.44" x="20.5625" y="10.7"></rect></clippath><clippath id="pffaaf38e28"><rect height="217.44" width="217.44" x="294.489773" y="10.7"></rect></clippath></defs></svg>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Sample-from-a-Distribution-over-Kernels">Sample from a Distribution over Kernels<a class="anchor-link" href="#Sample-from-a-Distribution-over-Kernels">¶</a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [12]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># 8x32 kernels of size 5x5x1</span>
+<span class="n">kernels</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">truncated_normal</span><span class="p">([</span><span class="mi">8</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">32</span><span class="p">],</span> <span class="n">stddev</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+<span class="n">kernels</span><span class="o">.</span><span class="n">get_shape</span><span class="p">()</span><span class="o">.</span><span class="n">as_list</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[12]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[8, 5, 5, 1, 32]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Approach-1:-Map-over-samples-with-conv2d">Approach 1: Map over samples with <code>conv2d</code><a class="anchor-link" href="#Approach-1:-Map-over-samples-with-conv2d">¶</a>
+</h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [13]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">x_tiled</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="n">x_tiled</span><span class="o">.</span><span class="n">get_shape</span><span class="p">()</span><span class="o">.</span><span class="n">as_list</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[13]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[8, 50, 28, 28, 1]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [19]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">conv2d</span><span class="p">(</span><span class="n">x_tiled</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">kernels</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> 
+             <span class="n">strides</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> 
+             <span class="n">padding</span><span class="o">=</span><span class="s1">'SAME'</span><span class="p">)</span><span class="o">.</span><span class="n">get_shape</span><span class="p">()</span><span class="o">.</span><span class="n">as_list</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[19]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[50, 28, 28, 32]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [15]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">x_conved1</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">map_fn</span><span class="p">(</span><span class="k">lambda</span> <span class="n">args</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">conv2d</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">padding</span><span class="o">=</span><span class="s1">'SAME'</span><span class="p">),</span>
+                      <span class="n">elems</span><span class="o">=</span><span class="p">(</span><span class="n">x_tiled</span><span class="p">,</span> <span class="n">kernels</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<span class="n">x_conved1</span><span class="o">.</span><span class="n">get_shape</span><span class="p">()</span><span class="o">.</span><span class="n">as_list</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[15]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[8, 50, 28, 28, 32]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Approach-2:-Flattening">Approach 2: Flattening<a class="anchor-link" href="#Approach-2:-Flattening">¶</a>
+</h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [16]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">kernels_flat</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">kernels</span><span class="p">,</span> 
+                                       <span class="n">perm</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span> 
+                          <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">32</span><span class="o">*</span><span class="mi">8</span><span class="p">))</span>
+<span class="n">kernels_flat</span><span class="o">.</span><span class="n">get_shape</span><span class="p">()</span><span class="o">.</span><span class="n">as_list</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[16]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[5, 5, 1, 256]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [17]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">x_conved2</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">conv2d</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">kernels_flat</span><span class="p">,</span> 
+                                                 <span class="n">strides</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> 
+                                                 <span class="n">padding</span><span class="o">=</span><span class="s1">'SAME'</span><span class="p">),</span> 
+                                    <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">8</span><span class="p">)),</span> 
+                         <span class="n">perm</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="n">x_conved2</span><span class="o">.</span><span class="n">get_shape</span><span class="p">()</span><span class="o">.</span><span class="n">as_list</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[17]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[8, 50, 28, 28, 32]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [18]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">tf</span><span class="o">.</span><span class="n">reduce_all</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="n">x_conved1</span><span class="p">,</span> <span class="n">x_conved2</span><span class="p">))</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[18]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>True</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    </div>
+  </div>
+
+    </div>
+    <aside class="postpromonav"><nav><ul class="pager hidden-print">
+<li class="previous">
+                <a href="../variational-inference-with-implicit-approximate-inference-models-fhuszars-explaining-away-example-pt-1-wip/" rel="prev" title="Variational Inference with Implicit Approximate Inference Models - @fhuszar's Explaining Away Example Pt. 1 (WIP)">Previous post</a>
+            </li>
+        </ul></nav></aside><section class="comments hidden-print"><h2>Comments</h2>
+                        <div id="disqus_thread"></div>
+        <script>
+        var disqus_shortname ="ltiao",
+            disqus_url="http://louistiao.me/notes/working-with-samples-of-distributions-over-convolutional-kernels/",
+        disqus_title="Working with Samples of Distributions over Convolutional Kernels",
+        disqus_identifier="cache/content/notes/notebooks/working-with-samples-of-distributions-over-convolutional-kernels.html",
+        disqus_config = function () {
+            this.language = "en";
+        };
+        (function() {
+            var dsq = document.createElement('script'); dsq.async = true;
+            dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script><noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a>
+</noscript>
+    <a href="https://disqus.com" class="dsq-brlink" rel="nofollow">Comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+        </section><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML" integrity="sha256-SDRP1VVYu+tgAGKhddBSl5+ezofHKZeI+OzxakbIe/Y=" crossorigin="anonymous"></script><script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+    },
+    displayAlign: 'center', // Change this to 'left' if you want left-aligned equations.
+    "HTML-CSS": {
+        styles: {'.MathJax_Display': {"margin": 0}}
+    }
+});
+</script></article><script>var disqus_shortname="ltiao";(function(){var a=document.createElement("script");a.async=true;a.src="https://"+disqus_shortname+".disqus.com/count.js";(document.getElementsByTagName("head")[0]||document.getElementsByTagName("body")[0]).appendChild(a)}());</script>
+</div>
+        <!--End of body content-->
+      </div>
+    </div>
+
+    <footer id="footer" class="footer">
+        
+Contents © 2017
+<a href="mailto:louistiao@me.com">Louis Tiao</a> - Powered by
+<a href="https://getnikola.com" rel="nofollow">Nikola</a>
+
+
+<span class="pull-right">
+
+  <a class="twitter-follow-button" href="https://twitter.com/louistiao" data-show-count="false" data-show-screen-name="false">
+  Follow @louistiao
+  </a>
+
+  <a class="github-button" href="https://github.com/ltiao" aria-label="Follow @ltiao on GitHub" data-show-count="false">
+  Follow @ltiao
+  </a>
+
+  <a href="https://ko-fi.com/A3476EX">
+    <object type="image/svg+xml" style="pointer-events: none;" data="https://img.shields.io/badge/Support--yellow.svg?style=social"></object>
+  </a>
+
+</span>
+
+
+            
+    </footer>
+</div> <!-- /container -->
+
+            <script src="../../assets/js/all-nocdn.js"></script><script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script><!-- fancy dates --><script>
+    moment.locale("en");
+    fancydates(0, "YYYY-MM-DD HH:mm");
+    </script><!-- end fancy dates --><!-- Google Analytics --><script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-43722566-1', 'auto');
+  ga('send', 'pageview');
+
+</script><!-- GitHub Buttons --><script async defer src="https://buttons.github.io/buttons.js"></script><!-- Twitter Widgets --><script>window.twttr = (function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0],
+    t = window.twttr || {};
+  if (d.getElementById(id)) return t;
+  js = d.createElement(s);
+  js.id = id;
+  js.src = "https://platform.twitter.com/widgets.js";
+  fjs.parentNode.insertBefore(js, fjs);
+
+  t._e = [];
+  t.ready = function(f) {
+    t._e.push(f);
+  };
+
+  return t;
+}(document, "script", "twitter-wjs"));</script>
+</body>
+</html>

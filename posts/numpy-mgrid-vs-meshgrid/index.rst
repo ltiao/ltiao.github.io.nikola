@@ -20,11 +20,11 @@ First, recall that ``meshgrid`` behaves as follows:
 
    >>> import numpy as np
    >>> x1, y1 = np.meshgrid(np.arange(1, 11, 2), np.arange(-12, -3, 3))
-   >>> x1
+   >>> x1 # 3x5 array
    array([[1, 3, 5, 7, 9],
           [1, 3, 5, 7, 9],
           [1, 3, 5, 7, 9]])
-   >>> y1
+   >>> y1 # 3x5 array
    array([[-12, -12, -12, -12, -12],
           [ -9,  -9,  -9,  -9,  -9],
           [ -6,  -6,  -6,  -6,  -6]])
@@ -43,13 +43,13 @@ Observe the behavior of ``mgrid``, which essentially returns the transpose of
 .. code:: pycon
 
    >>> x2, y2 = np.mgrid[1:11:2, -12:-3:3]
-   >>> x2
+   >>> x2 # 5x3 array
    array([[1, 1, 1],
           [3, 3, 3],
           [5, 5, 5],
           [7, 7, 7],
           [9, 9, 9]])
-   >>> y2
+   >>> y2 # 5x3 array
    array([[-12,  -9,  -6],
           [-12,  -9,  -6],
           [-12,  -9,  -6],
@@ -67,13 +67,13 @@ form dense grids, i.e.
 .. code:: pycon
 
    >>> a, b = np.ogrid[1:11:2, -12:-3:3]
-   >>> a
+   >>> a # 5x1 array
    array([[1],
           [3],
           [5],
           [7],
           [9]])
-   >>> b
+   >>> b # 1x3 array
    array([[-12,  -9,  -6]])
 
 and the *5x1* array ``a`` is broadcasted with the *1x3* array ``b`` to form 
@@ -82,13 +82,13 @@ two *5x3* arrays
 .. code:: pycon
 
    >>> x2, y2 = np.broadcast_arrays(a, b)
-   >>> x2
+   >>> x2 # 5x3 array
    array([[1, 1, 1],
           [3, 3, 3],
           [5, 5, 5],
           [7, 7, 7],
           [9, 9, 9]])
-   >>> y2
+   >>> y2 # 5x3 array
    array([[-12,  -9,  -6],
           [-12,  -9,  -6],
           [-12,  -9,  -6],
@@ -102,13 +102,13 @@ broadcasting implicitly. E.g.
 
 .. code:: pycon
    
-   >>> x2 + y2
+   >>> x2 + y2 # adding two 5x3 arrays
    array([[-11,  -8,  -5],
           [ -9,  -6,  -3],
           [ -7,  -4,  -1],
           [ -5,  -2,   1],
           [ -3,   0,   3]])
-   >>> a + b
+   >>> a + b # adding a 5x1 array to a 1x3 array
    array([[-11,  -8,  -5],
           [ -9,  -6,  -3],
           [ -7,  -4,  -1],
@@ -121,11 +121,11 @@ just use ``mgrid`` with the  arguments and unpacking targets reversed.
 .. code:: pycon
 
    >>> y3, x3 = np.mgrid[-12:-3:3, 1:11:2]
-   >>> x3
+   >>> x3 # 3x5 array
    array([[1, 3, 5, 7, 9],
           [1, 3, 5, 7, 9],
           [1, 3, 5, 7, 9]])
-   >>> y3
+   >>> y3 # 3x5 array
    array([[-12, -12, -12, -12, -12],
           [ -9,  -9,  -9,  -9,  -9],
           [ -6,  -6,  -6,  -6,  -6]])
@@ -134,8 +134,45 @@ just use ``mgrid`` with the  arguments and unpacking targets reversed.
    >>> np.all(y1 == y3)
    True
 
-Of course, if you are using ``np.linspace`` instead of ``np.arange``, then
-you're better off sticking with ``np.meshgrid``.
+Uniformly-spaced meshgrids
+--------------------------
+
+At the very beginning, we created a meshgrid by specifying ranges and step
+lengths using ``np.arange``. Suppose instead we just want to specify the number 
+of evenly-spaced points we'd like the meshgrid to include between some ranges. 
+In other words, we're instead interested in using ``np.linspace`` instead of 
+``np.arange``:
+
+.. code:: pycon
+
+   >>> x1, y1 = np.meshgrid(np.linspace(-5, 5, 5), 
+   ...                      np.linspace(-12, -3, 3))
+   >>> x1 # 3x5 array
+   array([[-5. , -2.5,  0. ,  2.5,  5. ],
+          [-5. , -2.5,  0. ,  2.5,  5. ],
+          [-5. , -2.5,  0. ,  2.5,  5. ]])
+   >>> y1 # 3x5 array
+   array([[-12. , -12. , -12. , -12. , -12. ],
+          [ -7.5,  -7.5,  -7.5,  -7.5,  -7.5],
+          [ -3. ,  -3. ,  -3. ,  -3. ,  -3. ]])
+
+The ``mgrid`` allows you to specify this by using a complex number (e.g. ``5j``) 
+as a step length. When the step length is a complex number, the integer part of 
+its magnitude is interpreted as specifying the number of points to create 
+between the start and stop values, where the stop value is inclusive. Hence, to 
+achieve the above using ``mgrid``:
+
+.. code:: pycon
+
+   >>> y3, x3 = np.mgrid[-12:-3:3j,-5:5:5j]
+   >>> np.all(x1 == x3)
+   True
+   >>> np.all(y1 == y3)
+   True
+
+In summary, while the ``mgrid`` function is often overlooked, it is very general 
+and powerful, and subsumes many other functions in NumPy as special cases. It is
+related to the ``ogrid``, and demonstrates the flexibility of NumPy Broadcasting_.
 
 .. _meshgrid: http://docs.scipy.org/doc/numpy/reference/generated/numpy.meshgrid.html
 .. _mgrid: http://docs.scipy.org/doc/numpy/reference/generated/numpy.mgrid.html

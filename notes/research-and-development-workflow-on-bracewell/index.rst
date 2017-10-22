@@ -1,8 +1,8 @@
 .. title: Research and Development Workflow on Bracewell
 .. slug: research-and-development-workflow-on-bracewell
 .. date: 2017-09-12 16:07:09 UTC+10:00
-.. tags: 
-.. category: 
+.. tags: draft
+.. category: coding
 .. link: 
 .. description: 
 .. type: text

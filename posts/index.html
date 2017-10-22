@@ -93,7 +93,273 @@ MathJax.Hub.Config({
             </p>
 
     </header><div class="postindex">
-    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="notebooks/visualizing-the-latent-space-of-vector-drawings-from-the-google-quickdraw-dataset-with-sketchrnn-pca-and-t-sne/" class="u-url">Visualizing the Latent Space of Vector Drawings from the Google QuickDraw Dataset with SketchRNN, PCA and t-SNE</a></h1>
+    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="implementing-variational-autoencoders-in-keras-beyond-the-quickstart-tutorial/" class="u-url">Implementing Variational Autoencoders in Keras: Beyond the Quickstart Tutorial</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                Louis Tiao
+            </span></p>
+            <p class="dateline"><a href="implementing-variational-autoencoders-in-keras-beyond-the-quickstart-tutorial/" rel="bookmark"><time class="published dt-published" datetime="2017-10-23T01:19:59+11:00" title="2017-10-23 01:19">2017-10-23 01:19</time></a></p>
+                <p class="commentline">            <a href="implementing-variational-autoencoders-in-keras-beyond-the-quickstart-tutorial/#disqus_thread" data-disqus-identifier="cache/content/posts/implementing-variational-autoencoders-in-keras-beyond-the-quickstart-tutorial.html">Comments</a>
+
+
+        </p>
+</div>
+    </header><div class="p-summary entry-summary">
+    <div>
+<p><a class="reference external" href="../listings/variational_autoencoder.py.html">variational_autoencoder.py</a>  <a class="reference external" href="../listings/variational_autoencoder.py">(Source)</a></p>
+<pre class="code python"><a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-1"></a><span class="sd">'''This script demonstrates how to build a variational autoencoder with Keras.</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-2"></a><span class="sd">Reference: "Auto-Encoding Variational Bayes" https://arxiv.org/abs/1312.6114</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-3"></a><span class="sd">'''</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-4"></a><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-5"></a><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-6"></a><span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">norm</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-7"></a>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-8"></a><span class="kn">from</span> <span class="nn">keras.layers</span> <span class="kn">import</span> <span class="n">Input</span><span class="p">,</span> <span class="n">Dense</span><span class="p">,</span> <span class="n">Lambda</span><span class="p">,</span> <span class="n">Layer</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-9"></a><span class="kn">from</span> <span class="nn">keras.models</span> <span class="kn">import</span> <span class="n">Model</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-10"></a><span class="kn">from</span> <span class="nn">keras</span> <span class="kn">import</span> <span class="n">backend</span> <span class="k">as</span> <span class="n">K</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-11"></a><span class="kn">from</span> <span class="nn">keras</span> <span class="kn">import</span> <span class="n">metrics</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-12"></a><span class="kn">from</span> <span class="nn">keras.datasets</span> <span class="kn">import</span> <span class="n">mnist</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-13"></a>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-14"></a><span class="n">batch_size</span> <span class="o">=</span> <span class="mi">100</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-15"></a><span class="n">original_dim</span> <span class="o">=</span> <span class="mi">784</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-16"></a><span class="n">latent_dim</span> <span class="o">=</span> <span class="mi">2</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-17"></a><span class="n">intermediate_dim</span> <span class="o">=</span> <span class="mi">256</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-18"></a><span class="n">epochs</span> <span class="o">=</span> <span class="mi">50</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-19"></a><span class="n">epsilon_std</span> <span class="o">=</span> <span class="mf">1.0</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-20"></a>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-21"></a>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-22"></a><span class="n">x</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">original_dim</span><span class="p">,))</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-23"></a><span class="n">h</span> <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="n">intermediate_dim</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'relu'</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-24"></a><span class="n">z_mean</span> <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="n">latent_dim</span><span class="p">)(</span><span class="n">h</span><span class="p">)</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-25"></a><span class="n">z_log_var</span> <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="n">latent_dim</span><span class="p">)(</span><span class="n">h</span><span class="p">)</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-26"></a>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-27"></a>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-28"></a><span class="k">def</span> <span class="nf">sampling</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-29"></a>    <span class="n">z_mean</span><span class="p">,</span> <span class="n">z_log_var</span> <span class="o">=</span> <span class="n">args</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-30"></a>    <span class="n">epsilon</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">random_normal</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">K</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">z_mean</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">latent_dim</span><span class="p">),</span> <span class="n">mean</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-31"></a>                              <span class="n">stddev</span><span class="o">=</span><span class="n">epsilon_std</span><span class="p">)</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-32"></a>    <span class="k">return</span> <span class="n">z_mean</span> <span class="o">+</span> <span class="n">K</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">z_log_var</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">epsilon</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-33"></a>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-34"></a><span class="c1"># note that "output_shape" isn't necessary with the TensorFlow backend</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-35"></a><span class="n">z</span> <span class="o">=</span> <span class="n">Lambda</span><span class="p">(</span><span class="n">sampling</span><span class="p">,</span> <span class="n">output_shape</span><span class="o">=</span><span class="p">(</span><span class="n">latent_dim</span><span class="p">,))([</span><span class="n">z_mean</span><span class="p">,</span> <span class="n">z_log_var</span><span class="p">])</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-36"></a>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-37"></a><span class="c1"># we instantiate these layers separately so as to reuse them later</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-38"></a><span class="n">decoder_h</span> <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="n">intermediate_dim</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'relu'</span><span class="p">)</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-39"></a><span class="n">decoder_mean</span> <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="n">original_dim</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'sigmoid'</span><span class="p">)</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-40"></a><span class="n">h_decoded</span> <span class="o">=</span> <span class="n">decoder_h</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-41"></a><span class="n">x_decoded_mean</span> <span class="o">=</span> <span class="n">decoder_mean</span><span class="p">(</span><span class="n">h_decoded</span><span class="p">)</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-42"></a>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-43"></a>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-44"></a><span class="c1"># Custom loss layer</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-45"></a><span class="k">class</span> <span class="nc">CustomVariationalLayer</span><span class="p">(</span><span class="n">Layer</span><span class="p">):</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-46"></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-47"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">is_placeholder</span> <span class="o">=</span> <span class="bp">True</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-48"></a>        <span class="nb">super</span><span class="p">(</span><span class="n">CustomVariationalLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-49"></a>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-50"></a>    <span class="k">def</span> <span class="nf">vae_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">x_decoded_mean</span><span class="p">):</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-51"></a>        <span class="n">xent_loss</span> <span class="o">=</span> <span class="n">original_dim</span> <span class="o">*</span> <span class="n">metrics</span><span class="o">.</span><span class="n">binary_crossentropy</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">x_decoded_mean</span><span class="p">)</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-52"></a>        <span class="n">kl_loss</span> <span class="o">=</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">K</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">z_log_var</span> <span class="o">-</span> <span class="n">K</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">z_mean</span><span class="p">)</span> <span class="o">-</span> <span class="n">K</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">z_log_var</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-53"></a>        <span class="k">return</span> <span class="n">K</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">xent_loss</span> <span class="o">+</span> <span class="n">kl_loss</span><span class="p">)</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-54"></a>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-55"></a>    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-56"></a>        <span class="n">x</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-57"></a>        <span class="n">x_decoded_mean</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-58"></a>        <span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vae_loss</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">x_decoded_mean</span><span class="p">)</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-59"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">add_loss</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">)</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-60"></a>        <span class="c1"># We won't actually use the output.</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-61"></a>        <span class="k">return</span> <span class="n">x</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-62"></a>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-63"></a><span class="n">y</span> <span class="o">=</span> <span class="n">CustomVariationalLayer</span><span class="p">()([</span><span class="n">x</span><span class="p">,</span> <span class="n">x_decoded_mean</span><span class="p">])</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-64"></a><span class="n">vae</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-65"></a><span class="n">vae</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">optimizer</span><span class="o">=</span><span class="s1">'rmsprop'</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-66"></a>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-67"></a>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-68"></a><span class="c1"># train the VAE on MNIST digits</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-69"></a><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">),</span> <span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span> <span class="o">=</span> <span class="n">mnist</span><span class="o">.</span><span class="n">load_data</span><span class="p">()</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-70"></a>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-71"></a><span class="n">x_train</span> <span class="o">=</span> <span class="n">x_train</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">'float32'</span><span class="p">)</span> <span class="o">/</span> <span class="mf">255.</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-72"></a><span class="n">x_test</span> <span class="o">=</span> <span class="n">x_test</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">'float32'</span><span class="p">)</span> <span class="o">/</span> <span class="mf">255.</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-73"></a><span class="n">x_train</span> <span class="o">=</span> <span class="n">x_train</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">x_train</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">x_train</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:])))</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-74"></a><span class="n">x_test</span> <span class="o">=</span> <span class="n">x_test</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">x_test</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">x_test</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:])))</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-75"></a>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-76"></a><span class="n">vae</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-77"></a>        <span class="n">shuffle</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-78"></a>        <span class="n">epochs</span><span class="o">=</span><span class="n">epochs</span><span class="p">,</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-79"></a>        <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-80"></a>        <span class="n">validation_data</span><span class="o">=</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">x_test</span><span class="p">))</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-81"></a>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-82"></a><span class="c1"># build a model to project inputs on the latent space</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-83"></a><span class="n">encoder</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">z_mean</span><span class="p">)</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-84"></a>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-85"></a><span class="c1"># display a 2D plot of the digit classes in the latent space</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-86"></a><span class="n">x_test_encoded</span> <span class="o">=</span> <span class="n">encoder</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">)</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-87"></a><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-88"></a><span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x_test_encoded</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">x_test_encoded</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="n">y_test</span><span class="p">)</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-89"></a><span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-90"></a><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-91"></a>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-92"></a><span class="c1"># build a digit generator that can sample from the learned distribution</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-93"></a><span class="n">decoder_input</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">latent_dim</span><span class="p">,))</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-94"></a><span class="n">_h_decoded</span> <span class="o">=</span> <span class="n">decoder_h</span><span class="p">(</span><span class="n">decoder_input</span><span class="p">)</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-95"></a><span class="n">_x_decoded_mean</span> <span class="o">=</span> <span class="n">decoder_mean</span><span class="p">(</span><span class="n">_h_decoded</span><span class="p">)</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-96"></a><span class="n">generator</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">decoder_input</span><span class="p">,</span> <span class="n">_x_decoded_mean</span><span class="p">)</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-97"></a>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-98"></a><span class="c1"># display a 2D manifold of the digits</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-99"></a><span class="n">n</span> <span class="o">=</span> <span class="mi">15</span>  <span class="c1"># figure with 15x15 digits</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-100"></a><span class="n">digit_size</span> <span class="o">=</span> <span class="mi">28</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-101"></a><span class="n">figure</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">digit_size</span> <span class="o">*</span> <span class="n">n</span><span class="p">,</span> <span class="n">digit_size</span> <span class="o">*</span> <span class="n">n</span><span class="p">))</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-102"></a><span class="c1"># linearly spaced coordinates on the unit square were transformed through the inverse CDF (ppf) of the Gaussian</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-103"></a><span class="c1"># to produce values of the latent variables z, since the prior of the latent space is Gaussian</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-104"></a><span class="n">grid_x</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-105"></a><span class="n">grid_y</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-106"></a>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-107"></a><span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">yi</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">grid_x</span><span class="p">):</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-108"></a>    <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">xi</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">grid_y</span><span class="p">):</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-109"></a>        <span class="n">z_sample</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">xi</span><span class="p">,</span> <span class="n">yi</span><span class="p">]])</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-110"></a>        <span class="n">x_decoded</span> <span class="o">=</span> <span class="n">generator</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">z_sample</span><span class="p">)</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-111"></a>        <span class="n">digit</span> <span class="o">=</span> <span class="n">x_decoded</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">digit_size</span><span class="p">,</span> <span class="n">digit_size</span><span class="p">)</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-112"></a>        <span class="n">figure</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="n">digit_size</span><span class="p">:</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">digit_size</span><span class="p">,</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-113"></a>               <span class="n">j</span> <span class="o">*</span> <span class="n">digit_size</span><span class="p">:</span> <span class="p">(</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">digit_size</span><span class="p">]</span> <span class="o">=</span> <span class="n">digit</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-114"></a>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-115"></a><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-116"></a><span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">figure</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">'Greys_r'</span><span class="p">)</span>
+<a name="rest_code_270b6bca85d04608b0fc4e2f25d1acc8-117"></a><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">&lt;string&gt;</tt>, line 2)</p>
+<p>Cannot find pygments lexer for language "ipynb"</p>
+<pre class="literal-block">
+.. listing:: variational_autoencoder.ipynb ipynb
+
+</pre>
+</div>
+<ul class="simple">
+<li><a class="reference external" href="https://github.com/fchollet/keras/blob/2.0.8/examples/variational_autoencoder.py">https://github.com/fchollet/keras/blob/2.0.8/examples/variational_autoencoder.py</a></li>
+</ul>
+<div class="section" id="appendix">
+<h2>Appendix</h2>
+<pre class="code python"><a name="rest_code_aaef556eff764426bd30ca65679c41d1-1"></a><span class="sd">'''This script demonstrates how to build a variational autoencoder with Keras.</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-2"></a><span class="sd">Reference: "Auto-Encoding Variational Bayes" https://arxiv.org/abs/1312.6114</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-3"></a><span class="sd">'''</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-4"></a><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-5"></a><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-6"></a><span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">norm</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-7"></a>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-8"></a><span class="kn">from</span> <span class="nn">keras.layers</span> <span class="kn">import</span> <span class="n">Input</span><span class="p">,</span> <span class="n">Dense</span><span class="p">,</span> <span class="n">Lambda</span><span class="p">,</span> <span class="n">Layer</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-9"></a><span class="kn">from</span> <span class="nn">keras.models</span> <span class="kn">import</span> <span class="n">Model</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-10"></a><span class="kn">from</span> <span class="nn">keras</span> <span class="kn">import</span> <span class="n">backend</span> <span class="k">as</span> <span class="n">K</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-11"></a><span class="kn">from</span> <span class="nn">keras</span> <span class="kn">import</span> <span class="n">metrics</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-12"></a><span class="kn">from</span> <span class="nn">keras.datasets</span> <span class="kn">import</span> <span class="n">mnist</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-13"></a>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-14"></a><span class="n">batch_size</span> <span class="o">=</span> <span class="mi">100</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-15"></a><span class="n">original_dim</span> <span class="o">=</span> <span class="mi">784</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-16"></a><span class="n">latent_dim</span> <span class="o">=</span> <span class="mi">2</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-17"></a><span class="n">intermediate_dim</span> <span class="o">=</span> <span class="mi">256</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-18"></a><span class="n">epochs</span> <span class="o">=</span> <span class="mi">50</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-19"></a><span class="n">epsilon_std</span> <span class="o">=</span> <span class="mf">1.0</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-20"></a>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-21"></a>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-22"></a><span class="n">x</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">original_dim</span><span class="p">,))</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-23"></a><span class="n">h</span> <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="n">intermediate_dim</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'relu'</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-24"></a><span class="n">z_mean</span> <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="n">latent_dim</span><span class="p">)(</span><span class="n">h</span><span class="p">)</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-25"></a><span class="n">z_log_var</span> <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="n">latent_dim</span><span class="p">)(</span><span class="n">h</span><span class="p">)</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-26"></a>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-27"></a>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-28"></a><span class="k">def</span> <span class="nf">sampling</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-29"></a>    <span class="n">z_mean</span><span class="p">,</span> <span class="n">z_log_var</span> <span class="o">=</span> <span class="n">args</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-30"></a>    <span class="n">epsilon</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">random_normal</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">K</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">z_mean</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">latent_dim</span><span class="p">),</span> <span class="n">mean</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-31"></a>                              <span class="n">stddev</span><span class="o">=</span><span class="n">epsilon_std</span><span class="p">)</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-32"></a>    <span class="k">return</span> <span class="n">z_mean</span> <span class="o">+</span> <span class="n">K</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">z_log_var</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">epsilon</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-33"></a>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-34"></a><span class="c1"># note that "output_shape" isn't necessary with the TensorFlow backend</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-35"></a><span class="n">z</span> <span class="o">=</span> <span class="n">Lambda</span><span class="p">(</span><span class="n">sampling</span><span class="p">,</span> <span class="n">output_shape</span><span class="o">=</span><span class="p">(</span><span class="n">latent_dim</span><span class="p">,))([</span><span class="n">z_mean</span><span class="p">,</span> <span class="n">z_log_var</span><span class="p">])</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-36"></a>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-37"></a><span class="c1"># we instantiate these layers separately so as to reuse them later</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-38"></a><span class="n">decoder_h</span> <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="n">intermediate_dim</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'relu'</span><span class="p">)</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-39"></a><span class="n">decoder_mean</span> <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="n">original_dim</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'sigmoid'</span><span class="p">)</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-40"></a><span class="n">h_decoded</span> <span class="o">=</span> <span class="n">decoder_h</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-41"></a><span class="n">x_decoded_mean</span> <span class="o">=</span> <span class="n">decoder_mean</span><span class="p">(</span><span class="n">h_decoded</span><span class="p">)</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-42"></a>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-43"></a>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-44"></a><span class="c1"># Custom loss layer</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-45"></a><span class="k">class</span> <span class="nc">CustomVariationalLayer</span><span class="p">(</span><span class="n">Layer</span><span class="p">):</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-46"></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-47"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">is_placeholder</span> <span class="o">=</span> <span class="bp">True</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-48"></a>        <span class="nb">super</span><span class="p">(</span><span class="n">CustomVariationalLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-49"></a>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-50"></a>    <span class="k">def</span> <span class="nf">vae_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">x_decoded_mean</span><span class="p">):</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-51"></a>        <span class="n">xent_loss</span> <span class="o">=</span> <span class="n">original_dim</span> <span class="o">*</span> <span class="n">metrics</span><span class="o">.</span><span class="n">binary_crossentropy</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">x_decoded_mean</span><span class="p">)</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-52"></a>        <span class="n">kl_loss</span> <span class="o">=</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">K</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">z_log_var</span> <span class="o">-</span> <span class="n">K</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">z_mean</span><span class="p">)</span> <span class="o">-</span> <span class="n">K</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">z_log_var</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-53"></a>        <span class="k">return</span> <span class="n">K</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">xent_loss</span> <span class="o">+</span> <span class="n">kl_loss</span><span class="p">)</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-54"></a>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-55"></a>    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-56"></a>        <span class="n">x</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-57"></a>        <span class="n">x_decoded_mean</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-58"></a>        <span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vae_loss</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">x_decoded_mean</span><span class="p">)</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-59"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">add_loss</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">)</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-60"></a>        <span class="c1"># We won't actually use the output.</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-61"></a>        <span class="k">return</span> <span class="n">x</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-62"></a>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-63"></a><span class="n">y</span> <span class="o">=</span> <span class="n">CustomVariationalLayer</span><span class="p">()([</span><span class="n">x</span><span class="p">,</span> <span class="n">x_decoded_mean</span><span class="p">])</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-64"></a><span class="n">vae</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-65"></a><span class="n">vae</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">optimizer</span><span class="o">=</span><span class="s1">'rmsprop'</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-66"></a>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-67"></a>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-68"></a><span class="c1"># train the VAE on MNIST digits</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-69"></a><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">),</span> <span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span> <span class="o">=</span> <span class="n">mnist</span><span class="o">.</span><span class="n">load_data</span><span class="p">()</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-70"></a>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-71"></a><span class="n">x_train</span> <span class="o">=</span> <span class="n">x_train</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">'float32'</span><span class="p">)</span> <span class="o">/</span> <span class="mf">255.</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-72"></a><span class="n">x_test</span> <span class="o">=</span> <span class="n">x_test</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">'float32'</span><span class="p">)</span> <span class="o">/</span> <span class="mf">255.</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-73"></a><span class="n">x_train</span> <span class="o">=</span> <span class="n">x_train</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">x_train</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">x_train</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:])))</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-74"></a><span class="n">x_test</span> <span class="o">=</span> <span class="n">x_test</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">x_test</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">x_test</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:])))</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-75"></a>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-76"></a><span class="n">vae</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-77"></a>        <span class="n">shuffle</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-78"></a>        <span class="n">epochs</span><span class="o">=</span><span class="n">epochs</span><span class="p">,</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-79"></a>        <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-80"></a>        <span class="n">validation_data</span><span class="o">=</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">x_test</span><span class="p">))</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-81"></a>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-82"></a><span class="c1"># build a model to project inputs on the latent space</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-83"></a><span class="n">encoder</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">z_mean</span><span class="p">)</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-84"></a>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-85"></a><span class="c1"># display a 2D plot of the digit classes in the latent space</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-86"></a><span class="n">x_test_encoded</span> <span class="o">=</span> <span class="n">encoder</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">)</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-87"></a><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-88"></a><span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x_test_encoded</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">x_test_encoded</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="n">y_test</span><span class="p">)</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-89"></a><span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-90"></a><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-91"></a>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-92"></a><span class="c1"># build a digit generator that can sample from the learned distribution</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-93"></a><span class="n">decoder_input</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">latent_dim</span><span class="p">,))</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-94"></a><span class="n">_h_decoded</span> <span class="o">=</span> <span class="n">decoder_h</span><span class="p">(</span><span class="n">decoder_input</span><span class="p">)</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-95"></a><span class="n">_x_decoded_mean</span> <span class="o">=</span> <span class="n">decoder_mean</span><span class="p">(</span><span class="n">_h_decoded</span><span class="p">)</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-96"></a><span class="n">generator</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">decoder_input</span><span class="p">,</span> <span class="n">_x_decoded_mean</span><span class="p">)</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-97"></a>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-98"></a><span class="c1"># display a 2D manifold of the digits</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-99"></a><span class="n">n</span> <span class="o">=</span> <span class="mi">15</span>  <span class="c1"># figure with 15x15 digits</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-100"></a><span class="n">digit_size</span> <span class="o">=</span> <span class="mi">28</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-101"></a><span class="n">figure</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">digit_size</span> <span class="o">*</span> <span class="n">n</span><span class="p">,</span> <span class="n">digit_size</span> <span class="o">*</span> <span class="n">n</span><span class="p">))</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-102"></a><span class="c1"># linearly spaced coordinates on the unit square were transformed through the inverse CDF (ppf) of the Gaussian</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-103"></a><span class="c1"># to produce values of the latent variables z, since the prior of the latent space is Gaussian</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-104"></a><span class="n">grid_x</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-105"></a><span class="n">grid_y</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-106"></a>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-107"></a><span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">yi</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">grid_x</span><span class="p">):</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-108"></a>    <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">xi</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">grid_y</span><span class="p">):</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-109"></a>        <span class="n">z_sample</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">xi</span><span class="p">,</span> <span class="n">yi</span><span class="p">]])</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-110"></a>        <span class="n">x_decoded</span> <span class="o">=</span> <span class="n">generator</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">z_sample</span><span class="p">)</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-111"></a>        <span class="n">digit</span> <span class="o">=</span> <span class="n">x_decoded</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">digit_size</span><span class="p">,</span> <span class="n">digit_size</span><span class="p">)</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-112"></a>        <span class="n">figure</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="n">digit_size</span><span class="p">:</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">digit_size</span><span class="p">,</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-113"></a>               <span class="n">j</span> <span class="o">*</span> <span class="n">digit_size</span><span class="p">:</span> <span class="p">(</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">digit_size</span><span class="p">]</span> <span class="o">=</span> <span class="n">digit</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-114"></a>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-115"></a><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-116"></a><span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">figure</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">'Greys_r'</span><span class="p">)</span>
+<a name="rest_code_aaef556eff764426bd30ca65679c41d1-117"></a><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre>
+</div>
+</div>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="notebooks/visualizing-the-latent-space-of-vector-drawings-from-the-google-quickdraw-dataset-with-sketchrnn-pca-and-t-sne/" class="u-url">Visualizing the Latent Space of Vector Drawings from the Google QuickDraw Dataset with SketchRNN, PCA and t-SNE</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
                 Louis Tiao
@@ -634,30 +900,6 @@ seemingly inexplicable error:</p>
 <a name="rest_code_871931d9d61c4266af38e143b7402d75-10"></a><span class="go">----------------------------------------</span>
 </pre>
 <p class="more"><a href="installing-cartopy-on-mac-osx-1011/">Read more…</a></p>
-</div>
-    </div>
-    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="workflow-for-keeping-nikola-config-file-updated/" class="u-url">Workflow for keeping Nikola config file updated</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
-                Louis Tiao
-            </span></p>
-            <p class="dateline"><a href="workflow-for-keeping-nikola-config-file-updated/" rel="bookmark"><time class="published dt-published" datetime="2016-03-29T11:13:12+11:00" title="2016-03-29 11:13">2016-03-29 11:13</time></a></p>
-                <p class="commentline">            <a href="workflow-for-keeping-nikola-config-file-updated/#disqus_thread" data-disqus-identifier="cache/content/posts/workflow-for-keeping-nikola-config-file-updated.html">Comments</a>
-
-
-        </p>
-</div>
-    </header><div class="p-summary entry-summary">
-    <div>
-<p>For most, keeping Nikola up-to-date is usually a simple matter of running
-something like:</p>
-<pre class="code console"><a name="rest_code_17d38467420a43f8a3ae7c4f8b230110-1"></a><span class="gp">$</span> pip install --upgrade nikola
-</pre>
-<p>The same goes for its dependencies. However, one important thing that can get
-overlooked is the Nikola configuration file for your site (the <tt class="docutils literal">conf.py</tt> file
-sitting at the root of your Nikola site directory), which is almost always
-updated with each major Nikola release.</p>
-<p class="more"><a href="workflow-for-keeping-nikola-config-file-updated/">Read more…</a></p>
 </div>
     </div>
     </article>

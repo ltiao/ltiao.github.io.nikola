@@ -21,7 +21,7 @@ I have a thorough background in computer science and mathematics.
 Previously, I studied computer science at the `University of New South Wales`_ 
 (UNSW), where I had a major emphasis on algorithm design and analysis, 
 theoretical computer science, programming language theory, artificial 
-intelligence, machine learning, and a minor emphasis and mathematics and 
+intelligence, machine learning, and a minor emphasis on mathematics and 
 statistics. I undertook my final-year thesis under `Aleksandar Ignjatovic`_, 
 and graduated with first-class honours in 2015.
 

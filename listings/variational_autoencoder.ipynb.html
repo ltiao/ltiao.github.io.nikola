@@ -123,47 +123,26 @@ MathJax.Hub.Config({
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In [2]:</div>
+<div class="prompt input_prompt">In [28]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">scipy</span> <span class="k">as</span> <span class="nn">sp</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="k">import</span> <span class="n">norm</span>
 
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
 
 <span class="kn">from</span> <span class="nn">keras</span> <span class="k">import</span> <span class="n">backend</span> <span class="k">as</span> <span class="n">K</span>
 <span class="kn">from</span> <span class="nn">keras.models</span> <span class="k">import</span> <span class="n">Model</span><span class="p">,</span> <span class="n">Sequential</span>
-<span class="kn">from</span> <span class="nn">keras.layers</span> <span class="k">import</span> <span class="p">(</span><span class="n">Activation</span><span class="p">,</span> <span class="n">Dense</span><span class="p">,</span> <span class="n">Dot</span><span class="p">,</span> <span class="n">Input</span><span class="p">,</span> <span class="n">Layer</span><span class="p">,</span>
-                          <span class="n">Lambda</span><span class="p">,</span> <span class="n">Add</span><span class="p">,</span> <span class="n">Multiply</span><span class="p">)</span>
-<span class="kn">from</span> <span class="nn">keras.losses</span> <span class="k">import</span> <span class="n">binary_crossentropy</span>
-<span class="kn">from</span> <span class="nn">keras.optimizers</span> <span class="k">import</span> <span class="n">Adam</span>
-<span class="kn">from</span> <span class="nn">keras.datasets</span> <span class="k">import</span> <span class="n">mnist</span>
-<span class="kn">from</span> <span class="nn">keras.utils.vis_utils</span> <span class="k">import</span> <span class="n">model_to_dot</span>
+<span class="kn">from</span> <span class="nn">keras.layers</span> <span class="k">import</span> <span class="p">(</span><span class="n">Dense</span><span class="p">,</span> <span class="n">Input</span><span class="p">,</span> <span class="n">Layer</span><span class="p">,</span> <span class="n">Lambda</span><span class="p">,</span> 
+                          <span class="n">Add</span><span class="p">,</span> <span class="n">Multiply</span><span class="p">)</span>
 
-<span class="kn">from</span> <span class="nn">matplotlib.animation</span> <span class="k">import</span> <span class="n">FuncAnimation</span>
+<span class="kn">from</span> <span class="nn">keras.datasets</span> <span class="k">import</span> <span class="n">mnist</span>
+<span class="kn">from</span> <span class="nn">keras.utils.vis_utils</span> <span class="k">import</span> <span class="n">model_to_dot</span><span class="p">,</span> <span class="n">plot_model</span>
+
 <span class="kn">from</span> <span class="nn">IPython.display</span> <span class="k">import</span> <span class="n">SVG</span>
 </pre></div>
 
 </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stderr output_text">
-<pre>Using TensorFlow backend.
-</pre>
-</div>
-</div>
-
 </div>
 </div>
 
@@ -183,21 +162,6 @@ MathJax.Hub.Config({
 <div class="prompt input_prompt">In [3]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">rc</span><span class="p">(</span><span class="s1">'animation'</span><span class="p">,</span> <span class="n">html</span><span class="o">=</span><span class="s1">'html5'</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">'seaborn-notebook'</span><span class="p">)</span>
-<span class="n">sns</span><span class="o">.</span><span class="n">set_context</span><span class="p">(</span><span class="s1">'notebook'</span><span class="p">)</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In [4]:</div>
-<div class="inner_cell">
-    <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">np</span><span class="o">.</span><span class="n">set_printoptions</span><span class="p">(</span><span class="n">precision</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
                     <span class="n">edgeitems</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
                     <span class="n">linewidth</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span>
@@ -211,7 +175,7 @@ MathJax.Hub.Config({
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In [5]:</div>
+<div class="prompt input_prompt">In [4]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="s1">'TensorFlow version: '</span> <span class="o">+</span> <span class="n">K</span><span class="o">.</span><span class="n">tf</span><span class="o">.</span><span class="n">__version__</span>
@@ -227,7 +191,7 @@ MathJax.Hub.Config({
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[5]:</div>
+<div class="prompt output_prompt">Out[4]:</div>
 
 
 
@@ -254,13 +218,12 @@ MathJax.Hub.Config({
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In [6]:</div>
+<div class="prompt input_prompt">In [33]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">batch_size</span> <span class="o">=</span> <span class="mi">100</span>
-<span class="n">n_samples</span> <span class="o">=</span> <span class="mi">5</span>
-<span class="n">digit_size</span> <span class="o">=</span> <span class="mi">28</span>
-<span class="n">original_dim</span> <span class="o">=</span> <span class="n">digit_size</span><span class="o">**</span><span class="mi">2</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">mc_samples</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">batch_size</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">original_dim</span> <span class="o">=</span> <span class="mi">784</span>
 <span class="n">latent_dim</span> <span class="o">=</span> <span class="mi">2</span>
 <span class="n">intermediate_dim</span> <span class="o">=</span> <span class="mi">256</span>
 <span class="n">epochs</span> <span class="o">=</span> <span class="mi">50</span>
@@ -286,9 +249,21 @@ MathJax.Hub.Config({
 </div>
 </div>
 </div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h5 id="Reparameterization">Reparameterization<a class="anchor-link" href="#Reparameterization">¶</a>
+</h5>
+<p>noise as auxiliary input to the network</p>
+
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In [7]:</div>
+<div class="prompt input_prompt">In [43]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">x</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">original_dim</span><span class="p">,),</span> <span class="n">name</span><span class="o">=</span><span class="s1">'x'</span><span class="p">)</span>
@@ -301,7 +276,7 @@ MathJax.Hub.Config({
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In [8]:</div>
+<div class="prompt input_prompt">In [44]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">h</span> <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="n">intermediate_dim</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'relu'</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'hidden'</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
@@ -314,7 +289,7 @@ MathJax.Hub.Config({
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In [9]:</div>
+<div class="prompt input_prompt">In [45]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">z_mu</span> <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="n">latent_dim</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'mu'</span><span class="p">)(</span><span class="n">h</span><span class="p">)</span>
@@ -328,7 +303,7 @@ MathJax.Hub.Config({
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In [10]:</div>
+<div class="prompt input_prompt">In [46]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">class</span> <span class="nc">KLDivergenceLayer</span><span class="p">(</span><span class="n">Layer</span><span class="p">):</span>
@@ -357,7 +332,7 @@ MathJax.Hub.Config({
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In [11]:</div>
+<div class="prompt input_prompt">In [47]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">z_mu</span><span class="p">,</span> <span class="n">z_log_var</span> <span class="o">=</span> <span class="n">KLDivergenceLayer</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">'kl'</span><span class="p">)([</span><span class="n">z_mu</span><span class="p">,</span> <span class="n">z_log_var</span><span class="p">])</span>
@@ -370,7 +345,7 @@ MathJax.Hub.Config({
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In [12]:</div>
+<div class="prompt input_prompt">In [50]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">sigma</span> <span class="o">=</span> <span class="n">Lambda</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">K</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">.</span><span class="mi">5</span><span class="o">*</span><span class="n">x</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s1">'sigma'</span><span class="p">)(</span><span class="n">z_log_var</span><span class="p">)</span>
@@ -381,21 +356,126 @@ MathJax.Hub.Config({
 </div>
 
 </div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [49]:</div>
 <div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h5 id="Reparameterization-trick">Reparameterization trick<a class="anchor-link" href="#Reparameterization-trick">¶</a>
-</h5>
-<p>noise as auxiliary input to the network</p>
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">z_mean</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">latent_dim</span><span class="p">,),</span> <span class="n">name</span><span class="o">=</span><span class="s1">'mu'</span><span class="p">)</span>
+<span class="n">z_std_dev</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">latent_dim</span><span class="p">,),</span> <span class="n">name</span><span class="o">=</span><span class="s1">'sigma'</span><span class="p">)</span>
+
+<span class="n">eps</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">mc_samples</span><span class="p">,</span> <span class="n">latent_dim</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s1">'eps'</span><span class="p">)</span>
+</pre></div>
 
 </div>
 </div>
 </div>
+
+</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In [13]:</div>
+<div class="prompt input_prompt">In [36]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">z_eps</span> <span class="o">=</span> <span class="n">Multiply</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">'z_eps'</span><span class="p">)([</span><span class="n">z_std_dev</span><span class="p">,</span> <span class="n">eps</span><span class="p">])</span>
+<span class="n">z</span> <span class="o">=</span> <span class="n">Add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">'z'</span><span class="p">)([</span><span class="n">z_mean</span><span class="p">,</span> <span class="n">z_eps</span><span class="p">])</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [37]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">m</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">[</span><span class="n">eps</span><span class="p">,</span> <span class="n">z_mean</span><span class="p">,</span> <span class="n">z_std_dev</span><span class="p">],</span> <span class="n">outputs</span><span class="o">=</span><span class="n">z</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [38]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">SVG</span><span class="p">(</span><span class="n">model_to_dot</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">show_shapes</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">prog</span><span class="o">=</span><span class="s1">'dot'</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">'svg'</span><span class="p">))</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[38]:</div>
+
+
+
+<div class="output_svg output_subarea output_execute_result">
+<svg height="191pt" viewbox="0.00 0.00 370.50 191.00" width="371pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><g class="graph" id="graph0" transform="scale(1 1) rotate(0) translate(4 187)"><title>G</title>
+<polygon fill="#ffffff" points="-4,4 -4,-187 366.5,-187 366.5,4 -4,4" stroke="transparent"></polygon><!-- 139943948126192 --><g class="node" id="node1"><title>139943948126192</title>
+<polygon fill="none" points="0,-146.5 0,-182.5 149,-182.5 149,-146.5 0,-146.5" stroke="#000000"></polygon><text fill="#000000" font-family="Times,serif" font-size="14.00" text-anchor="middle" x="74.5" y="-160.8">sigma: InputLayer</text></g><!-- 139943948183984 --><g class="node" id="node4"><title>139943948183984</title>
+<polygon fill="none" points="91,-73.5 91,-109.5 216,-109.5 216,-73.5 91,-73.5" stroke="#000000"></polygon><text fill="#000000" font-family="Times,serif" font-size="14.00" text-anchor="middle" x="153.5" y="-87.8">z_eps: Multiply</text></g><!-- 139943948126192&#45;&gt;139943948183984 --><g class="edge" id="edge1"><title>139943948126192-&gt;139943948183984</title>
+<path d="M94.0281,-146.4551C103.8083,-137.4177 115.8052,-126.3319 126.4561,-116.4899" fill="none" stroke="#000000"></path><polygon fill="#000000" points="128.9536,-118.9476 133.9228,-109.5904 124.2029,-113.8065 128.9536,-118.9476" stroke="#000000"></polygon></g><!-- 139943948125912 --><g class="node" id="node2"><title>139943948125912</title>
+<polygon fill="none" points="167,-146.5 167,-182.5 298,-182.5 298,-146.5 167,-146.5" stroke="#000000"></polygon><text fill="#000000" font-family="Times,serif" font-size="14.00" text-anchor="middle" x="232.5" y="-160.8">eps: InputLayer</text></g><!-- 139943948125912&#45;&gt;139943948183984 --><g class="edge" id="edge2"><title>139943948125912-&gt;139943948183984</title>
+<path d="M212.9719,-146.4551C203.1917,-137.4177 191.1948,-126.3319 180.5439,-116.4899" fill="none" stroke="#000000"></path><polygon fill="#000000" points="182.7971,-113.8065 173.0772,-109.5904 178.0464,-118.9476 182.7971,-113.8065" stroke="#000000"></polygon></g><!-- 139943948125464 --><g class="node" id="node3"><title>139943948125464</title>
+<polygon fill="none" points="234.5,-73.5 234.5,-109.5 362.5,-109.5 362.5,-73.5 234.5,-73.5" stroke="#000000"></polygon><text fill="#000000" font-family="Times,serif" font-size="14.00" text-anchor="middle" x="298.5" y="-87.8">mu: InputLayer</text></g><!-- 139943948183928 --><g class="node" id="node5"><title>139943948183928</title>
+<polygon fill="none" points="194.5,-.5 194.5,-36.5 256.5,-36.5 256.5,-.5 194.5,-.5" stroke="#000000"></polygon><text fill="#000000" font-family="Times,serif" font-size="14.00" text-anchor="middle" x="225.5" y="-14.8">z: Add</text></g><!-- 139943948125464&#45;&gt;139943948183928 --><g class="edge" id="edge3"><title>139943948125464-&gt;139943948183928</title>
+<path d="M280.4551,-73.4551C271.5054,-64.5054 260.547,-53.547 250.7769,-43.7769" fill="none" stroke="#000000"></path><polygon fill="#000000" points="253.1363,-41.1866 243.5904,-36.5904 248.1866,-46.1363 253.1363,-41.1866" stroke="#000000"></polygon></g><!-- 139943948183984&#45;&gt;139943948183928 --><g class="edge" id="edge4"><title>139943948183984-&gt;139943948183928</title>
+<path d="M171.2978,-73.4551C180.1248,-64.5054 190.9331,-53.547 200.5693,-43.7769" fill="none" stroke="#000000"></path><polygon fill="#000000" points="203.1272,-46.1678 207.6575,-36.5904 198.1434,-41.2523 203.1272,-46.1678" stroke="#000000"></polygon></g></g></svg>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [41]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">plot_model</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">m</span><span class="p">,</span> <span class="n">show_shapes</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">to_file</span><span class="o">=</span><span class="s1">'../images/vae/reparameterization.svg'</span>
+<span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [42]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">plot_model</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">m</span><span class="p">,</span> <span class="n">show_shapes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">to_file</span><span class="o">=</span><span class="s1">'../images/vae/reparameterization_shapes.svg'</span>
+<span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [53]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># eps = Input(shape=(n_samples, latent_dim,), name='epsilon')</span>
@@ -411,7 +491,7 @@ MathJax.Hub.Config({
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In [14]:</div>
+<div class="prompt input_prompt">In [52]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">encoder</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">eps</span><span class="p">],</span> <span class="n">outputs</span><span class="o">=</span><span class="n">z</span><span class="p">)</span>
@@ -837,10 +917,10 @@ Epoch 50/50
 
 
 
-<div id="c2f32d15-3b9c-434d-afcb-28c534841201"></div>
+<div id="96817529-f213-4190-abfe-bb856814eeea"></div>
 <div class="output_subarea output_javascript ">
 <script type="text/javascript">
-var element = $('#c2f32d15-3b9c-434d-afcb-28c534841201');
+var element = $('#96817529-f213-4190-abfe-bb856814eeea');
 /* Put everything inside the global mpl namespace */
 window.mpl = {};
 
@@ -1812,10 +1892,10 @@ if (IPython.notebook.kernel != null) {
 
 
 
-<div id="f2d9dcac-cc2f-498b-a731-1c467677421b"></div>
+<div id="9f42205d-0f67-4c68-9f19-ecf3eacdd846"></div>
 <div class="output_subarea output_javascript ">
 <script type="text/javascript">
-var element = $('#f2d9dcac-cc2f-498b-a731-1c467677421b');
+var element = $('#9f42205d-0f67-4c68-9f19-ecf3eacdd846');
 /* Put everything inside the global mpl namespace */
 window.mpl = {};
 

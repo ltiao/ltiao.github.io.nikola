@@ -1,16 +1,68 @@
 .. title: Implementing Variational Autoencoders in Keras: Beyond the Quickstart Tutorial
 .. slug: implementing-variational-autoencoders-in-keras-beyond-the-quickstart-tutorial
 .. date: 2017-10-23 01:19:59 UTC+11:00
-.. tags: variational inference, keras, tensorflow, python, variational autoencoder, unsupervised learning
+.. tags: variational inference, keras, tensorflow, python, variational autoencoder, unsupervised learning, mathjax
 .. category: coding
 .. link: 
 .. description: 
 .. type: text
 
+
+excellent tutorial on `Building Autoencoders in Keras`_ 
+
+it illustrates the power and simplicity 
+
+A number of important shortcomings:
+
+- Number of Monte Carlo samples; explicitly as model input
+- Custom layer vs natural use of primitive / building-blocks
+- Extensible KL Divergence layer (Adversarial Variational Bayes)
+- Easy to extend to Normalizing Flows
+- Natural model of loss / likelihood, easily extends to regression, classification, etc.
+
 .. listing:: variational_autoencoder.py python
-.. listing:: variational_autoencoder.ipynb ipynb
 
 - https://github.com/fchollet/keras/blob/2.0.8/examples/variational_autoencoder.py
+
+
+.. _Building Autoencoders in Keras: https://blog.keras.io/building-autoencoders-in-keras.html
+
+
+
+
+.. math::
+
+   q_{\phi}(\mathbf{z} | \mathbf{x}) 
+   = 
+   \mathcal{N}(
+     \mathbf{z} | 
+     \mathbf{\mu}_{\phi}(\mathbf{x}), 
+     \mathrm{diag}(\mathbf{\sigma}_{\phi}^2(\mathbf{x}))
+   )
+
+Reparameterization with Keras Layers
+------------------------------------
+
+Assume ``z_mu`` and ``z_sigma`` are the outputs of some layers. Then, using the 
+`Keras Merge Layers <https://keras.io/layers/merge/>`_ ``Add`` and ``Multiply``:
+
+.. code:: python
+
+   eps = Input(shape=(mc_samples, latent_dim), name='eps')
+
+   z_eps = Multiply(name='z_eps')([z_sigma, eps])
+   z = Add(name='z')([z_mu, z_eps])
+
+
+.. image:: ../../images/vae/reparameterization.svg
+   :align: center
+
+
+
+.. image:: ../../images/vae/reparameterization_shapes.svg
+   :align: center
+
+
 
 Appendix
 --------

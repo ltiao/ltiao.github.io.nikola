@@ -22,38 +22,18 @@ epsilon_std = 1.0
 
 x = Input(shape=(original_dim,))
 h = Dense(intermediate_dim, activation='relu')(x)
-
 z_mean = Dense(latent_dim)(h)
 z_log_var = Dense(latent_dim)(h)
 
-z_mean, z_log_var = KLDivergenceLayer()([z_mean, z_log_var])
-z_std_dev = Lambda(lambda t: K.exp(.5*t))(z_log_var)
 
-eps = Input(shape=(latent_dim,))
-z_eps = Multiply()([z_std_dev, eps])
-z = Add()([z_mean, z_eps])
+def sampling(args):
+    z_mean, z_log_var = args
+    epsilon = K.random_normal(shape=(K.shape(z_mean)[0], latent_dim), mean=0.,
+                              stddev=epsilon_std)
+    return z_mean + K.exp(z_log_var / 2) * epsilon
 
-class KLDivergenceLayer(Layer):
-
-    def __init__(self, *args, **kwargs):
-        self.is_placeholder = True
-        super(KLDivergenceLayer, self).__init__(*args, **kwargs)
-
-    def call(self, inputs):
-
-        mean, log_var = inputs
-
-        kl = - .5 * K.sum(1 + log_var
-                            - K.square(mean) 
-                            - K.exp(log_var), axis=-1)
-
-        self.add_loss(kl, inputs=inputs)
-
-        # this layer is the identity transform.
-        # it doesn't modify the input; it just modifies the loss
-        return inputs
-
-
+# note that "output_shape" isn't necessary with the TensorFlow backend
+z = Lambda(sampling, output_shape=(latent_dim,))([z_mean, z_log_var])
 
 # we instantiate these layers separately so as to reuse them later
 decoder_h = Dense(intermediate_dim, activation='relu')
@@ -62,6 +42,24 @@ h_decoded = decoder_h(z)
 x_decoded_mean = decoder_mean(h_decoded)
 
 
+# Custom loss layer
+class CustomVariationalLayer(Layer):
+    def __init__(self, **kwargs):
+        self.is_placeholder = True
+        super(CustomVariationalLayer, self).__init__(**kwargs)
+
+    def vae_loss(self, x, x_decoded_mean):
+        xent_loss = original_dim * metrics.binary_crossentropy(x, x_decoded_mean)
+        kl_loss = - 0.5 * K.sum(1 + z_log_var - K.square(z_mean) - K.exp(z_log_var), axis=-1)
+        return K.mean(xent_loss + kl_loss)
+
+    def call(self, inputs):
+        x = inputs[0]
+        x_decoded_mean = inputs[1]
+        loss = self.vae_loss(x, x_decoded_mean)
+        self.add_loss(loss, inputs=inputs)
+        # We won't actually use the output.
+        return x
 
 y = CustomVariationalLayer()([x, x_decoded_mean])
 vae = Model(x, y)
@@ -76,11 +74,15 @@ x_test = x_test.astype('float32') / 255.
 x_train = x_train.reshape((len(x_train), np.prod(x_train.shape[1:])))
 x_test = x_test.reshape((len(x_test), np.prod(x_test.shape[1:])))
 
-vae.fit(x_train,
+hist = vae.fit(x_train,
         shuffle=True,
-        epochs=epochs,
+        epochs=5, # epochs,
         batch_size=batch_size,
-        validation_data=(x_test, x_test))
+        validation_data=(x_test, None))
+
+from IPython import embed
+
+embed()
 
 # build a model to project inputs on the latent space
 encoder = Model(x, z_mean)

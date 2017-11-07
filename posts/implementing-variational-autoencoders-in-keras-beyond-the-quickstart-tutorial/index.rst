@@ -7,18 +7,59 @@
 .. description: 
 .. type: text
 
-Keras_ is awesome. Its guiding principles ... modularity, extensibility ...
+Keras_ is awesome. It is a very well-designed library that clearly adheres to 
+its `guiding principles`_ of modularity and extensibility, and allows us to 
+easily assemble powerful complex models from primitive building blocks. 
+This has been demonstrated by many blog posts and tutorials, like the excellent 
+tutorial on `Building Autoencoders in Keras`_. 
+As the name suggests, that tutorial provides examples of how to implement 
+various kinds of autoencoders in Keras, including the variational autoencoder 
+(VAE). 
 
-excellent tutorial on `Building Autoencoders in Keras`_ 
+Like all autoencoders, the variational autoencoder is used for unsupervised 
+learning of hidden representations. 
+However, variational autoencoders are fundamentally different in important ways 
+to your standard neural network-based autoencoder. 
+Unlike other autoencoders, the variational autoencoder takes a probabilistic
+approach by specifying distributions over the observed and latent variables,
+and performing posterior inference over the latent variables.
 
-while the example demonstrates the power flexibility of Keras, it fails to fully 
-take advantage of Keras' beautiful design.
+It is important to understand that the variational autoencoder 
+`is not a way to train generative models`_. 
+Rather, the generative model is a component of the variational autoencoder and
+is, in general, a deep latent variable model (usually a deep latent Gaussian 
+model).
+Learning in the generative model is done using variational inference, with an 
+*inference network* to amortize the cost of inference by sharing statistical 
+strength and generalization across observed data-points.
 
-The variational autoencoders is currently one of the mainstay generative models.
+When combined end-to-end, the inference network and the deep latent variable 
+model can be seen as having an autoencoder structure. 
+Indeed, this general structure contains the variational autoencoder as a special 
+case, and more traditionally, the Helmholtz machine. 
+Even more generally, we can use this structure to perform amortized variational 
+inference in complex generative models for a wide array of supervised, 
+unsupervised and semi-supervised tasks.
 
-inference in deep latent Gaussian models (DLGM) with inference networks and 
-stochastic backpropagation, the combination of which is known as amortized 
-variational inference. Naturally induces an autoencoder structure.
+While the examples in the aforementioned tutorial do well to showcase the 
+versatility of Keras on a wide range of autoencoder model architectures, 
+`its implementation of the variational autoencoder`_ doesn't properly take 
+advantage of Keras' modular design, making it difficult to generalize and 
+extend in important ways. 
+
+As we shall discuss, it relies on custom layers and constructs that are only
+applicable to a specific instance of variational autoencoders. This is a shame, 
+because when combined, Keras' building blocks are powerful enough to encapsulate 
+most variants of the variational autoencoder, and general deep latent variable 
+models with inference networks.
+
+The goal of this post is to propose an elegant alternative implementation that 
+takes better advantage of Keras' modular design.
+
+
+- http://blog.shakirm.com/2015/01/variational-inference-tricks-of-the-trade/
+- http://edwardlib.org/tutorials/inference-networks
+- Rezende et al., 2014 
 
 A number of important shortcomings:
 
@@ -28,13 +69,28 @@ A number of important shortcomings:
 - Easy to extend to Normalizing Flows
 - Natural model of loss / likelihood, easily extends to regression, classification, etc.
 
-- https://github.com/fchollet/keras/blob/2.0.8/examples/variational_autoencoder.py
+
+
+This post is not a tutorial on variational autoencoders. Rather, it is a 
+discussion of best practices for implementing inference-model combinations in 
+Keras, with variational autoencoders as a case study. We place emphasis on 
+
+For a tutorial on VAEs, we refer you to the 
+
+- https://jaan.io/what-is-variational-autoencoder-vae-tutorial/
+- Carl Doersch
 
 .. _Keras: https://keras.io/
+.. _guiding principles: https://keras.io/#guiding-principles
 .. _Building Autoencoders in Keras: https://blog.keras.io/building-autoencoders-in-keras.html
+.. _is not a way to train generative models: http://dustintran.com/blog/variational-auto-encoders-do-not-train-complex-generative-models
+.. _its implementation of the variational autoencoder: https://github.com/fchollet/keras/blob/2.0.8/examples/variational_autoencoder.py
 
 Model specification
 ===================
+
+The loss we wish to minimize is the *negative* of the *evidence lower bound* 
+(ELBO), which is expressed as
 
 .. math::
 
@@ -48,11 +104,17 @@ Model specification
    &= 
    \mathbb{E}_{q_{\phi}(\mathbf{z} | \mathbf{x})} [
      \log p_{\theta}(\mathbf{x} | \mathbf{z})
-   ] - \mathrm{KL} [q_{\phi}(\mathbf{z} | \mathbf{x}) \| \log p(\mathbf{z}) ]
+   ] - \mathrm{KL} [q_{\phi}(\mathbf{z} | \mathbf{x}) \| p(\mathbf{z}) ].
 
 
 Encoder
 -------
+
+In the specific case of autoencoders, the network that maps latent code
+
+More the general case of amortized variational inference, this is known as a
+recognition model, or an inference network.
+
 
 .. math::
 
@@ -157,7 +219,7 @@ latent space regularization
 
 .. math:: 
 
-   \mathrm{KL} [q_{\phi}(\mathbf{z} | \mathbf{x}) \| \log p(\mathbf{z}) ]
+   \mathrm{KL} [q_{\phi}(\mathbf{z} | \mathbf{x}) \| p(\mathbf{z}) ]
    = - \frac{1}{2} \sum_{k=1}^K \{ 1 + \log \sigma_k^2 - \mu_k^2 - \sigma_k^2 \}
 
 .. code:: python
@@ -179,7 +241,13 @@ latent space regularization
                              K.square(mu) -
                              K.exp(log_var), axis=-1)   
 
-           self.add_loss(kl, inputs=inputs)   
+           # inputs mu and log_var are of shape (batch_size, latent_dim)
+           # the loss we add should be scalar. this is unlike loss 
+           # function specified in model compile which should returns 
+           # loss vector of shape (batch_size,) since it requires 
+           # loss for each datapoint in the batch for sample 
+           # weighting.
+           self.add_loss(K.mean(kl), inputs=inputs)   
 
            return inputs
 
@@ -207,6 +275,11 @@ prior distribution.
 
 Decoder
 -------
+
+In this example, we let the decoder model 
+:math:`p_{\theta}(\mathbf{x} | \mathbf{z} )` be a multivariate Bernoulli whose 
+probabilities are computed from :math:`\mathbf{z}` using a fully-connected 
+neural network with a single hidden layer.
 
 .. code:: python
 
@@ -249,9 +322,13 @@ Putting it all together
        Dense(intermediate_dim, input_dim=latent_dim, 
              activation='relu'),
        Dense(original_dim, activation='sigmoid')
-   ])   
+   ])
 
-   vae = Model(inputs=[x, eps], outputs=decoder(z))
+   x_mean = decoder(z)
+
+.. code:: python
+
+   vae = Model(inputs=[x, eps], outputs=x_mean)
    vae.compile(optimizer='rmsprop', loss=nll)
 
 .. figure:: ../../images/vae/vae_full_shapes.svg
@@ -313,6 +390,9 @@ probabilistic auto-encoder.
        )
    )
 
+Personally, I prefer this view since the all sources of stochasticity emanate
+from the inputs to the model. 
+
 Model evaluation
 ================
 
@@ -349,11 +429,14 @@ References
 Appendix
 ========
 
-The accompanying Jupyter Notebook used to generate the diagrams and plots can
-be found `here </listings/vae/variational_autoencoder.ipynb.html>`_. 
-The fully executable code is reproduced below for completeness.
+* The `accompanying Jupyter Notebook`_ used to generate the diagrams and plots 
+  in this post.
+
+The fully runnable code is produced below for completeness:
 
 .. listing:: vae/variational_autoencoder_improved.py python
+
+.. _accompanying Jupyter Notebook: /listings/vae/variational_autoencoder.ipynb.html
 
 Number of Monte Carlo samples
 -----------------------------

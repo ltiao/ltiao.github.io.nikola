@@ -16,7 +16,7 @@ epsilon_std = 1.0
 
 
 def nll(y_true, y_pred):
-    """ Negative log likelihood. """
+    """ Negative log likelihood (Bernoulli). """
 
     # keras.losses.binary_crossentropy gives the mean
     # over the last axis. We require the sum.

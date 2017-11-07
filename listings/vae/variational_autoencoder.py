@@ -74,15 +74,11 @@ x_test = x_test.astype('float32') / 255.
 x_train = x_train.reshape((len(x_train), np.prod(x_train.shape[1:])))
 x_test = x_test.reshape((len(x_test), np.prod(x_test.shape[1:])))
 
-hist = vae.fit(x_train,
+vae.fit(x_train,
         shuffle=True,
-        epochs=5, # epochs,
+        epochs=epochs,
         batch_size=batch_size,
         validation_data=(x_test, None))
-
-from IPython import embed
-
-embed()
 
 # build a model to project inputs on the latent space
 encoder = Model(x, z_mean)

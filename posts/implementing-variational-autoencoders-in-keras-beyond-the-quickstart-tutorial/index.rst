@@ -429,10 +429,11 @@ References
 Appendix
 ========
 
+Below, you can find:
+
 * The `accompanying Jupyter Notebook`_ used to generate the diagrams and plots 
   in this post.
-
-The fully runnable code is produced below for completeness:
+* The above snippets combined in a single executable Python file:
 
 .. listing:: vae/variational_autoencoder_improved.py python
 

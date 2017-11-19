@@ -82,10 +82,7 @@ vae.fit(
     shuffle=True,
     epochs=epochs,
     batch_size=batch_size,
-    validation_data=(
-        [x_test, eps_test],
-        x_test
-    )
+    validation_data=([x_test, eps_test], x_test)
 )
 
 # display a 2D plot of the digit classes in the latent space

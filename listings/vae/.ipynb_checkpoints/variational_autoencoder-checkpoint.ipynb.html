@@ -132,7 +132,8 @@ MathJax.Hub.Config({
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="k">import</span> <span class="n">norm</span>
 
-<span class="kn">from</span> <span class="nn">keras.layers</span> <span class="k">import</span> <span class="n">Input</span><span class="p">,</span> <span class="n">InputLayer</span><span class="p">,</span> <span class="n">Dense</span><span class="p">,</span> <span class="n">Lambda</span><span class="p">,</span> <span class="n">Layer</span><span class="p">,</span> <span class="n">Add</span><span class="p">,</span> <span class="n">Multiply</span>
+<span class="kn">from</span> <span class="nn">keras.layers</span> <span class="k">import</span> <span class="p">(</span><span class="n">Input</span><span class="p">,</span> <span class="n">Dense</span><span class="p">,</span> <span class="n">Lambda</span><span class="p">,</span> <span class="n">Layer</span><span class="p">,</span> 
+                          <span class="n">Add</span><span class="p">,</span> <span class="n">Multiply</span><span class="p">)</span>
 <span class="kn">from</span> <span class="nn">keras.models</span> <span class="k">import</span> <span class="n">Model</span><span class="p">,</span> <span class="n">Sequential</span>
 <span class="kn">from</span> <span class="nn">keras</span> <span class="k">import</span> <span class="n">backend</span> <span class="k">as</span> <span class="n">K</span>
 <span class="kn">from</span> <span class="nn">keras.datasets</span> <span class="k">import</span> <span class="n">mnist</span>
@@ -271,7 +272,7 @@ MathJax.Hub.Config({
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h5 id="Reparameterization-using-Keras-Layers">Reparameterization using Keras Layers<a class="anchor-link" href="#Reparameterization-using-Keras-Layers">¶</a>
+<h5 id="Illustration-1:-Reparameterization-using-Keras-Layers">Illustration 1: Reparameterization using Keras Layers<a class="anchor-link" href="#Illustration-1:-Reparameterization-using-Keras-Layers">¶</a>
 </h5>
 </div>
 </div>
@@ -281,8 +282,8 @@ MathJax.Hub.Config({
 <div class="prompt input_prompt">In [6]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">z_mean</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">latent_dim</span><span class="p">,),</span> <span class="n">name</span><span class="o">=</span><span class="s1">'mu'</span><span class="p">)</span>
-<span class="n">z_std_dev</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">latent_dim</span><span class="p">,),</span> <span class="n">name</span><span class="o">=</span><span class="s1">'sigma'</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">z_mu</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">latent_dim</span><span class="p">,),</span> <span class="n">name</span><span class="o">=</span><span class="s1">'mu'</span><span class="p">)</span>
+<span class="n">z_sigma</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">latent_dim</span><span class="p">,),</span> <span class="n">name</span><span class="o">=</span><span class="s1">'sigma'</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -295,9 +296,9 @@ MathJax.Hub.Config({
 <div class="prompt input_prompt">In [7]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">eps</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">mc_samples</span><span class="p">,</span> <span class="n">latent_dim</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s1">'eps'</span><span class="p">)</span>
-<span class="n">z_eps</span> <span class="o">=</span> <span class="n">Multiply</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">'z_eps'</span><span class="p">)([</span><span class="n">z_std_dev</span><span class="p">,</span> <span class="n">eps</span><span class="p">])</span>
-<span class="n">z</span> <span class="o">=</span> <span class="n">Add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">'z'</span><span class="p">)([</span><span class="n">z_mean</span><span class="p">,</span> <span class="n">z_eps</span><span class="p">])</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">eps</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">latent_dim</span><span class="p">,),</span> <span class="n">name</span><span class="o">=</span><span class="s1">'eps'</span><span class="p">)</span>
+<span class="n">z_eps</span> <span class="o">=</span> <span class="n">Multiply</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">'z_eps'</span><span class="p">)([</span><span class="n">z_sigma</span><span class="p">,</span> <span class="n">eps</span><span class="p">])</span>
+<span class="n">z</span> <span class="o">=</span> <span class="n">Add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">'z'</span><span class="p">)([</span><span class="n">z_mu</span><span class="p">,</span> <span class="n">z_eps</span><span class="p">])</span>
 </pre></div>
 
 </div>
@@ -310,7 +311,7 @@ MathJax.Hub.Config({
 <div class="prompt input_prompt">In [8]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">m</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">[</span><span class="n">eps</span><span class="p">,</span> <span class="n">z_mean</span><span class="p">,</span> <span class="n">z_std_dev</span><span class="p">],</span> <span class="n">outputs</span><span class="o">=</span><span class="n">z</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">m</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">[</span><span class="n">eps</span><span class="p">,</span> <span class="n">z_mu</span><span class="p">,</span> <span class="n">z_sigma</span><span class="p">],</span> <span class="n">outputs</span><span class="o">=</span><span class="n">z</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -342,15 +343,15 @@ MathJax.Hub.Config({
 
 <div class="output_svg output_subarea output_execute_result">
 <svg height="191pt" viewbox="0.00 0.00 302.50 191.00" width="303pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><g class="graph" id="graph0" transform="scale(1 1) rotate(0) translate(4 187)"><title>G</title>
-<polygon fill="white" points="-4,4 -4,-187 298.5,-187 298.5,4 -4,4" stroke="none"></polygon><!-- 140615679294432 --><g class="node" id="node1"><title>140615679294432</title>
-<polygon fill="none" points="0,-146.5 0,-182.5 117,-182.5 117,-146.5 0,-146.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="58.5" y="-160.8">sigma: InputLayer</text></g><!-- 140615679402784 --><g class="node" id="node4"><title>140615679402784</title>
-<polygon fill="none" points="71,-73.5 71,-109.5 174,-109.5 174,-73.5 71,-73.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="122.5" y="-87.8">z_eps: Multiply</text></g><!-- 140615679294432&#45;&gt;140615679402784 --><g class="edge" id="edge1"><title>140615679294432-&gt;140615679402784</title>
-<path d="M73.9926,-146.313C81.9325,-137.505 91.7394,-126.625 100.453,-116.958" fill="none" stroke="black"></path><polygon fill="black" points="103.054,-119.3 107.15,-109.529 97.8549,-114.613 103.054,-119.3" stroke="black"></polygon></g><!-- 140615679402840 --><g class="node" id="node2"><title>140615679402840</title>
-<polygon fill="none" points="135.5,-146.5 135.5,-182.5 237.5,-182.5 237.5,-146.5 135.5,-146.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="186.5" y="-160.8">eps: InputLayer</text></g><!-- 140615679402840&#45;&gt;140615679402784 --><g class="edge" id="edge2"><title>140615679402840-&gt;140615679402784</title>
-<path d="M171.007,-146.313C163.068,-137.505 153.261,-126.625 144.547,-116.958" fill="none" stroke="black"></path><polygon fill="black" points="147.145,-114.613 137.85,-109.529 141.946,-119.3 147.145,-114.613" stroke="black"></polygon></g><!-- 140615679294488 --><g class="node" id="node3"><title>140615679294488</title>
-<polygon fill="none" points="192.5,-73.5 192.5,-109.5 294.5,-109.5 294.5,-73.5 192.5,-73.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="243.5" y="-87.8">mu: InputLayer</text></g><!-- 140615679403400 --><g class="node" id="node5"><title>140615679403400</title>
-<polygon fill="none" points="155.5,-0.5 155.5,-36.5 209.5,-36.5 209.5,-0.5 155.5,-0.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="182.5" y="-14.8">z: Add</text></g><!-- 140615679294488&#45;&gt;140615679403400 --><g class="edge" id="edge3"><title>140615679294488-&gt;140615679403400</title>
-<path d="M228.734,-73.3129C221.241,-64.5918 212.004,-53.8402 203.761,-44.2459" fill="none" stroke="black"></path><polygon fill="black" points="206.302,-41.833 197.13,-36.5288 200.992,-46.3947 206.302,-41.833" stroke="black"></polygon></g><!-- 140615679402784&#45;&gt;140615679403400 --><g class="edge" id="edge4"><title>140615679402784-&gt;140615679403400</title>
+<polygon fill="white" points="-4,4 -4,-187 298.5,-187 298.5,4 -4,4" stroke="none"></polygon><!-- 140434992610384 --><g class="node" id="node1"><title>140434992610384</title>
+<polygon fill="none" points="0,-146.5 0,-182.5 117,-182.5 117,-146.5 0,-146.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="58.5" y="-160.8">sigma: InputLayer</text></g><!-- 140434992722776 --><g class="node" id="node4"><title>140434992722776</title>
+<polygon fill="none" points="71,-73.5 71,-109.5 174,-109.5 174,-73.5 71,-73.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="122.5" y="-87.8">z_eps: Multiply</text></g><!-- 140434992610384&#45;&gt;140434992722776 --><g class="edge" id="edge1"><title>140434992610384-&gt;140434992722776</title>
+<path d="M73.9926,-146.313C81.9325,-137.505 91.7394,-126.625 100.453,-116.958" fill="none" stroke="black"></path><polygon fill="black" points="103.054,-119.3 107.15,-109.529 97.8549,-114.613 103.054,-119.3" stroke="black"></polygon></g><!-- 140434992722832 --><g class="node" id="node2"><title>140434992722832</title>
+<polygon fill="none" points="135.5,-146.5 135.5,-182.5 237.5,-182.5 237.5,-146.5 135.5,-146.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="186.5" y="-160.8">eps: InputLayer</text></g><!-- 140434992722832&#45;&gt;140434992722776 --><g class="edge" id="edge2"><title>140434992722832-&gt;140434992722776</title>
+<path d="M171.007,-146.313C163.068,-137.505 153.261,-126.625 144.547,-116.958" fill="none" stroke="black"></path><polygon fill="black" points="147.145,-114.613 137.85,-109.529 141.946,-119.3 147.145,-114.613" stroke="black"></polygon></g><!-- 140434992610440 --><g class="node" id="node3"><title>140434992610440</title>
+<polygon fill="none" points="192.5,-73.5 192.5,-109.5 294.5,-109.5 294.5,-73.5 192.5,-73.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="243.5" y="-87.8">mu: InputLayer</text></g><!-- 140434992723392 --><g class="node" id="node5"><title>140434992723392</title>
+<polygon fill="none" points="155.5,-0.5 155.5,-36.5 209.5,-36.5 209.5,-0.5 155.5,-0.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="182.5" y="-14.8">z: Add</text></g><!-- 140434992610440&#45;&gt;140434992723392 --><g class="edge" id="edge3"><title>140434992610440-&gt;140434992723392</title>
+<path d="M228.734,-73.3129C221.241,-64.5918 212.004,-53.8402 203.761,-44.2459" fill="none" stroke="black"></path><polygon fill="black" points="206.302,-41.833 197.13,-36.5288 200.992,-46.3947 206.302,-41.833" stroke="black"></polygon></g><!-- 140434992722776&#45;&gt;140434992723392 --><g class="edge" id="edge4"><title>140434992722776-&gt;140434992723392</title>
 <path d="M137.024,-73.3129C144.394,-64.5918 153.48,-53.8402 161.588,-44.2459" fill="none" stroke="black"></path><polygon fill="black" points="164.328,-46.4259 168.109,-36.5288 158.982,-41.9077 164.328,-46.4259" stroke="black"></polygon></g></g></svg>
 </div>
 
@@ -392,6 +393,16 @@ MathJax.Hub.Config({
 </div>
 
 </div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h5 id="Illustration-2:-Encoder-architecture">Illustration 2: Encoder architecture<a class="anchor-link" href="#Illustration-2:-Encoder-architecture">¶</a>
+</h5>
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In [12]:</div>
@@ -399,9 +410,9 @@ MathJax.Hub.Config({
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">x</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">original_dim</span><span class="p">,),</span> <span class="n">name</span><span class="o">=</span><span class="s1">'x'</span><span class="p">)</span>
 <span class="n">h</span> <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="n">intermediate_dim</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'relu'</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'encoder_hidden'</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
-<span class="n">z_mean</span> <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="n">latent_dim</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'mu'</span><span class="p">)(</span><span class="n">h</span><span class="p">)</span>
+<span class="n">z_mu</span> <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="n">latent_dim</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'mu'</span><span class="p">)(</span><span class="n">h</span><span class="p">)</span>
 <span class="n">z_log_var</span> <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="n">latent_dim</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'log_var'</span><span class="p">)(</span><span class="n">h</span><span class="p">)</span>
-<span class="n">z_std_dev</span> <span class="o">=</span> <span class="n">Lambda</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">K</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">.</span><span class="mi">5</span><span class="o">*</span><span class="n">t</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s1">'sigma'</span><span class="p">)(</span><span class="n">z_log_var</span><span class="p">)</span>
+<span class="n">z_sigma</span> <span class="o">=</span> <span class="n">Lambda</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">K</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">.</span><span class="mi">5</span><span class="o">*</span><span class="n">t</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s1">'sigma'</span><span class="p">)(</span><span class="n">z_log_var</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -414,9 +425,9 @@ MathJax.Hub.Config({
 <div class="prompt input_prompt">In [13]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">eps</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">mc_samples</span><span class="p">,</span> <span class="n">latent_dim</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s1">'epsilon'</span><span class="p">)</span>
-<span class="n">sigma_eps</span> <span class="o">=</span> <span class="n">Multiply</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">'sigma_eps'</span><span class="p">)([</span><span class="n">z_std_dev</span><span class="p">,</span> <span class="n">eps</span><span class="p">])</span>
-<span class="n">z</span> <span class="o">=</span> <span class="n">Add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">'z'</span><span class="p">)([</span><span class="n">z_mean</span><span class="p">,</span> <span class="n">sigma_eps</span><span class="p">])</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">eps</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">latent_dim</span><span class="p">,),</span> <span class="n">name</span><span class="o">=</span><span class="s1">'epsilon'</span><span class="p">)</span>
+<span class="n">z_eps</span> <span class="o">=</span> <span class="n">Multiply</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">'z_eps'</span><span class="p">)([</span><span class="n">z_sigma</span><span class="p">,</span> <span class="n">eps</span><span class="p">])</span>
+<span class="n">z</span> <span class="o">=</span> <span class="n">Add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">'z'</span><span class="p">)([</span><span class="n">z_mu</span><span class="p">,</span> <span class="n">z_eps</span><span class="p">])</span>
 </pre></div>
 
 </div>
@@ -462,23 +473,23 @@ MathJax.Hub.Config({
 
 <div class="output_svg output_subarea output_execute_result">
 <svg height="410pt" viewbox="0.00 0.00 318.00 410.00" width="318pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><g class="graph" id="graph0" transform="scale(1 1) rotate(0) translate(4 406)"><title>G</title>
-<polygon fill="white" points="-4,4 -4,-406 314,-406 314,4 -4,4" stroke="none"></polygon><!-- 140615678430904 --><g class="node" id="node1"><title>140615678430904</title>
-<polygon fill="none" points="151.5,-365.5 151.5,-401.5 242.5,-401.5 242.5,-365.5 151.5,-365.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="197" y="-379.8">x: InputLayer</text></g><!-- 140615678430848 --><g class="node" id="node2"><title>140615678430848</title>
-<polygon fill="none" points="125,-292.5 125,-328.5 269,-328.5 269,-292.5 125,-292.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="197" y="-306.8">encoder_hidden: Dense</text></g><!-- 140615678430904&#45;&gt;140615678430848 --><g class="edge" id="edge1"><title>140615678430904-&gt;140615678430848</title>
-<path d="M197,-365.313C197,-357.289 197,-347.547 197,-338.569" fill="none" stroke="black"></path><polygon fill="black" points="200.5,-338.529 197,-328.529 193.5,-338.529 200.5,-338.529" stroke="black"></polygon></g><!-- 140615678430568 --><g class="node" id="node3"><title>140615678430568</title>
-<polygon fill="none" points="73.5,-219.5 73.5,-255.5 172.5,-255.5 172.5,-219.5 73.5,-219.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="123" y="-233.8">log_var: Dense</text></g><!-- 140615678430848&#45;&gt;140615678430568 --><g class="edge" id="edge2"><title>140615678430848-&gt;140615678430568</title>
-<path d="M179.087,-292.313C169.815,-283.417 158.342,-272.409 148.193,-262.672" fill="none" stroke="black"></path><polygon fill="black" points="150.387,-259.927 140.748,-255.529 145.541,-264.978 150.387,-259.927" stroke="black"></polygon></g><!-- 140615678430008 --><g class="node" id="node6"><title>140615678430008</title>
-<polygon fill="none" points="234,-73.5 234,-109.5 310,-109.5 310,-73.5 234,-73.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="272" y="-87.8">mu: Dense</text></g><!-- 140615678430848&#45;&gt;140615678430008 --><g class="edge" id="edge4"><title>140615678430848-&gt;140615678430008</title>
-<path d="M205.742,-292.314C217.632,-268.356 238.915,-223.318 252,-183 258.768,-162.146 263.997,-137.853 267.409,-119.689" fill="none" stroke="black"></path><polygon fill="black" points="270.866,-120.24 269.205,-109.776 263.978,-118.992 270.866,-120.24" stroke="black"></polygon></g><!-- 140615678458848 --><g class="node" id="node4"><title>140615678458848</title>
-<polygon fill="none" points="0,-146.5 0,-182.5 102,-182.5 102,-146.5 0,-146.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="51" y="-160.8">sigma: Lambda</text></g><!-- 140615678430568&#45;&gt;140615678458848 --><g class="edge" id="edge3"><title>140615678430568-&gt;140615678458848</title>
-<path d="M105.571,-219.313C96.55,-210.417 85.387,-199.409 75.5121,-189.672" fill="none" stroke="black"></path><polygon fill="black" points="77.8466,-187.058 68.2687,-182.529 72.9315,-192.042 77.8466,-187.058" stroke="black"></polygon></g><!-- 140615678443928 --><g class="node" id="node7"><title>140615678443928</title>
-<polygon fill="none" points="86,-73.5 86,-109.5 216,-109.5 216,-73.5 86,-73.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="151" y="-87.8">sigma_eps: Multiply</text></g><!-- 140615678458848&#45;&gt;140615678443928 --><g class="edge" id="edge5"><title>140615678458848-&gt;140615678443928</title>
-<path d="M74.9525,-146.494C87.9678,-137.253 104.25,-125.692 118.406,-115.642" fill="none" stroke="black"></path><polygon fill="black" points="120.769,-118.257 126.896,-109.614 116.716,-112.549 120.769,-118.257" stroke="black"></polygon></g><!-- 140615678443984 --><g class="node" id="node5"><title>140615678443984</title>
-<polygon fill="none" points="120.5,-146.5 120.5,-182.5 243.5,-182.5 243.5,-146.5 120.5,-146.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="182" y="-160.8">epsilon: InputLayer</text></g><!-- 140615678443984&#45;&gt;140615678443928 --><g class="edge" id="edge6"><title>140615678443984-&gt;140615678443928</title>
-<path d="M174.496,-146.313C170.916,-138.115 166.554,-128.123 162.564,-118.985" fill="none" stroke="black"></path><polygon fill="black" points="165.644,-117.293 158.435,-109.529 159.229,-120.094 165.644,-117.293" stroke="black"></polygon></g><!-- 140615678443592 --><g class="node" id="node8"><title>140615678443592</title>
-<polygon fill="none" points="184,-0.5 184,-36.5 238,-36.5 238,-0.5 184,-0.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="211" y="-14.8">z: Add</text></g><!-- 140615678430008&#45;&gt;140615678443592 --><g class="edge" id="edge7"><title>140615678430008-&gt;140615678443592</title>
-<path d="M257.234,-73.3129C249.741,-64.5918 240.504,-53.8402 232.261,-44.2459" fill="none" stroke="black"></path><polygon fill="black" points="234.802,-41.833 225.63,-36.5288 229.492,-46.3947 234.802,-41.833" stroke="black"></polygon></g><!-- 140615678443928&#45;&gt;140615678443592 --><g class="edge" id="edge8"><title>140615678443928-&gt;140615678443592</title>
-<path d="M165.524,-73.3129C172.894,-64.5918 181.98,-53.8402 190.088,-44.2459" fill="none" stroke="black"></path><polygon fill="black" points="192.828,-46.4259 196.609,-36.5288 187.482,-41.9077 192.828,-46.4259" stroke="black"></polygon></g></g></svg>
+<polygon fill="white" points="-4,4 -4,-406 314,-406 314,4 -4,4" stroke="none"></polygon><!-- 140434991284912 --><g class="node" id="node1"><title>140434991284912</title>
+<polygon fill="none" points="151.5,-365.5 151.5,-401.5 242.5,-401.5 242.5,-365.5 151.5,-365.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="197" y="-379.8">x: InputLayer</text></g><!-- 140434991287264 --><g class="node" id="node2"><title>140434991287264</title>
+<polygon fill="none" points="125,-292.5 125,-328.5 269,-328.5 269,-292.5 125,-292.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="197" y="-306.8">encoder_hidden: Dense</text></g><!-- 140434991284912&#45;&gt;140434991287264 --><g class="edge" id="edge1"><title>140434991284912-&gt;140434991287264</title>
+<path d="M197,-365.313C197,-357.289 197,-347.547 197,-338.569" fill="none" stroke="black"></path><polygon fill="black" points="200.5,-338.529 197,-328.529 193.5,-338.529 200.5,-338.529" stroke="black"></polygon></g><!-- 140434991287600 --><g class="node" id="node3"><title>140434991287600</title>
+<polygon fill="none" points="73.5,-219.5 73.5,-255.5 172.5,-255.5 172.5,-219.5 73.5,-219.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="123" y="-233.8">log_var: Dense</text></g><!-- 140434991287264&#45;&gt;140434991287600 --><g class="edge" id="edge2"><title>140434991287264-&gt;140434991287600</title>
+<path d="M179.087,-292.313C169.815,-283.417 158.342,-272.409 148.193,-262.672" fill="none" stroke="black"></path><polygon fill="black" points="150.387,-259.927 140.748,-255.529 145.541,-264.978 150.387,-259.927" stroke="black"></polygon></g><!-- 140434991288272 --><g class="node" id="node6"><title>140434991288272</title>
+<polygon fill="none" points="234,-73.5 234,-109.5 310,-109.5 310,-73.5 234,-73.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="272" y="-87.8">mu: Dense</text></g><!-- 140434991287264&#45;&gt;140434991288272 --><g class="edge" id="edge4"><title>140434991287264-&gt;140434991288272</title>
+<path d="M205.742,-292.314C217.632,-268.356 238.915,-223.318 252,-183 258.768,-162.146 263.997,-137.853 267.409,-119.689" fill="none" stroke="black"></path><polygon fill="black" points="270.866,-120.24 269.205,-109.776 263.978,-118.992 270.866,-120.24" stroke="black"></polygon></g><!-- 140434991285472 --><g class="node" id="node4"><title>140434991285472</title>
+<polygon fill="none" points="0,-146.5 0,-182.5 102,-182.5 102,-146.5 0,-146.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="51" y="-160.8">sigma: Lambda</text></g><!-- 140434991287600&#45;&gt;140434991285472 --><g class="edge" id="edge3"><title>140434991287600-&gt;140434991285472</title>
+<path d="M105.571,-219.313C96.55,-210.417 85.387,-199.409 75.5121,-189.672" fill="none" stroke="black"></path><polygon fill="black" points="77.8466,-187.058 68.2687,-182.529 72.9315,-192.042 77.8466,-187.058" stroke="black"></polygon></g><!-- 140434991784008 --><g class="node" id="node7"><title>140434991784008</title>
+<polygon fill="none" points="112.5,-73.5 112.5,-109.5 215.5,-109.5 215.5,-73.5 112.5,-73.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="164" y="-87.8">z_eps: Multiply</text></g><!-- 140434991285472&#45;&gt;140434991784008 --><g class="edge" id="edge5"><title>140434991285472-&gt;140434991784008</title>
+<path d="M78.0663,-146.494C93.0511,-137.079 111.868,-125.255 128.071,-115.075" fill="none" stroke="black"></path><polygon fill="black" points="130.158,-117.897 136.763,-109.614 126.433,-111.97 130.158,-117.897" stroke="black"></polygon></g><!-- 140434991786248 --><g class="node" id="node5"><title>140434991786248</title>
+<polygon fill="none" points="120.5,-146.5 120.5,-182.5 243.5,-182.5 243.5,-146.5 120.5,-146.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="182" y="-160.8">epsilon: InputLayer</text></g><!-- 140434991786248&#45;&gt;140434991784008 --><g class="edge" id="edge6"><title>140434991786248-&gt;140434991784008</title>
+<path d="M177.643,-146.313C175.586,-138.202 173.085,-128.336 170.788,-119.277" fill="none" stroke="black"></path><polygon fill="black" points="174.167,-118.362 168.317,-109.529 167.382,-120.082 174.167,-118.362" stroke="black"></polygon></g><!-- 140434991785296 --><g class="node" id="node8"><title>140434991785296</title>
+<polygon fill="none" points="191,-0.5 191,-36.5 245,-36.5 245,-0.5 191,-0.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="218" y="-14.8">z: Add</text></g><!-- 140434991288272&#45;&gt;140434991785296 --><g class="edge" id="edge7"><title>140434991288272-&gt;140434991785296</title>
+<path d="M258.928,-73.3129C252.362,-64.679 244.281,-54.0551 237.04,-44.5341" fill="none" stroke="black"></path><polygon fill="black" points="239.791,-42.3695 230.952,-36.5288 234.219,-46.6071 239.791,-42.3695" stroke="black"></polygon></g><!-- 140434991784008&#45;&gt;140434991785296 --><g class="edge" id="edge8"><title>140434991784008-&gt;140434991785296</title>
+<path d="M177.072,-73.3129C183.638,-64.679 191.719,-54.0551 198.96,-44.5341" fill="none" stroke="black"></path><polygon fill="black" points="201.781,-46.6071 205.048,-36.5288 196.209,-42.3695 201.781,-46.6071" stroke="black"></polygon></g></g></svg>
 </div>
 
 </div>
@@ -519,6 +530,16 @@ MathJax.Hub.Config({
 </div>
 
 </div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h5 id="Illustration-3:-Full-Encoder-architecture-with-auxiliary-layers">Illustration 3: Full Encoder architecture with auxiliary layers<a class="anchor-link" href="#Illustration-3:-Full-Encoder-architecture-with-auxiliary-layers">¶</a>
+</h5>
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In [18]:</div>
@@ -553,8 +574,8 @@ MathJax.Hub.Config({
 <div class="prompt input_prompt">In [19]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">z_mean</span><span class="p">,</span> <span class="n">z_log_var</span> <span class="o">=</span> <span class="n">KLDivergenceLayer</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">'kl'</span><span class="p">)([</span><span class="n">z_mean</span><span class="p">,</span> <span class="n">z_log_var</span><span class="p">])</span>
-<span class="n">z_std_dev</span> <span class="o">=</span> <span class="n">Lambda</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">K</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">.</span><span class="mi">5</span><span class="o">*</span><span class="n">t</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s1">'sigma'</span><span class="p">)(</span><span class="n">z_log_var</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">z_mu</span><span class="p">,</span> <span class="n">z_log_var</span> <span class="o">=</span> <span class="n">KLDivergenceLayer</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">'kl'</span><span class="p">)([</span><span class="n">z_mu</span><span class="p">,</span> <span class="n">z_log_var</span><span class="p">])</span>
+<span class="n">z_sigma</span> <span class="o">=</span> <span class="n">Lambda</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">K</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">.</span><span class="mi">5</span><span class="o">*</span><span class="n">t</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s1">'sigma'</span><span class="p">)(</span><span class="n">z_log_var</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -567,9 +588,9 @@ MathJax.Hub.Config({
 <div class="prompt input_prompt">In [20]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">eps</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">mc_samples</span><span class="p">,</span> <span class="n">latent_dim</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s1">'epsilon'</span><span class="p">)</span>
-<span class="n">sigma_eps</span> <span class="o">=</span> <span class="n">Multiply</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">'sigma_eps'</span><span class="p">)([</span><span class="n">z_std_dev</span><span class="p">,</span> <span class="n">eps</span><span class="p">])</span>
-<span class="n">z</span> <span class="o">=</span> <span class="n">Add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">'z'</span><span class="p">)([</span><span class="n">z_mean</span><span class="p">,</span> <span class="n">sigma_eps</span><span class="p">])</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">eps</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">latent_dim</span><span class="p">,),</span> <span class="n">name</span><span class="o">=</span><span class="s1">'epsilon'</span><span class="p">)</span>
+<span class="n">z_eps</span> <span class="o">=</span> <span class="n">Multiply</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">'sigma_eps'</span><span class="p">)([</span><span class="n">z_sigma</span><span class="p">,</span> <span class="n">eps</span><span class="p">])</span>
+<span class="n">z</span> <span class="o">=</span> <span class="n">Add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">'z'</span><span class="p">)([</span><span class="n">z_mu</span><span class="p">,</span> <span class="n">z_eps</span><span class="p">])</span>
 </pre></div>
 
 </div>
@@ -595,6 +616,59 @@ MathJax.Hub.Config({
 <div class="prompt input_prompt">In [22]:</div>
 <div class="inner_cell">
     <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">SVG</span><span class="p">(</span><span class="n">model_to_dot</span><span class="p">(</span><span class="n">encoder</span><span class="p">,</span> <span class="n">show_shapes</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">prog</span><span class="o">=</span><span class="s1">'dot'</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">'svg'</span><span class="p">))</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[22]:</div>
+
+
+
+<div class="output_svg output_subarea output_execute_result">
+<svg height="483pt" viewbox="0.00 0.00 274.77 483.00" width="275pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><g class="graph" id="graph0" transform="scale(1 1) rotate(0) translate(4 479)"><title>G</title>
+<polygon fill="white" points="-4,4 -4,-479 270.771,-479 270.771,4 -4,4" stroke="none"></polygon><!-- 140434991284912 --><g class="node" id="node1"><title>140434991284912</title>
+<polygon fill="none" points="115.5,-438.5 115.5,-474.5 206.5,-474.5 206.5,-438.5 115.5,-438.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="161" y="-452.8">x: InputLayer</text></g><!-- 140434991287264 --><g class="node" id="node2"><title>140434991287264</title>
+<polygon fill="none" points="89,-365.5 89,-401.5 233,-401.5 233,-365.5 89,-365.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="161" y="-379.8">encoder_hidden: Dense</text></g><!-- 140434991284912&#45;&gt;140434991287264 --><g class="edge" id="edge1"><title>140434991284912-&gt;140434991287264</title>
+<path d="M161,-438.313C161,-430.289 161,-420.547 161,-411.569" fill="none" stroke="black"></path><polygon fill="black" points="164.5,-411.529 161,-401.529 157.5,-411.529 164.5,-411.529" stroke="black"></polygon></g><!-- 140434991288272 --><g class="node" id="node3"><title>140434991288272</title>
+<polygon fill="none" points="70,-292.5 70,-328.5 146,-328.5 146,-292.5 70,-292.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="108" y="-306.8">mu: Dense</text></g><!-- 140434991287264&#45;&gt;140434991288272 --><g class="edge" id="edge2"><title>140434991287264-&gt;140434991288272</title>
+<path d="M148.17,-365.313C141.79,-356.766 133.955,-346.269 126.903,-336.823" fill="none" stroke="black"></path><polygon fill="black" points="129.498,-334.449 120.712,-328.529 123.889,-338.636 129.498,-334.449" stroke="black"></polygon></g><!-- 140434991287600 --><g class="node" id="node4"><title>140434991287600</title>
+<polygon fill="none" points="164.5,-292.5 164.5,-328.5 263.5,-328.5 263.5,-292.5 164.5,-292.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="214" y="-306.8">log_var: Dense</text></g><!-- 140434991287264&#45;&gt;140434991287600 --><g class="edge" id="edge3"><title>140434991287264-&gt;140434991287600</title>
+<path d="M173.83,-365.313C180.21,-356.766 188.045,-346.269 195.097,-336.823" fill="none" stroke="black"></path><polygon fill="black" points="198.111,-338.636 201.288,-328.529 192.502,-334.449 198.111,-338.636" stroke="black"></polygon></g><!-- 140434992459672 --><g class="node" id="node5"><title>140434992459672</title>
+<polygon fill="none" points="88,-219.5 88,-255.5 234,-255.5 234,-219.5 88,-219.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="161" y="-233.8">kl: KLDivergenceLayer</text></g><!-- 140434991288272&#45;&gt;140434992459672 --><g class="edge" id="edge4"><title>140434991288272-&gt;140434992459672</title>
+<path d="M120.83,-292.313C127.21,-283.766 135.045,-273.269 142.097,-263.823" fill="none" stroke="black"></path><polygon fill="black" points="145.111,-265.636 148.288,-255.529 139.502,-261.449 145.111,-265.636" stroke="black"></polygon></g><!-- 140434991287600&#45;&gt;140434992459672 --><g class="edge" id="edge5"><title>140434991287600-&gt;140434992459672</title>
+<path d="M201.17,-292.313C194.79,-283.766 186.955,-273.269 179.903,-263.823" fill="none" stroke="black"></path><polygon fill="black" points="182.498,-261.449 173.712,-255.529 176.889,-265.636 182.498,-261.449" stroke="black"></polygon></g><!-- 140434992808568 --><g class="node" id="node6"><title>140434992808568</title>
+<polygon fill="none" points="0,-146.5 0,-182.5 102,-182.5 102,-146.5 0,-146.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="51" y="-160.8">sigma: Lambda</text></g><!-- 140434992459672&#45;&gt;140434992808568 --><g class="edge" id="edge6"><title>140434992459672-&gt;140434992808568</title>
+<path d="M134.652,-219.494C120.065,-210.079 101.748,-198.255 85.975,-188.075" fill="none" stroke="black"></path><polygon fill="black" points="87.8139,-185.096 77.514,-182.614 84.0178,-190.977 87.8139,-185.096" stroke="black"></polygon></g><!-- 140434992456368 --><g class="node" id="node9"><title>140434992456368</title>
+<polygon fill="none" points="198,-0.5 198,-36.5 252,-36.5 252,-0.5 198,-0.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="225" y="-14.8">z: Add</text></g><!-- 140434992459672&#45;&gt;140434992456368 --><g class="edge" id="edge9"><title>140434992459672-&gt;140434992456368</title>
+<path d="M209.975,-219.257C226.252,-210.938 242.606,-199.162 252,-183 276.568,-140.73 264.673,-120.477 253,-73 250.709,-63.6804 246.475,-54.1846 241.982,-45.8304" fill="none" stroke="black"></path><polygon fill="black" points="244.901,-43.885 236.888,-36.9536 238.83,-47.3691 244.901,-43.885" stroke="black"></polygon></g><!-- 140434992457992 --><g class="node" id="node8"><title>140434992457992</title>
+<polygon fill="none" points="114,-73.5 114,-109.5 244,-109.5 244,-73.5 114,-73.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="179" y="-87.8">sigma_eps: Multiply</text></g><!-- 140434992808568&#45;&gt;140434992457992 --><g class="edge" id="edge7"><title>140434992808568-&gt;140434992457992</title>
+<path d="M81.6592,-146.494C98.9474,-136.904 120.739,-124.817 139.318,-114.511" fill="none" stroke="black"></path><polygon fill="black" points="141.1,-117.525 148.147,-109.614 137.705,-111.404 141.1,-117.525" stroke="black"></polygon></g><!-- 140434992456424 --><g class="node" id="node7"><title>140434992456424</title>
+<polygon fill="none" points="120.5,-146.5 120.5,-182.5 243.5,-182.5 243.5,-146.5 120.5,-146.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="182" y="-160.8">epsilon: InputLayer</text></g><!-- 140434992456424&#45;&gt;140434992457992 --><g class="edge" id="edge8"><title>140434992456424-&gt;140434992457992</title>
+<path d="M181.274,-146.313C180.935,-138.289 180.523,-128.547 180.144,-119.569" fill="none" stroke="black"></path><polygon fill="black" points="183.639,-119.372 179.72,-109.529 176.645,-119.668 183.639,-119.372" stroke="black"></polygon></g><!-- 140434992457992&#45;&gt;140434992456368 --><g class="edge" id="edge10"><title>140434992457992-&gt;140434992456368</title>
+<path d="M190.135,-73.3129C195.616,-64.8534 202.335,-54.4835 208.406,-45.1124" fill="none" stroke="black"></path><polygon fill="black" points="211.467,-46.8245 213.967,-36.5288 205.592,-43.0183 211.467,-46.8245" stroke="black"></polygon></g></g></svg>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [23]:</div>
+<div class="inner_cell">
+    <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">plot_model</span><span class="p">(</span>
     <span class="n">model</span><span class="o">=</span><span class="n">encoder</span><span class="p">,</span> <span class="n">show_shapes</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">to_file</span><span class="o">=</span><span class="s1">'../../images/vae/encoder_full.svg'</span>
@@ -608,7 +682,7 @@ MathJax.Hub.Config({
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In [23]:</div>
+<div class="prompt input_prompt">In [24]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">plot_model</span><span class="p">(</span>
@@ -634,7 +708,7 @@ MathJax.Hub.Config({
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In [49]:</div>
+<div class="prompt input_prompt">In [25]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">decoder</span> <span class="o">=</span> <span class="n">Sequential</span><span class="p">([</span>
@@ -651,7 +725,7 @@ MathJax.Hub.Config({
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In [50]:</div>
+<div class="prompt input_prompt">In [26]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># equivalent to above. Writing InputLayer </span>
@@ -670,7 +744,7 @@ MathJax.Hub.Config({
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In [51]:</div>
+<div class="prompt input_prompt">In [27]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">x_decoded</span> <span class="o">=</span> <span class="n">decoder</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
@@ -683,7 +757,7 @@ MathJax.Hub.Config({
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In [52]:</div>
+<div class="prompt input_prompt">In [28]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">SVG</span><span class="p">(</span><span class="n">model_to_dot</span><span class="p">(</span><span class="n">decoder</span><span class="p">,</span> <span class="n">show_shapes</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -700,17 +774,17 @@ MathJax.Hub.Config({
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[52]:</div>
+<div class="prompt output_prompt">Out[28]:</div>
 
 
 
 <div class="output_svg output_subarea output_execute_result">
 <svg height="191pt" viewbox="0.00 0.00 152.00 191.00" width="152pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><g class="graph" id="graph0" transform="scale(1 1) rotate(0) translate(4 187)"><title>G</title>
-<polygon fill="white" points="-4,4 -4,-187 148,-187 148,4 -4,4" stroke="none"></polygon><!-- 140615668522512 --><g class="node" id="node1"><title>140615668522512</title>
-<polygon fill="none" points="27,-146.5 27,-182.5 117,-182.5 117,-146.5 27,-146.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="72" y="-160.8">z: InputLayer</text></g><!-- 140615668970832 --><g class="node" id="node2"><title>140615668970832</title>
-<polygon fill="none" points="0,-73.5 0,-109.5 144,-109.5 144,-73.5 0,-73.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="72" y="-87.8">decoder_hidden: Dense</text></g><!-- 140615668522512&#45;&gt;140615668970832 --><g class="edge" id="edge1"><title>140615668522512-&gt;140615668970832</title>
-<path d="M72,-146.313C72,-138.289 72,-128.547 72,-119.569" fill="none" stroke="black"></path><polygon fill="black" points="75.5001,-119.529 72,-109.529 68.5001,-119.529 75.5001,-119.529" stroke="black"></polygon></g><!-- 140615668595288 --><g class="node" id="node3"><title>140615668595288</title>
-<polygon fill="none" points="21.5,-0.5 21.5,-36.5 122.5,-36.5 122.5,-0.5 21.5,-0.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="72" y="-14.8">x_mean: Dense</text></g><!-- 140615668970832&#45;&gt;140615668595288 --><g class="edge" id="edge2"><title>140615668970832-&gt;140615668595288</title>
+<polygon fill="white" points="-4,4 -4,-187 148,-187 148,4 -4,4" stroke="none"></polygon><!-- 140434990562160 --><g class="node" id="node1"><title>140434990562160</title>
+<polygon fill="none" points="27,-146.5 27,-182.5 117,-182.5 117,-146.5 27,-146.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="72" y="-160.8">z: InputLayer</text></g><!-- 140434991557656 --><g class="node" id="node2"><title>140434991557656</title>
+<polygon fill="none" points="0,-73.5 0,-109.5 144,-109.5 144,-73.5 0,-73.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="72" y="-87.8">decoder_hidden: Dense</text></g><!-- 140434990562160&#45;&gt;140434991557656 --><g class="edge" id="edge1"><title>140434990562160-&gt;140434991557656</title>
+<path d="M72,-146.313C72,-138.289 72,-128.547 72,-119.569" fill="none" stroke="black"></path><polygon fill="black" points="75.5001,-119.529 72,-109.529 68.5001,-119.529 75.5001,-119.529" stroke="black"></polygon></g><!-- 140434991649456 --><g class="node" id="node3"><title>140434991649456</title>
+<polygon fill="none" points="21.5,-0.5 21.5,-36.5 122.5,-36.5 122.5,-0.5 21.5,-0.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="72" y="-14.8">x_mean: Dense</text></g><!-- 140434991557656&#45;&gt;140434991649456 --><g class="edge" id="edge2"><title>140434991557656-&gt;140434991649456</title>
 <path d="M72,-73.3129C72,-65.2895 72,-55.5475 72,-46.5691" fill="none" stroke="black"></path><polygon fill="black" points="75.5001,-46.5288 72,-36.5288 68.5001,-46.5289 75.5001,-46.5288" stroke="black"></polygon></g></g></svg>
 </div>
 
@@ -722,7 +796,7 @@ MathJax.Hub.Config({
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In [53]:</div>
+<div class="prompt input_prompt">In [29]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">plot_model</span><span class="p">(</span>
@@ -738,7 +812,7 @@ MathJax.Hub.Config({
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In [54]:</div>
+<div class="prompt input_prompt">In [30]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">plot_model</span><span class="p">(</span>
@@ -754,7 +828,7 @@ MathJax.Hub.Config({
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In [57]:</div>
+<div class="prompt input_prompt">In [31]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># again, equivalent to above. writing out fully</span>
@@ -776,7 +850,7 @@ MathJax.Hub.Config({
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In [58]:</div>
+<div class="prompt input_prompt">In [32]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">nll</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">):</span>
@@ -794,7 +868,7 @@ MathJax.Hub.Config({
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In [59]:</div>
+<div class="prompt input_prompt">In [33]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">vae</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">eps</span><span class="p">],</span> <span class="n">outputs</span><span class="o">=</span><span class="n">x_decoded</span><span class="p">)</span>
@@ -808,7 +882,7 @@ MathJax.Hub.Config({
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In [60]:</div>
+<div class="prompt input_prompt">In [34]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">SVG</span><span class="p">(</span><span class="n">model_to_dot</span><span class="p">(</span><span class="n">vae</span><span class="p">,</span> <span class="n">show_shapes</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -825,36 +899,36 @@ MathJax.Hub.Config({
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[60]:</div>
+<div class="prompt output_prompt">Out[34]:</div>
 
 
 
 <div class="output_svg output_subarea output_execute_result">
-<svg height="719pt" viewbox="0.00 0.00 591.00 719.00" width="591pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><g class="graph" id="graph0" transform="scale(1 1) rotate(0) translate(4 715)"><title>G</title>
-<polygon fill="white" points="-4,4 -4,-715 587,-715 587,4 -4,4" stroke="none"></polygon><!-- 140615678430904 --><g class="node" id="node1"><title>140615678430904</title>
-<polygon fill="none" points="208.5,-664.5 208.5,-710.5 437.5,-710.5 437.5,-664.5 208.5,-664.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="254" y="-683.8">x: InputLayer</text><polyline fill="none" points="299.5,-664.5 299.5,-710.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="327" y="-695.3">input:</text><polyline fill="none" points="299.5,-687.5 354.5,-687.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="327" y="-672.3">output:</text><polyline fill="none" points="354.5,-664.5 354.5,-710.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="396" y="-695.3">(None, 784)</text><polyline fill="none" points="354.5,-687.5 437.5,-687.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="396" y="-672.3">(None, 784)</text></g><!-- 140615678430848 --><g class="node" id="node2"><title>140615678430848</title>
-<polygon fill="none" points="182,-581.5 182,-627.5 464,-627.5 464,-581.5 182,-581.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="254" y="-600.8">encoder_hidden: Dense</text><polyline fill="none" points="326,-581.5 326,-627.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="353.5" y="-612.3">input:</text><polyline fill="none" points="326,-604.5 381,-604.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="353.5" y="-589.3">output:</text><polyline fill="none" points="381,-581.5 381,-627.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="422.5" y="-612.3">(None, 784)</text><polyline fill="none" points="381,-604.5 464,-604.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="422.5" y="-589.3">(None, 256)</text></g><!-- 140615678430904&#45;&gt;140615678430848 --><g class="edge" id="edge1"><title>140615678430904-&gt;140615678430848</title>
-<path d="M323,-664.366C323,-656.152 323,-646.658 323,-637.725" fill="none" stroke="black"></path><polygon fill="black" points="326.5,-637.607 323,-627.607 319.5,-637.607 326.5,-637.607" stroke="black"></polygon></g><!-- 140615678430008 --><g class="node" id="node3"><title>140615678430008</title>
-<polygon fill="none" points="94,-498.5 94,-544.5 308,-544.5 308,-498.5 94,-498.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="132" y="-517.8">mu: Dense</text><polyline fill="none" points="170,-498.5 170,-544.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="197.5" y="-529.3">input:</text><polyline fill="none" points="170,-521.5 225,-521.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="197.5" y="-506.3">output:</text><polyline fill="none" points="225,-498.5 225,-544.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="266.5" y="-529.3">(None, 256)</text><polyline fill="none" points="225,-521.5 308,-521.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="266.5" y="-506.3">(None, 2)</text></g><!-- 140615678430848&#45;&gt;140615678430008 --><g class="edge" id="edge2"><title>140615678430848-&gt;140615678430008</title>
-<path d="M289.663,-581.366C275.273,-571.812 258.277,-560.528 243.035,-550.409" fill="none" stroke="black"></path><polygon fill="black" points="244.564,-547.222 234.297,-544.607 240.692,-553.054 244.564,-547.222" stroke="black"></polygon></g><!-- 140615678430568 --><g class="node" id="node4"><title>140615678430568</title>
-<polygon fill="none" points="326.5,-498.5 326.5,-544.5 563.5,-544.5 563.5,-498.5 326.5,-498.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="376" y="-517.8">log_var: Dense</text><polyline fill="none" points="425.5,-498.5 425.5,-544.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="453" y="-529.3">input:</text><polyline fill="none" points="425.5,-521.5 480.5,-521.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="453" y="-506.3">output:</text><polyline fill="none" points="480.5,-498.5 480.5,-544.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="522" y="-529.3">(None, 256)</text><polyline fill="none" points="480.5,-521.5 563.5,-521.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="522" y="-506.3">(None, 2)</text></g><!-- 140615678430848&#45;&gt;140615678430568 --><g class="edge" id="edge3"><title>140615678430848-&gt;140615678430568</title>
-<path d="M356.337,-581.366C370.727,-571.812 387.723,-560.528 402.965,-550.409" fill="none" stroke="black"></path><polygon fill="black" points="405.308,-553.054 411.703,-544.607 401.436,-547.222 405.308,-553.054" stroke="black"></polygon></g><!-- 140615677643632 --><g class="node" id="node5"><title>140615677643632</title>
-<polygon fill="none" points="153.5,-415.5 153.5,-461.5 492.5,-461.5 492.5,-415.5 153.5,-415.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="226.5" y="-434.8">kl: KLDivergenceLayer</text><polyline fill="none" points="299.5,-415.5 299.5,-461.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="327" y="-446.3">input:</text><polyline fill="none" points="299.5,-438.5 354.5,-438.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="327" y="-423.3">output:</text><polyline fill="none" points="354.5,-415.5 354.5,-461.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="423.5" y="-446.3">[(None, 2), (None, 2)]</text><polyline fill="none" points="354.5,-438.5 492.5,-438.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="423.5" y="-423.3">[(None, 2), (None, 2)]</text></g><!-- 140615678430008&#45;&gt;140615677643632 --><g class="edge" id="edge4"><title>140615678430008-&gt;140615677643632</title>
-<path d="M234.337,-498.366C248.727,-488.812 265.723,-477.528 280.965,-467.409" fill="none" stroke="black"></path><polygon fill="black" points="283.308,-470.054 289.703,-461.607 279.436,-464.222 283.308,-470.054" stroke="black"></polygon></g><!-- 140615678430568&#45;&gt;140615677643632 --><g class="edge" id="edge5"><title>140615678430568-&gt;140615677643632</title>
-<path d="M411.663,-498.366C397.273,-488.812 380.277,-477.528 365.035,-467.409" fill="none" stroke="black"></path><polygon fill="black" points="366.564,-464.222 356.297,-461.607 362.692,-470.054 366.564,-464.222" stroke="black"></polygon></g><!-- 140615677641392 --><g class="node" id="node6"><title>140615677641392</title>
-<polygon fill="none" points="0,-332.5 0,-378.5 226,-378.5 226,-332.5 0,-332.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="51" y="-351.8">sigma: Lambda</text><polyline fill="none" points="102,-332.5 102,-378.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="129.5" y="-363.3">input:</text><polyline fill="none" points="102,-355.5 157,-355.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="129.5" y="-340.3">output:</text><polyline fill="none" points="157,-332.5 157,-378.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="191.5" y="-363.3">(None, 2)</text><polyline fill="none" points="157,-355.5 226,-355.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="191.5" y="-340.3">(None, 2)</text></g><!-- 140615677643632&#45;&gt;140615677641392 --><g class="edge" id="edge6"><title>140615677643632-&gt;140615677641392</title>
-<path d="M265.894,-415.473C239.276,-405.206 207.431,-392.924 179.712,-382.232" fill="none" stroke="black"></path><polygon fill="black" points="180.684,-378.856 170.095,-378.522 178.165,-385.387 180.684,-378.856" stroke="black"></polygon></g><!-- 140615678750336 --><g class="node" id="node9"><title>140615678750336</title>
-<polygon fill="none" points="305,-166.5 305,-212.5 565,-212.5 565,-166.5 305,-166.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="331.5" y="-185.8">z: Add</text><polyline fill="none" points="358,-166.5 358,-212.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="385.5" y="-197.3">input:</text><polyline fill="none" points="358,-189.5 413,-189.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="385.5" y="-174.3">output:</text><polyline fill="none" points="413,-166.5 413,-212.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="489" y="-197.3">[(None, 2), (None, 5, 2)]</text><polyline fill="none" points="413,-189.5 565,-189.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="489" y="-174.3">(None, 5, 2)</text></g><!-- 140615677643632&#45;&gt;140615678750336 --><g class="edge" id="edge9"><title>140615677643632-&gt;140615678750336</title>
-<path d="M468.034,-415.446C485.976,-406.815 502.143,-395.033 514,-379 548.356,-332.546 539.997,-300.599 514,-249 508.003,-237.098 498.314,-227.013 487.742,-218.745" fill="none" stroke="black"></path><polygon fill="black" points="489.679,-215.826 479.533,-212.776 485.563,-221.488 489.679,-215.826" stroke="black"></polygon></g><!-- 140615678749048 --><g class="node" id="node8"><title>140615678749048</title>
-<polygon fill="none" points="168.5,-249.5 168.5,-295.5 505.5,-295.5 505.5,-249.5 168.5,-249.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="233.5" y="-268.8">sigma_eps: Multiply</text><polyline fill="none" points="298.5,-249.5 298.5,-295.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="326" y="-280.3">input:</text><polyline fill="none" points="298.5,-272.5 353.5,-272.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="326" y="-257.3">output:</text><polyline fill="none" points="353.5,-249.5 353.5,-295.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="429.5" y="-280.3">[(None, 2), (None, 5, 2)]</text><polyline fill="none" points="353.5,-272.5 505.5,-272.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="429.5" y="-257.3">(None, 5, 2)</text></g><!-- 140615677641392&#45;&gt;140615678749048 --><g class="edge" id="edge7"><title>140615677641392-&gt;140615678749048</title>
-<path d="M173.913,-332.473C202.554,-322.117 236.867,-309.709 266.614,-298.952" fill="none" stroke="black"></path><polygon fill="black" points="267.885,-302.214 276.099,-295.522 265.505,-295.631 267.885,-302.214" stroke="black"></polygon></g><!-- 140615678749776 --><g class="node" id="node7"><title>140615678749776</title>
-<polygon fill="none" points="244.5,-332.5 244.5,-378.5 505.5,-378.5 505.5,-332.5 244.5,-332.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="306" y="-351.8">epsilon: InputLayer</text><polyline fill="none" points="367.5,-332.5 367.5,-378.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="395" y="-363.3">input:</text><polyline fill="none" points="367.5,-355.5 422.5,-355.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="395" y="-340.3">output:</text><polyline fill="none" points="422.5,-332.5 422.5,-378.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="464" y="-363.3">(None, 5, 2)</text><polyline fill="none" points="422.5,-355.5 505.5,-355.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="464" y="-340.3">(None, 5, 2)</text></g><!-- 140615678749776&#45;&gt;140615678749048 --><g class="edge" id="edge8"><title>140615678749776-&gt;140615678749048</title>
-<path d="M364.616,-332.366C360.637,-323.884 356.018,-314.037 351.709,-304.853" fill="none" stroke="black"></path><polygon fill="black" points="354.787,-303.174 347.371,-295.607 348.45,-306.147 354.787,-303.174" stroke="black"></polygon></g><!-- 140615678749048&#45;&gt;140615678750336 --><g class="edge" id="edge10"><title>140615678749048-&gt;140615678750336</title>
-<path d="M363.779,-249.366C375.014,-240.08 388.227,-229.16 400.201,-219.262" fill="none" stroke="black"></path><polygon fill="black" points="402.775,-221.676 408.253,-212.607 398.316,-216.28 402.775,-221.676" stroke="black"></polygon></g><!-- 140615665742344 --><g class="node" id="node10"><title>140615665742344</title>
-<polygon fill="none" points="287,-83.5 287,-129.5 583,-129.5 583,-83.5 287,-83.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="359" y="-102.8">decoder_hidden: Dense</text><polyline fill="none" points="431,-83.5 431,-129.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="458.5" y="-114.3">input:</text><polyline fill="none" points="431,-106.5 486,-106.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="458.5" y="-91.3">output:</text><polyline fill="none" points="486,-83.5 486,-129.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="534.5" y="-114.3">(None, 5, 2)</text><polyline fill="none" points="486,-106.5 583,-106.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="534.5" y="-91.3">(None, 5, 256)</text></g><!-- 140615678750336&#45;&gt;140615665742344 --><g class="edge" id="edge11"><title>140615678750336-&gt;140615665742344</title>
-<path d="M435,-166.366C435,-158.152 435,-148.658 435,-139.725" fill="none" stroke="black"></path><polygon fill="black" points="438.5,-139.607 435,-129.607 431.5,-139.607 438.5,-139.607" stroke="black"></polygon></g><!-- 140615665743296 --><g class="node" id="node11"><title>140615665743296</title>
-<polygon fill="none" points="308.5,-0.5 308.5,-46.5 561.5,-46.5 561.5,-0.5 308.5,-0.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="359" y="-19.8">x_mean: Dense</text><polyline fill="none" points="409.5,-0.5 409.5,-46.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="437" y="-31.3">input:</text><polyline fill="none" points="409.5,-23.5 464.5,-23.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="437" y="-8.3">output:</text><polyline fill="none" points="464.5,-0.5 464.5,-46.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="513" y="-31.3">(None, 5, 256)</text><polyline fill="none" points="464.5,-23.5 561.5,-23.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="513" y="-8.3">(None, 5, 784)</text></g><!-- 140615665742344&#45;&gt;140615665743296 --><g class="edge" id="edge12"><title>140615665742344-&gt;140615665743296</title>
-<path d="M435,-83.3664C435,-75.1516 435,-65.6579 435,-56.7252" fill="none" stroke="black"></path><polygon fill="black" points="438.5,-56.6068 435,-46.6068 431.5,-56.6069 438.5,-56.6068" stroke="black"></polygon></g></g></svg>
+<svg height="719pt" viewbox="0.00 0.00 574.00 719.00" width="574pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><g class="graph" id="graph0" transform="scale(1 1) rotate(0) translate(4 715)"><title>G</title>
+<polygon fill="white" points="-4,4 -4,-715 570,-715 570,4 -4,4" stroke="none"></polygon><!-- 140434991284912 --><g class="node" id="node1"><title>140434991284912</title>
+<polygon fill="none" points="201.5,-664.5 201.5,-710.5 430.5,-710.5 430.5,-664.5 201.5,-664.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="247" y="-683.8">x: InputLayer</text><polyline fill="none" points="292.5,-664.5 292.5,-710.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="320" y="-695.3">input:</text><polyline fill="none" points="292.5,-687.5 347.5,-687.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="320" y="-672.3">output:</text><polyline fill="none" points="347.5,-664.5 347.5,-710.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="389" y="-695.3">(None, 784)</text><polyline fill="none" points="347.5,-687.5 430.5,-687.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="389" y="-672.3">(None, 784)</text></g><!-- 140434991287264 --><g class="node" id="node2"><title>140434991287264</title>
+<polygon fill="none" points="175,-581.5 175,-627.5 457,-627.5 457,-581.5 175,-581.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="247" y="-600.8">encoder_hidden: Dense</text><polyline fill="none" points="319,-581.5 319,-627.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="346.5" y="-612.3">input:</text><polyline fill="none" points="319,-604.5 374,-604.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="346.5" y="-589.3">output:</text><polyline fill="none" points="374,-581.5 374,-627.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="415.5" y="-612.3">(None, 784)</text><polyline fill="none" points="374,-604.5 457,-604.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="415.5" y="-589.3">(None, 256)</text></g><!-- 140434991284912&#45;&gt;140434991287264 --><g class="edge" id="edge1"><title>140434991284912-&gt;140434991287264</title>
+<path d="M316,-664.366C316,-656.152 316,-646.658 316,-637.725" fill="none" stroke="black"></path><polygon fill="black" points="319.5,-637.607 316,-627.607 312.5,-637.607 319.5,-637.607" stroke="black"></polygon></g><!-- 140434991288272 --><g class="node" id="node3"><title>140434991288272</title>
+<polygon fill="none" points="87,-498.5 87,-544.5 301,-544.5 301,-498.5 87,-498.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="125" y="-517.8">mu: Dense</text><polyline fill="none" points="163,-498.5 163,-544.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="190.5" y="-529.3">input:</text><polyline fill="none" points="163,-521.5 218,-521.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="190.5" y="-506.3">output:</text><polyline fill="none" points="218,-498.5 218,-544.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="259.5" y="-529.3">(None, 256)</text><polyline fill="none" points="218,-521.5 301,-521.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="259.5" y="-506.3">(None, 2)</text></g><!-- 140434991287264&#45;&gt;140434991288272 --><g class="edge" id="edge2"><title>140434991287264-&gt;140434991288272</title>
+<path d="M282.663,-581.366C268.273,-571.812 251.277,-560.528 236.035,-550.409" fill="none" stroke="black"></path><polygon fill="black" points="237.564,-547.222 227.297,-544.607 233.692,-553.054 237.564,-547.222" stroke="black"></polygon></g><!-- 140434991287600 --><g class="node" id="node4"><title>140434991287600</title>
+<polygon fill="none" points="319.5,-498.5 319.5,-544.5 556.5,-544.5 556.5,-498.5 319.5,-498.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="369" y="-517.8">log_var: Dense</text><polyline fill="none" points="418.5,-498.5 418.5,-544.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="446" y="-529.3">input:</text><polyline fill="none" points="418.5,-521.5 473.5,-521.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="446" y="-506.3">output:</text><polyline fill="none" points="473.5,-498.5 473.5,-544.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="515" y="-529.3">(None, 256)</text><polyline fill="none" points="473.5,-521.5 556.5,-521.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="515" y="-506.3">(None, 2)</text></g><!-- 140434991287264&#45;&gt;140434991287600 --><g class="edge" id="edge3"><title>140434991287264-&gt;140434991287600</title>
+<path d="M349.337,-581.366C363.727,-571.812 380.723,-560.528 395.965,-550.409" fill="none" stroke="black"></path><polygon fill="black" points="398.308,-553.054 404.703,-544.607 394.436,-547.222 398.308,-553.054" stroke="black"></polygon></g><!-- 140434992459672 --><g class="node" id="node5"><title>140434992459672</title>
+<polygon fill="none" points="146.5,-415.5 146.5,-461.5 485.5,-461.5 485.5,-415.5 146.5,-415.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="219.5" y="-434.8">kl: KLDivergenceLayer</text><polyline fill="none" points="292.5,-415.5 292.5,-461.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="320" y="-446.3">input:</text><polyline fill="none" points="292.5,-438.5 347.5,-438.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="320" y="-423.3">output:</text><polyline fill="none" points="347.5,-415.5 347.5,-461.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="416.5" y="-446.3">[(None, 2), (None, 2)]</text><polyline fill="none" points="347.5,-438.5 485.5,-438.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="416.5" y="-423.3">[(None, 2), (None, 2)]</text></g><!-- 140434991288272&#45;&gt;140434992459672 --><g class="edge" id="edge4"><title>140434991288272-&gt;140434992459672</title>
+<path d="M227.337,-498.366C241.727,-488.812 258.723,-477.528 273.965,-467.409" fill="none" stroke="black"></path><polygon fill="black" points="276.308,-470.054 282.703,-461.607 272.436,-464.222 276.308,-470.054" stroke="black"></polygon></g><!-- 140434991287600&#45;&gt;140434992459672 --><g class="edge" id="edge5"><title>140434991287600-&gt;140434992459672</title>
+<path d="M404.663,-498.366C390.273,-488.812 373.277,-477.528 358.035,-467.409" fill="none" stroke="black"></path><polygon fill="black" points="359.564,-464.222 349.297,-461.607 355.692,-470.054 359.564,-464.222" stroke="black"></polygon></g><!-- 140434992808568 --><g class="node" id="node6"><title>140434992808568</title>
+<polygon fill="none" points="0,-332.5 0,-378.5 226,-378.5 226,-332.5 0,-332.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="51" y="-351.8">sigma: Lambda</text><polyline fill="none" points="102,-332.5 102,-378.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="129.5" y="-363.3">input:</text><polyline fill="none" points="102,-355.5 157,-355.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="129.5" y="-340.3">output:</text><polyline fill="none" points="157,-332.5 157,-378.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="191.5" y="-363.3">(None, 2)</text><polyline fill="none" points="157,-355.5 226,-355.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="191.5" y="-340.3">(None, 2)</text></g><!-- 140434992459672&#45;&gt;140434992808568 --><g class="edge" id="edge6"><title>140434992459672-&gt;140434992808568</title>
+<path d="M260.797,-415.473C235.067,-405.206 204.284,-392.924 177.488,-382.232" fill="none" stroke="black"></path><polygon fill="black" points="178.777,-378.978 168.192,-378.522 176.182,-385.479 178.777,-378.978" stroke="black"></polygon></g><!-- 140434992456368 --><g class="node" id="node9"><title>140434992456368</title>
+<polygon fill="none" points="302,-166.5 302,-212.5 548,-212.5 548,-166.5 302,-166.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="328.5" y="-185.8">z: Add</text><polyline fill="none" points="355,-166.5 355,-212.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="382.5" y="-197.3">input:</text><polyline fill="none" points="355,-189.5 410,-189.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="382.5" y="-174.3">output:</text><polyline fill="none" points="410,-166.5 410,-212.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="479" y="-197.3">[(None, 2), (None, 2)]</text><polyline fill="none" points="410,-189.5 548,-189.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="479" y="-174.3">(None, 2)</text></g><!-- 140434992459672&#45;&gt;140434992456368 --><g class="edge" id="edge9"><title>140434992459672-&gt;140434992456368</title>
+<path d="M453.99,-415.466C471.985,-406.873 488.226,-395.098 500,-379 534.109,-332.365 525.349,-300.92 500,-249 494.283,-237.291 484.965,-227.242 474.809,-218.943" fill="none" stroke="black"></path><polygon fill="black" points="476.619,-215.922 466.537,-212.663 472.386,-221.498 476.619,-215.922" stroke="black"></polygon></g><!-- 140434992457992 --><g class="node" id="node8"><title>140434992457992</title>
+<polygon fill="none" points="168.5,-249.5 168.5,-295.5 491.5,-295.5 491.5,-249.5 168.5,-249.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="233.5" y="-268.8">sigma_eps: Multiply</text><polyline fill="none" points="298.5,-249.5 298.5,-295.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="326" y="-280.3">input:</text><polyline fill="none" points="298.5,-272.5 353.5,-272.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="326" y="-257.3">output:</text><polyline fill="none" points="353.5,-249.5 353.5,-295.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="422.5" y="-280.3">[(None, 2), (None, 2)]</text><polyline fill="none" points="353.5,-272.5 491.5,-272.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="422.5" y="-257.3">(None, 2)</text></g><!-- 140434992808568&#45;&gt;140434992457992 --><g class="edge" id="edge7"><title>140434992808568-&gt;140434992457992</title>
+<path d="M172.01,-332.473C199.635,-322.162 232.708,-309.816 261.439,-299.092" fill="none" stroke="black"></path><polygon fill="black" points="262.858,-302.298 271.002,-295.522 260.41,-295.74 262.858,-302.298" stroke="black"></polygon></g><!-- 140434992456424 --><g class="node" id="node7"><title>140434992456424</title>
+<polygon fill="none" points="244.5,-332.5 244.5,-378.5 491.5,-378.5 491.5,-332.5 244.5,-332.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="306" y="-351.8">epsilon: InputLayer</text><polyline fill="none" points="367.5,-332.5 367.5,-378.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="395" y="-363.3">input:</text><polyline fill="none" points="367.5,-355.5 422.5,-355.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="395" y="-340.3">output:</text><polyline fill="none" points="422.5,-332.5 422.5,-378.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="457" y="-363.3">(None, 2)</text><polyline fill="none" points="422.5,-355.5 491.5,-355.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="457" y="-340.3">(None, 2)</text></g><!-- 140434992456424&#45;&gt;140434992457992 --><g class="edge" id="edge8"><title>140434992456424-&gt;140434992457992</title>
+<path d="M357.616,-332.366C353.637,-323.884 349.018,-314.037 344.709,-304.853" fill="none" stroke="black"></path><polygon fill="black" points="347.787,-303.174 340.371,-295.607 341.45,-306.147 347.787,-303.174" stroke="black"></polygon></g><!-- 140434992457992&#45;&gt;140434992456368 --><g class="edge" id="edge10"><title>140434992457992-&gt;140434992456368</title>
+<path d="M355.959,-249.366C366.85,-240.08 379.659,-229.16 391.266,-219.262" fill="none" stroke="black"></path><polygon fill="black" points="393.734,-221.758 399.072,-212.607 389.192,-216.432 393.734,-221.758" stroke="black"></polygon></g><!-- 140434989786952 --><g class="node" id="node10"><title>140434989786952</title>
+<polygon fill="none" points="284,-83.5 284,-129.5 566,-129.5 566,-83.5 284,-83.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="356" y="-102.8">decoder_hidden: Dense</text><polyline fill="none" points="428,-83.5 428,-129.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="455.5" y="-114.3">input:</text><polyline fill="none" points="428,-106.5 483,-106.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="455.5" y="-91.3">output:</text><polyline fill="none" points="483,-83.5 483,-129.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="524.5" y="-114.3">(None, 2)</text><polyline fill="none" points="483,-106.5 566,-106.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="524.5" y="-91.3">(None, 256)</text></g><!-- 140434992456368&#45;&gt;140434989786952 --><g class="edge" id="edge11"><title>140434992456368-&gt;140434989786952</title>
+<path d="M425,-166.366C425,-158.152 425,-148.658 425,-139.725" fill="none" stroke="black"></path><polygon fill="black" points="428.5,-139.607 425,-129.607 421.5,-139.607 428.5,-139.607" stroke="black"></polygon></g><!-- 140434989788016 --><g class="node" id="node11"><title>140434989788016</title>
+<polygon fill="none" points="305.5,-0.5 305.5,-46.5 544.5,-46.5 544.5,-0.5 305.5,-0.5" stroke="black"></polygon><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="356" y="-19.8">x_mean: Dense</text><polyline fill="none" points="406.5,-0.5 406.5,-46.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="434" y="-31.3">input:</text><polyline fill="none" points="406.5,-23.5 461.5,-23.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="434" y="-8.3">output:</text><polyline fill="none" points="461.5,-0.5 461.5,-46.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="503" y="-31.3">(None, 256)</text><polyline fill="none" points="461.5,-23.5 544.5,-23.5 " stroke="black"></polyline><text font-family="Times,serif" font-size="14.00" text-anchor="middle" x="503" y="-8.3">(None, 784)</text></g><!-- 140434989786952&#45;&gt;140434989788016 --><g class="edge" id="edge12"><title>140434989786952-&gt;140434989788016</title>
+<path d="M425,-83.3664C425,-75.1516 425,-65.6579 425,-56.7252" fill="none" stroke="black"></path><polygon fill="black" points="428.5,-56.6068 425,-46.6068 421.5,-56.6069 428.5,-56.6068" stroke="black"></polygon></g></g></svg>
 </div>
 
 </div>
@@ -865,11 +939,11 @@ MathJax.Hub.Config({
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In [61]:</div>
+<div class="prompt input_prompt">In [35]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">plot_model</span><span class="p">(</span>
-    <span class="n">model</span><span class="o">=</span><span class="n">decoder</span><span class="p">,</span> <span class="n">show_shapes</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">vae</span><span class="p">,</span> <span class="n">show_shapes</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">to_file</span><span class="o">=</span><span class="s1">'../../images/vae/vae_full.svg'</span>
 <span class="p">)</span>
 </pre></div>
@@ -881,11 +955,11 @@ MathJax.Hub.Config({
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In [62]:</div>
+<div class="prompt input_prompt">In [36]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">plot_model</span><span class="p">(</span>
-    <span class="n">model</span><span class="o">=</span><span class="n">decoder</span><span class="p">,</span> <span class="n">show_shapes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">vae</span><span class="p">,</span> <span class="n">show_shapes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">to_file</span><span class="o">=</span><span class="s1">'../../images/vae/vae_full_shapes.svg'</span>
 <span class="p">)</span>
 </pre></div>
@@ -1280,10 +1354,10 @@ Epoch 50/50
 
 
 
-<div id="04de8245-abe0-4219-95ec-72157b7b57c9"></div>
+<div id="ddf52950-d3a1-4d45-8ac9-2cc08c2801db"></div>
 <div class="output_subarea output_javascript ">
 <script type="text/javascript">
-var element = $('#04de8245-abe0-4219-95ec-72157b7b57c9');
+var element = $('#ddf52950-d3a1-4d45-8ac9-2cc08c2801db');
 /* Put everything inside the global mpl namespace */
 window.mpl = {};
 
@@ -2255,10 +2329,10 @@ if (IPython.notebook.kernel != null) {
 
 
 
-<div id="2d0750fc-fc8c-485a-83ec-22291a3533b9"></div>
+<div id="6ead3175-406f-4b97-b56c-be562803628e"></div>
 <div class="output_subarea output_javascript ">
 <script type="text/javascript">
-var element = $('#2d0750fc-fc8c-485a-83ec-22291a3533b9');
+var element = $('#6ead3175-406f-4b97-b56c-be562803628e');
 /* Put everything inside the global mpl namespace */
 window.mpl = {};
 

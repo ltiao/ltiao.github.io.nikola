@@ -93,7 +93,70 @@ MathJax.Hub.Config({
             </p>
 
     </header><div class="postindex">
-    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="implementing-variational-autoencoders-in-keras-beyond-the-quickstart-tutorial/" class="u-url">Implementing Variational Autoencoders in Keras: Beyond the Quickstart Tutorial</a></h1>
+    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="inference-in-variational-autoencoders-with-different-monte-carlo-sample-sizes/" class="u-url">Inference in Variational Autoencoders with Different Monte Carlo Sample Sizes</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                Louis Tiao
+            </span></p>
+            <p class="dateline"><a href="inference-in-variational-autoencoders-with-different-monte-carlo-sample-sizes/" rel="bookmark"><time class="published dt-published" datetime="2017-11-20T23:51:24+11:00" title="2017-11-20 23:51">2017-11-20 23:51</time></a></p>
+                <p class="commentline">            <a href="inference-in-variational-autoencoders-with-different-monte-carlo-sample-sizes/#disqus_thread" data-disqus-identifier="cache/content/posts/inference-in-variational-autoencoders-with-various-monte-carlo-sample-sizes.html">Comments</a>
+
+
+        </p>
+</div>
+    </header><div class="p-summary entry-summary">
+    <div>
+<div class="admonition admonition-draft">
+<p class="first admonition-title">Draft</p>
+<p class="last">Please do not share or link.</p>
+</div>
+<p>In a <a class="reference external" href="implementing-variational-autoencoders-in-keras-beyond-the-quickstart-tutorial/">previous post</a>,
+I demonstrated how to use leverage Keras' modular design to implement variational
+inference in a way that makes it easy to tweak hyperparameters, adapt to related
+models, and extend to the more sophisticated methods in the current research.</p>
+<pre class="code python"><a name="rest_code_988102aa0bb64b0998a8effa4bcc7c11-1"></a><span class="n">eps</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">mc_samples</span><span class="p">,</span> <span class="n">latent_dim</span><span class="p">))</span>
+</pre>
+<p>Everything else remains exactly the same. The <tt class="docutils literal">Multiply</tt> layer will
+automatically broadcast <tt class="docutils literal">eps</tt> which has shape
+<tt class="docutils literal">(batch_size, mc_samples, latent_dim)</tt> with <tt class="docutils literal">sigma</tt> which has shape
+<tt class="docutils literal">(batch_size, latent_dim)</tt> and output shape
+<tt class="docutils literal">(batch_size, mc_samples, latent_dim)</tt>. Since the subsequent layers do not
+operate on the which will then be propagated to the
+final output.</p>
+<p>diagram here</p>
+<p>We expand the targets to 3d a array <tt class="docutils literal">np.expand_dims(x_train, axis=1)</tt> to be
+of shape <tt class="docutils literal">(batch_size, 1, original_dim)</tt> so that the loss function can
+broadcast with the output with shape <tt class="docutils literal">(batch_size, mc_samples, original_dim)</tt>.
+It is important to make the distinction between the log likelihood of the mean
+over outputs, versus the mean of the log likelihood over the outputs. Since we
+require the expected log likelihood, we are interested in the latter.</p>
+<pre class="code python"><a name="rest_code_b94ce429bede421c8de9c48c6a4267ad-1"></a><span class="n">eps_train</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x_train</span><span class="p">),</span> <span class="n">mc_samples</span><span class="p">,</span> <span class="n">latent_dim</span><span class="p">)</span>
+<a name="rest_code_b94ce429bede421c8de9c48c6a4267ad-2"></a><span class="n">eps_test</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x_test</span><span class="p">),</span> <span class="n">mc_samples</span><span class="p">,</span> <span class="n">latent_dim</span><span class="p">)</span>
+<a name="rest_code_b94ce429bede421c8de9c48c6a4267ad-3"></a>
+<a name="rest_code_b94ce429bede421c8de9c48c6a4267ad-4"></a><span class="n">vae</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+<a name="rest_code_b94ce429bede421c8de9c48c6a4267ad-5"></a>    <span class="p">[</span><span class="n">x_train</span><span class="p">,</span> <span class="n">eps_train</span><span class="p">],</span>
+<a name="rest_code_b94ce429bede421c8de9c48c6a4267ad-6"></a>    <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+<a name="rest_code_b94ce429bede421c8de9c48c6a4267ad-7"></a>    <span class="n">shuffle</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+<a name="rest_code_b94ce429bede421c8de9c48c6a4267ad-8"></a>    <span class="n">epochs</span><span class="o">=</span><span class="n">epochs</span><span class="p">,</span>
+<a name="rest_code_b94ce429bede421c8de9c48c6a4267ad-9"></a>    <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
+<a name="rest_code_b94ce429bede421c8de9c48c6a4267ad-10"></a>    <span class="n">validation_data</span><span class="o">=</span><span class="p">(</span>
+<a name="rest_code_b94ce429bede421c8de9c48c6a4267ad-11"></a>        <span class="p">[</span><span class="n">x_test</span><span class="p">,</span> <span class="n">eps_test</span><span class="p">],</span>
+<a name="rest_code_b94ce429bede421c8de9c48c6a4267ad-12"></a>        <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<a name="rest_code_b94ce429bede421c8de9c48c6a4267ad-13"></a>    <span class="p">)</span>
+<a name="rest_code_b94ce429bede421c8de9c48c6a4267ad-14"></a><span class="p">)</span>
+</pre>
+<p>For every data point, there are <tt class="docutils literal">mc_samples</tt> reconstructions.</p>
+<pre class="code python"><a name="rest_code_348a451139a047eab1a100bb6d7c7fa6-1"></a><span class="n">recons</span> <span class="o">=</span> <span class="n">vae</span><span class="o">.</span><span class="n">predict</span><span class="p">([</span><span class="n">x_test</span><span class="p">[:</span><span class="mi">1</span><span class="p">],</span> <span class="n">eps_test</span><span class="p">[:</span><span class="mi">1</span><span class="p">]])</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+<a name="rest_code_348a451139a047eab1a100bb6d7c7fa6-2"></a>
+<a name="rest_code_348a451139a047eab1a100bb6d7c7fa6-3"></a><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+<a name="rest_code_348a451139a047eab1a100bb6d7c7fa6-4"></a><span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">block</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">recons</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">28</span><span class="p">)))),</span>
+<a name="rest_code_348a451139a047eab1a100bb6d7c7fa6-5"></a>           <span class="n">cmap</span><span class="o">=</span><span class="s1">'gray'</span><span class="p">)</span>
+<a name="rest_code_348a451139a047eab1a100bb6d7c7fa6-6"></a><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre>
+<p>plot here</p>
+</div>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="implementing-variational-autoencoders-in-keras-beyond-the-quickstart-tutorial/" class="u-url">Implementing Variational Autoencoders in Keras: Beyond the Quickstart Tutorial</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
                 Louis Tiao
@@ -108,7 +171,7 @@ MathJax.Hub.Config({
     <div>
 <div class="admonition admonition-draft">
 <p class="first admonition-title">Draft</p>
-<p class="last">Do not share or link to.</p>
+<p class="last">Please do not share or link.</p>
 </div>
 <p><a class="reference external" href="https://keras.io/">Keras</a> is awesome. It is a very well-designed library that clearly abides by to
 its <a class="reference external" href="https://keras.io/#guiding-principles">guiding principles</a> of modularity and extensibility and thereby allows us
@@ -118,6 +181,11 @@ excellent tutorial on <a class="reference external" href="https://blog.keras.io/
 As the name suggests, that tutorial provides examples of how to implement
 various kinds of autoencoders in Keras, including the variational autoencoder
 (VAE) <a class="footnote-reference" href="implementing-variational-autoencoders-in-keras-beyond-the-quickstart-tutorial/#kingma2014" id="id1">[1]</a>.</p>
+<div class="figure align-center">
+<img alt="../../images/vae/result_combined.png" src="../images/vae/result_combined.png"><p class="caption">Visualization of 2D manifold of MNIST digits (left)
+and the representation of digits in latent space colored according to their
+digit labels (right).</p>
+</div>
 <p>Like all autoencoders, the variational autoencoder are primarily used for
 unsupervised learning of hidden representations.
 However, variational autoencoders are fundamentally different to your standard
@@ -630,46 +698,6 @@ in the cloud for distributed and parallel computing applications.</p>
 </div>
 </div>
 </div>
-</div>
-    </div>
-    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="installing-cartopy-on-mac-osx-1011/" class="u-url">Installing Cartopy on Mac OSX (10.11)</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
-                Louis Tiao
-            </span></p>
-            <p class="dateline"><a href="installing-cartopy-on-mac-osx-1011/" rel="bookmark"><time class="published dt-published" datetime="2016-03-31T23:33:50+11:00" title="2016-03-31 23:33">2016-03-31 23:33</time></a></p>
-                <p class="commentline">            <a href="installing-cartopy-on-mac-osx-1011/#disqus_thread" data-disqus-identifier="cache/content/posts/installing-cartopy-on-mac-osx-1011.html">Comments</a>
-
-
-        </p>
-</div>
-    </header><div class="p-summary entry-summary">
-    <div>
-<p>So you develop on Mac OS X (10.11) and have installed the external
-dependencies (<a class="reference external" href="https://trac.osgeo.org/geos/">geos</a> 3.5.0, <a class="reference external" href="https://trac.osgeo.org/proj/">proj</a> 4.9.2) of <a class="reference external" href="http://scitools.org.uk/cartopy/">Cartopy</a> with <a class="reference external" href="http://brew.sh/">Homebrew</a>:</p>
-<pre class="code console"><a name="rest_code_6ae845fd49a649ad8b704923be01fda6-1"></a><span class="gp">$</span> brew install geos
-<a name="rest_code_6ae845fd49a649ad8b704923be01fda6-2"></a><span class="gp">$</span> brew install proj
-</pre>
-<p>Moreover, you have created a <tt class="docutils literal">virtualenv</tt> and installed the Python
-dependencies (Cython, NumPy):</p>
-<pre class="code console"><a name="rest_code_f5c15b490ae84534873d87cea5565165-1"></a><span class="gp">$</span> mkvirtualenv cartopy_venv
-<a name="rest_code_f5c15b490ae84534873d87cea5565165-2"></a><span class="gp">(cartopy_venv)$</span> pip install cython
-<a name="rest_code_f5c15b490ae84534873d87cea5565165-3"></a><span class="gp">(cartopy_venv)$</span> pip install numpy
-</pre>
-<p>Yet, when you finally go install Cartopy, you still encounter the following
-seemingly inexplicable error:</p>
-<pre class="code console"><a name="rest_code_871931d9d61c4266af38e143b7402d75-1"></a><span class="gp">(cartopy_venv)$</span> pip install cartopy
-<a name="rest_code_871931d9d61c4266af38e143b7402d75-2"></a><span class="go">[...]</span>
-<a name="rest_code_871931d9d61c4266af38e143b7402d75-3"></a><span class="go">clang -fno-strict-aliasing -fno-common -dynamic -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk/System/Library/Frameworks/Tk.framework/Versions/8.5/Headers -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I/usr/local/Cellar/python/2.7.11/Frameworks/Python.framework/Versions/2.7/include -I./lib/cartopy -I-I/usr/local/Cellar/proj/4.9.2/include -I/usr/local/Cellar/geos/3.5.0/include -I/usr/local/Cellar/python/2.7.11/Frameworks/Python.framework/Versions/2.7/include/python2.7 -c lib/cartopy/trace.cpp -o build/temp.macosx-10.11-x86_64-2.7/lib/cartopy/trace.o</span>
-<a name="rest_code_871931d9d61c4266af38e143b7402d75-4"></a><span class="go">lib/cartopy/trace.cpp:249:10: fatal error: 'proj_api.h' file not found</span>
-<a name="rest_code_871931d9d61c4266af38e143b7402d75-5"></a><span class="gp">#</span>include <span class="s2">"proj_api.h"</span>
-<a name="rest_code_871931d9d61c4266af38e143b7402d75-6"></a><span class="go">         ^</span>
-<a name="rest_code_871931d9d61c4266af38e143b7402d75-7"></a><span class="go">1 error generated.</span>
-<a name="rest_code_871931d9d61c4266af38e143b7402d75-8"></a><span class="go">error: command 'clang' failed with exit status 1</span>
-<a name="rest_code_871931d9d61c4266af38e143b7402d75-9"></a>
-<a name="rest_code_871931d9d61c4266af38e143b7402d75-10"></a><span class="go">----------------------------------------</span>
-</pre>
-<p class="more"><a href="installing-cartopy-on-mac-osx-1011/">Read more…</a></p>
 </div>
     </div>
     </article>

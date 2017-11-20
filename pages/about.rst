@@ -12,7 +12,7 @@
    :class: img-thumbnail
 
 Hi. My name is Louis. I am a budding machine learning research scientist and a 
-current PhD student at the `University of Sydney`_ under `Fabio Ramos`_. 
+current PhD candidate at the `University of Sydney`_ under `Fabio Ramos`_. 
 I also work with `Edwin Bonilla`_ at UNSW and `Richard Nock`_ at ANU/Data61. 
 My main research interests lie at the intersection of Bayesian statistics, 
 deep learning and implicit generative models.

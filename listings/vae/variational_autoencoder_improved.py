@@ -16,7 +16,7 @@ epsilon_std = 1.0
 
 
 def nll(y_true, y_pred):
-    """ Negative log likelihood. """
+    """ Negative log likelihood (Bernoulli). """
 
     # keras.losses.binary_crossentropy gives the mean
     # over the last axis. We require the sum.
@@ -82,10 +82,7 @@ vae.fit(
     shuffle=True,
     epochs=epochs,
     batch_size=batch_size,
-    validation_data=(
-        [x_test, eps_test],
-        x_test
-    )
+    validation_data=([x_test, eps_test], x_test)
 )
 
 # display a 2D plot of the digit classes in the latent space

@@ -10,8 +10,8 @@
 .. topic:: COMP9418 (Advanced Topics in Statistical Machine Learning) - `UNSW Sydney`_
 
    In Semester 2 2017, I was a teaching assistant for COMP9418_: Advanced Topics 
-   in Statistical Machine Learning, a brand new course taught by the brilliant
-   `Edwin Bonilla`_. 
+   in Statistical Machine Learning, a brand new course created and taught by 
+   the brilliant `Edwin Bonilla`_. 
 
    The course has a primary focus on probabilistic machine learning methods, 
    covering the topics of exact and approximate inference in directed and 

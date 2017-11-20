@@ -77,7 +77,7 @@ x_test = x_test.reshape(-1, original_dim) / 255.
 eps_train = np.random.randn(len(x_train), mc_samples, latent_dim)
 eps_test = np.random.randn(len(x_test), mc_samples, latent_dim)
 
-hist = vae.fit(
+vae.fit(
     [x_train, eps_train],
     np.expand_dims(x_train, axis=1),
     shuffle=True,
@@ -88,10 +88,6 @@ hist = vae.fit(
         np.expand_dims(x_test, axis=1)
     )
 )
-
-from IPython import embed
-
-embed()
 
 # display a 2D plot of the digit classes in the latent space
 x_test_encoded = encoder.predict(x_test, batch_size=batch_size)

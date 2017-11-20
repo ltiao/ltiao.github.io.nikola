@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html prefix="
+og: http://ogp.me/ns#
+article: http://ogp.me/ns/article#
+" lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="description" content="variational_autoencoder_multi_gpu.py">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>variational_autoencoder_multi_gpu.py | Louis Tiao</title>
+<link href="../../assets/css/all.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/override_nikola_ipython.css" rel="stylesheet" type="text/css">
+<meta name="theme-color" content="#5670d4">
+<meta name="generator" content="Nikola (getnikola.com)">
+<link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
+<link rel="canonical" href="http://louistiao.me/listings/vae/variational_autoencoder_multi_gpu.py.html">
+<link rel="icon" href="../../favicon_16x16.ico" sizes="16x16">
+<link rel="icon" href="../../favicon_32x32.ico" sizes="32x32">
+<link rel="icon" href="../../favicon_256x256.ico" sizes="256x256">
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+    },
+    displayAlign: 'center', // Change this to 'left' if you want left-aligned equations.
+    "HTML-CSS": {
+        styles: {'.MathJax_Display': {"margin": 0}}
+    }
+});
+</script><!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><!--
+
+    /\\\\\\\\\\\\\\\  /\\\\\\\\\\\     /\\\\\\\\\          /\\\\\              
+    \///////\\\/////  \/////\\\///    /\\\\\\\\\\\\\      /\\\///\\\           
+           \/\\\           \/\\\      /\\\/////////\\\   /\\\/  \///\\\        
+            \/\\\           \/\\\     \/\\\       \/\\\  /\\\      \//\\\      
+             \/\\\           \/\\\     \/\\\\\\\\\\\\\\\ \/\\\       \/\\\     
+              \/\\\           \/\\\     \/\\\/////////\\\ \//\\\      /\\\     
+               \/\\\           \/\\\     \/\\\       \/\\\  \///\\\  /\\\      
+                \/\\\        /\\\\\\\\\\\ \/\\\       \/\\\    \///\\\\\/      
+                 \///        \///////////  \///        \///       \/////       
+
+-->
+</head>
+<body>
+<a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+  <div class="container">
+    <div class="header clearfix">
+      <nav><ul class="nav nav-pills pull-right">
+<li>
+<a href="../../">About</a>
+                </li>
+<li>
+<a href="../../projects/">Projects</a>
+                </li>
+<li>
+<a href="../../posts/">Posts</a>
+                </li>
+<li>
+<a href="../../archive.html">Archive</a>
+
+          
+        </li>
+</ul></nav><a href="http://louistiao.me/">
+
+        <h3 class="text-muted">
+          <span id="blog-title">Louis Tiao</span>
+        </h3>
+      </a>
+    </div>
+
+<!-- TODO Figure out what to do with this stuff -->
+<!--     <div class="row">
+
+      <ul class="nav nav-pills pull-right">
+    <li>
+    <a href="/listings/vae/variational_autoencoder_multi_gpu.py" id="sourcelink">Source</a>
+    </li>
+          
+      </ul>
+    </div> -->
+
+    <div id="content" role="main">
+      <div class="body-content">
+        <!--Body content-->
+        <div class="row">
+          
+<nav class="breadcrumbs"><ul class="breadcrumb">
+<li><a href="../">listings</a></li>
+                <li><a href=".">vae</a></li>
+                <li>variational_autoencoder_multi_gpu.py</li>
+</ul></nav><h1>variational_autoencoder_multi_gpu.py
+        <small><a href="variational_autoencoder_multi_gpu.py">(Source)</a></small>
+    </h1>
+    <table class="codetable"><tr>
+<td class="linenos"><div class="linenodiv"><pre><a href="#listingsvaevariational_autoencoder_multi_gpupy-1">  1</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-2">  2</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-3">  3</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-4">  4</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-5">  5</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-6">  6</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-7">  7</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-8">  8</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-9">  9</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-10"> 10</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-11"> 11</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-12"> 12</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-13"> 13</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-14"> 14</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-15"> 15</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-16"> 16</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-17"> 17</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-18"> 18</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-19"> 19</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-20"> 20</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-21"> 21</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-22"> 22</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-23"> 23</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-24"> 24</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-25"> 25</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-26"> 26</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-27"> 27</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-28"> 28</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-29"> 29</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-30"> 30</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-31"> 31</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-32"> 32</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-33"> 33</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-34"> 34</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-35"> 35</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-36"> 36</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-37"> 37</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-38"> 38</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-39"> 39</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-40"> 40</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-41"> 41</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-42"> 42</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-43"> 43</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-44"> 44</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-45"> 45</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-46"> 46</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-47"> 47</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-48"> 48</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-49"> 49</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-50"> 50</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-51"> 51</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-52"> 52</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-53"> 53</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-54"> 54</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-55"> 55</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-56"> 56</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-57"> 57</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-58"> 58</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-59"> 59</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-60"> 60</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-61"> 61</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-62"> 62</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-63"> 63</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-64"> 64</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-65"> 65</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-66"> 66</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-67"> 67</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-68"> 68</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-69"> 69</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-70"> 70</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-71"> 71</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-72"> 72</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-73"> 73</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-74"> 74</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-75"> 75</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-76"> 76</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-77"> 77</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-78"> 78</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-79"> 79</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-80"> 80</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-81"> 81</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-82"> 82</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-83"> 83</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-84"> 84</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-85"> 85</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-86"> 86</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-87"> 87</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-88"> 88</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-89"> 89</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-90"> 90</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-91"> 91</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-92"> 92</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-93"> 93</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-94"> 94</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-95"> 95</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-96"> 96</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-97"> 97</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-98"> 98</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-99"> 99</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-100">100</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-101">101</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-102">102</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-103">103</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-104">104</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-105">105</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-106">106</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-107">107</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-108">108</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-109">109</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-110">110</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-111">111</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-112">112</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-113">113</a>
+<a href="#listingsvaevariational_autoencoder_multi_gpupy-114">114</a></pre></div></td>
+<td class="code"><pre class="code literal-block"><a name="listingsvaevariational_autoencoder_multi_gpupy-1"></a><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-2"></a><span class="kn">import</span> <span class="nn">tensorflow</span> <span class="kn">as</span> <span class="nn">tf</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-3"></a><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-4"></a>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-5"></a><span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">norm</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-6"></a>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-7"></a><span class="kn">from</span> <span class="nn">keras</span> <span class="kn">import</span> <span class="n">backend</span> <span class="k">as</span> <span class="n">K</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-8"></a>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-9"></a><span class="kn">from</span> <span class="nn">keras.layers</span> <span class="kn">import</span> <span class="n">Input</span><span class="p">,</span> <span class="n">Dense</span><span class="p">,</span> <span class="n">Lambda</span><span class="p">,</span> <span class="n">Layer</span><span class="p">,</span> <span class="n">Add</span><span class="p">,</span> <span class="n">Multiply</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-10"></a><span class="kn">from</span> <span class="nn">keras.models</span> <span class="kn">import</span> <span class="n">Model</span><span class="p">,</span> <span class="n">Sequential</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-11"></a><span class="kn">from</span> <span class="nn">keras.utils</span> <span class="kn">import</span> <span class="n">multi_gpu_model</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-12"></a><span class="kn">from</span> <span class="nn">keras.datasets</span> <span class="kn">import</span> <span class="n">mnist</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-13"></a>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-14"></a><span class="n">batch_size</span> <span class="o">=</span> <span class="mi">100</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-15"></a><span class="n">original_dim</span> <span class="o">=</span> <span class="mi">784</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-16"></a><span class="n">latent_dim</span> <span class="o">=</span> <span class="mi">2</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-17"></a><span class="n">intermediate_dim</span> <span class="o">=</span> <span class="mi">256</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-18"></a><span class="n">epochs</span> <span class="o">=</span> <span class="mi">50</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-19"></a><span class="n">epsilon_std</span> <span class="o">=</span> <span class="mf">1.0</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-20"></a><span class="n">num_gpus</span> <span class="o">=</span> <span class="mi">4</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-21"></a>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-22"></a>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-23"></a><span class="k">def</span> <span class="nf">nll</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">):</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-24"></a>    <span class="sd">""" Bernoulli negative log likelihood. """</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-25"></a>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-26"></a>    <span class="c1"># keras.losses.binary_crossentropy gives the mean</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-27"></a>    <span class="c1"># over the last axis. We require the sum.</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-28"></a>    <span class="k">return</span> <span class="n">K</span><span class="o">.</span><span class="kp">sum</span><span class="p">(</span><span class="n">K</span><span class="o">.</span><span class="n">binary_crossentropy</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-29"></a>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-30"></a>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-31"></a><span class="k">class</span> <span class="nc">KLDivergenceLayer</span><span class="p">(</span><span class="n">Layer</span><span class="p">):</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-32"></a>    <span class="sd">""" Identity layer that adds KL divergence to the final model loss. """</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-33"></a>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-34"></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-35"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">is_placeholder</span> <span class="o">=</span> <span class="bp">True</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-36"></a>        <span class="nb">super</span><span class="p">(</span><span class="n">KLDivergenceLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-37"></a>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-38"></a>    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-39"></a>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-40"></a>        <span class="n">mu</span><span class="p">,</span> <span class="n">log_var</span> <span class="o">=</span> <span class="n">inputs</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-41"></a>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-42"></a>        <span class="n">kl_batch</span> <span class="o">=</span> <span class="o">-</span> <span class="o">.</span><span class="mi">5</span> <span class="o">*</span> <span class="n">K</span><span class="o">.</span><span class="kp">sum</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">log_var</span> <span class="o">-</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-43"></a>                                <span class="n">K</span><span class="o">.</span><span class="kp">square</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span> <span class="o">-</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-44"></a>                                <span class="n">K</span><span class="o">.</span><span class="kp">exp</span><span class="p">(</span><span class="n">log_var</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-45"></a>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-46"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">add_loss</span><span class="p">(</span><span class="n">K</span><span class="o">.</span><span class="kp">mean</span><span class="p">(</span><span class="n">kl_batch</span><span class="p">),</span> <span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">)</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-47"></a>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-48"></a>        <span class="k">return</span> <span class="n">inputs</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-49"></a>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-50"></a><span class="n">x</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="kp">shape</span><span class="o">=</span><span class="p">(</span><span class="n">original_dim</span><span class="p">,))</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-51"></a><span class="n">h</span> <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="n">intermediate_dim</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'relu'</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-52"></a>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-53"></a><span class="n">z_mu</span> <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="n">latent_dim</span><span class="p">)(</span><span class="n">h</span><span class="p">)</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-54"></a><span class="n">z_log_var</span> <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="n">latent_dim</span><span class="p">)(</span><span class="n">h</span><span class="p">)</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-55"></a>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-56"></a><span class="n">z_mu</span><span class="p">,</span> <span class="n">z_log_var</span> <span class="o">=</span> <span class="n">KLDivergenceLayer</span><span class="p">()([</span><span class="n">z_mu</span><span class="p">,</span> <span class="n">z_log_var</span><span class="p">])</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-57"></a><span class="n">z_sigma</span> <span class="o">=</span> <span class="n">Lambda</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">K</span><span class="o">.</span><span class="kp">exp</span><span class="p">(</span><span class="o">.</span><span class="mi">5</span><span class="o">*</span><span class="n">t</span><span class="p">))(</span><span class="n">z_log_var</span><span class="p">)</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-58"></a>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-59"></a><span class="n">eps</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">tensor</span><span class="o">=</span><span class="n">K</span><span class="o">.</span><span class="n">random_normal</span><span class="p">(</span><span class="kp">shape</span><span class="o">=</span><span class="p">(</span><span class="n">K</span><span class="o">.</span><span class="kp">shape</span><span class="p">(</span><span class="n">x</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">latent_dim</span><span class="p">)))</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-60"></a><span class="n">z_eps</span> <span class="o">=</span> <span class="n">Multiply</span><span class="p">()([</span><span class="n">z_sigma</span><span class="p">,</span> <span class="n">eps</span><span class="p">])</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-61"></a><span class="n">z</span> <span class="o">=</span> <span class="n">Add</span><span class="p">()([</span><span class="n">z_mu</span><span class="p">,</span> <span class="n">z_eps</span><span class="p">])</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-62"></a>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-63"></a><span class="n">decoder</span> <span class="o">=</span> <span class="n">Sequential</span><span class="p">([</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-64"></a>    <span class="n">Dense</span><span class="p">(</span><span class="n">intermediate_dim</span><span class="p">,</span> <span class="n">input_dim</span><span class="o">=</span><span class="n">latent_dim</span><span class="p">,</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-65"></a>          <span class="n">activation</span><span class="o">=</span><span class="s1">'relu'</span><span class="p">),</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-66"></a>    <span class="n">Dense</span><span class="p">(</span><span class="n">original_dim</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'sigmoid'</span><span class="p">)</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-67"></a><span class="p">])</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-68"></a>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-69"></a><span class="n">x_mean</span> <span class="o">=</span> <span class="n">decoder</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-70"></a>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-71"></a><span class="n">vae</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">eps</span><span class="p">],</span> <span class="n">outputs</span><span class="o">=</span><span class="n">x_mean</span><span class="p">)</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-72"></a>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-73"></a><span class="n">vae_parallel</span> <span class="o">=</span> <span class="n">multi_gpu_model</span><span class="p">(</span><span class="n">vae</span><span class="p">,</span> <span class="n">gpus</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-74"></a><span class="n">vae_parallel</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">optimizer</span><span class="o">=</span><span class="s1">'rmsprop'</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="n">nll</span><span class="p">)</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-75"></a>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-76"></a><span class="c1"># train the VAE on MNIST digits</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-77"></a><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">),</span> <span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span> <span class="o">=</span> <span class="n">mnist</span><span class="o">.</span><span class="n">load_data</span><span class="p">()</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-78"></a><span class="n">x_train</span> <span class="o">=</span> <span class="n">x_train</span><span class="o">.</span><span class="kp">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">original_dim</span><span class="p">)</span> <span class="o">/</span> <span class="mf">255.</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-79"></a><span class="n">x_test</span> <span class="o">=</span> <span class="n">x_test</span><span class="o">.</span><span class="kp">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">original_dim</span><span class="p">)</span> <span class="o">/</span> <span class="mf">255.</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-80"></a>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-81"></a><span class="n">vae_parallel</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-82"></a>                 <span class="n">x_train</span><span class="p">,</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-83"></a>                 <span class="kp">shuffle</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-84"></a>                 <span class="n">epochs</span><span class="o">=</span><span class="n">epochs</span><span class="p">,</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-85"></a>                 <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-86"></a>                 <span class="n">validation_data</span><span class="o">=</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">x_test</span><span class="p">))</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-87"></a>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-88"></a><span class="n">encoder</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">z_mu</span><span class="p">)</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-89"></a>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-90"></a><span class="c1"># display a 2D plot of the digit classes in the latent space</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-91"></a><span class="n">z_test</span> <span class="o">=</span> <span class="n">encoder</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">)</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-92"></a><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-93"></a><span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">z_test</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">z_test</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="n">y_test</span><span class="p">,</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-94"></a>            <span class="n">alpha</span><span class="o">=.</span><span class="mi">4</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">3</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">'viridis'</span><span class="p">)</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-95"></a><span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-96"></a><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-97"></a>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-98"></a><span class="c1"># display a 2D manifold of the digits</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-99"></a><span class="n">n</span> <span class="o">=</span> <span class="mi">15</span>  <span class="c1"># figure with 15x15 digits</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-100"></a><span class="n">digit_size</span> <span class="o">=</span> <span class="mi">28</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-101"></a>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-102"></a><span class="c1"># linearly spaced coordinates on the unit square were transformed</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-103"></a><span class="c1"># through the inverse CDF (ppf) of the Gaussian to produce values</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-104"></a><span class="c1"># of the latent variables z, since the prior of the latent space</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-105"></a><span class="c1"># is Gaussian</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-106"></a><span class="n">u_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">dstack</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="kp">meshgrid</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="kp">linspace</span><span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">,</span> <span class="n">n</span><span class="p">),</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-107"></a>                               <span class="n">np</span><span class="o">.</span><span class="kp">linspace</span><span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">,</span> <span class="n">n</span><span class="p">)))</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-108"></a><span class="n">z_grid</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">u_grid</span><span class="p">)</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-109"></a><span class="n">x_decoded</span> <span class="o">=</span> <span class="n">decoder</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">z_grid</span><span class="o">.</span><span class="kp">reshape</span><span class="p">(</span><span class="n">n</span><span class="o">*</span><span class="n">n</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-110"></a><span class="n">x_decoded</span> <span class="o">=</span> <span class="n">x_decoded</span><span class="o">.</span><span class="kp">reshape</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">digit_size</span><span class="p">,</span> <span class="n">digit_size</span><span class="p">)</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-111"></a>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-112"></a><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-113"></a><span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">block</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">x_decoded</span><span class="p">))),</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">'gray'</span><span class="p">)</span>
+<a name="listingsvaevariational_autoencoder_multi_gpupy-114"></a><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></td>
+</tr></table>
+</div>
+        <!--End of body content-->
+      </div>
+    </div>
+
+    <footer id="footer" class="footer">
+        
+Contents © 2017
+<a href="mailto:louistiao@me.com">Louis Tiao</a> - Powered by
+<a href="https://getnikola.com" rel="nofollow">Nikola</a>
+
+
+<span class="pull-right">
+
+  <a class="twitter-follow-button" href="https://twitter.com/louistiao" data-show-count="false" data-show-screen-name="false">
+  Follow @louistiao
+  </a>
+
+  <a class="github-button" href="https://github.com/ltiao" aria-label="Follow @ltiao on GitHub" data-show-count="false">
+  Follow @ltiao
+  </a>
+
+  <a href="https://ko-fi.com/A3476EX">
+    <object type="image/svg+xml" style="pointer-events: none;" data="https://img.shields.io/badge/Support--yellow.svg?style=social"></object>
+  </a>
+
+</span>
+
+
+            
+    </footer>
+</div> <!-- /container -->
+
+            <script src="../../assets/js/all-nocdn.js"></script><script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script><!-- fancy dates --><script>
+    moment.locale("en");
+    fancydates(0, "YYYY-MM-DD HH:mm");
+    </script><!-- end fancy dates --><!-- Google Analytics --><script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-43722566-1', 'auto');
+  ga('send', 'pageview');
+
+</script><!-- GitHub Buttons --><script async defer src="https://buttons.github.io/buttons.js"></script><!-- Twitter Widgets --><script>window.twttr = (function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0],
+    t = window.twttr || {};
+  if (d.getElementById(id)) return t;
+  js = d.createElement(s);
+  js.id = id;
+  js.src = "https://platform.twitter.com/widgets.js";
+  fjs.parentNode.insertBefore(js, fjs);
+
+  t._e = [];
+  t.ready = function(f) {
+    t._e.push(f);
+  };
+
+  return t;
+}(document, "script", "twitter-wjs"));</script>
+</body>
+</html>

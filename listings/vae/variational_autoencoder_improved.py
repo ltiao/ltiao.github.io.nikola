@@ -2,10 +2,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import norm
 
+from keras import backend as K
+
 from keras.layers import Input, Dense, Lambda, Layer, Add, Multiply
 from keras.models import Model, Sequential
-from keras import backend as K
 from keras.datasets import mnist
+
 
 batch_size = 100
 original_dim = 784
@@ -16,7 +18,7 @@ epsilon_std = 1.0
 
 
 def nll(y_true, y_pred):
-    """ Negative log likelihood (Bernoulli). """
+    """ Bernoulli negative log likelihood. """
 
     # keras.losses.binary_crossentropy gives the mean
     # over the last axis. We require the sum.
@@ -24,9 +26,7 @@ def nll(y_true, y_pred):
 
 
 class KLDivergenceLayer(Layer):
-    """ 
-    Identity layer that adds KL divergence to the final model loss. 
-    """
+    """ Identity layer that adds KL divergence to the final model loss. """
 
     def __init__(self, *args, **kwargs):
         self.is_placeholder = True
@@ -36,11 +36,11 @@ class KLDivergenceLayer(Layer):
 
         mu, log_var = inputs
 
-        kl = - .5 * K.sum(1 + log_var -
-                          K.square(mu) -
-                          K.exp(log_var), axis=-1)
+        kl_batch = - .5 * K.sum(1 + log_var -
+                                K.square(mu) -
+                                K.exp(log_var), axis=-1)
 
-        self.add_loss(K.mean(kl), inputs=inputs)
+        self.add_loss(K.mean(kl_batch), inputs=inputs)
 
         return inputs
 
@@ -53,19 +53,19 @@ z_log_var = Dense(latent_dim)(h)
 z_mu, z_log_var = KLDivergenceLayer()([z_mu, z_log_var])
 z_sigma = Lambda(lambda t: K.exp(.5*t))(z_log_var)
 
-eps = Input(shape=(latent_dim,))
+eps = Input(tensor=K.random_normal(shape=(K.shape(x)[0], latent_dim)))
 z_eps = Multiply()([z_sigma, eps])
 z = Add()([z_mu, z_eps])
 
-encoder = Model(x, z_mu)
-
 decoder = Sequential([
-    Dense(intermediate_dim, input_dim=latent_dim, 
+    Dense(intermediate_dim, input_dim=latent_dim,
           activation='relu'),
     Dense(original_dim, activation='sigmoid')
 ])
 
-vae = Model(inputs=[x, eps], outputs=decoder(z))
+x_mean = decoder(z)
+
+vae = Model(inputs=[x, eps], outputs=x_mean)
 vae.compile(optimizer='rmsprop', loss=nll)
 
 # train the VAE on MNIST digits
@@ -73,23 +73,20 @@ vae.compile(optimizer='rmsprop', loss=nll)
 x_train = x_train.reshape(-1, original_dim) / 255.
 x_test = x_test.reshape(-1, original_dim) / 255.
 
-eps_train = np.random.randn(len(x_train), latent_dim)
-eps_test = np.random.randn(len(x_test), latent_dim)
+vae.fit(x_train,
+        x_train,
+        shuffle=True,
+        epochs=epochs,
+        batch_size=batch_size,
+        validation_data=(x_test, x_test))
 
-vae.fit(
-    [x_train, eps_train],
-    x_train,
-    shuffle=True,
-    epochs=epochs,
-    batch_size=batch_size,
-    validation_data=([x_test, eps_test], x_test)
-)
+encoder = Model(x, z_mu)
 
 # display a 2D plot of the digit classes in the latent space
-x_test_encoded = encoder.predict(x_test, batch_size=batch_size)
+z_test = encoder.predict(x_test, batch_size=batch_size)
 plt.figure(figsize=(6, 6))
-plt.scatter(x_test_encoded[:, 0], x_test_encoded[:, 1],
-            c=y_test, alpha=.4, s=3**2, cmap='viridis')
+plt.scatter(z_test[:, 0], z_test[:, 1], c=y_test,
+            alpha=.4, s=3**2, cmap='viridis')
 plt.colorbar()
 plt.show()
 
@@ -97,9 +94,9 @@ plt.show()
 n = 15  # figure with 15x15 digits
 digit_size = 28
 
-# linearly spaced coordinates on the unit square were transformed 
-# through the inverse CDF (ppf) of the Gaussian to produce values 
-# of the latent variables z, since the prior of the latent space 
+# linearly spaced coordinates on the unit square were transformed
+# through the inverse CDF (ppf) of the Gaussian to produce values
+# of the latent variables z, since the prior of the latent space
 # is Gaussian
 u_grid = np.dstack(np.meshgrid(np.linspace(0.05, 0.95, n),
                                np.linspace(0.05, 0.95, n)))

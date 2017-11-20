@@ -1,7 +1,7 @@
 .. title: Implementing Variational Autoencoders in Keras: Beyond the Quickstart Tutorial
 .. slug: implementing-variational-autoencoders-in-keras-beyond-the-quickstart-tutorial
 .. date: 2017-10-23 01:19:59 UTC+11:00
-.. tags: variational inference, keras, tensorflow, python, variational autoencoder, unsupervised learning, deep learning, representation learning, mathjax, draft
+.. tags: variational inference, keras, tensorflow, python, variational autoencoder, unsupervised learning, deep learning, representation learning, mathjax
 .. category: coding
 .. link: 
 .. description: 

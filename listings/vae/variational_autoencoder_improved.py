@@ -26,7 +26,10 @@ def nll(y_true, y_pred):
 
 
 class KLDivergenceLayer(Layer):
-    """ Identity layer that adds KL divergence to the final model loss. """
+
+    """ Identity transform layer that adds KL divergence
+    to the final model loss.
+    """
 
     def __init__(self, *args, **kwargs):
         self.is_placeholder = True
@@ -58,8 +61,7 @@ z_eps = Multiply()([z_sigma, eps])
 z = Add()([z_mu, z_eps])
 
 decoder = Sequential([
-    Dense(intermediate_dim, input_dim=latent_dim,
-          activation='relu'),
+    Dense(intermediate_dim, input_dim=latent_dim, activation='relu'),
     Dense(original_dim, activation='sigmoid')
 ])
 

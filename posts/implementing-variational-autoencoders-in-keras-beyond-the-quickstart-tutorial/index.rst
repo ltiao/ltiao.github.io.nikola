@@ -7,6 +7,10 @@
 .. description: 
 .. type: text
 
+.. admonition:: Draft
+
+   Do not share or link to.
+
 Keras_ is awesome. It is a very well-designed library that clearly abides by to 
 its `guiding principles`_ of modularity and extensibility and thereby allows us 
 to easily assemble powerful complex models from primitive building blocks. 
@@ -19,8 +23,8 @@ various kinds of autoencoders in Keras, including the variational autoencoder
 Like all autoencoders, the variational autoencoder are primarily used for 
 unsupervised learning of hidden representations. 
 However, variational autoencoders are fundamentally different to your standard 
-neural network-based autoencoder in that they formulate the problem from a 
-probabilistic perspective: by specifying distributions over the observed and 
+neural network-based autoencoder in that they tackle the problem with a 
+probabilistic approach: by specifying distributions over the observed and 
 latent variables, and approximating the intractable posterior over the latter
 using variational inference with an *inference network* 
 [#inference1]_ [#inference2]_.
@@ -80,18 +84,23 @@ Decoder
 -------
 
 In this example, we let the decoder model 
-:math:`p_{\theta}(\mathbf{x} | \mathbf{z} )` be a multivariate Bernoulli whose 
-probabilities are computed from :math:`\mathbf{z}` using a fully-connected 
+:math:`p_{\theta}(\mathbf{x}_i | \mathbf{z}_i )` be a multivariate Bernoulli 
+whose probabilities are computed from :math:`\mathbf{z}` using a fully-connected 
 neural network with a single hidden layer.
+
+.. math:: 
+
+   p(\mathbf{z}_i) & = \mathcal{N}(\mathbf{0}, \mathbf{I}), \\
+   \mathbf{h}_i & = h(\mathbf{W}_1 \mathbf{z}_i + \mathbf{b}_1), \\
+   p_{\theta}(\mathbf{x}_i | \mathbf{z}_i)
+     & = \mathrm{Bern}( \sigma( \mathbf{W}_2 \mathbf{h}_i + \mathbf{b}_2 ) )
 
 .. code:: python
 
    decoder = Sequential([
-       Dense(intermediate_dim, input_dim=latent_dim, 
-             activation='relu'),
-       Dense(original_dim, activation='sigmoid')
+     Dense(intermediate_dim, input_dim=latent_dim, activation='relu'),
+     Dense(original_dim, activation='sigmoid')
    ])
-
 
 .. figure:: ../../images/vae/decoder.svg
    :height: 200px
@@ -261,9 +270,10 @@ latent space regularization
 
 .. code:: python
 
-   class KLDivergenceLayer(Layer):
-       """ 
-       Identity layer that adds KL divergence to the final model loss. 
+   class KLDivergenceLayer(Layer):  
+
+       """ Identity transform layer that adds KL divergence
+       to the final model loss.
        """  
 
        def __init__(self, *args, **kwargs):
@@ -274,17 +284,11 @@ latent space regularization
 
            mu, log_var = inputs   
 
-           kl = - .5 * K.sum(1 + log_var -
-                             K.square(mu) -
-                             K.exp(log_var), axis=-1)   
+           kl_batch = - .5 * K.sum(1 + log_var -
+                                   K.square(mu) -
+                                   K.exp(log_var), axis=-1)   
 
-           # inputs mu and log_var are of shape (batch_size, latent_dim)
-           # the loss we add should be scalar. this is unlike loss 
-           # function specified in model compile which should returns 
-           # loss vector of shape (batch_size,) since it requires 
-           # loss for each datapoint in the batch for sample 
-           # weighting.
-           self.add_loss(K.mean(kl), inputs=inputs)   
+           self.add_loss(K.mean(kl_batch), inputs=inputs)   
 
            return inputs
 
@@ -304,6 +308,13 @@ and compile it with something like
 When we fit it, it would trivially map all inputs to 0 and 1, thus learning the
 prior distribution.
 
+inputs mu and log_var are of shape (batch_size, latent_dim)
+the loss we add should be scalar. this is unlike loss 
+function specified in model compile which should returns 
+loss vector of shape (batch_size,) since it requires 
+loss for each datapoint in the batch for sample 
+weighting.
+
 .. figure:: ../../images/vae/encoder_full.svg
    :height: 500px
    :align: center
@@ -316,23 +327,22 @@ Putting it all together
 .. code:: python
 
    x = Input(shape=(original_dim,))
-   h = Dense(intermediate_dim, activation='relu')(x)  
+   h = Dense(intermediate_dim, activation='relu')(x) 
 
    z_mu = Dense(latent_dim)(h)
-   z_log_var = Dense(latent_dim)(h)   
+   z_log_var = Dense(latent_dim)(h) 
 
    z_mu, z_log_var = KLDivergenceLayer()([z_mu, z_log_var])
-   z_sigma = Lambda(lambda t: K.exp(.5*t))(z_log_var)   
+   z_sigma = Lambda(lambda t: K.exp(.5*t))(z_log_var) 
 
-   eps = Input(shape=(latent_dim,))
+   eps = Input(tensor=K.random_normal(shape=(K.shape(x)[0], latent_dim)))
    z_eps = Multiply()([z_sigma, eps])
-   z = Add()([z_mu, z_eps])   
+   z = Add()([z_mu, z_eps]) 
 
    decoder = Sequential([
-       Dense(intermediate_dim, input_dim=latent_dim, 
-             activation='relu'),
+       Dense(intermediate_dim, input_dim=latent_dim, activation='relu'),
        Dense(original_dim, activation='sigmoid')
-   ])
+   ]) 
 
    x_mean = decoder(z)
 
@@ -388,23 +398,23 @@ probabilistic auto-encoder.
 
 .. code:: python
 
-   vae.fit(
-       [x_train, eps_train],
-       x_train,
-       shuffle=True,
-       epochs=epochs,
-       batch_size=batch_size,
-       validation_data=(
-           [x_test, eps_test],
-           x_test
-       )
-   )
+   vae.fit(x_train,
+           x_train,
+           shuffle=True,
+           epochs=epochs,
+           batch_size=batch_size,
+           validation_data=(x_test, x_test))
 
 Personally, I prefer this view since the all sources of stochasticity emanate
 from the inputs to the model. 
 
-Model evaluation
-================
+Recap
+=====
+
+- Demonstration of Sequential and functional Model API
+- Custom auxiliary layers that augments the model loss
+- Fixing input to source of stochasticity
+- Reparameterization using Merge layers
 
 What's next
 ===========

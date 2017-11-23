@@ -79,7 +79,7 @@ Model specification
 Firstly, it is important to understand that the variational autoencoder 
 `is not a way to train generative models`_. 
 Rather, the generative model is a component of the variational autoencoder and
-is, in general, a deep latent Gaussian model).
+is in general a deep latent Gaussian model.
 Learning in the generative model is done using variational inference, with an 
 *inference network* to amortize the cost of inference by sharing statistical 
 strength and generalization across observed data-points. We first specify the 

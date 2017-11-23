@@ -29,7 +29,19 @@ automatically broadcast ``eps`` which has shape
 operate on the which will then be propagated to the 
 final output. 
 
-diagram here
+.. figure:: ../../images/vae/reparameterization_mc_samples_shapes.svg
+   :width: 600px
+   :align: center
+
+   Reparameterization with simple location-scale transformation using Keras 
+   merge layers.
+
+.. figure:: ../../images/vae/vae_full_mc_samples_shapes.svg
+   :width: 600px
+   :align: center
+
+   Reparameterization with simple location-scale transformation using Keras 
+   merge layers.
 
 We expand the targets to 3d a array ``np.expand_dims(x_train, axis=1)`` to be
 of shape ``(batch_size, 1, original_dim)`` so that the loss function can 
@@ -67,3 +79,17 @@ For every data point, there are ``mc_samples`` reconstructions.
    plt.show()
 
 plot here
+
+Appendix
+========
+
+Below you can find:
+
+* The `accompanying Jupyter Notebook`_ used to generate the diagrams and plots 
+  in this post.
+* The above snippets combined in a single executable Python file:
+
+.. listing:: vae/variational_autoencoder_mc_samples.py python
+
+.. _accompanying Jupyter Notebook: /listings/vae/variational_autoencoder_mc_samples.ipynb.html
+

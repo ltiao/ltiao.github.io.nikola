@@ -9,6 +9,7 @@ from keras.models import Model, Sequential
 from keras.datasets import mnist
 
 
+mc_samples = 5
 batch_size = 100
 original_dim = 784
 latent_dim = 2
@@ -56,7 +57,7 @@ z_log_var = Dense(latent_dim)(h)
 z_mu, z_log_var = KLDivergenceLayer()([z_mu, z_log_var])
 z_sigma = Lambda(lambda t: K.exp(.5*t))(z_log_var)
 
-eps = Input(tensor=K.random_normal(shape=(K.shape(x)[0], latent_dim)))
+eps = Input(tensor=K.random_normal(shape=(K.shape(x)[0], mc_samples, latent_dim)))
 z_eps = Multiply()([z_sigma, eps])
 z = Add()([z_mu, z_eps])
 
@@ -75,13 +76,19 @@ vae.compile(optimizer='rmsprop', loss=nll)
 x_train = x_train.reshape(-1, original_dim) / 255.
 x_test = x_test.reshape(-1, original_dim) / 255.
 
-vae.fit(x_train,
-        x_train,
-        shuffle=True,
-        epochs=epochs,
-        batch_size=batch_size,
-        validation_data=(x_test, x_test))
+vae.fit(
+    x_train,
+    np.expand_dims(x_train, axis=1),
+    shuffle=True,
+    epochs=epochs,
+    batch_size=batch_size,
+    validation_data=(
+        x_test,
+        np.expand_dims(x_test, axis=1)
+    )
+)
 
+# deterministic query-time encoder
 encoder = Model(x, z_mu)
 
 # display a 2D plot of the digit classes in the latent space

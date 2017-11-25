@@ -19,8 +19,8 @@ using reparameterization gradients, which approximates the expectation of
 gradients with Monte Carlo (MC) samples. In their original paper, Kingma and 
 Welling (2014) [#kingma2014]_ remark that an MC sample size of 1 is adequate for 
 a sufficiently large batch size (~100). Obviously, this is highly dependent on 
-the problem (more specifically the likelihood) and in general, it is important
-to experiment with different MC sample sizes and observe the various effects it
+the problem (more specifically the likelihood). In general, it is important to 
+experiment with different MC sample sizes and observe the various effects it 
 has on training stability. In this short post, we demonstrate how to tweak the 
 MC sample size under our basic framework.
 
@@ -42,22 +42,21 @@ That is, we make the shape of the noise from the base distribution
 than just a single sample.
 
 Everything else in our model specification can remain exactly the same, since
-the ``Multiply`` layer will automatically broadcast 
+the ``Multiply`` layer will automatically broadcast: 
 
-* ``eps`` (shape ``(batch_size, mc_samples, latent_dim)``) with 
-* ``sigma`` (shape ``(batch_size, latent_dim)``) 
+* ``eps`` of shape ``(batch_size, mc_samples, latent_dim)`` with 
+* ``sigma`` of shape ``(batch_size, latent_dim)``
 
 and thereby output tensor of shape ``(batch_size, mc_samples, latent_dim)``. 
+Similarly the ``Add`` layer will automatically broadcast: 
 
-Similarly the ``Add`` layer will automatically broadcast 
-
-* the previous output ``(batch_size, mc_samples, latent_dim)`` with
-* ``mu`` (shape ``(batch_size, latent_dim)``) 
+* the previous output of shape ``(batch_size, mc_samples, latent_dim)`` with
+* ``mu`` of shape ``(batch_size, latent_dim)``
 
 to finally output latent variables ``z`` with 
-shape ``(batch_size, mc_samples, latent_dim)``, 
-corresponding to ``mc_samples`` of latent vectors with length ``latent_dim`` 
-for every observation in the batch. This is illustrated in the figure below.
+shape ``(batch_size, mc_samples, latent_dim)``, corresponding to ``mc_samples`` 
+of latent vectors with length ``latent_dim`` for every observation in the batch. 
+This is illustrated in the figure below.
 
 .. figure:: ../../images/vae/reparameterization_mc_samples_shapes.svg
    :width: 600px
@@ -81,11 +80,11 @@ latent Gaussian model),
    vae = Model(inputs=[x, eps], outputs=x_mean)
    vae.compile(optimizer='rmsprop', loss=nll)
 
-Note the specification of ``input_dim=latent_dim``. This allows the subsequent
-layers to again broadcast with respect to the MC sample channel/dimension and 
-propagates the rank 3 tensor to the final output. Hence, *for each observation*, 
+Note the specification of ``input_dim=latent_dim``. It tells this and all 
+subsequent layers to operate only on this dimension. Hence, *for each observation*, 
 we sample ``mc_samples`` latent variables, and propagate these through the 
-forward model to obtain ``mc_samples`` predictions/observations. See figure below.
+forward model to obtain ``mc_samples`` predictions/observations. Please see the
+figure below.
 
 .. figure:: ../../images/vae/vae_full_mc_samples_shapes.svg
    :width: 600px
@@ -94,13 +93,25 @@ forward model to obtain ``mc_samples`` predictions/observations. See figure belo
    Reparameterization with ``latent_dim=2, mc_samples=25``. For each input 
    observation, we output ``mc_samples`` reconstructions.
 
+In particular, notice that the input shape for each observation ``x`` in the 
+batch is ``original_dim = 784`` (``28 * 28``), and that the output for each 
+observation in the batch has shape ``(25, 784)``, corresponding to 
+``mc_samples = 25`` samples from the predictive distribution. 
+Lastly, observe that until the ``Multiply`` layer, all inputs and outputs were 
+rank 2 tensors, consisting of a variable ``batch_size`` dimension, and a 
+feature dimension.
+The MC sample dimension is introduced by the ``eps`` noise input layer, which 
+has shape ``(mc_samples, latent_dim) = (25, 2)``, and is propagated throughout
+all subsequent layers.
+
 Model fitting
 -------------
 
 At this stage, it is important to recognize the distinction between the 
 **log likelihood of the mean output**, versus the 
 **mean of the log likelihood over the outputs**. 
-Since we require the expected log likelihood, we are interested in the latter.
+Since we are interested in estimating the expected log likelihood over the 
+approximate posterior distribution, we require the latter.
 
 Now, because the output of our model is now a rank 3 tensor, to use methods like 
 ``fit`` and ``evaluate``, we must ensure the targets are of a shape that can 
@@ -112,7 +123,7 @@ This is easily achieved by adding a dimension to the target array with
    
    np.expand_dims(x_train, axis=1)
 
-which has shape ``(batch_size, 1, original_dim)``. Now the loss function can 
+which has shape ``(n_samples, 1, original_dim)``. Now the loss function can 
 broadcast this with the model output to yield ``(n_samples, mc_samples)`` loss
 values. Methods like ``fit`` and ``evaluate`` will automatically aggregate this
 into a single scalar loss value, e.g.
@@ -125,7 +136,7 @@ into a single scalar loss value, e.g.
    10000/10000 [==============================] - 0s 43us/step
    543.99742309570308   
 
-Fitting the model is simply consists of:
+Finally, fitting the model simply consists of:
 
 .. code:: python
 
@@ -144,15 +155,20 @@ Fitting the model is simply consists of:
 .. WARNING:: Keras 2.1.0 introduced breaking changes which tightens the 
    constraint on the targets and the predicted outputs to have *exactly* the
    same shape. This is not a showstopper, since we can just tile the array
-   across the MC sample dimension/channel
+   across the MC sample dimension/channel,
 
    .. code:: python
 
       np.tile(np.expand_dims(x_test, axis=1), 
               reps=(1, mc_samples, 1))
 
-   This is neither as slick nor as space efficient, but it will get the job 
-   done.
+   or equivalently,
+
+   .. code:: python
+
+      np.rollaxis(np.tile(x_test, reps=(mc_samples, 1, 1)), axis=1)
+
+   This is neither as slick nor as space efficient, but it gets the job done.
 
 Distribution over Reconstructions
 ---------------------------------
@@ -203,25 +219,36 @@ Summary
 -------
 
 In this post, we demonstrated how simple it is to extend our basic framework 
-to allow for various Monte Carlo samples sizes. We simply leveraged Keras' 
-ability to broadcast inputs with its layers and let it propagate the additional
-MC sample channel/dimension to the final output. Next, we applied a simple trick 
-so that the target array broadcasts with the final output, which allows us to 
-approximate the expected log likelihood using the Monte Carlo samples. Finally,
-we demonstrated how we can use our fitted model to obtain a distribution over 
-reconstructions. These methods readily apply to other kinds of problems 
-with different likelihoods.
+to allow for specification of arbitrary Monte Carlo samples sizes. 
+We simply leveraged Keras' ability to broadcast inputs with its layers and let 
+it propagate the additional MC sample channel/dimension to the final output. 
+Next, we applied a simple trick so that the target array broadcasts with the 
+final output, which allows us to approximate the expected log likelihood using 
+the Monte Carlo samples. 
+Finally, we demonstrated how we can use our fitted model to obtain a 
+distribution over reconstructions. These approach is appealing due not only to 
+its simplicity but its extensibility to other kinds of problems with different 
+likelihoods.
+
+In a future post, we will use methods discussed here to implement and
+explore *Importance Weighted Autoencoders* [#burda2015]_, which uses 
+*importance sampling* to approximate the ELBO.
 
 References
-==========
+----------
 
 .. [#kingma2014] D. P. Kingma and M. Welling, 
    "Auto-Encoding Variational Bayes," 
    in Proceedings of the 2nd International Conference on Learning 
    Representations (ICLR), 2014.
 
+.. [#burda2015] Y. Burda, R. Grosse, and R. Salakhutdinov, 
+   "Importance Weighted Autoencoders,"
+   in Proceedings of the 3rd International Conference on Learning 
+   Representations (ICLR), 2015.
+
 Appendix
-========
+--------
 
 Below you can find:
 

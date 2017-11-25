@@ -135,8 +135,8 @@ using reparameterization gradients, which approximates the expectation of
 gradients with Monte Carlo (MC) samples. In their original paper, Kingma and
 Welling (2014) <a class="footnote-reference" href="#kingma2014" id="id1">[1]</a> remark that an MC sample size of 1 is adequate for
 a sufficiently large batch size (~100). Obviously, this is highly dependent on
-the problem (more specifically the likelihood) and in general, it is important
-to experiment with different MC sample sizes and observe the various effects it
+the problem (more specifically the likelihood). In general, it is important to
+experiment with different MC sample sizes and observe the various effects it
 has on training stability. In this short post, we demonstrate how to tweak the
 MC sample size under our basic framework.</p>
 <!-- TEASER_END -->
@@ -144,31 +144,33 @@ MC sample size under our basic framework.</p>
 <h2>Layer broadcasting</h2>
 <p>Thanks to broadcasting, the changes required are very minimal, but have vast
 implications. The change we make is as simple as:</p>
-<pre class="code python"><a name="rest_code_df1f5a6d968e4fc68b823749dfb852e6-1"></a><span class="n">eps</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">mc_samples</span><span class="p">,</span> <span class="n">latent_dim</span><span class="p">))</span>
+<pre class="code python"><a name="rest_code_a079be20f7004d56b0aece8a5f677a32-1"></a><span class="n">eps</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">mc_samples</span><span class="p">,</span> <span class="n">latent_dim</span><span class="p">))</span>
 </pre>
 <p>That is, we make the shape of the noise from the base distribution
 <tt class="docutils literal">(batch_size, mc_samples, latent_dim)</tt>. This is equivalent to drawing
 <tt class="docutils literal">mc_samples</tt> of noise vectors <em>for each observation</em> in the batch, rather
 than just a single sample.</p>
 <p>Everything else in our model specification can remain exactly the same, since
-the <tt class="docutils literal">Multiply</tt> layer will automatically broadcast</p>
+the <tt class="docutils literal">Multiply</tt> layer will automatically broadcast:</p>
 <ul class="simple">
 <li>
-<tt class="docutils literal">eps</tt> (shape <tt class="docutils literal">(batch_size, mc_samples, latent_dim)</tt>) with</li>
+<tt class="docutils literal">eps</tt> of shape <tt class="docutils literal">(batch_size, mc_samples, latent_dim)</tt> with</li>
 <li>
-<tt class="docutils literal">sigma</tt> (shape <tt class="docutils literal">(batch_size, latent_dim)</tt>)</li>
+<tt class="docutils literal">sigma</tt> of shape <tt class="docutils literal">(batch_size, latent_dim)</tt>
+</li>
 </ul>
-<p>and thereby output tensor of shape <tt class="docutils literal">(batch_size, mc_samples, latent_dim)</tt>.</p>
-<p>Similarly the <tt class="docutils literal">Add</tt> layer will automatically broadcast</p>
+<p>and thereby output tensor of shape <tt class="docutils literal">(batch_size, mc_samples, latent_dim)</tt>.
+Similarly the <tt class="docutils literal">Add</tt> layer will automatically broadcast:</p>
 <ul class="simple">
-<li>the previous output <tt class="docutils literal">(batch_size, mc_samples, latent_dim)</tt> with</li>
+<li>the previous output of shape <tt class="docutils literal">(batch_size, mc_samples, latent_dim)</tt> with</li>
 <li>
-<tt class="docutils literal">mu</tt> (shape <tt class="docutils literal">(batch_size, latent_dim)</tt>)</li>
+<tt class="docutils literal">mu</tt> of shape <tt class="docutils literal">(batch_size, latent_dim)</tt>
+</li>
 </ul>
 <p>to finally output latent variables <tt class="docutils literal">z</tt> with
-shape <tt class="docutils literal">(batch_size, mc_samples, latent_dim)</tt>,
-corresponding to <tt class="docutils literal">mc_samples</tt> of latent vectors with length <tt class="docutils literal">latent_dim</tt>
-for every observation in the batch. This is illustrated in the figure below.</p>
+shape <tt class="docutils literal">(batch_size, mc_samples, latent_dim)</tt>, corresponding to <tt class="docutils literal">mc_samples</tt>
+of latent vectors with length <tt class="docutils literal">latent_dim</tt> for every observation in the batch.
+This is illustrated in the figure below.</p>
 <div class="figure align-center">
 <object data="../../images/vae/reparameterization_mc_samples_shapes.svg" style="width: 600px;" type="image/svg+xml">
 ../../images/vae/reparameterization_mc_samples_shapes.svg</object>
@@ -177,75 +179,88 @@ for every observation in the batch. This is illustrated in the figure below.</p>
 <p>Exactly as before, we specify the output of the variational autoencoder as the
 output of the latent variable <tt class="docutils literal">z</tt> fed through some generative model (a deep
 latent Gaussian model),</p>
-<pre class="code python"><a name="rest_code_5dab7d74f14c42d3908dc5a94373b842-1"></a><span class="n">decoder</span> <span class="o">=</span> <span class="n">Sequential</span><span class="p">([</span>
-<a name="rest_code_5dab7d74f14c42d3908dc5a94373b842-2"></a>    <span class="n">Dense</span><span class="p">(</span><span class="n">intermediate_dim</span><span class="p">,</span> <span class="n">input_dim</span><span class="o">=</span><span class="n">latent_dim</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'relu'</span><span class="p">),</span>
-<a name="rest_code_5dab7d74f14c42d3908dc5a94373b842-3"></a>    <span class="n">Dense</span><span class="p">(</span><span class="n">original_dim</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'sigmoid'</span><span class="p">)</span>
-<a name="rest_code_5dab7d74f14c42d3908dc5a94373b842-4"></a><span class="p">])</span>
-<a name="rest_code_5dab7d74f14c42d3908dc5a94373b842-5"></a>
-<a name="rest_code_5dab7d74f14c42d3908dc5a94373b842-6"></a><span class="n">x_mean</span> <span class="o">=</span> <span class="n">decoder</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
-<a name="rest_code_5dab7d74f14c42d3908dc5a94373b842-7"></a>
-<a name="rest_code_5dab7d74f14c42d3908dc5a94373b842-8"></a><span class="n">vae</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">eps</span><span class="p">],</span> <span class="n">outputs</span><span class="o">=</span><span class="n">x_mean</span><span class="p">)</span>
-<a name="rest_code_5dab7d74f14c42d3908dc5a94373b842-9"></a><span class="n">vae</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">optimizer</span><span class="o">=</span><span class="s1">'rmsprop'</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="n">nll</span><span class="p">)</span>
+<pre class="code python"><a name="rest_code_8ae232ab8df149b8a547d70cdbf82d0b-1"></a><span class="n">decoder</span> <span class="o">=</span> <span class="n">Sequential</span><span class="p">([</span>
+<a name="rest_code_8ae232ab8df149b8a547d70cdbf82d0b-2"></a>    <span class="n">Dense</span><span class="p">(</span><span class="n">intermediate_dim</span><span class="p">,</span> <span class="n">input_dim</span><span class="o">=</span><span class="n">latent_dim</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'relu'</span><span class="p">),</span>
+<a name="rest_code_8ae232ab8df149b8a547d70cdbf82d0b-3"></a>    <span class="n">Dense</span><span class="p">(</span><span class="n">original_dim</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'sigmoid'</span><span class="p">)</span>
+<a name="rest_code_8ae232ab8df149b8a547d70cdbf82d0b-4"></a><span class="p">])</span>
+<a name="rest_code_8ae232ab8df149b8a547d70cdbf82d0b-5"></a>
+<a name="rest_code_8ae232ab8df149b8a547d70cdbf82d0b-6"></a><span class="n">x_mean</span> <span class="o">=</span> <span class="n">decoder</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+<a name="rest_code_8ae232ab8df149b8a547d70cdbf82d0b-7"></a>
+<a name="rest_code_8ae232ab8df149b8a547d70cdbf82d0b-8"></a><span class="n">vae</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">eps</span><span class="p">],</span> <span class="n">outputs</span><span class="o">=</span><span class="n">x_mean</span><span class="p">)</span>
+<a name="rest_code_8ae232ab8df149b8a547d70cdbf82d0b-9"></a><span class="n">vae</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">optimizer</span><span class="o">=</span><span class="s1">'rmsprop'</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="n">nll</span><span class="p">)</span>
 </pre>
-<p>Note the specification of <tt class="docutils literal">input_dim=latent_dim</tt>. This allows the subsequent
-layers to again broadcast with respect to the MC sample channel/dimension and
-propagates the rank 3 tensor to the final output. Hence, <em>for each observation</em>,
+<p>Note the specification of <tt class="docutils literal">input_dim=latent_dim</tt>. It tells this and all
+subsequent layers to operate only on this dimension. Hence, <em>for each observation</em>,
 we sample <tt class="docutils literal">mc_samples</tt> latent variables, and propagate these through the
-forward model to obtain <tt class="docutils literal">mc_samples</tt> predictions/observations. See figure below.</p>
+generative model to obtain <tt class="docutils literal">mc_samples</tt> predictions/observations.
+Please see the figure below.</p>
 <div class="figure align-center">
 <object data="../../images/vae/vae_full_mc_samples_shapes.svg" style="width: 600px;" type="image/svg+xml">
 ../../images/vae/vae_full_mc_samples_shapes.svg</object>
 <p class="caption">Reparameterization with <tt class="docutils literal">latent_dim=2, mc_samples=25</tt>. For each input
 observation, we output <tt class="docutils literal">mc_samples</tt> reconstructions.</p>
 </div>
+<p>In particular, notice that the input shape for each observation <tt class="docutils literal">x</tt> in the
+batch is <tt class="docutils literal">original_dim = 784</tt> (<tt class="docutils literal">28 * 28</tt>), and that the output for each
+observation in the batch has shape <tt class="docutils literal">(25, 784)</tt>, corresponding to
+<tt class="docutils literal">mc_samples = 25</tt> samples from the predictive distribution.
+Lastly, observe that until the <tt class="docutils literal">Multiply</tt> layer, all inputs and outputs were
+rank 2 tensors, consisting of a variable <tt class="docutils literal">batch_size</tt> dimension, and a
+feature dimension.
+The MC sample dimension is introduced by the <tt class="docutils literal">eps</tt> noise input layer, which
+has shape <tt class="docutils literal">(mc_samples, latent_dim) = (25, 2)</tt>, and is propagated throughout
+all subsequent layers.</p>
 </div>
 <div class="section" id="model-fitting">
 <h2>Model fitting</h2>
 <p>At this stage, it is important to recognize the distinction between the
 <strong>log likelihood of the mean output</strong>, versus the
 <strong>mean of the log likelihood over the outputs</strong>.
-Since we require the expected log likelihood, we are interested in the latter.</p>
+Since we are interested in estimating the expected log likelihood over the
+approximate posterior distribution, we require the latter.</p>
 <p>Now, because the output of our model is now a rank 3 tensor, to use methods like
 <tt class="docutils literal">fit</tt> and <tt class="docutils literal">evaluate</tt>, we must ensure the targets are of a shape that can
 broadcast with the shape of our output, namely
 <tt class="docutils literal">(n_samples, mc_samples, original_dim)</tt>.
 This is easily achieved by adding a dimension to the target array with</p>
-<pre class="code python"><a name="rest_code_174b5274dd174162b8190def2f0e3422-1"></a><span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<pre class="code python"><a name="rest_code_bbcef21fdff4464a957423e784ae9061-1"></a><span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 </pre>
-<p>which has shape <tt class="docutils literal">(batch_size, 1, original_dim)</tt>. Now the loss function can
+<p>which has shape <tt class="docutils literal">(n_samples, 1, original_dim)</tt>. Now the loss function can
 broadcast this with the model output to yield <tt class="docutils literal">(n_samples, mc_samples)</tt> loss
 values. Methods like <tt class="docutils literal">fit</tt> and <tt class="docutils literal">evaluate</tt> will automatically aggregate this
 into a single scalar loss value, e.g.</p>
-<pre class="code pycon"><a name="rest_code_d590487972e24d729efda3a096ee189e-1"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">vae</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span>
-<a name="rest_code_d590487972e24d729efda3a096ee189e-2"></a><span class="gp">... </span>             <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
-<a name="rest_code_d590487972e24d729efda3a096ee189e-3"></a><span class="gp">... </span>             <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">)</span>
-<a name="rest_code_d590487972e24d729efda3a096ee189e-4"></a><span class="go">10000/10000 [==============================] - 0s 43us/step</span>
-<a name="rest_code_d590487972e24d729efda3a096ee189e-5"></a><span class="go">543.99742309570308</span>
+<pre class="code pycon"><a name="rest_code_7e51c422750a4a828fba95501850524e-1"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">vae</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span>
+<a name="rest_code_7e51c422750a4a828fba95501850524e-2"></a><span class="gp">... </span>             <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+<a name="rest_code_7e51c422750a4a828fba95501850524e-3"></a><span class="gp">... </span>             <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">)</span>
+<a name="rest_code_7e51c422750a4a828fba95501850524e-4"></a><span class="go">10000/10000 [==============================] - 0s 43us/step</span>
+<a name="rest_code_7e51c422750a4a828fba95501850524e-5"></a><span class="go">543.99742309570308</span>
 </pre>
-<p>Fitting the model is simply consists of:</p>
-<pre class="code python"><a name="rest_code_bc9080070d5041efb0ff69ce513b28ff-1"></a><span class="n">vae</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
-<a name="rest_code_bc9080070d5041efb0ff69ce513b28ff-2"></a>    <span class="n">x_train</span><span class="p">,</span>
-<a name="rest_code_bc9080070d5041efb0ff69ce513b28ff-3"></a>    <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
-<a name="rest_code_bc9080070d5041efb0ff69ce513b28ff-4"></a>    <span class="n">shuffle</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
-<a name="rest_code_bc9080070d5041efb0ff69ce513b28ff-5"></a>    <span class="n">epochs</span><span class="o">=</span><span class="n">epochs</span><span class="p">,</span>
-<a name="rest_code_bc9080070d5041efb0ff69ce513b28ff-6"></a>    <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
-<a name="rest_code_bc9080070d5041efb0ff69ce513b28ff-7"></a>    <span class="n">validation_data</span><span class="o">=</span><span class="p">(</span>
-<a name="rest_code_bc9080070d5041efb0ff69ce513b28ff-8"></a>        <span class="n">x_test</span><span class="p">,</span>
-<a name="rest_code_bc9080070d5041efb0ff69ce513b28ff-9"></a>        <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<a name="rest_code_bc9080070d5041efb0ff69ce513b28ff-10"></a>    <span class="p">)</span>
-<a name="rest_code_bc9080070d5041efb0ff69ce513b28ff-11"></a><span class="p">)</span>
+<p>Finally, fitting the model simply consists of:</p>
+<pre class="code python"><a name="rest_code_387dfe3bc53740d3a9faa996d4faf0da-1"></a><span class="n">vae</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+<a name="rest_code_387dfe3bc53740d3a9faa996d4faf0da-2"></a>    <span class="n">x_train</span><span class="p">,</span>
+<a name="rest_code_387dfe3bc53740d3a9faa996d4faf0da-3"></a>    <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+<a name="rest_code_387dfe3bc53740d3a9faa996d4faf0da-4"></a>    <span class="n">shuffle</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+<a name="rest_code_387dfe3bc53740d3a9faa996d4faf0da-5"></a>    <span class="n">epochs</span><span class="o">=</span><span class="n">epochs</span><span class="p">,</span>
+<a name="rest_code_387dfe3bc53740d3a9faa996d4faf0da-6"></a>    <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
+<a name="rest_code_387dfe3bc53740d3a9faa996d4faf0da-7"></a>    <span class="n">validation_data</span><span class="o">=</span><span class="p">(</span>
+<a name="rest_code_387dfe3bc53740d3a9faa996d4faf0da-8"></a>        <span class="n">x_test</span><span class="p">,</span>
+<a name="rest_code_387dfe3bc53740d3a9faa996d4faf0da-9"></a>        <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<a name="rest_code_387dfe3bc53740d3a9faa996d4faf0da-10"></a>    <span class="p">)</span>
+<a name="rest_code_387dfe3bc53740d3a9faa996d4faf0da-11"></a><span class="p">)</span>
 </pre>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
 <p>Keras 2.1.0 introduced breaking changes which tightens the
 constraint on the targets and the predicted outputs to have <em>exactly</em> the
 same shape. This is not a showstopper, since we can just tile the array
-across the MC sample dimension/channel</p>
-<pre class="code python"><a name="rest_code_4a7c9d30bdc340f49737c30e28e836fe-1"></a><span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
-<a name="rest_code_4a7c9d30bdc340f49737c30e28e836fe-2"></a>        <span class="n">reps</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">mc_samples</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+across the MC sample dimension/channel,</p>
+<pre class="code python"><a name="rest_code_aa12f708201b4079b9d4fadd572dc12f-1"></a><span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+<a name="rest_code_aa12f708201b4079b9d4fadd572dc12f-2"></a>        <span class="n">reps</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">mc_samples</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
 </pre>
-<p class="last">This is neither as slick nor as space efficient, but it will get the job
-done.</p>
+<p>or equivalently,</p>
+<pre class="code python"><a name="rest_code_ed40f992a2634e54abd99eb826ab26b7-1"></a><span class="n">np</span><span class="o">.</span><span class="n">rollaxis</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">reps</span><span class="o">=</span><span class="p">(</span><span class="n">mc_samples</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre>
+<p class="last">This is neither as slick nor as space efficient, but it gets the job done.</p>
 </div>
 </div>
 <div class="section" id="distribution-over-reconstructions">
@@ -253,17 +268,17 @@ done.</p>
 <p>Let's choose an arbitrary observation from the test set and feed it through
 our autoencoder model <tt class="docutils literal">vae</tt>. This yields <tt class="docutils literal">mc_samples=25</tt> samples from the
 predictive distribution over reconstructions.</p>
-<pre class="code pycon"><a name="rest_code_fdd150b1ec7343ddaeb8081545b0bf89-1"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">x_test</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># choose arbitrary observation</span>
-<a name="rest_code_fdd150b1ec7343ddaeb8081545b0bf89-2"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">recons</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">vae</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span>
-<a name="rest_code_fdd150b1ec7343ddaeb8081545b0bf89-3"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">recons</span><span class="o">.</span><span class="n">shape</span>
-<a name="rest_code_fdd150b1ec7343ddaeb8081545b0bf89-4"></a><span class="go">(25, 784)</span>
+<pre class="code pycon"><a name="rest_code_ae11954b69f940a9b420409516ea0a7d-1"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">x_test</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># choose arbitrary observation</span>
+<a name="rest_code_ae11954b69f940a9b420409516ea0a7d-2"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">recons</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">vae</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span>
+<a name="rest_code_ae11954b69f940a9b420409516ea0a7d-3"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">recons</span><span class="o">.</span><span class="n">shape</span>
+<a name="rest_code_ae11954b69f940a9b420409516ea0a7d-4"></a><span class="go">(25, 784)</span>
 </pre>
 <p>We can visualize these:</p>
-<pre class="code python"><a name="rest_code_571cebe967214160bae57661d50e5906-1"></a><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
-<a name="rest_code_571cebe967214160bae57661d50e5906-2"></a><span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">28</span><span class="p">,</span> <span class="mi">28</span><span class="p">),</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">'gray'</span><span class="p">)</span>
-<a name="rest_code_571cebe967214160bae57661d50e5906-3"></a><span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">block</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">recons</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">28</span><span class="p">)))),</span>
-<a name="rest_code_571cebe967214160bae57661d50e5906-4"></a>           <span class="n">cmap</span><span class="o">=</span><span class="s1">'gray'</span><span class="p">)</span>
-<a name="rest_code_571cebe967214160bae57661d50e5906-5"></a><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<pre class="code python"><a name="rest_code_c068d8153ef94f7b89f8bd0f24fd10f7-1"></a><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<a name="rest_code_c068d8153ef94f7b89f8bd0f24fd10f7-2"></a><span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">28</span><span class="p">,</span> <span class="mi">28</span><span class="p">),</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">'gray'</span><span class="p">)</span>
+<a name="rest_code_c068d8153ef94f7b89f8bd0f24fd10f7-3"></a><span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">block</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">recons</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">28</span><span class="p">)))),</span>
+<a name="rest_code_c068d8153ef94f7b89f8bd0f24fd10f7-4"></a>           <span class="n">cmap</span><span class="o">=</span><span class="s1">'gray'</span><span class="p">)</span>
+<a name="rest_code_c068d8153ef94f7b89f8bd0f24fd10f7-5"></a><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre>
 <p>The output of this is shown in the figure below. You may need to squint closely
 to see that the sampled reconstructions are different to each other.</p>
@@ -271,27 +286,33 @@ to see that the sampled reconstructions are different to each other.</p>
 <img alt="../../images/vae/mc_samples_reconstructions.png" src="../../images/vae/mc_samples_reconstructions.png" style="width: 600px;"><p class="caption">5x5 grid reconstructions for a given observation.</p>
 </div>
 <p>As a sanity check,</p>
-<pre class="code pycon"><a name="rest_code_b85889c9c41342a682b95170717aacfe-1"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">recons</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">recons</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-<a name="rest_code_b85889c9c41342a682b95170717aacfe-2"></a><span class="go">False</span>
-<a name="rest_code_b85889c9c41342a682b95170717aacfe-3"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">recons</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">==</span> <span class="n">recons</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<a name="rest_code_b85889c9c41342a682b95170717aacfe-4"></a><span class="go">array([False, False, False, False, False, False, False, False, False, False,</span>
-<a name="rest_code_b85889c9c41342a682b95170717aacfe-5"></a><span class="go">       False, False, False, False, False, False, False, False, False, False,</span>
-<a name="rest_code_b85889c9c41342a682b95170717aacfe-6"></a><span class="go">       False, False, False, False], dtype=bool)</span>
+<pre class="code pycon"><a name="rest_code_e2804f1d81264082bc61836e1315ff2e-1"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">recons</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">recons</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<a name="rest_code_e2804f1d81264082bc61836e1315ff2e-2"></a><span class="go">False</span>
+<a name="rest_code_e2804f1d81264082bc61836e1315ff2e-3"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">recons</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">==</span> <span class="n">recons</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<a name="rest_code_e2804f1d81264082bc61836e1315ff2e-4"></a><span class="go">array([False, False, False, False, False, False, False, False, False, False,</span>
+<a name="rest_code_e2804f1d81264082bc61836e1315ff2e-5"></a><span class="go">       False, False, False, False, False, False, False, False, False, False,</span>
+<a name="rest_code_e2804f1d81264082bc61836e1315ff2e-6"></a><span class="go">       False, False, False, False], dtype=bool)</span>
 </pre>
 </div>
 <div class="section" id="summary">
 <h2>Summary</h2>
 <p>In this post, we demonstrated how simple it is to extend our basic framework
-to allow for various Monte Carlo samples sizes. We simply leveraged Keras'
-ability to broadcast inputs with its layers and let it propagate the additional
-MC sample channel/dimension to the final output. Next, we applied a simple trick
-so that the target array broadcasts with the final output, which allows us to
-approximate the expected log likelihood using the Monte Carlo samples. Finally,
-we demonstrated how we can use our fitted model to obtain a distribution over
-reconstructions. These methods readily apply to other kinds of problems
-with different likelihoods.</p>
+to allow for specification of arbitrary Monte Carlo samples sizes.
+We simply leveraged Keras' ability to broadcast inputs with its layers and let
+it propagate the additional MC sample channel/dimension to the final output.
+Next, we applied a simple trick so that the target array broadcasts with the
+final output, which allows us to approximate the expected log likelihood using
+the Monte Carlo samples.
+Finally, we demonstrated how we can use our fitted model to obtain a
+distribution over reconstructions. This approach is appealing not only for
+its simplicity, but its applicability to large class of problems with
+various likelihoods.</p>
+<p>In a future post, we will use methods discussed here to implement and
+explore <em>Importance Weighted Autoencoders</em> <a class="footnote-reference" href="#burda2015" id="id2">[2]</a>, which uses
+<em>importance sampling</em> to approximate the ELBO.</p>
+</div>
 <div class="section" id="references">
-<h3>References</h3>
+<h2>References</h2>
 <table class="docutils footnote" frame="void" id="kingma2014" rules="none">
 <colgroup>
 <col class="label">
@@ -305,16 +326,28 @@ in Proceedings of the 2nd International Conference on Learning
 Representations (ICLR), 2014.</td>
 </tr></tbody>
 </table>
+<table class="docutils footnote" frame="void" id="burda2015" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href="#id2">[2]</a></td>
+<td>Y. Burda, R. Grosse, and R. Salakhutdinov,
+"Importance Weighted Autoencoders,"
+in Proceedings of the 3rd International Conference on Learning
+Representations (ICLR), 2015.</td>
+</tr></tbody>
+</table>
 </div>
 <div class="section" id="appendix">
-<h3>Appendix</h3>
+<h2>Appendix</h2>
 <p>Below you can find:</p>
 <ul class="simple">
 <li>The <a class="reference external" href="../../listings/vae/variational_autoencoder_mc_samples.ipynb.html">accompanying Jupyter Notebook</a> used to generate the diagrams and plots
 in this post.</li>
 <li>The above snippets combined in a <a class="reference external" href="../../listings/vae/variational_autoencoder_mc_samples.py.html">single executable Python file</a>.</li>
 </ul>
-</div>
 </div>
 </div>
     </div>

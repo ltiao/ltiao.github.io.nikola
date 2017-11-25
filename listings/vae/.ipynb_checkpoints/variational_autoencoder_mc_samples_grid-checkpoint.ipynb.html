@@ -1,0 +1,1307 @@
+<!DOCTYPE html>
+<html prefix="
+og: http://ogp.me/ns#
+article: http://ogp.me/ns/article#
+" lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="description" content="variational_autoencoder_mc_samples_grid-checkpoint.ipynb">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>variational_autoencoder_mc_samples_grid-checkpoint.ipynb | Louis Tiao</title>
+<link href="../../../assets/css/all.css" rel="stylesheet" type="text/css">
+<link href="../../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
+<link href="../../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
+<link href="../../../assets/css/override_nikola_ipython.css" rel="stylesheet" type="text/css">
+<meta name="theme-color" content="#5670d4">
+<meta name="generator" content="Nikola (getnikola.com)">
+<link rel="alternate" type="application/rss+xml" title="RSS" href="../../../rss.xml">
+<link rel="canonical" href="http://louistiao.me/listings/vae/.ipynb_checkpoints/variational_autoencoder_mc_samples_grid-checkpoint.ipynb.html">
+<link rel="icon" href="../../../favicon_16x16.ico" sizes="16x16">
+<link rel="icon" href="../../../favicon_32x32.ico" sizes="32x32">
+<link rel="icon" href="../../../favicon_256x256.ico" sizes="256x256">
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+    },
+    displayAlign: 'center', // Change this to 'left' if you want left-aligned equations.
+    "HTML-CSS": {
+        styles: {'.MathJax_Display': {"margin": 0}}
+    }
+});
+</script><!--[if lt IE 9]><script src="../../../assets/js/html5.js"></script><![endif]--><!--
+
+    /\\\\\\\\\\\\\\\  /\\\\\\\\\\\     /\\\\\\\\\          /\\\\\              
+    \///////\\\/////  \/////\\\///    /\\\\\\\\\\\\\      /\\\///\\\           
+           \/\\\           \/\\\      /\\\/////////\\\   /\\\/  \///\\\        
+            \/\\\           \/\\\     \/\\\       \/\\\  /\\\      \//\\\      
+             \/\\\           \/\\\     \/\\\\\\\\\\\\\\\ \/\\\       \/\\\     
+              \/\\\           \/\\\     \/\\\/////////\\\ \//\\\      /\\\     
+               \/\\\           \/\\\     \/\\\       \/\\\  \///\\\  /\\\      
+                \/\\\        /\\\\\\\\\\\ \/\\\       \/\\\    \///\\\\\/      
+                 \///        \///////////  \///        \///       \/////       
+
+-->
+</head>
+<body>
+<a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+  <div class="container">
+    <div class="header clearfix">
+      <nav><ul class="nav nav-pills pull-right">
+<li>
+<a href="../../../">About</a>
+                </li>
+<li>
+<a href="../../../projects/">Projects</a>
+                </li>
+<li>
+<a href="../../../posts/">Posts</a>
+                </li>
+<li>
+<a href="../../../archive.html">Archive</a>
+
+          
+        </li>
+</ul></nav><a href="http://louistiao.me/">
+
+        <h3 class="text-muted">
+          <span id="blog-title">Louis Tiao</span>
+        </h3>
+      </a>
+    </div>
+
+<!-- TODO Figure out what to do with this stuff -->
+<!--     <div class="row">
+
+      <ul class="nav nav-pills pull-right">
+    <li>
+    <a href="/listings/vae/.ipynb_checkpoints/variational_autoencoder_mc_samples_grid-checkpoint.ipynb" id="sourcelink">Source</a>
+    </li>
+          
+      </ul>
+    </div> -->
+
+    <div id="content" role="main">
+      <div class="body-content">
+        <!--Body content-->
+        <div class="row">
+          
+<nav class="breadcrumbs"><ul class="breadcrumb">
+<li><a href="../../">listings</a></li>
+                <li><a href="../">vae</a></li>
+                <li><a href=".">.ipynb_checkpoints</a></li>
+                <li>variational_autoencoder_mc_samples_grid-checkpoint.ipynb</li>
+</ul></nav><h1>variational_autoencoder_mc_samples_grid-checkpoint.ipynb
+        <small><a href="variational_autoencoder_mc_samples_grid-checkpoint.ipynb">(Source)</a></small>
+    </h1>
+    <div tabindex="-1" id="notebook" class="border-box-sizing">
+    <div class="container" id="notebook-container">
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Preamble">Preamble<a class="anchor-link" href="#Preamble">¶</a>
+</h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [1]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">%</span><span class="k">matplotlib</span> notebook
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [2]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="k">import</span> <span class="n">norm</span>
+
+<span class="kn">from</span> <span class="nn">keras</span> <span class="k">import</span> <span class="n">backend</span> <span class="k">as</span> <span class="n">K</span>
+
+<span class="kn">from</span> <span class="nn">keras.layers</span> <span class="k">import</span> <span class="p">(</span><span class="n">Input</span><span class="p">,</span> <span class="n">InputLayer</span><span class="p">,</span> <span class="n">Dense</span><span class="p">,</span> <span class="n">Lambda</span><span class="p">,</span> <span class="n">Layer</span><span class="p">,</span> 
+                          <span class="n">Add</span><span class="p">,</span> <span class="n">Multiply</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">keras.models</span> <span class="k">import</span> <span class="n">Model</span><span class="p">,</span> <span class="n">Sequential</span>
+<span class="kn">from</span> <span class="nn">keras.datasets</span> <span class="k">import</span> <span class="n">mnist</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>Using TensorFlow backend.
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [3]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span> <span class="nn">matplotlib.ticker</span> <span class="k">import</span> <span class="n">FormatStrFormatter</span>
+<span class="kn">from</span> <span class="nn">keras.utils.vis_utils</span> <span class="k">import</span> <span class="n">model_to_dot</span><span class="p">,</span> <span class="n">plot_model</span>
+<span class="kn">from</span> <span class="nn">IPython.display</span> <span class="k">import</span> <span class="n">SVG</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Notebook-Configuration">Notebook Configuration<a class="anchor-link" href="#Notebook-Configuration">¶</a>
+</h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [4]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">np</span><span class="o">.</span><span class="n">set_printoptions</span><span class="p">(</span><span class="n">precision</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                    <span class="n">edgeitems</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+                    <span class="n">linewidth</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span>
+                    <span class="n">suppress</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [5]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="s1">'TensorFlow version: '</span> <span class="o">+</span> <span class="n">K</span><span class="o">.</span><span class="n">tf</span><span class="o">.</span><span class="n">__version__</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[5]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>'TensorFlow version: 1.4.0'</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h5 id="Constant-definitions">Constant definitions<a class="anchor-link" href="#Constant-definitions">¶</a>
+</h5>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [14]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">batch_sizes</span> <span class="o">=</span> <span class="p">[</span><span class="mi">25</span><span class="p">,</span> <span class="mi">100</span><span class="p">]</span> 
+<span class="n">mc_sample_sizes</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">25</span><span class="p">]</span>
+
+<span class="n">original_dim</span> <span class="o">=</span> <span class="mi">784</span>
+<span class="n">latent_dim</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">intermediate_dim</span> <span class="o">=</span> <span class="mi">256</span>
+<span class="n">epochs</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">epsilon_std</span> <span class="o">=</span> <span class="mf">1.0</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [7]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">nll</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">):</span>
+    <span class="sd">""" Bernoulli negative log likelihood. """</span>
+
+    <span class="c1"># keras.losses.binary_crossentropy gives the mean</span>
+    <span class="c1"># over the last axis. We require the sum.</span>
+    <span class="k">return</span> <span class="n">K</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">K</span><span class="o">.</span><span class="n">binary_crossentropy</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [8]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">class</span> <span class="nc">KLDivergenceLayer</span><span class="p">(</span><span class="n">Layer</span><span class="p">):</span>
+
+    <span class="sd">""" Identity transform layer that adds KL divergence</span>
+<span class="sd">    to the final model loss.</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_placeholder</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">KLDivergenceLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+
+        <span class="n">mu</span><span class="p">,</span> <span class="n">log_var</span> <span class="o">=</span> <span class="n">inputs</span>
+
+        <span class="n">kl_batch</span> <span class="o">=</span> <span class="o">-</span> <span class="o">.</span><span class="mi">5</span> <span class="o">*</span> <span class="n">K</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">log_var</span> <span class="o">-</span>
+                                <span class="n">K</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span> <span class="o">-</span>
+                                <span class="n">K</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">log_var</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_loss</span><span class="p">(</span><span class="n">K</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">kl_batch</span><span class="p">),</span> <span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">inputs</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [9]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">build_vae</span><span class="p">(</span><span class="n">mc_sample_size</span><span class="p">,</span> <span class="n">original_dim</span><span class="p">,</span> <span class="n">latent_dim</span><span class="p">,</span> <span class="n">intermediate_dim</span><span class="p">):</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">original_dim</span><span class="p">,))</span>
+    <span class="n">h</span> <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="n">intermediate_dim</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'relu'</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="n">z_mu</span> <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="n">latent_dim</span><span class="p">)(</span><span class="n">h</span><span class="p">)</span>
+    <span class="n">z_log_var</span> <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="n">latent_dim</span><span class="p">)(</span><span class="n">h</span><span class="p">)</span>
+
+    <span class="n">z_mu</span><span class="p">,</span> <span class="n">z_log_var</span> <span class="o">=</span> <span class="n">KLDivergenceLayer</span><span class="p">()([</span><span class="n">z_mu</span><span class="p">,</span> <span class="n">z_log_var</span><span class="p">])</span>
+    <span class="n">z_sigma</span> <span class="o">=</span> <span class="n">Lambda</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">K</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">.</span><span class="mi">5</span><span class="o">*</span><span class="n">t</span><span class="p">))(</span><span class="n">z_log_var</span><span class="p">)</span>
+
+    <span class="n">eps</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">tensor</span><span class="o">=</span><span class="n">K</span><span class="o">.</span><span class="n">random_normal</span><span class="p">(</span><span class="n">stddev</span><span class="o">=</span><span class="n">epsilon_std</span><span class="p">,</span>
+                                       <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">K</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">x</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
+                                              <span class="n">mc_sample_size</span><span class="p">,</span>
+                                              <span class="n">latent_dim</span><span class="p">)))</span>
+
+    <span class="n">z_eps</span> <span class="o">=</span> <span class="n">Multiply</span><span class="p">()([</span><span class="n">z_sigma</span><span class="p">,</span> <span class="n">eps</span><span class="p">])</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">Add</span><span class="p">()([</span><span class="n">z_mu</span><span class="p">,</span> <span class="n">z_eps</span><span class="p">])</span>
+
+    <span class="n">decoder</span> <span class="o">=</span> <span class="n">Sequential</span><span class="p">([</span>
+        <span class="n">Dense</span><span class="p">(</span><span class="n">intermediate_dim</span><span class="p">,</span> <span class="n">input_dim</span><span class="o">=</span><span class="n">latent_dim</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'relu'</span><span class="p">),</span>
+        <span class="n">Dense</span><span class="p">(</span><span class="n">original_dim</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'sigmoid'</span><span class="p">)</span>
+    <span class="p">])</span>
+
+    <span class="n">x_mean</span> <span class="o">=</span> <span class="n">decoder</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">Model</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">eps</span><span class="p">],</span> <span class="n">outputs</span><span class="o">=</span><span class="n">x_mean</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [10]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">),</span> <span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span> <span class="o">=</span> <span class="n">mnist</span><span class="o">.</span><span class="n">load_data</span><span class="p">()</span>
+<span class="n">x_train</span> <span class="o">=</span> <span class="n">x_train</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">original_dim</span><span class="p">)</span> <span class="o">/</span> <span class="mf">255.</span>
+<span class="n">x_test</span> <span class="o">=</span> <span class="n">x_test</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">original_dim</span><span class="p">)</span> <span class="o">/</span> <span class="mf">255.</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [12]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">%%</span><span class="k">timeit</span>
+
+for batch_size in batch_sizes:
+
+    for mc_sample_size in mc_sample_sizes:
+
+        print('batch size {} | MC sample size {}'
+              .format(batch_size, mc_sample_size))
+
+        x_train_target = np.tile(np.expand_dims(x_train, axis=1),
+                                 reps=(1, mc_sample_size, 1))
+        x_test_target = np.tile(np.expand_dims(x_test, axis=1),
+                                reps=(1, mc_sample_size, 1))
+
+        vae = build_vae(mc_sample_size, original_dim, latent_dim, 
+                        intermediate_dim)
+        vae.compile(optimizer='rmsprop', loss=nll)
+
+        histories[batch_size][mc_sample_size] = vae.fit(
+            x_train,
+            x_train_target,
+            shuffle=True,
+            epochs=epochs,
+            batch_size=batch_size,
+            validation_data=(x_test, x_test_target)
+        )
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>batch size 25 | MC sample size 1
+Train on 60000 samples, validate on 10000 samples
+Epoch 1/50
+60000/60000 [==============================] - 10s 163us/step - loss: 175.8421 - val_loss: 167.3018
+Epoch 2/50
+60000/60000 [==============================] - 9s 151us/step - loss: 165.5251 - val_loss: 164.1144
+Epoch 3/50
+60000/60000 [==============================] - 8s 139us/step - loss: 162.9011 - val_loss: 162.0299
+Epoch 4/50
+60000/60000 [==============================] - 10s 171us/step - loss: 160.8524 - val_loss: 160.6282
+Epoch 5/50
+60000/60000 [==============================] - 10s 168us/step - loss: 159.3570 - val_loss: 158.9316
+Epoch 6/50
+60000/60000 [==============================] - 8s 129us/step - loss: 158.3216 - val_loss: 158.2057
+Epoch 7/50
+60000/60000 [==============================] - 8s 135us/step - loss: 157.5143 - val_loss: 157.4078
+Epoch 8/50
+60000/60000 [==============================] - 7s 117us/step - loss: 156.8400 - val_loss: 157.0826
+Epoch 9/50
+60000/60000 [==============================] - 7s 120us/step - loss: 156.2935 - val_loss: 156.1571
+Epoch 10/50
+60000/60000 [==============================] - 8s 125us/step - loss: 155.8602 - val_loss: 156.6091
+Epoch 11/50
+60000/60000 [==============================] - 8s 130us/step - loss: 155.4742 - val_loss: 156.6663
+Epoch 12/50
+60000/60000 [==============================] - 9s 144us/step - loss: 155.1367 - val_loss: 155.1973
+Epoch 13/50
+60000/60000 [==============================] - 8s 132us/step - loss: 154.8480 - val_loss: 155.2073
+Epoch 14/50
+60000/60000 [==============================] - 11s 185us/step - loss: 154.5779 - val_loss: 155.3731
+Epoch 15/50
+60000/60000 [==============================] - 13s 215us/step - loss: 154.3469 - val_loss: 154.7028
+Epoch 16/50
+60000/60000 [==============================] - 10s 161us/step - loss: 154.1973 - val_loss: 155.5260
+Epoch 17/50
+60000/60000 [==============================] - 8s 128us/step - loss: 153.9781 - val_loss: 154.8877
+Epoch 18/50
+60000/60000 [==============================] - 9s 148us/step - loss: 153.8577 - val_loss: 154.8032
+Epoch 19/50
+60000/60000 [==============================] - 9s 152us/step - loss: 153.7032 - val_loss: 153.9299
+Epoch 20/50
+60000/60000 [==============================] - 9s 150us/step - loss: 153.5557 - val_loss: 154.0591
+Epoch 21/50
+60000/60000 [==============================] - 7s 121us/step - loss: 153.4373 - val_loss: 153.8170
+Epoch 22/50
+60000/60000 [==============================] - 7s 115us/step - loss: 153.3427 - val_loss: 153.9475
+Epoch 23/50
+60000/60000 [==============================] - 7s 113us/step - loss: 153.2269 - val_loss: 153.8917
+Epoch 24/50
+60000/60000 [==============================] - 7s 113us/step - loss: 153.1462 - val_loss: 153.6284
+Epoch 25/50
+60000/60000 [==============================] - 7s 113us/step - loss: 153.0348 - val_loss: 153.3452
+Epoch 26/50
+60000/60000 [==============================] - 7s 114us/step - loss: 152.9652 - val_loss: 153.9279
+Epoch 27/50
+60000/60000 [==============================] - 7s 112us/step - loss: 152.8775 - val_loss: 153.9430
+Epoch 28/50
+60000/60000 [==============================] - 7s 113us/step - loss: 152.8207 - val_loss: 154.3042
+Epoch 29/50
+60000/60000 [==============================] - 7s 113us/step - loss: 152.6848 - val_loss: 154.0990
+Epoch 30/50
+60000/60000 [==============================] - 7s 124us/step - loss: 152.6860 - val_loss: 153.3885
+Epoch 31/50
+60000/60000 [==============================] - 7s 117us/step - loss: 152.6922 - val_loss: 153.6563
+Epoch 32/50
+60000/60000 [==============================] - 7s 112us/step - loss: 152.6492 - val_loss: 154.6584
+Epoch 33/50
+60000/60000 [==============================] - 7s 112us/step - loss: 152.5695 - val_loss: 154.0307
+Epoch 34/50
+60000/60000 [==============================] - 7s 116us/step - loss: 152.5807 - val_loss: 153.5092
+Epoch 35/50
+60000/60000 [==============================] - 7s 113us/step - loss: 152.5250 - val_loss: 153.4744
+Epoch 36/50
+60000/60000 [==============================] - 7s 113us/step - loss: 152.5001 - val_loss: 154.0564
+Epoch 37/50
+60000/60000 [==============================] - 9s 144us/step - loss: 152.5087 - val_loss: 154.2700
+Epoch 38/50
+60000/60000 [==============================] - 9s 156us/step - loss: 152.5314 - val_loss: 154.9365
+Epoch 39/50
+60000/60000 [==============================] - 7s 120us/step - loss: 152.5045 - val_loss: 153.7760
+Epoch 40/50
+60000/60000 [==============================] - 7s 114us/step - loss: 152.4981 - val_loss: 154.1777
+Epoch 41/50
+60000/60000 [==============================] - 7s 114us/step - loss: 152.6465 - val_loss: 153.7983
+Epoch 42/50
+60000/60000 [==============================] - 7s 113us/step - loss: 152.5794 - val_loss: 154.8700
+Epoch 43/50
+60000/60000 [==============================] - 7s 114us/step - loss: 152.6142 - val_loss: 154.0942
+Epoch 44/50
+60000/60000 [==============================] - 7s 113us/step - loss: 152.6253 - val_loss: 155.0538
+Epoch 45/50
+60000/60000 [==============================] - 7s 119us/step - loss: 152.7985 - val_loss: 154.9705
+Epoch 46/50
+60000/60000 [==============================] - 7s 114us/step - loss: 152.7593 - val_loss: 155.1668
+Epoch 47/50
+60000/60000 [==============================] - 7s 115us/step - loss: 152.8709 - val_loss: 154.7914
+Epoch 48/50
+60000/60000 [==============================] - 7s 114us/step - loss: 153.0118 - val_loss: 156.0635
+Epoch 49/50
+60000/60000 [==============================] - 7s 116us/step - loss: 153.2133 - val_loss: 158.3778
+Epoch 50/50
+60000/60000 [==============================] - 7s 114us/step - loss: 153.3307 - val_loss: 158.7638
+batch size 25 | MC sample size 5
+Train on 60000 samples, validate on 10000 samples
+Epoch 1/50
+60000/60000 [==============================] - 8s 138us/step - loss: 176.1818 - val_loss: 167.3606
+Epoch 2/50
+60000/60000 [==============================] - 8s 130us/step - loss: 165.4020 - val_loss: 163.8977
+Epoch 3/50
+60000/60000 [==============================] - 8s 131us/step - loss: 162.7126 - val_loss: 162.0515
+Epoch 4/50
+60000/60000 [==============================] - 9s 142us/step - loss: 160.6405 - val_loss: 160.3235
+Epoch 5/50
+60000/60000 [==============================] - 11s 179us/step - loss: 158.9580 - val_loss: 158.4747
+Epoch 6/50
+60000/60000 [==============================] - 9s 154us/step - loss: 157.7107 - val_loss: 157.7616
+Epoch 7/50
+60000/60000 [==============================] - 8s 134us/step - loss: 156.7769 - val_loss: 157.7819
+Epoch 8/50
+60000/60000 [==============================] - 8s 131us/step - loss: 156.0250 - val_loss: 155.8671
+Epoch 9/50
+60000/60000 [==============================] - 8s 130us/step - loss: 155.3804 - val_loss: 155.4040
+Epoch 10/50
+60000/60000 [==============================] - 8s 132us/step - loss: 154.8584 - val_loss: 155.4528
+Epoch 11/50
+60000/60000 [==============================] - 8s 134us/step - loss: 154.4053 - val_loss: 154.7843
+Epoch 12/50
+60000/60000 [==============================] - 8s 133us/step - loss: 154.0027 - val_loss: 154.4918
+Epoch 13/50
+60000/60000 [==============================] - 8s 138us/step - loss: 153.7002 - val_loss: 154.7157
+Epoch 14/50
+60000/60000 [==============================] - 8s 134us/step - loss: 153.3985 - val_loss: 154.0106
+Epoch 15/50
+60000/60000 [==============================] - 8s 131us/step - loss: 153.1691 - val_loss: 154.3615
+Epoch 16/50
+60000/60000 [==============================] - 8s 134us/step - loss: 152.9600 - val_loss: 154.8249
+Epoch 17/50
+60000/60000 [==============================] - 8s 136us/step - loss: 152.7431 - val_loss: 153.3423
+Epoch 18/50
+60000/60000 [==============================] - 8s 130us/step - loss: 152.5678 - val_loss: 153.5169
+Epoch 19/50
+60000/60000 [==============================] - 8s 131us/step - loss: 152.3860 - val_loss: 153.5342
+Epoch 20/50
+60000/60000 [==============================] - 9s 155us/step - loss: 152.2479 - val_loss: 154.3887
+Epoch 21/50
+60000/60000 [==============================] - 11s 180us/step - loss: 152.0937 - val_loss: 153.7114
+Epoch 22/50
+60000/60000 [==============================] - 8s 137us/step - loss: 151.9730 - val_loss: 153.0029
+Epoch 23/50
+60000/60000 [==============================] - 8s 127us/step - loss: 151.7980 - val_loss: 152.7219
+Epoch 24/50
+60000/60000 [==============================] - 8s 127us/step - loss: 151.6777 - val_loss: 153.5487
+Epoch 25/50
+60000/60000 [==============================] - 8s 136us/step - loss: 151.5209 - val_loss: 153.4073
+Epoch 26/50
+60000/60000 [==============================] - 8s 137us/step - loss: 151.4377 - val_loss: 152.9487
+Epoch 27/50
+60000/60000 [==============================] - 8s 137us/step - loss: 151.2996 - val_loss: 153.1215
+Epoch 28/50
+60000/60000 [==============================] - 7s 121us/step - loss: 151.2229 - val_loss: 152.5450
+Epoch 29/50
+60000/60000 [==============================] - 8s 128us/step - loss: 151.1071 - val_loss: 153.1690
+Epoch 30/50
+60000/60000 [==============================] - 7s 124us/step - loss: 150.9947 - val_loss: 152.2553
+Epoch 31/50
+60000/60000 [==============================] - 7s 123us/step - loss: 150.8764 - val_loss: 152.2232
+Epoch 32/50
+60000/60000 [==============================] - 8s 127us/step - loss: 150.7824 - val_loss: 152.3817
+Epoch 33/50
+60000/60000 [==============================] - 7s 123us/step - loss: 150.6961 - val_loss: 152.6513
+Epoch 34/50
+60000/60000 [==============================] - 7s 120us/step - loss: 150.5910 - val_loss: 151.8752
+Epoch 35/50
+60000/60000 [==============================] - 8s 134us/step - loss: 150.5169 - val_loss: 152.0652
+Epoch 36/50
+60000/60000 [==============================] - 10s 160us/step - loss: 150.4219 - val_loss: 152.6955
+Epoch 37/50
+60000/60000 [==============================] - 10s 169us/step - loss: 150.3752 - val_loss: 153.4268
+Epoch 38/50
+60000/60000 [==============================] - 9s 148us/step - loss: 150.3069 - val_loss: 152.8407
+Epoch 39/50
+60000/60000 [==============================] - 8s 131us/step - loss: 150.2171 - val_loss: 151.9636
+Epoch 40/50
+60000/60000 [==============================] - 8s 128us/step - loss: 150.1624 - val_loss: 151.8540
+Epoch 41/50
+60000/60000 [==============================] - 8s 130us/step - loss: 150.0530 - val_loss: 152.0437
+Epoch 42/50
+60000/60000 [==============================] - 8s 130us/step - loss: 150.0098 - val_loss: 151.9017
+Epoch 43/50
+60000/60000 [==============================] - 8s 129us/step - loss: 149.9730 - val_loss: 152.3978
+Epoch 44/50
+60000/60000 [==============================] - 8s 131us/step - loss: 149.9130 - val_loss: 151.8868
+Epoch 45/50
+60000/60000 [==============================] - 8s 129us/step - loss: 149.8530 - val_loss: 151.8152
+Epoch 46/50
+60000/60000 [==============================] - 8s 130us/step - loss: 149.8249 - val_loss: 152.5391
+Epoch 47/50
+60000/60000 [==============================] - 8s 129us/step - loss: 149.7547 - val_loss: 151.5466
+Epoch 48/50
+60000/60000 [==============================] - 8s 131us/step - loss: 149.7347 - val_loss: 151.6840
+Epoch 49/50
+60000/60000 [==============================] - 8s 129us/step - loss: 149.6728 - val_loss: 152.3136
+Epoch 50/50
+60000/60000 [==============================] - 8s 128us/step - loss: 149.6196 - val_loss: 152.3198
+batch size 25 | MC sample size 15
+Train on 60000 samples, validate on 10000 samples
+Epoch 1/50
+60000/60000 [==============================] - 12s 198us/step - loss: 177.4417 - val_loss: 168.5127
+Epoch 2/50
+60000/60000 [==============================] - 14s 236us/step - loss: 165.8096 - val_loss: 163.5858
+Epoch 3/50
+60000/60000 [==============================] - 13s 213us/step - loss: 161.9040 - val_loss: 160.4281
+Epoch 4/50
+60000/60000 [==============================] - 12s 195us/step - loss: 159.5378 - val_loss: 159.1005
+Epoch 5/50
+60000/60000 [==============================] - 12s 195us/step - loss: 158.1955 - val_loss: 158.3302
+Epoch 6/50
+60000/60000 [==============================] - 12s 195us/step - loss: 157.2369 - val_loss: 157.2345
+Epoch 7/50
+60000/60000 [==============================] - 12s 195us/step - loss: 156.4628 - val_loss: 156.5369
+Epoch 8/50
+60000/60000 [==============================] - 12s 193us/step - loss: 155.8598 - val_loss: 155.8683
+Epoch 9/50
+60000/60000 [==============================] - 12s 195us/step - loss: 155.3562 - val_loss: 156.0605
+Epoch 10/50
+60000/60000 [==============================] - 12s 196us/step - loss: 154.9639 - val_loss: 155.6520
+Epoch 11/50
+60000/60000 [==============================] - 12s 193us/step - loss: 154.6167 - val_loss: 155.0323
+Epoch 12/50
+60000/60000 [==============================] - 12s 199us/step - loss: 154.2851 - val_loss: 155.4045
+Epoch 13/50
+60000/60000 [==============================] - 14s 240us/step - loss: 154.0496 - val_loss: 154.8347
+Epoch 14/50
+60000/60000 [==============================] - 12s 204us/step - loss: 153.7736 - val_loss: 154.6345
+Epoch 15/50
+60000/60000 [==============================] - 12s 194us/step - loss: 153.5586 - val_loss: 155.2900
+Epoch 16/50
+60000/60000 [==============================] - 12s 193us/step - loss: 153.3085 - val_loss: 154.1804
+Epoch 17/50
+60000/60000 [==============================] - 12s 194us/step - loss: 153.0928 - val_loss: 154.1637
+Epoch 18/50
+60000/60000 [==============================] - 12s 195us/step - loss: 152.9170 - val_loss: 154.2141
+Epoch 19/50
+60000/60000 [==============================] - 12s 194us/step - loss: 152.7139 - val_loss: 153.8335
+Epoch 20/50
+60000/60000 [==============================] - 12s 195us/step - loss: 152.5547 - val_loss: 153.7487
+Epoch 21/50
+60000/60000 [==============================] - 12s 194us/step - loss: 152.4131 - val_loss: 153.7508
+Epoch 22/50
+60000/60000 [==============================] - 12s 195us/step - loss: 152.2739 - val_loss: 153.2600
+Epoch 23/50
+60000/60000 [==============================] - 12s 207us/step - loss: 152.1205 - val_loss: 153.0637
+Epoch 24/50
+60000/60000 [==============================] - 15s 244us/step - loss: 151.9848 - val_loss: 153.2081
+Epoch 25/50
+60000/60000 [==============================] - 12s 199us/step - loss: 151.8786 - val_loss: 153.3290
+Epoch 26/50
+60000/60000 [==============================] - 12s 193us/step - loss: 151.7583 - val_loss: 154.0623
+Epoch 27/50
+60000/60000 [==============================] - 12s 193us/step - loss: 151.6499 - val_loss: 153.3039
+Epoch 28/50
+60000/60000 [==============================] - 12s 193us/step - loss: 151.5412 - val_loss: 153.8447
+Epoch 29/50
+60000/60000 [==============================] - 12s 193us/step - loss: 151.4427 - val_loss: 152.9399
+Epoch 30/50
+60000/60000 [==============================] - 12s 194us/step - loss: 151.3447 - val_loss: 153.8290
+Epoch 31/50
+60000/60000 [==============================] - 12s 193us/step - loss: 151.2656 - val_loss: 152.8232
+Epoch 32/50
+60000/60000 [==============================] - 12s 193us/step - loss: 151.1624 - val_loss: 152.9852
+Epoch 33/50
+60000/60000 [==============================] - 12s 194us/step - loss: 151.0790 - val_loss: 153.1620
+Epoch 34/50
+60000/60000 [==============================] - 13s 214us/step - loss: 150.9790 - val_loss: 153.0215
+Epoch 35/50
+60000/60000 [==============================] - 14s 235us/step - loss: 150.9196 - val_loss: 153.2774
+Epoch 36/50
+60000/60000 [==============================] - 12s 198us/step - loss: 150.8477 - val_loss: 153.3272
+Epoch 37/50
+60000/60000 [==============================] - 12s 192us/step - loss: 150.7897 - val_loss: 152.9409
+Epoch 38/50
+60000/60000 [==============================] - 12s 194us/step - loss: 150.7088 - val_loss: 152.5292
+Epoch 39/50
+60000/60000 [==============================] - 12s 192us/step - loss: 150.6477 - val_loss: 153.0897
+Epoch 40/50
+60000/60000 [==============================] - 12s 195us/step - loss: 150.5596 - val_loss: 152.8173
+Epoch 41/50
+60000/60000 [==============================] - 12s 192us/step - loss: 150.5091 - val_loss: 152.7180
+Epoch 42/50
+60000/60000 [==============================] - 12s 193us/step - loss: 150.4506 - val_loss: 153.1099
+Epoch 43/50
+60000/60000 [==============================] - 12s 192us/step - loss: 150.3955 - val_loss: 153.3948
+Epoch 44/50
+60000/60000 [==============================] - 12s 192us/step - loss: 150.3216 - val_loss: 152.7847
+Epoch 45/50
+60000/60000 [==============================] - 13s 221us/step - loss: 150.2294 - val_loss: 152.6257
+Epoch 46/50
+60000/60000 [==============================] - 13s 214us/step - loss: 150.1858 - val_loss: 152.6878
+Epoch 47/50
+60000/60000 [==============================] - 11s 185us/step - loss: 150.1633 - val_loss: 153.0887
+Epoch 48/50
+60000/60000 [==============================] - 11s 185us/step - loss: 150.0725 - val_loss: 152.3641
+Epoch 49/50
+60000/60000 [==============================] - 11s 186us/step - loss: 150.0503 - val_loss: 152.5620
+Epoch 50/50
+60000/60000 [==============================] - 11s 183us/step - loss: 149.9869 - val_loss: 152.7301
+batch size 25 | MC sample size 25
+Train on 60000 samples, validate on 10000 samples
+Epoch 1/50
+60000/60000 [==============================] - 25s 420us/step - loss: 175.1738 - val_loss: 167.1994
+Epoch 2/50
+60000/60000 [==============================] - 15s 256us/step - loss: 165.2127 - val_loss: 163.9434
+Epoch 3/50
+60000/60000 [==============================] - 15s 258us/step - loss: 162.3047 - val_loss: 161.1742
+Epoch 4/50
+60000/60000 [==============================] - 15s 258us/step - loss: 159.9017 - val_loss: 159.4950
+Epoch 5/50
+60000/60000 [==============================] - 16s 267us/step - loss: 158.2659 - val_loss: 157.8180
+Epoch 6/50
+60000/60000 [==============================] - 15s 257us/step - loss: 157.2021 - val_loss: 157.2713
+Epoch 7/50
+60000/60000 [==============================] - 16s 267us/step - loss: 156.4192 - val_loss: 156.4878
+Epoch 8/50
+60000/60000 [==============================] - 18s 303us/step - loss: 155.8273 - val_loss: 155.8959
+Epoch 9/50
+60000/60000 [==============================] - 16s 262us/step - loss: 155.3069 - val_loss: 155.9010
+Epoch 10/50
+60000/60000 [==============================] - 15s 257us/step - loss: 154.8827 - val_loss: 154.9858
+Epoch 11/50
+60000/60000 [==============================] - 15s 258us/step - loss: 154.5102 - val_loss: 155.0210
+Epoch 12/50
+60000/60000 [==============================] - 15s 258us/step - loss: 154.1637 - val_loss: 154.5844
+Epoch 13/50
+60000/60000 [==============================] - 15s 257us/step - loss: 153.8724 - val_loss: 154.6593
+Epoch 14/50
+60000/60000 [==============================] - 15s 258us/step - loss: 153.6189 - val_loss: 154.2812
+Epoch 15/50
+60000/60000 [==============================] - 16s 260us/step - loss: 153.3652 - val_loss: 154.3575
+Epoch 16/50
+60000/60000 [==============================] - 17s 283us/step - loss: 153.1413 - val_loss: 154.3056
+Epoch 17/50
+60000/60000 [==============================] - 17s 277us/step - loss: 152.9169 - val_loss: 153.3472
+Epoch 18/50
+60000/60000 [==============================] - 15s 258us/step - loss: 152.7272 - val_loss: 153.3392
+Epoch 19/50
+60000/60000 [==============================] - 15s 257us/step - loss: 152.5475 - val_loss: 153.4568
+Epoch 20/50
+60000/60000 [==============================] - 16s 258us/step - loss: 152.3999 - val_loss: 153.6725
+Epoch 21/50
+60000/60000 [==============================] - 15s 256us/step - loss: 152.2503 - val_loss: 153.4581
+Epoch 22/50
+60000/60000 [==============================] - 16s 259us/step - loss: 152.0908 - val_loss: 152.9171
+Epoch 23/50
+60000/60000 [==============================] - 15s 258us/step - loss: 151.9862 - val_loss: 153.2601
+Epoch 24/50
+60000/60000 [==============================] - 17s 279us/step - loss: 151.8679 - val_loss: 153.3406
+Epoch 25/50
+60000/60000 [==============================] - 17s 283us/step - loss: 151.7575 - val_loss: 153.1205
+Epoch 26/50
+60000/60000 [==============================] - 15s 258us/step - loss: 151.6544 - val_loss: 153.0926
+Epoch 27/50
+60000/60000 [==============================] - 15s 257us/step - loss: 151.5499 - val_loss: 152.7653
+Epoch 28/50
+60000/60000 [==============================] - 16s 259us/step - loss: 151.4749 - val_loss: 152.6828
+Epoch 29/50
+60000/60000 [==============================] - 15s 258us/step - loss: 151.3847 - val_loss: 152.7125
+Epoch 30/50
+60000/60000 [==============================] - 15s 258us/step - loss: 151.2923 - val_loss: 152.5259
+Epoch 31/50
+60000/60000 [==============================] - 16s 259us/step - loss: 151.2148 - val_loss: 152.6419
+Epoch 32/50
+60000/60000 [==============================] - 16s 272us/step - loss: 151.1523 - val_loss: 152.6028
+Epoch 33/50
+60000/60000 [==============================] - 18s 293us/step - loss: 151.0880 - val_loss: 153.0801
+Epoch 34/50
+60000/60000 [==============================] - 16s 260us/step - loss: 151.0068 - val_loss: 152.7988
+Epoch 35/50
+60000/60000 [==============================] - 15s 257us/step - loss: 150.9429 - val_loss: 153.1268
+Epoch 36/50
+60000/60000 [==============================] - 15s 258us/step - loss: 150.8844 - val_loss: 152.4512
+Epoch 37/50
+60000/60000 [==============================] - 15s 257us/step - loss: 150.8034 - val_loss: 153.4201
+Epoch 38/50
+60000/60000 [==============================] - 15s 258us/step - loss: 150.7733 - val_loss: 153.5602
+Epoch 39/50
+60000/60000 [==============================] - 15s 256us/step - loss: 150.6979 - val_loss: 152.6793
+Epoch 40/50
+60000/60000 [==============================] - 16s 262us/step - loss: 150.6619 - val_loss: 152.3343
+Epoch 41/50
+60000/60000 [==============================] - 18s 300us/step - loss: 150.5974 - val_loss: 152.7473
+Epoch 42/50
+60000/60000 [==============================] - 16s 262us/step - loss: 150.5832 - val_loss: 153.0138
+Epoch 43/50
+60000/60000 [==============================] - 15s 256us/step - loss: 150.5224 - val_loss: 152.6721
+Epoch 44/50
+60000/60000 [==============================] - 15s 256us/step - loss: 150.4869 - val_loss: 152.7407
+Epoch 45/50
+60000/60000 [==============================] - 15s 257us/step - loss: 150.4268 - val_loss: 152.5680
+Epoch 46/50
+60000/60000 [==============================] - 15s 256us/step - loss: 150.3689 - val_loss: 152.4230
+Epoch 47/50
+60000/60000 [==============================] - 16s 260us/step - loss: 150.3043 - val_loss: 152.3737
+Epoch 48/50
+60000/60000 [==============================] - 15s 257us/step - loss: 150.2660 - val_loss: 152.8623
+Epoch 49/50
+60000/60000 [==============================] - 18s 296us/step - loss: 150.2356 - val_loss: 152.4743
+Epoch 50/50
+60000/60000 [==============================] - 16s 271us/step - loss: 150.1642 - val_loss: 152.4972
+batch size 50 | MC sample size 1
+Train on 60000 samples, validate on 10000 samples
+Epoch 1/50
+60000/60000 [==============================] - 4s 68us/step - loss: 182.5673 - val_loss: 170.6724
+Epoch 2/50
+60000/60000 [==============================] - 4s 59us/step - loss: 168.7884 - val_loss: 166.4067
+Epoch 3/50
+60000/60000 [==============================] - 4s 60us/step - loss: 165.2767 - val_loss: 163.2209
+Epoch 4/50
+60000/60000 [==============================] - 4s 59us/step - loss: 162.9404 - val_loss: 161.1317
+Epoch 5/50
+60000/60000 [==============================] - 4s 58us/step - loss: 161.2104 - val_loss: 159.6516
+Epoch 6/50
+60000/60000 [==============================] - 3s 58us/step - loss: 159.8813 - val_loss: 158.8933
+Epoch 7/50
+60000/60000 [==============================] - 4s 60us/step - loss: 158.8306 - val_loss: 157.7608
+Epoch 8/50
+60000/60000 [==============================] - 4s 59us/step - loss: 157.9271 - val_loss: 157.0627
+Epoch 9/50
+60000/60000 [==============================] - 3s 58us/step - loss: 157.2054 - val_loss: 156.4920
+Epoch 10/50
+60000/60000 [==============================] - 4s 60us/step - loss: 156.5844 - val_loss: 156.0799
+Epoch 11/50
+60000/60000 [==============================] - 4s 60us/step - loss: 156.0222 - val_loss: 155.3471
+Epoch 12/50
+60000/60000 [==============================] - 4s 60us/step - loss: 155.5377 - val_loss: 155.2131
+Epoch 13/50
+60000/60000 [==============================] - 4s 59us/step - loss: 155.0608 - val_loss: 154.8548
+Epoch 14/50
+60000/60000 [==============================] - 4s 59us/step - loss: 154.6844 - val_loss: 154.4224
+Epoch 15/50
+60000/60000 [==============================] - 4s 59us/step - loss: 154.3062 - val_loss: 154.4871
+Epoch 16/50
+60000/60000 [==============================] - 4s 59us/step - loss: 153.9356 - val_loss: 154.2486
+Epoch 17/50
+60000/60000 [==============================] - 4s 74us/step - loss: 153.6225 - val_loss: 153.5941
+Epoch 18/50
+60000/60000 [==============================] - 3s 58us/step - loss: 153.2988 - val_loss: 153.2651
+Epoch 19/50
+60000/60000 [==============================] - 3s 57us/step - loss: 153.0344 - val_loss: 153.7625
+Epoch 20/50
+60000/60000 [==============================] - 3s 58us/step - loss: 152.8068 - val_loss: 152.6892
+Epoch 21/50
+60000/60000 [==============================] - 3s 57us/step - loss: 152.5540 - val_loss: 152.8765
+Epoch 22/50
+60000/60000 [==============================] - 3s 58us/step - loss: 152.3510 - val_loss: 152.4334
+Epoch 23/50
+60000/60000 [==============================] - 3s 57us/step - loss: 152.1127 - val_loss: 152.9271
+Epoch 24/50
+60000/60000 [==============================] - 3s 57us/step - loss: 151.9806 - val_loss: 152.9908
+Epoch 25/50
+60000/60000 [==============================] - 3s 58us/step - loss: 151.7757 - val_loss: 152.8140
+Epoch 26/50
+60000/60000 [==============================] - 4s 58us/step - loss: 151.5944 - val_loss: 152.2479
+Epoch 27/50
+60000/60000 [==============================] - 3s 58us/step - loss: 151.4349 - val_loss: 152.3063
+Epoch 28/50
+60000/60000 [==============================] - 4s 72us/step - loss: 151.3330 - val_loss: 152.3296
+Epoch 29/50
+60000/60000 [==============================] - 5s 79us/step - loss: 151.1259 - val_loss: 151.8729
+Epoch 30/50
+60000/60000 [==============================] - 5s 75us/step - loss: 151.0210 - val_loss: 152.0151
+Epoch 31/50
+60000/60000 [==============================] - 5s 82us/step - loss: 150.8769 - val_loss: 152.0268
+Epoch 32/50
+60000/60000 [==============================] - 4s 63us/step - loss: 150.7609 - val_loss: 152.0502
+Epoch 33/50
+60000/60000 [==============================] - 4s 63us/step - loss: 150.6465 - val_loss: 151.7571
+Epoch 34/50
+60000/60000 [==============================] - 3s 58us/step - loss: 150.5128 - val_loss: 152.6143
+Epoch 35/50
+60000/60000 [==============================] - 4s 60us/step - loss: 150.3864 - val_loss: 151.6148
+Epoch 36/50
+60000/60000 [==============================] - 3s 58us/step - loss: 150.2985 - val_loss: 151.6457
+Epoch 37/50
+60000/60000 [==============================] - 3s 58us/step - loss: 150.1882 - val_loss: 151.3738
+Epoch 38/50
+60000/60000 [==============================] - 3s 57us/step - loss: 150.0642 - val_loss: 151.2116
+Epoch 39/50
+60000/60000 [==============================] - 3s 58us/step - loss: 149.9773 - val_loss: 151.2576
+Epoch 40/50
+60000/60000 [==============================] - 3s 58us/step - loss: 149.8683 - val_loss: 151.2386
+Epoch 41/50
+60000/60000 [==============================] - 4s 59us/step - loss: 149.7776 - val_loss: 151.3272
+Epoch 42/50
+60000/60000 [==============================] - 3s 58us/step - loss: 149.7172 - val_loss: 152.4181
+Epoch 43/50
+60000/60000 [==============================] - 3s 58us/step - loss: 149.5933 - val_loss: 151.1545
+Epoch 44/50
+60000/60000 [==============================] - 3s 58us/step - loss: 149.5403 - val_loss: 151.0815
+Epoch 45/50
+60000/60000 [==============================] - 4s 58us/step - loss: 149.4529 - val_loss: 150.9376
+Epoch 46/50
+60000/60000 [==============================] - 4s 59us/step - loss: 149.3747 - val_loss: 151.0829
+Epoch 47/50
+60000/60000 [==============================] - 3s 58us/step - loss: 149.2812 - val_loss: 151.0107
+Epoch 48/50
+60000/60000 [==============================] - 4s 59us/step - loss: 149.2199 - val_loss: 150.7782
+Epoch 49/50
+60000/60000 [==============================] - 4s 59us/step - loss: 149.1338 - val_loss: 151.5472
+Epoch 50/50
+60000/60000 [==============================] - 4s 58us/step - loss: 149.0642 - val_loss: 150.8971
+batch size 50 | MC sample size 5
+Train on 60000 samples, validate on 10000 samples
+Epoch 1/50
+60000/60000 [==============================] - 5s 86us/step - loss: 183.3004 - val_loss: 171.0988
+Epoch 2/50
+60000/60000 [==============================] - 5s 79us/step - loss: 168.8667 - val_loss: 166.7306
+Epoch 3/50
+60000/60000 [==============================] - 5s 79us/step - loss: 165.1163 - val_loss: 163.8510
+Epoch 4/50
+60000/60000 [==============================] - 5s 79us/step - loss: 162.9077 - val_loss: 162.3187
+Epoch 5/50
+60000/60000 [==============================] - 5s 79us/step - loss: 161.2658 - val_loss: 160.8557
+Epoch 6/50
+60000/60000 [==============================] - 5s 80us/step - loss: 159.8463 - val_loss: 159.4294
+Epoch 7/50
+60000/60000 [==============================] - 5s 81us/step - loss: 158.6429 - val_loss: 158.1571
+Epoch 8/50
+60000/60000 [==============================] - 5s 79us/step - loss: 157.6384 - val_loss: 157.8421
+Epoch 9/50
+60000/60000 [==============================] - 5s 79us/step - loss: 156.8262 - val_loss: 156.6384
+Epoch 10/50
+60000/60000 [==============================] - 6s 95us/step - loss: 156.1081 - val_loss: 155.8629
+Epoch 11/50
+60000/60000 [==============================] - 6s 104us/step - loss: 155.4700 - val_loss: 155.7299
+Epoch 12/50
+60000/60000 [==============================] - 7s 114us/step - loss: 154.9253 - val_loss: 155.5109
+Epoch 13/50
+60000/60000 [==============================] - 5s 86us/step - loss: 154.5201 - val_loss: 154.7908
+Epoch 14/50
+60000/60000 [==============================] - 5s 82us/step - loss: 154.1187 - val_loss: 154.4807
+Epoch 15/50
+60000/60000 [==============================] - 5s 82us/step - loss: 153.7627 - val_loss: 154.4663
+Epoch 16/50
+60000/60000 [==============================] - 5s 80us/step - loss: 153.4495 - val_loss: 154.8351
+Epoch 17/50
+60000/60000 [==============================] - 5s 79us/step - loss: 153.1576 - val_loss: 154.1335
+Epoch 18/50
+60000/60000 [==============================] - 5s 79us/step - loss: 152.9181 - val_loss: 154.0171
+Epoch 19/50
+60000/60000 [==============================] - 5s 81us/step - loss: 152.6745 - val_loss: 153.5961
+Epoch 20/50
+60000/60000 [==============================] - 5s 80us/step - loss: 152.4655 - val_loss: 153.3051
+Epoch 21/50
+60000/60000 [==============================] - 5s 81us/step - loss: 152.2505 - val_loss: 153.3034
+Epoch 22/50
+60000/60000 [==============================] - 5s 79us/step - loss: 152.0532 - val_loss: 153.4599
+Epoch 23/50
+60000/60000 [==============================] - 5s 80us/step - loss: 151.8577 - val_loss: 154.5972
+Epoch 24/50
+60000/60000 [==============================] - 5s 81us/step - loss: 151.6872 - val_loss: 152.9965
+Epoch 25/50
+60000/60000 [==============================] - 5s 79us/step - loss: 151.5351 - val_loss: 153.0501
+Epoch 26/50
+60000/60000 [==============================] - 5s 80us/step - loss: 151.3690 - val_loss: 152.8531
+Epoch 27/50
+60000/60000 [==============================] - 5s 80us/step - loss: 151.2409 - val_loss: 152.5387
+Epoch 28/50
+60000/60000 [==============================] - 5s 83us/step - loss: 151.0991 - val_loss: 152.6732
+Epoch 29/50
+60000/60000 [==============================] - 5s 79us/step - loss: 150.9558 - val_loss: 152.4201
+Epoch 30/50
+60000/60000 [==============================] - 5s 79us/step - loss: 150.8459 - val_loss: 152.6650
+Epoch 31/50
+60000/60000 [==============================] - 5s 80us/step - loss: 150.7102 - val_loss: 152.9167
+Epoch 32/50
+60000/60000 [==============================] - 5s 79us/step - loss: 150.5864 - val_loss: 153.0154
+Epoch 33/50
+60000/60000 [==============================] - 5s 79us/step - loss: 150.4964 - val_loss: 152.0669
+Epoch 34/50
+60000/60000 [==============================] - 5s 79us/step - loss: 150.3779 - val_loss: 152.5458
+Epoch 35/50
+60000/60000 [==============================] - 5s 79us/step - loss: 150.3184 - val_loss: 152.1983
+Epoch 36/50
+60000/60000 [==============================] - 6s 92us/step - loss: 150.2024 - val_loss: 152.0250
+Epoch 37/50
+60000/60000 [==============================] - 6s 105us/step - loss: 150.0881 - val_loss: 152.1904
+Epoch 38/50
+60000/60000 [==============================] - 7s 109us/step - loss: 150.0165 - val_loss: 153.6341
+Epoch 39/50
+60000/60000 [==============================] - 5s 91us/step - loss: 149.8979 - val_loss: 151.6937
+Epoch 40/50
+60000/60000 [==============================] - 5s 84us/step - loss: 149.8105 - val_loss: 151.8800
+Epoch 41/50
+60000/60000 [==============================] - 5s 81us/step - loss: 149.7453 - val_loss: 152.0450
+Epoch 42/50
+60000/60000 [==============================] - 5s 87us/step - loss: 149.6740 - val_loss: 151.9980
+Epoch 43/50
+60000/60000 [==============================] - 5s 84us/step - loss: 149.6017 - val_loss: 151.8064
+Epoch 44/50
+60000/60000 [==============================] - 5s 81us/step - loss: 149.5113 - val_loss: 151.7681
+Epoch 45/50
+60000/60000 [==============================] - 5s 84us/step - loss: 149.4169 - val_loss: 152.1414
+Epoch 46/50
+60000/60000 [==============================] - 5s 87us/step - loss: 149.3781 - val_loss: 152.1682
+Epoch 47/50
+60000/60000 [==============================] - 5s 79us/step - loss: 149.2813 - val_loss: 152.3033
+Epoch 48/50
+60000/60000 [==============================] - 5s 79us/step - loss: 149.2116 - val_loss: 151.6277
+Epoch 49/50
+60000/60000 [==============================] - 5s 78us/step - loss: 149.1204 - val_loss: 151.8125
+Epoch 50/50
+60000/60000 [==============================] - 5s 78us/step - loss: 149.0436 - val_loss: 151.6923
+batch size 50 | MC sample size 15
+Train on 60000 samples, validate on 10000 samples
+Epoch 1/50
+60000/60000 [==============================] - 9s 157us/step - loss: 181.6949 - val_loss: 169.9180
+Epoch 2/50
+60000/60000 [==============================] - 9s 149us/step - loss: 167.3332 - val_loss: 165.7187
+Epoch 3/50
+60000/60000 [==============================] - 9s 149us/step - loss: 164.3347 - val_loss: 163.1429
+Epoch 4/50
+60000/60000 [==============================] - 9s 150us/step - loss: 162.2183 - val_loss: 161.3448
+Epoch 5/50
+60000/60000 [==============================] - 9s 151us/step - loss: 160.4326 - val_loss: 159.8796
+Epoch 6/50
+60000/60000 [==============================] - 9s 157us/step - loss: 158.9081 - val_loss: 158.5176
+Epoch 7/50
+60000/60000 [==============================] - 10s 173us/step - loss: 157.7965 - val_loss: 157.4304
+Epoch 8/50
+60000/60000 [==============================] - 10s 163us/step - loss: 156.9530 - val_loss: 156.9483
+Epoch 9/50
+60000/60000 [==============================] - 9s 152us/step - loss: 156.2622 - val_loss: 156.3637
+Epoch 10/50
+60000/60000 [==============================] - 9s 152us/step - loss: 155.6764 - val_loss: 156.0169
+Epoch 11/50
+60000/60000 [==============================] - 9s 149us/step - loss: 155.1072 - val_loss: 155.4409
+Epoch 12/50
+60000/60000 [==============================] - 9s 151us/step - loss: 154.6278 - val_loss: 155.1168
+Epoch 13/50
+60000/60000 [==============================] - 9s 150us/step - loss: 154.1886 - val_loss: 154.8295
+Epoch 14/50
+60000/60000 [==============================] - 9s 158us/step - loss: 153.7613 - val_loss: 154.4505
+Epoch 15/50
+60000/60000 [==============================] - 10s 169us/step - loss: 153.3953 - val_loss: 153.9113
+Epoch 16/50
+60000/60000 [==============================] - 11s 179us/step - loss: 153.0708 - val_loss: 153.6117
+Epoch 17/50
+60000/60000 [==============================] - 11s 181us/step - loss: 152.7332 - val_loss: 153.9632
+Epoch 18/50
+60000/60000 [==============================] - 10s 161us/step - loss: 152.4392 - val_loss: 153.3130
+Epoch 19/50
+60000/60000 [==============================] - 9s 157us/step - loss: 152.1966 - val_loss: 152.9809
+Epoch 20/50
+60000/60000 [==============================] - 11s 183us/step - loss: 151.9476 - val_loss: 153.2158
+Epoch 21/50
+60000/60000 [==============================] - 11s 177us/step - loss: 151.7251 - val_loss: 152.8503
+Epoch 22/50
+60000/60000 [==============================] - 10s 159us/step - loss: 151.5210 - val_loss: 152.7532
+Epoch 23/50
+60000/60000 [==============================] - 9s 157us/step - loss: 151.3353 - val_loss: 152.8453
+Epoch 24/50
+60000/60000 [==============================] - 9s 155us/step - loss: 151.1298 - val_loss: 152.3320
+Epoch 25/50
+60000/60000 [==============================] - 9s 156us/step - loss: 150.9808 - val_loss: 153.1944
+Epoch 26/50
+60000/60000 [==============================] - 9s 155us/step - loss: 150.8079 - val_loss: 152.2061
+Epoch 27/50
+60000/60000 [==============================] - 9s 155us/step - loss: 150.6370 - val_loss: 152.5299
+Epoch 28/50
+60000/60000 [==============================] - 9s 154us/step - loss: 150.5337 - val_loss: 152.1004
+Epoch 29/50
+60000/60000 [==============================] - 9s 153us/step - loss: 150.3724 - val_loss: 152.2735
+Epoch 30/50
+60000/60000 [==============================] - 9s 156us/step - loss: 150.2441 - val_loss: 152.2371
+Epoch 31/50
+60000/60000 [==============================] - 9s 156us/step - loss: 150.1402 - val_loss: 151.8924
+Epoch 32/50
+60000/60000 [==============================] - 9s 154us/step - loss: 150.0099 - val_loss: 151.6390
+Epoch 33/50
+60000/60000 [==============================] - 10s 165us/step - loss: 149.9049 - val_loss: 151.8146
+Epoch 34/50
+60000/60000 [==============================] - 11s 182us/step - loss: 149.8029 - val_loss: 151.9462
+Epoch 35/50
+60000/60000 [==============================] - 10s 167us/step - loss: 149.6735 - val_loss: 151.6319
+Epoch 36/50
+60000/60000 [==============================] - 9s 154us/step - loss: 149.5849 - val_loss: 151.8409
+Epoch 37/50
+60000/60000 [==============================] - 9s 154us/step - loss: 149.4945 - val_loss: 151.4798
+Epoch 38/50
+60000/60000 [==============================] - 9s 154us/step - loss: 149.4133 - val_loss: 151.8292
+Epoch 39/50
+60000/60000 [==============================] - 9s 154us/step - loss: 149.2938 - val_loss: 151.6876
+Epoch 40/50
+60000/60000 [==============================] - 9s 154us/step - loss: 149.1916 - val_loss: 151.5679
+Epoch 41/50
+60000/60000 [==============================] - 9s 154us/step - loss: 149.1252 - val_loss: 151.5661
+Epoch 42/50
+60000/60000 [==============================] - 9s 153us/step - loss: 149.0272 - val_loss: 151.2893
+Epoch 43/50
+60000/60000 [==============================] - 9s 154us/step - loss: 148.9702 - val_loss: 151.5044
+Epoch 44/50
+60000/60000 [==============================] - 9s 154us/step - loss: 148.9045 - val_loss: 151.3411
+Epoch 45/50
+60000/60000 [==============================] - 9s 152us/step - loss: 148.7897 - val_loss: 151.4621
+Epoch 46/50
+60000/60000 [==============================] - 9s 153us/step - loss: 148.7181 - val_loss: 151.3123
+Epoch 47/50
+60000/60000 [==============================] - 11s 185us/step - loss: 148.6564 - val_loss: 151.6094
+Epoch 48/50
+60000/60000 [==============================] - 11s 179us/step - loss: 148.5652 - val_loss: 151.2705
+Epoch 49/50
+60000/60000 [==============================] - 11s 175us/step - loss: 148.4983 - val_loss: 151.5869
+Epoch 50/50
+60000/60000 [==============================] - 9s 158us/step - loss: 148.4023 - val_loss: 151.5992
+batch size 50 | MC sample size 25
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
+<div class="output_subarea output_text output_error">
+<pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">MemoryError</span>                               Traceback (most recent call last)
+<span class="ansi-green-fg">&lt;ipython-input-12-e97f776e553a&gt;</span> in <span class="ansi-cyan-fg">&lt;module&gt;</span><span class="ansi-blue-fg">()</span>
+<span class="ansi-green-fg">----&gt; 1</span><span class="ansi-red-fg"> </span>get_ipython<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">.</span>run_cell_magic<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">'timeit'</span><span class="ansi-blue-fg">,</span> <span class="ansi-blue-fg">''</span><span class="ansi-blue-fg">,</span> <span class="ansi-blue-fg">"\nfor batch_size in batch_sizes:\n\n    for mc_sample_size in mc_sample_sizes:\n\n        print('batch size {} | MC sample size {}'\n              .format(batch_size, mc_sample_size))\n\n        x_train_target = np.tile(np.expand_dims(x_train, axis=1),\n                                 reps=(1, mc_sample_size, 1))\n        x_test_target = np.tile(np.expand_dims(x_test, axis=1),\n                                reps=(1, mc_sample_size, 1))\n\n        vae = build_vae(mc_sample_size, original_dim, latent_dim, \n                        intermediate_dim)\n        vae.compile(optimizer='rmsprop', loss=nll)\n\n        histories[batch_size][mc_sample_size] = vae.fit(\n            x_train,\n            x_train_target,\n            shuffle=True,\n            epochs=epochs,\n            batch_size=batch_size,\n            validation_data=(x_test, x_test_target)\n        )"</span><span class="ansi-blue-fg">)</span>
+
+<span class="ansi-green-fg">~/.virtualenvs/anmoku/lib/python3.5/site-packages/IPython/core/interactiveshell.py</span> in <span class="ansi-cyan-fg">run_cell_magic</span><span class="ansi-blue-fg">(self, magic_name, line, cell)</span>
+<span class="ansi-green-intense-fg ansi-bold">   2129</span>             magic_arg_s <span class="ansi-blue-fg">=</span> self<span class="ansi-blue-fg">.</span>var_expand<span class="ansi-blue-fg">(</span>line<span class="ansi-blue-fg">,</span> stack_depth<span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">   2130</span>             <span class="ansi-green-fg">with</span> self<span class="ansi-blue-fg">.</span>builtin_trap<span class="ansi-blue-fg">:</span>
+<span class="ansi-green-fg">-&gt; 2131</span><span class="ansi-red-fg">                 </span>result <span class="ansi-blue-fg">=</span> fn<span class="ansi-blue-fg">(</span>magic_arg_s<span class="ansi-blue-fg">,</span> cell<span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">   2132</span>             <span class="ansi-green-fg">return</span> result
+<span class="ansi-green-intense-fg ansi-bold">   2133</span> 
+
+<span class="ansi-green-fg">&lt;decorator-gen-61&gt;</span> in <span class="ansi-cyan-fg">timeit</span><span class="ansi-blue-fg">(self, line, cell, local_ns)</span>
+
+<span class="ansi-green-fg">~/.virtualenvs/anmoku/lib/python3.5/site-packages/IPython/core/magic.py</span> in <span class="ansi-cyan-fg">&lt;lambda&gt;</span><span class="ansi-blue-fg">(f, *a, **k)</span>
+<span class="ansi-green-intense-fg ansi-bold">    185</span>     <span class="ansi-red-fg"># but it's overkill for just that one bit of state.</span>
+<span class="ansi-green-intense-fg ansi-bold">    186</span>     <span class="ansi-green-fg">def</span> magic_deco<span class="ansi-blue-fg">(</span>arg<span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">:</span>
+<span class="ansi-green-fg">--&gt; 187</span><span class="ansi-red-fg">         </span>call <span class="ansi-blue-fg">=</span> <span class="ansi-green-fg">lambda</span> f<span class="ansi-blue-fg">,</span> <span class="ansi-blue-fg">*</span>a<span class="ansi-blue-fg">,</span> <span class="ansi-blue-fg">**</span>k<span class="ansi-blue-fg">:</span> f<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">*</span>a<span class="ansi-blue-fg">,</span> <span class="ansi-blue-fg">**</span>k<span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    188</span> 
+<span class="ansi-green-intense-fg ansi-bold">    189</span>         <span class="ansi-green-fg">if</span> callable<span class="ansi-blue-fg">(</span>arg<span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">:</span>
+
+<span class="ansi-green-fg">~/.virtualenvs/anmoku/lib/python3.5/site-packages/IPython/core/magics/execution.py</span> in <span class="ansi-cyan-fg">timeit</span><span class="ansi-blue-fg">(self, line, cell, local_ns)</span>
+<span class="ansi-green-intense-fg ansi-bold">   1096</span>             <span class="ansi-green-fg">for</span> index <span class="ansi-green-fg">in</span> range<span class="ansi-blue-fg">(</span><span class="ansi-cyan-fg">0</span><span class="ansi-blue-fg">,</span> <span class="ansi-cyan-fg">10</span><span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">:</span>
+<span class="ansi-green-intense-fg ansi-bold">   1097</span>                 number <span class="ansi-blue-fg">=</span> <span class="ansi-cyan-fg">10</span> <span class="ansi-blue-fg">**</span> index
+<span class="ansi-green-fg">-&gt; 1098</span><span class="ansi-red-fg">                 </span>time_number <span class="ansi-blue-fg">=</span> timer<span class="ansi-blue-fg">.</span>timeit<span class="ansi-blue-fg">(</span>number<span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">   1099</span>                 <span class="ansi-green-fg">if</span> time_number <span class="ansi-blue-fg">&gt;=</span> <span class="ansi-cyan-fg">0.2</span><span class="ansi-blue-fg">:</span>
+<span class="ansi-green-intense-fg ansi-bold">   1100</span>                     <span class="ansi-green-fg">break</span>
+
+<span class="ansi-green-fg">~/.virtualenvs/anmoku/lib/python3.5/site-packages/IPython/core/magics/execution.py</span> in <span class="ansi-cyan-fg">timeit</span><span class="ansi-blue-fg">(self, number)</span>
+<span class="ansi-green-intense-fg ansi-bold">    158</span>         gc<span class="ansi-blue-fg">.</span>disable<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    159</span>         <span class="ansi-green-fg">try</span><span class="ansi-blue-fg">:</span>
+<span class="ansi-green-fg">--&gt; 160</span><span class="ansi-red-fg">             </span>timing <span class="ansi-blue-fg">=</span> self<span class="ansi-blue-fg">.</span>inner<span class="ansi-blue-fg">(</span>it<span class="ansi-blue-fg">,</span> self<span class="ansi-blue-fg">.</span>timer<span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    161</span>         <span class="ansi-green-fg">finally</span><span class="ansi-blue-fg">:</span>
+<span class="ansi-green-intense-fg ansi-bold">    162</span>             <span class="ansi-green-fg">if</span> gcold<span class="ansi-blue-fg">:</span>
+
+<span class="ansi-green-fg">&lt;magic-timeit&gt;</span> in <span class="ansi-cyan-fg">inner</span><span class="ansi-blue-fg">(_it, _timer)</span>
+
+<span class="ansi-green-fg">~/.virtualenvs/anmoku/lib/python3.5/site-packages/numpy/lib/shape_base.py</span> in <span class="ansi-cyan-fg">tile</span><span class="ansi-blue-fg">(A, reps)</span>
+<span class="ansi-green-intense-fg ansi-bold">    910</span>         <span class="ansi-green-fg">for</span> dim_in<span class="ansi-blue-fg">,</span> nrep <span class="ansi-green-fg">in</span> zip<span class="ansi-blue-fg">(</span>c<span class="ansi-blue-fg">.</span>shape<span class="ansi-blue-fg">,</span> tup<span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">:</span>
+<span class="ansi-green-intense-fg ansi-bold">    911</span>             <span class="ansi-green-fg">if</span> nrep <span class="ansi-blue-fg">!=</span> <span class="ansi-cyan-fg">1</span><span class="ansi-blue-fg">:</span>
+<span class="ansi-green-fg">--&gt; 912</span><span class="ansi-red-fg">                 </span>c <span class="ansi-blue-fg">=</span> c<span class="ansi-blue-fg">.</span>reshape<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">-</span><span class="ansi-cyan-fg">1</span><span class="ansi-blue-fg">,</span> n<span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">.</span>repeat<span class="ansi-blue-fg">(</span>nrep<span class="ansi-blue-fg">,</span> <span class="ansi-cyan-fg">0</span><span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    913</span>             n <span class="ansi-blue-fg">//=</span> dim_in
+<span class="ansi-green-intense-fg ansi-bold">    914</span>     <span class="ansi-green-fg">return</span> c<span class="ansi-blue-fg">.</span>reshape<span class="ansi-blue-fg">(</span>shape_out<span class="ansi-blue-fg">)</span>
+
+<span class="ansi-red-fg">MemoryError</span>: </pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">golden_figsize</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">width</span><span class="p">:</span> <span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="mf">2.</span> <span class="o">*</span> <span class="n">width</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">5</span><span class="p">)))</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">golden_figsize</span><span class="p">(</span><span class="mi">6</span><span class="p">))</span>
+
+<span class="c1"># for batch_size in batch_sizes:</span>
+<span class="k">for</span> <span class="n">mc_sample_size</span> <span class="ow">in</span> <span class="n">mc_sample_sizes</span><span class="p">:</span>
+    
+    <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">histories</span><span class="p">[</span><span class="mi">25</span><span class="p">][</span><span class="n">mc_sample_size</span><span class="p">]</span><span class="o">.</span><span class="n">history</span><span class="p">)</span> \
+    <span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="s1">'loss'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'MC samples: </span><span class="si">{:2d}</span><span class="s1">'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mc_sample_size</span><span class="p">),</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'NELBO'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'# epochs'</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mi">145</span><span class="p">,</span> <span class="mi">170</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+    </div>
+  </div>
+
+        </div>
+        <!--End of body content-->
+      </div>
+    </div>
+
+    <footer id="footer" class="footer">
+        
+Contents © 2017
+<a href="mailto:louistiao@me.com">Louis Tiao</a> - Powered by
+<a href="https://getnikola.com" rel="nofollow">Nikola</a>
+
+
+<span class="pull-right">
+
+  <a class="twitter-follow-button" href="https://twitter.com/louistiao" data-show-count="false" data-show-screen-name="false">
+  Follow @louistiao
+  </a>
+
+  <a class="github-button" href="https://github.com/ltiao" aria-label="Follow @ltiao on GitHub" data-show-count="false">
+  Follow @ltiao
+  </a>
+
+  <a href="https://ko-fi.com/A3476EX">
+    <object type="image/svg+xml" style="pointer-events: none;" data="https://img.shields.io/badge/Support--yellow.svg?style=social"></object>
+  </a>
+
+</span>
+
+
+            
+    </footer>
+</div> <!-- /container -->
+
+            <script src="../../../assets/js/all-nocdn.js"></script><script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script><!-- fancy dates --><script>
+    moment.locale("en");
+    fancydates(0, "YYYY-MM-DD HH:mm");
+    </script><!-- end fancy dates --><!-- Google Analytics --><script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-43722566-1', 'auto');
+  ga('send', 'pageview');
+
+</script><!-- GitHub Buttons --><script async defer src="https://buttons.github.io/buttons.js"></script><!-- Twitter Widgets --><script>window.twttr = (function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0],
+    t = window.twttr || {};
+  if (d.getElementById(id)) return t;
+  js = d.createElement(s);
+  js.id = id;
+  js.src = "https://platform.twitter.com/widgets.js";
+  fjs.parentNode.insertBefore(js, fjs);
+
+  t._e = [];
+  t.ready = function(f) {
+    t._e.push(f);
+  };
+
+  return t;
+}(document, "script", "twitter-wjs"));</script>
+</body>
+</html>

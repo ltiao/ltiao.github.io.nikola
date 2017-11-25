@@ -56,7 +56,8 @@ z_log_var = Dense(latent_dim)(h)
 z_mu, z_log_var = KLDivergenceLayer()([z_mu, z_log_var])
 z_sigma = Lambda(lambda t: K.exp(.5*t))(z_log_var)
 
-eps = Input(tensor=K.random_normal(shape=(K.shape(x)[0], latent_dim)))
+eps = Input(tensor=K.random_normal(stddev=epsilon_std,
+                                   shape=(K.shape(x)[0], latent_dim)))
 z_eps = Multiply()([z_sigma, eps])
 z = Add()([z_mu, z_eps])
 

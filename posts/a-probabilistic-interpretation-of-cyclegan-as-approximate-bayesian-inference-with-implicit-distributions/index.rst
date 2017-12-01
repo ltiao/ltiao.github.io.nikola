@@ -11,9 +11,12 @@
 
    Please do not share or link.
 
+Sketch
+======
+
 1. Revisit Probabilistic PCA [#tipping1998]_, Factor Analysis.
 2. Generalize to deep latent Gaussian models (DLGMs) [#rezende2014]_ and 
-   describe ow inference is done: amortized variational inference / stochastic 
+   describe how inference is done: amortized variational inference / stochastic 
    backpropagation with inference networks.
 3. Generalize amortized variational inference to implicit distributions:
    Adversarial autoencoders, BiGAN/ALIGAN, AVB [#mescheder2017]_ [#tran2017]_.

@@ -83,8 +83,8 @@ latent Gaussian model),
 Note the specification of ``input_dim=latent_dim``. It tells this and all 
 subsequent layers to operate only on this dimension. Hence, *for each observation*, 
 we sample ``mc_samples`` latent variables, and propagate these through the 
-forward model to obtain ``mc_samples`` predictions/observations. Please see the
-figure below.
+generative model to obtain ``mc_samples`` predictions/observations. 
+Please see the figure below.
 
 .. figure:: ../../images/vae/vae_full_mc_samples_shapes.svg
    :width: 600px
@@ -226,9 +226,9 @@ Next, we applied a simple trick so that the target array broadcasts with the
 final output, which allows us to approximate the expected log likelihood using 
 the Monte Carlo samples. 
 Finally, we demonstrated how we can use our fitted model to obtain a 
-distribution over reconstructions. These approach is appealing due not only to 
-its simplicity but its extensibility to other kinds of problems with different 
-likelihoods.
+distribution over reconstructions. This approach is appealing not only for 
+its simplicity, but its applicability to large class of problems with 
+various likelihoods.
 
 In a future post, we will use methods discussed here to implement and
 explore *Importance Weighted Autoencoders* [#burda2015]_, which uses 

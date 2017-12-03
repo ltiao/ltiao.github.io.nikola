@@ -7,9 +7,9 @@
 .. description: 
 .. type: text
 
-Nothing here yet. This short post is supposed to summarize this
+Nothing here yet. This short post is supposed to summarize its
 `supplementary notebook`_. For now, please go there instead.
 
 .. TEASER_END
 
-.. _supplementary notebook: /listings/keras/use-negative-log-likelihoods-of-tensorflow-distributions-as-keras-losses.ipynb.html
+.. _supplementary notebook: /listings/keras/use_negative_log_likelihoods_of_tensorflow_distributions_as_keras_losses.ipynb.html

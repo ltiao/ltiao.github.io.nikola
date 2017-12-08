@@ -24,6 +24,8 @@ Sketch
    implicit prior distribution, where inference is done using amortized 
    variational inference with an implicit approximate posterior distribution. 
 
+.. TEASER_END
+
 References
 ==========
 

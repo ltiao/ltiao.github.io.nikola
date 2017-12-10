@@ -129,8 +129,9 @@ layer,
 where :math:`\sigma` is the logistic sigmoid function, :math:`h` is some 
 non-linearity, and the model parameters 
 :math:`\theta = \{ \mathbf{W}_1, \mathbf{W}_2, \mathbf{b}_1, \mathbf{b}_1 \}` 
-consist of the weights and biases of this neural network. It is straightforward 
-to implement this in Keras with the 
+consist of the weights and biases of this neural network. 
+
+It is straightforward to implement this in Keras with the 
 `Sequential model API <https://keras.io/models/sequential/>`_:
 
 .. code:: python
@@ -567,7 +568,8 @@ inference to arbitrarily expressive implicit probabilistic models [#tran2017]_.
 Footnotes
 =========
 
-.. [*] For a complete tutorial on variational autoencoders, I highly recommend:
+.. [*] For a complete treatment of variational autoencoders, and variational 
+   inference in general, I highly recommend:
 
    * Jaan Altosaar's blog post, `What is a variational autoencoder? 
      <https://jaan.io/what-is-variational-autoencoder-vae-tutorial/>`_.

@@ -11,9 +11,9 @@
 
    Please do not share or link.
 
-Keras_ is awesome. It is a very well-designed library that clearly abides by to 
-its `guiding principles`_ of modularity and extensibility and thereby allows us 
-to easily assemble powerful complex models from primitive building blocks. 
+Keras_ is awesome. It is a very well-designed library that clearly abides by 
+its `guiding principles`_ of modularity and extensibility, and allows us to 
+easily assemble powerful, complex models from primitive building blocks. 
 This has been demonstrated by many blog posts and tutorials, such as the 
 excellent tutorial on `Building Autoencoders in Keras`_. 
 As the name suggests, that tutorial provides examples of how to implement 
@@ -28,14 +28,15 @@ various kinds of autoencoders in Keras, including the variational autoencoder
    and the representation of digits in latent space colored according to their 
    digit labels (right).
 
-Like all autoencoders, the variational autoencoder are primarily used for 
+Like all autoencoders, the variational autoencoder is primarily used for 
 unsupervised learning of hidden representations. 
-However, variational autoencoders are fundamentally different to your standard 
-neural network-based autoencoder in that they tackle the problem with a 
-probabilistic approach: by specifying distributions over the observed and 
-latent variables, and approximating the intractable posterior over the latter
-using variational inference with an *inference network* 
-[#inference1]_ [#inference2]_.
+However, they are fundamentally different to your usual neural network-based 
+autoencoder in that they approach the problem from a probabilistic perspective: 
+by specifying a joint distribution over the observed and latent variables, and 
+approximating the intractable posterior conditional density over latent 
+variables with variational inference, using an *inference network* 
+[#inference1]_ [#inference2]_ or more classically, a *recognition model* 
+[#dayan1995]_ to amortize the cost of inference.
 
 .. TEASER_END
 
@@ -45,10 +46,11 @@ versatility of Keras on a wide range of autoencoder model architectures,
 advantage of Keras' modular design, making it difficult to generalize and 
 extend in important ways. As we will see, it relies on implementing custom 
 layers and constructs that are restricted to a specific instance of 
-variational autoencoders. This is a shame, because when combined, Keras' 
+variational autoencoders. This is a shame because when combined, Keras' 
 building blocks are powerful enough to encapsulate most variants of the 
-variational autoencoder and more generally, a large family of 
-*deep latent Gaussian models* combined with inference networks.
+variational autoencoder and more generally, recognition-generative model 
+combinations for which the generative model belongs to a large family of 
+*deep latent Gaussian models* (DLGMs) [#rezende2014]_.
 
 The goal of this post is to propose a clean and elegant alternative 
 implementation that takes better advantage of Keras' modular design. 
@@ -56,16 +58,17 @@ It is not a tutorial on variational autoencoders [*]_.
 Rather, we study variational autoencoders as a specific case of variational 
 inference in deep latent Gaussian models with inference networks, and 
 demonstrate how we can use Keras to implement them in a modular fashion such 
-that they can be easily adapted to various common problems with different 
-(non-Gaussian) likelihoods, such as classification with Bayesian logistic / 
-softmax regression. 
+that they can be easily adapted to approximate inference in various common 
+problems with different (non-Gaussian) likelihoods, such as classification with 
+Bayesian logistic / softmax regression. 
+
 This first post will lay the groundwork for a series of future posts that 
-explore how we can trivially extend this basic modular framework to the more
+explore ways to extend this basic modular framework to implement the more
 powerful methods proposed in the latest research, such as the normalizing flows 
-for building richer posterior approximations [#rezende2015]_, the Gumbel-softmax 
-trick for inference in discrete latent variables [#jang2016]_, and even the most 
-recent GAN-related density-ratio estimation techniques for likelihood-free 
-inference [#mescheder2017]_ [#tran2017]_.
+for building richer posterior approximations [#rezende2015]_, importance weighted
+autoencoders [#burda2015]_, the Gumbel-softmax trick for inference in discrete 
+latent variables [#jang2016]_, and even the most recent GAN-based density-ratio 
+estimation techniques for likelihood-free inference [#mescheder2017]_ [#tran2017]_.
 
 .. _Keras: https://keras.io/
 .. _guiding principles: https://keras.io/#guiding-principles
@@ -76,31 +79,59 @@ inference [#mescheder2017]_ [#tran2017]_.
 Model specification
 ===================
 
-Firstly, it is important to understand that the variational autoencoder 
+First, it is important to understand that the variational autoencoder 
 `is not a way to train generative models`_. 
 Rather, the generative model is a component of the variational autoencoder and
-is in general a deep latent Gaussian model.
-Learning in the generative model is done using variational inference, with an 
-*inference network* to amortize the cost of inference by sharing statistical 
-strength and generalization across observed data-points. We first specify the 
-generative model component, the *probabilistic decoder*.
+is, in general, a deep latent Gaussian model.
+In particular, let :math:`\mathbf{x}` be a local observed variable and 
+:math:`\mathbf{z}` its corresponding local latent variable, with joint 
+distribution 
 
-latent variables are Gaussian a priori
+.. math:: 
+   
+   p_{\theta}(\mathbf{x}, \mathbf{z}) 
+   = p_{\theta}(\mathbf{x} | \mathbf{z}) p(\mathbf{z}).
+
+In Bayesian modelling, we assume the distribution of observed variables to be 
+governed by the latent variables. Latent variables are drawn from a prior 
+density :math:`p(\mathbf{z})` and related to the observations though the 
+likelihood :math:`p_{\theta}(\mathbf{x} | \mathbf{z})`.
+Deep latent Gaussian models (DLGMs) are a general class of models where the 
+observed variable is governed by a *hierarchy* of latent variables, and the
+latent variables at each level of the hierarchy are Gaussian *a priori* 
+[#rezende2014]_.
+
+In a typical instance of the variational autoencoder, we have only a single 
+level of latent variables whose prior distributions are Gaussian,
+
+.. math:: p(\mathbf{z}) = \mathcal{N}(\mathbf{0}, \mathbf{I}).
+
+Now, each local latent variable is related to its corresponding observation 
+through the likelihood :math:`p_{\theta}(\mathbf{x} | \mathbf{z})`, which can 
+be viewed as a *probabilistic* decoder: conditioned on the hidden 
+lower-dimensional representation :math:`\mathbf{z}`, it decodes into a 
+probability distribution over the observation :math:`\mathbf{x}`.
 
 Decoder
 -------
 
-In this example, we let the decoder model 
-:math:`p_{\theta}(\mathbf{x}_i | \mathbf{z}_i )` be a multivariate Bernoulli 
-whose probabilities are computed from :math:`\mathbf{z}` using a fully-connected 
-neural network with a single hidden layer.
+In this example, we define :math:`p_{\theta}(\mathbf{x} | \mathbf{z})` to 
+be a multivariate Bernoulli whose probabilities are computed from 
+:math:`\mathbf{z}` using a fully-connected neural network with a single hidden 
+layer,
 
 .. math:: 
 
-   p(\mathbf{z}_i) & = \mathcal{N}(\mathbf{0}, \mathbf{I}), \\
-   \mathbf{h}_i & = h(\mathbf{W}_1 \mathbf{z}_i + \mathbf{b}_1), \\
-   p_{\theta}(\mathbf{x}_i | \mathbf{z}_i)
-     & = \mathrm{Bern}( \sigma( \mathbf{W}_2 \mathbf{h}_i + \mathbf{b}_2 ) )
+   p_{\theta}(\mathbf{x} | \mathbf{z})
+     & = \mathrm{Bern}( \sigma( \mathbf{W}_2 \mathbf{h} + \mathbf{b}_2 ) ), \\
+   \mathbf{h} & = h(\mathbf{W}_1 \mathbf{z} + \mathbf{b}_1),
+
+where :math:`\sigma` is the logistic sigmoid function, :math:`h` is some 
+non-linearity, and the model parameters 
+:math:`\theta = \{ \mathbf{W}_1, \mathbf{W}_2, \mathbf{b}_1, \mathbf{b}_1 \}` 
+consist of the weights and biases of this neural network. It is straightforward 
+to implement this in Keras with the 
+`Sequential model API <https://keras.io/models/sequential/>`_:
 
 .. code:: python
 
@@ -109,34 +140,31 @@ neural network with a single hidden layer.
      Dense(original_dim, activation='sigmoid')
    ])
 
+You can view a summary of the model parameters :math:`\theta` by calling 
+``decoder.summary()``. Additionally, you can produce a high-level diagram of 
+the network architecture, and optionally the input and output shapes of each 
+layer using `plot_model <https://keras.io/visualization/>`_ from the 
+``keras.utils.vis_utils`` module. Although our architecture is about as 
+simple as it gets, it is included in the figure below as an example of what
+the diagrams look like.
+
 .. figure:: ../../images/vae/decoder.svg
    :height: 200px
    :align: center
 
    Decoder architecture.
 
-By fixing :math:`\mathbf{W}_1`, :math:`\mathbf{b}_1` and :math:`h` to be the 
-identity matrix, the zero vector, and the identity function respectively 
-(or equivalently, dropping the first ``Dense`` layer in the code snippet above), 
-we recover *logistic factor analysis*.
-In fact, it is very simple to recover members from the large family of deep 
-latent Gaussian models, which includes *non-linear factor analysis*, 
-*non-linear Gaussian belief networks*, *sigmoid belief networks*, and many others.
+Note that by fixing :math:`\mathbf{W}_1`, :math:`\mathbf{b}_1` and :math:`h` 
+to be the identity matrix, the zero vector, and the identity function, 
+respectively (or equivalently dropping the first ``Dense`` layer in the snippet 
+above altogether), we recover *logistic factor analysis*.
+With similarly minor modifications, we can recover other members from the 
+family of DLGMs, which include *non-linear factor analysis*, 
+*non-linear Gaussian belief networks*, *sigmoid belief networks*, and many 
+others [#rezende2014]_.
 
-We could, for example, adapt this to solve multi-class classification with
-Bayesian softmax regression by swapping the final layer for 
+Having specified the 
 
-.. code:: python
-
-   Dense(10, activation='softmax')
-
-
-with amortized variational inference
-
-Bayesian modelling assumes observed variables are fully governed by latent 
-variables and related through the likelihood / generative model.
-
-Intractable, resort to variational inference.
 
 When combined end-to-end, the inference network and the deep latent Gaussian
 model can be seen as having an autoencoder structure. 
@@ -163,12 +191,37 @@ The loss we wish to minimize is the *negative* of the *evidence lower bound*
      \log p_{\theta}(\mathbf{x} | \mathbf{z})
    ] - \mathrm{KL} [q_{\phi}(\mathbf{z} | \mathbf{x}) \| p(\mathbf{z}) ].
 
+importantly, the ELBO is a lower bound to the log marginal likelihood, so maximizing
+the ELBO approximately maximizes the log marginal likelihood. Additionally, 
+maximizing it is equivalent to minimizing 
+:math:`\mathrm{KL} [q_{\phi}(\mathbf{z} | \mathbf{x}) \| p(\mathbf{z} | \mathbf{x}) ]`,
+which also determines the tightness of the bound.
 
-* minimizes the KL
-* approximately maximizes the log marginal likelihood
+Encoder (the recognition model)
+-------------------------------
 
-Encoder
--------
+Every local latent variable x_i corresponding to observed variable x_i has its
+own set of local variational parameters \phi_i. For example,
+q_{\phi_i}(z_i) = N(z_i | mu_i, diag(sigma_i^2)), with variational parameters
+\phi_i = {mu_i, sigma_i}. 
+
+.. Note that it is not dependent on the observed data x_i 
+.. and does not appear in the expression q_i(z_i). It is only related to x_i 
+.. through the ELBO. 
+
+The number of local variational parameters grows with the size
+of the observed data. Furthermore, a new set of parameters must be optimized 
+for unseen test data points. We *amortize* the cost of inference by introducing 
+an *inference network* which outputs the local variational parameters \phi_i
+given x_i as input. This approximation allows statistical strength to be shared 
+across observed data-points and also generalize to unseen test points.
+
+.. This amortizes inference by only defining a set of global parameters, namely, 
+.. the parameters of the neural network.
+
+Continuing with the example, we have 
+q_{\phi}(z_i | x_i ) = N(z_i | mu_{\phi}(x_i), diag(sigma_{\phi}(x_i)^2)), 
+with variational parameters \phi_i = {mu_i, sigma_i}. 
 
 In the specific case of autoencoders, the network that maps latent code
 
@@ -191,6 +244,11 @@ recognition model, or an inference network.
 Reparameterization using Keras Layers
 #####################################
 
+The ELBO can be written as an expectation of a multivariate function 
+:math:`f(\mathbf{x}, \mathbf{z}) = \log p_{\theta}(\mathbf{x} , \mathbf{z}) - \log q_{\phi}(\mathbf{z} | \mathbf{x})`
+over distribution :math:`q_{\phi}(\mathbf{z} | \mathbf{x})`.
+
+
 .. math::
 
    \nabla_{\phi} 
@@ -205,7 +263,7 @@ Reparameterization using Keras Layers
       g_{\phi}(\mathbf{x}, \mathbf{\epsilon})) 
    ] \\
 
-Specifying :math:`f(\mathbf{x}, \mathbf{z}) = \log p_{\theta}(\mathbf{x} , \mathbf{z}) - \log q_{\phi}(\mathbf{z} | \mathbf{x})` gives us the gradient of the ELBO above.
+Specifying  gives us the gradient of the ELBO above.
 
 .. math::
 
@@ -273,9 +331,6 @@ and :math:`\mathbf{\sigma}_{\phi}(\mathbf{x})` now.
 KL Divergence
 #############
 
-We choose prior :math:`p(\mathbf{z})` to be 
-
-.. math:: p(\mathbf{z}) = \mathcal{N}(\mathbf{0}, \mathbf{I}).
 
 
 
@@ -385,7 +440,6 @@ In the examples directory, Keras provides a more sophisticated variational
 autoencoder with deconvolutional layers. The architecture definitions can be
 trivially copy-pasted here without need to modify anything else.
 
-
 Model fitting
 =============
 
@@ -410,7 +464,6 @@ implementation appears more natural and straightforward. It's easy to understand
 at a glance from our call to the ``fit`` method that we're training a
 probabilistic auto-encoder.
 
-
 .. code:: python
 
    vae.fit(x_train,
@@ -422,6 +475,9 @@ probabilistic auto-encoder.
 
 Personally, I prefer this view since the all sources of stochasticity emanate
 from the inputs to the model. 
+
+Loss (NELBO) Convergence
+------------------------
 
 .. code:: python
 
@@ -437,6 +493,9 @@ from the inputs to the model.
 .. figure:: ../../images/vae/nelbo.svg
    :width: 500px
    :align: center
+
+Model evaluation
+================
 
 .. code:: python
 
@@ -510,12 +569,11 @@ Footnotes
 
 .. [*] For a complete tutorial on variational autoencoders, I highly recommend:
 
-   * `What is a variational autoencoder? 
-     <https://jaan.io/what-is-variational-autoencoder-vae-tutorial/>`_ by Jaan 
-     Altosaar.
-   * `Tutorial on Variational Autoencoders <https://arxiv.org/abs/1606.05908>`_ 
-     by Carl Doersch.
-
+   * Jaan Altosaar's blog post, `What is a variational autoencoder? 
+     <https://jaan.io/what-is-variational-autoencoder-vae-tutorial/>`_.
+   * Diederik P. Kingma's PhD Thesis, 
+     `Variational Inference and Deep Learning: A New Synthesis 
+     <https://www.dropbox.com/s/v6ua3d9yt44vgb3/cover_and_thesis.pdf?dl=1>`_.
 
 References
 ==========
@@ -529,10 +587,21 @@ References
 .. [#inference2] Section "Recognition models and amortised inference" in 
    `Shakir's blog post 
    <http://blog.shakirm.com/2015/01/variational-inference-tricks-of-the-trade/>`_.
+.. [#dayan1995] Dayan, P., Hinton, G. E., Neal, R. M., & Zemel, R. S. (1995). 
+   The Helmholtz machine. Neural Computation, 7(5), 889–904. 
+   http://doi.org/10.1162/neco.1995.7.5.889
+.. [#rezende2014] Rezende, D. J., Mohamed, S., & Wierstra, D. (2014). 
+   "Stochastic backpropagation and approximate inference in deep generative models,"
+   in Proceedings of The 31st International Conference on Machine Learning, 2014,
+   (Vol. 32, pp. 1278–1286). Bejing, China: PMLR. http://doi.org/10.1051/0004-6361/201527329
 .. [#rezende2015] D. Rezende and S. Mohamed, 
    "Variational Inference with Normalizing Flows," 
    in Proceedings of the 32nd International Conference on Machine Learning, 2015, 
    vol. 37, pp. 1530–1538.
+.. [#burda2015] Y. Burda, R. Grosse, and R. Salakhutdinov, 
+   "Importance Weighted Autoencoders,"
+   in Proceedings of the 3rd International Conference on Learning 
+   Representations (ICLR), 2015.
 .. [#jang2016] E. Jang, S. Gu, and B. Poole, 
    "Categorical Reparameterization with Gumbel-Softmax," Nov. 2016.
    in Proceedings of the 5th International Conference on Learning 
@@ -544,7 +613,7 @@ References
    vol. 70, pp. 2391–2400.
 .. [#tran2017] D. Tran, R. Ranganath, and D. Blei, 
    "Hierarchical Implicit Models and Likelihood-Free Variational Inference," 
-   *to appear in* Advances in Neural Information Processing Systems 30, 2017.
+   *to appear in* Advances in Neural Information Processing Systems 31, 2017.
 
 Appendix
 ========

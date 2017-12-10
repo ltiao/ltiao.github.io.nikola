@@ -164,8 +164,17 @@ family of DLGMs, which include *non-linear factor analysis*,
 *non-linear Gaussian belief networks*, *sigmoid belief networks*, and many 
 others [#rezende2014]_.
 
-Having specified the 
+Having specified the generative process, we would now like to perform inference
+on the latent variables and model parameters :math:`\mathbf{z}` and :math:`\theta`.
+In particular, our goal is to compute the posterior 
+:math:`p_{\theta}(\mathbf{z} | \mathbf{x})`, the conditional density of 
+latent variable :math:`\mathbf{z}` given the observed variable 
+:math:`\mathbf{x}`.
 
+
+Which requires us marginalize out the latent variables :math:`\mathbf{z}` to 
+obtain the marginal likelihood :math:`p_{\theta}(\mathbf{x})` and to maximize 
+it with respect to the model parameters :math:`\theta`.
 
 When combined end-to-end, the inference network and the deep latent Gaussian
 model can be seen as having an autoencoder structure. 
@@ -240,10 +249,31 @@ recognition model, or an inference network.
      \mathrm{diag}(\mathbf{\sigma}_{\phi}^2(\mathbf{x}))
    )
 
+.. code:: python
+
+   x = Input(shape=(original_dim,))
+   h = Dense(intermediate_dim, activation='relu')(x)  
+
+   z_mu = Dense(latent_dim)(h)
+   z_log_var = Dense(latent_dim)(h)
+   z_sigma = Lambda(lambda t: K.exp(.5*t))(z_log_var)
+
+
+**figure here**
 
 
 Reparameterization using Keras Layers
 #####################################
+
+To perform gradient-based optimization of ELBO, we require its gradients with 
+respect to the variational parameters :math:`\phi`, which is generally 
+intractable. Currently, the dominant approach for circumventing this is by
+Monte Carlo (MC) estimation of the gradients. There are a several estimators
+based on different variance reduction techniques. However, for continuous 
+latent variables, the *reparameterization gradients* can be shown to have the 
+lowest variance among competing estimators.
+
+
 
 The ELBO can be written as an expectation of a multivariate function 
 :math:`f(\mathbf{x}, \mathbf{z}) = \log p_{\theta}(\mathbf{x} , \mathbf{z}) - \log q_{\phi}(\mathbf{z} | \mathbf{x})`
@@ -313,15 +343,6 @@ For the sake of illustration, we've fixed ``sigma`` and ``mu`` as ``Input``
 layers. That's why it says ``InputLayer`` next to it. In reality, it will be 
 the output layer of a network. We specify :math:`\mathbf{\mu}_{\phi}(\mathbf{x})` 
 and :math:`\mathbf{\sigma}_{\phi}(\mathbf{x})` now.
-
-.. code:: python
-
-   x = Input(shape=(original_dim,))
-   h = Dense(intermediate_dim, activation='relu')(x)  
-
-   z_mu = Dense(latent_dim)(h)
-   z_log_var = Dense(latent_dim)(h)
-   z_sigma = Lambda(lambda t: K.exp(.5*t))(z_log_var)
 
 .. figure:: ../../images/vae/encoder.svg
    :height: 500px

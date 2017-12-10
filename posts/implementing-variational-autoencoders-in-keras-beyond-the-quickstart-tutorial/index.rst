@@ -108,9 +108,9 @@ level of latent variables whose prior distributions are Gaussian,
 
 Now, each local latent variable is related to its corresponding observation 
 through the likelihood :math:`p_{\theta}(\mathbf{x} | \mathbf{z})`, which can 
-be viewed as a *probabilistic* decoder: conditioned on the hidden 
-lower-dimensional representation :math:`\mathbf{z}`, it decodes into a 
-probability distribution over the observation :math:`\mathbf{x}`.
+be viewed as a *probabilistic* decoder: conditioned on a hidden 
+lower-dimensional representation, or code, :math:`\mathbf{z}`, it decodes it 
+into a *probability distribution* over the observation :math:`\mathbf{x}`.
 
 Decoder
 -------

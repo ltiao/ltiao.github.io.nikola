@@ -14,7 +14,7 @@
 Keras_ is awesome. It is a very well-designed library that clearly abides by 
 its `guiding principles`_ of modularity and extensibility, and allows us to 
 easily assemble powerful, complex models from primitive building blocks. 
-This has been demonstrated by many blog posts and tutorials, such as the 
+This has been demonstrated in numerous blog posts and tutorials, such as the 
 excellent tutorial on `Building Autoencoders in Keras`_. 
 As the name suggests, that tutorial provides examples of how to implement 
 various kinds of autoencoders in Keras, including the variational autoencoder 
@@ -31,11 +31,11 @@ various kinds of autoencoders in Keras, including the variational autoencoder
 Like all autoencoders, the variational autoencoder is primarily used for 
 unsupervised learning of hidden representations. 
 However, they are fundamentally different to your usual neural network-based 
-autoencoder in that they approach the problem from a probabilistic perspective: 
-by specifying a joint distribution over the observed and latent variables, and 
-approximating the intractable posterior conditional density over latent 
+autoencoder in that they approach the problem from a probabilistic perspective. 
+They specify a joint distribution over the observed and latent variables, and 
+approximate the intractable posterior conditional density over latent 
 variables with variational inference, using an *inference network* 
-[#inference1]_ [#inference2]_ or more classically, a *recognition model* 
+[#inference1]_ [#inference2]_, or more classically, a *recognition model* 
 [#dayan1995]_ to amortize the cost of inference.
 
 .. TEASER_END
@@ -102,15 +102,15 @@ latent variables at each level of the hierarchy are Gaussian *a priori*
 [#rezende2014]_.
 
 In a typical instance of the variational autoencoder, we have only a single 
-level of latent variables whose prior distributions are Gaussian,
+layer of latent variables with a Normal prior distribution,
 
 .. math:: p(\mathbf{z}) = \mathcal{N}(\mathbf{0}, \mathbf{I}).
 
 Now, each local latent variable is related to its corresponding observation 
 through the likelihood :math:`p_{\theta}(\mathbf{x} | \mathbf{z})`, which can 
-be viewed as a *probabilistic* decoder: conditioned on a hidden 
-lower-dimensional representation, or code, :math:`\mathbf{z}`, it decodes it 
-into a *probability distribution* over the observation :math:`\mathbf{x}`.
+be viewed as a *probabilistic* decoder. Given a hidden lower-dimensional 
+representation (or "code") :math:`\mathbf{z}`, it "decodes" it into a 
+*distribution* over the observation :math:`\mathbf{x}`.
 
 Decoder
 -------
@@ -164,25 +164,27 @@ family of DLGMs, which include *non-linear factor analysis*,
 *non-linear Gaussian belief networks*, *sigmoid belief networks*, and many 
 others [#rezende2014]_.
 
+Inference
+=========
+
 Having specified the generative process, we would now like to perform inference
-on the latent variables and model parameters :math:`\mathbf{z}` and :math:`\theta`.
+on the latent variables and model parameters, :math:`\mathbf{z}` and 
+:math:`\theta`, respectively.
 In particular, our goal is to compute the posterior 
-:math:`p_{\theta}(\mathbf{z} | \mathbf{x})`, the conditional density of 
-latent variable :math:`\mathbf{z}` given the observed variable 
-:math:`\mathbf{x}`.
+:math:`p_{\theta}(\mathbf{z} | \mathbf{x})`, the conditional density of the
+latent variable :math:`\mathbf{z}` given observed variable :math:`\mathbf{x}`.
+Additionally, we wish to optimize the model parameters :math:`\theta` with 
+respect to the marginal likelihood :math:`p_{\theta}(\mathbf{x})`. 
+Both depend on the marginal likelihood, which requires marginalizing out the 
+latent variables :math:`\mathbf{z}`. In general, this is computational 
+intractable, requiring exponential time to compute. Or, it is analytically 
+intractable and cannot be evaluated in closed-form, as it is in our case 
+where the Gaussian prior is non-conjugate to the Bernoulli likelihood.
 
-
-Which requires us marginalize out the latent variables :math:`\mathbf{z}` to 
-obtain the marginal likelihood :math:`p_{\theta}(\mathbf{x})` and to maximize 
-it with respect to the model parameters :math:`\theta`.
-
-When combined end-to-end, the inference network and the deep latent Gaussian
-model can be seen as having an autoencoder structure. 
-Indeed, this general structure contains the variational autoencoder as a special 
-case, and more traditionally, the Helmholtz machine. 
-Even more generally, we can use this structure to perform amortized variational 
-inference in complex generative models for a wide array of supervised, 
-unsupervised and semi-supervised tasks.
+To circumvent this intractability, we turn to variational inference, which 
+formulates inference as an optimization problem and seeks an approximate
+posterior :math:`q_{\phi}(\mathbf{z} | \mathbf{x})` closest in Kullback-Leibler 
+(KL) divergence to the exact posterior.
 
 The loss we wish to minimize is the *negative* of the *evidence lower bound* 
 (ELBO), which is expressed as
@@ -207,8 +209,11 @@ maximizing it is equivalent to minimizing
 :math:`\mathrm{KL} [q_{\phi}(\mathbf{z} | \mathbf{x}) \| p(\mathbf{z} | \mathbf{x}) ]`,
 which also determines the tightness of the bound.
 
-Encoder (the recognition model)
--------------------------------
+Encoder
+-------
+
+Probabilistic encoder, inference network due to ..., recognition network, 
+due to ...
 
 Every local latent variable x_i corresponding to observed variable x_i has its
 own set of local variational parameters \phi_i. For example,
@@ -262,7 +267,7 @@ recognition model, or an inference network.
 **figure here**
 
 
-Reparameterization using Keras Layers
+Reparameterization using Merge Layers
 #####################################
 
 To perform gradient-based optimization of ELBO, we require its gradients with 
@@ -452,6 +457,13 @@ Putting it all together
 
    Variational autoencoder architecture.
 
+When combined end-to-end, the inference network and the deep latent Gaussian
+model can be seen as having an autoencoder structure. 
+Indeed, this general structure contains the variational autoencoder as a special 
+case, and more traditionally, the Helmholtz machine. 
+Even more generally, we can use this structure to perform amortized variational 
+inference in complex generative models for a wide array of supervised, 
+unsupervised and semi-supervised tasks.
 
 The point of this tutorial is to illustrate the general framework for performing
 amortized variational inference using Keras, treating the inference network 
@@ -462,8 +474,8 @@ In the examples directory, Keras provides a more sophisticated variational
 autoencoder with deconvolutional layers. The architecture definitions can be
 trivially copy-pasted here without need to modify anything else.
 
-Model fitting
-=============
+Parameter Learning
+==================
 
 We load the training data as usual. Now the ``vae`` is explicitly specified with
 random noise source as an auxiliary input. This allows to easily control the 

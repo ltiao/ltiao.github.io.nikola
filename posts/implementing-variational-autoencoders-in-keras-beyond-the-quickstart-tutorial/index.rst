@@ -35,8 +35,8 @@ autoencoder in that they approach the problem from a probabilistic perspective.
 They specify a joint distribution over the observed and latent variables, and 
 approximate the intractable posterior conditional density over latent 
 variables with variational inference, using an *inference network* 
-[#inference1]_ [#inference2]_, or more classically, a *recognition model* 
-[#dayan1995]_ to amortize the cost of inference.
+[#inference1]_ [#inference2]_ (or more classically, a *recognition model* 
+[#dayan1995]_) to amortize the cost of inference.
 
 .. TEASER_END
 
@@ -54,7 +54,7 @@ combinations for which the generative model belongs to a large family of
 
 The goal of this post is to propose a clean and elegant alternative 
 implementation that takes better advantage of Keras' modular design. 
-It is not a tutorial on variational autoencoders [*]_. 
+It is not intended as tutorial on variational autoencoders [*]_. 
 Rather, we study variational autoencoders as a specific case of variational 
 inference in deep latent Gaussian models with inference networks, and 
 demonstrate how we can use Keras to implement them in a modular fashion such 
@@ -181,13 +181,21 @@ intractable, requiring exponential time to compute. Or, it is analytically
 intractable and cannot be evaluated in closed-form, as it is in our case 
 where the Gaussian prior is non-conjugate to the Bernoulli likelihood.
 
-To circumvent this intractability, we turn to variational inference, which 
-formulates inference as an optimization problem and seeks an approximate
-posterior :math:`q_{\phi}(\mathbf{z} | \mathbf{x})` closest in Kullback-Leibler 
-(KL) divergence to the exact posterior.
+To circumvent this intractability we turn to variational inference, which 
+formulates inference as an optimization problem. It seeks an approximate
+posterior :math:`q_{\phi}(\mathbf{z} | \mathbf{x})` with *variational parameters* 
+:math:`\phi` closest in Kullback-Leibler (KL) divergence to the true posterior. 
 
-The loss we wish to minimize is the *negative* of the *evidence lower bound* 
-(ELBO), which is expressed as
+.. math::
+
+   \phi^* = \mathrm{argmin}_{\phi} 
+   \mathrm{KL} [q_{\phi}(\mathbf{z} | \mathbf{x}) \| p_{\theta}(\mathbf{z} | \mathbf{x}) ]
+
+With the luck we've had so far, it shouldn't come as a surprise anymore that 
+*this too* is intractable. It also depends on the log marginal likelihood,
+whose intractability is the reason we appealed to approximate inference in the 
+first place. Instead, we *maximize* an alternative objective function, the 
+*evidence lower bound* (ELBO), which is expressed as
 
 .. math::
 
@@ -203,11 +211,17 @@ The loss we wish to minimize is the *negative* of the *evidence lower bound*
      \log p_{\theta}(\mathbf{x} | \mathbf{z})
    ] - \mathrm{KL} [q_{\phi}(\mathbf{z} | \mathbf{x}) \| p(\mathbf{z}) ].
 
-importantly, the ELBO is a lower bound to the log marginal likelihood, so maximizing
-the ELBO approximately maximizes the log marginal likelihood. Additionally, 
-maximizing it is equivalent to minimizing 
-:math:`\mathrm{KL} [q_{\phi}(\mathbf{z} | \mathbf{x}) \| p(\mathbf{z} | \mathbf{x}) ]`,
-which also determines the tightness of the bound.
+Importantly, the ELBO is a lower bound to the log marginal likelihood. 
+Therefore, maximizing it with respect to the model parameters :math:`\theta` 
+approximately maximizes the log marginal likelihood. 
+Additionally, maximizing it with respect variational parameter :math:`\phi` can 
+be shown to minimize
+:math:`\mathrm{KL} [q_{\phi}(\mathbf{z} | \mathbf{x}) \| p_{\theta}(\mathbf{z} | \mathbf{x}) ]`. Also, it turns out that the KL divergence determines the 
+tightness of the lower bound, where we have equality iff the KL divergence is 
+zero, which happens iff 
+:math:`q_{\phi}(\mathbf{z} | \mathbf{x}) = p_{\theta}(\mathbf{z} | \mathbf{x})`.
+Hence, simultaneously maximizing it with respect to :math:`\theta` and 
+:math:`\phi` gets us two birds with one stone.
 
 Encoder
 -------

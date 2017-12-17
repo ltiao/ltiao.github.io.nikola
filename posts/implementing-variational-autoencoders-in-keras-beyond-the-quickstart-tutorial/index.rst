@@ -178,8 +178,8 @@ others [#rezende2014]_.
    a Keras loss, as I demonstrate in my post on 
    :doc:`using-negative-log-likelihoods-of-tensorflow-distributions-as-keras-losses`.
 
-   That is, the following is equivalent to the above definition which is based 
-   on the ``K.binary_crossentropy`` function:
+   That is, the following is equivalent to the above definition which instead 
+   uses the ``K.binary_crossentropy`` function:
 
    .. code:: python   
 

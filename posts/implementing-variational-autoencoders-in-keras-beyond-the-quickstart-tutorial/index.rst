@@ -558,8 +558,8 @@ In the examples directory, Keras provides a more sophisticated variational
 autoencoder with deconvolutional layers. The architecture definitions can be
 trivially copy-pasted here without need to modify anything else.
 
-Parameter Learning
-==================
+Model fitting
+=============
 
 We load the training data as usual. Now the ``vae`` is explicitly specified with
 random noise source as an auxiliary input. This allows to easily control the 

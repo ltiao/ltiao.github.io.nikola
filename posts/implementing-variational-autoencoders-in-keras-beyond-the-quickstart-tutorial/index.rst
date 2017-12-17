@@ -332,9 +332,8 @@ Again, this is simple to define in Keras:
 Since this network has multiple outputs, we couldn't use the Sequential model 
 API as we did for the decoder. Instead, we must resort to the more powerful 
 `Functional API <https://keras.io/getting-started/functional-api-guide/>`_, 
-which lets you do all kinds of things, such as implementing shared layers and 
-multi-input/multi-output models.
-
+which is much more general, and allows you to implement complex models with 
+shared layers, multiple inputs, multiple outputs, and so on.
 
 .. TODO
 .. **Figure here**

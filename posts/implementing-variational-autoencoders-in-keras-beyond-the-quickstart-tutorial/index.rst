@@ -283,6 +283,9 @@ for new unseen test points. This is not to mention the strong factorization
 assumption we make by specifying diagonal Gaussian distributions as the family 
 of approximations.
 
+Inference network
+#################
+
 We *amortize* the cost of inference by introducing an *inference network* which
 approximates the local variational parameters :math:`\phi_n` for a given local
 observed variable :math:`\textbf{x}_n`. 
@@ -308,6 +311,7 @@ data-point, we now learn a fixed number of *global* variational parameters
 :math:`\phi` which constitute the parameters of the inference network. 
 Moreover, this approximation allows statistical strength to be shared across 
 observed data-points and also generalize to unseen test points.
+
 .. Inference networks are more classically known as *recognition models*, and are
 .. used in the closely-related Helmholtz machines [#dayan1995]_.
 

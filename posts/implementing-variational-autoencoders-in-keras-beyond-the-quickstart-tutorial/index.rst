@@ -174,12 +174,12 @@ others [#rezende2014]_.
        return K.sum(K.binary_crossentropy(y_true, y_pred), axis=-1)
 
 .. Tip:: If you are using the TensorFlow backend, you can directly use the 
-   (negative) probability of ``Bernoulli`` from TensorFlow Distributions as a
-   Keras loss, as I demonstrate in my post on 
+   (negative) log probability of ``Bernoulli`` from TensorFlow Distributions as 
+   a Keras loss, as I demonstrate in my post on 
    :doc:`using-negative-log-likelihoods-of-tensorflow-distributions-as-keras-losses`.
 
-   That is, the following is equivalent to our definition above using the 
-   ``K.binary_crossentropy`` function:
+   That is, the following is equivalent to the above definition which is based 
+   on the ``K.binary_crossentropy`` function:
 
    .. code:: python   
 
@@ -252,8 +252,8 @@ Hence, simultaneously maximizing it with respect to :math:`\theta` and
 Next we discuss the form of the approximate posterior 
 :math:`q_{\phi}(\mathbf{z} | \mathbf{x})`, which can be viewed as a 
 *probabilistic* encoder. Its role is opposite to that of the decoder. 
-Given an observation :math:`x`, it "encodes" it into a distribution over its 
-hidden lower-dimensional representations.
+Given an observation :math:`\mathbf{x}`, it "encodes" it into a *distribution* 
+over its hidden lower-dimensional representations.
 
 Encoder
 -------
@@ -279,17 +279,25 @@ variances of this approximating distribution,
 This approach has a number of shortcomings. First, the number of local 
 variational parameters we are required to optimize grows with the size of the
 dataset. Second, a new set of local variational parameters need to be optimized
-for new unseen test points. This not to mention the strong factorization 
+for new unseen test points. This is not to mention the strong factorization 
 assumption we make by specifying diagonal Gaussian distributions as the family 
 of approximations.
 
 We *amortize* the cost of inference by introducing an *inference network* which
 approximates the local variational parameters :math:`\phi_n` for a given local
-observation :math:`x_n`. 
-In particular, given :math:`x_n`, we use the two outputs of the inference network  
-:math:`\mu_{\phi}(x_i)` and :math:`\sigma_{\phi}(x_i)` to approximate its local
-variational parameter :math:`\mathbf{\mu}_n` and :math:`\mathbf{\sigma}_n`, 
-respectively,
+observation :math:`\textbf{x}_n`. 
+In particular, given :math:`\textbf{x}_n` the inference network yields two 
+outputs :math:`\mu_{\phi}(\textbf{x}_n)` and :math:`\sigma_{\phi}(\textbf{x}_n)`, 
+and we use these to approximate its local variational sparameter 
+:math:`\mathbf{\mu}_n` and :math:`\mathbf{\sigma}_n` respectively.
+
+This means that instead of learning local variational parameters :math:`\phi_n` 
+for each data-point, we now learn a fixed number of *global* variational 
+parameters :math:`\phi` which constitute the parameters of the inference network. 
+Moreover, this approximation allows statistical strength to be shared across 
+observed data-points and also generalize to unseen test points.
+
+Our approximate posterior distribution now becomes
 
 .. math::
 
@@ -301,40 +309,84 @@ respectively,
      \mathrm{diag}(\mathbf{\sigma}_{\phi}^2(\mathbf{x}))
    ).
 
-This means that instead of learning local variational parameters :math:`\phi_n` 
-for each data-point, we learn a fixed number of *global* parameters :math:`\phi`
-which constitute the parameters of the inference network. 
-
-
-.. Note that it is not dependent on the observed data x_i 
-.. and does not appear in the expression q_i(z_i). It is only related to x_i 
-.. through the ELBO. 
-
-
-.. This amortizes inference by only defining a set of global parameters, namely, 
-.. the parameters of the neural network.
-
-Continuing with the example, we have 
-q_{\phi}(z_i | x_i ) = N(z_i | mu_{\phi}(x_i), diag(sigma_{\phi}(x_i)^2)), 
-with variational parameters \phi_i = {mu_i, sigma_i}. 
-
-In the specific case of autoencoders, the network that maps latent code
-
-More the general case of amortized variational inference, this is known as a
-recognition model, or an inference network.
+We specify the location and scale of this distribution as the output of an 
+inference network. defined in Keras as:
 
 .. code:: python
 
    x = Input(shape=(original_dim,))
    h = Dense(intermediate_dim, activation='relu')(x)  
-
    z_mu = Dense(latent_dim)(h)
    z_log_var = Dense(latent_dim)(h)
    z_sigma = Lambda(lambda t: K.exp(.5*t))(z_log_var)
 
+.. TODO
+.. **Figure here**
+.. cannot use Sequential model API
+.. Lambda layer
+.. Reference to Helmholtz machines, which has a recognition model and inference
+.. is done using the wake-sleep algorithm.
 
-**figure here**
+.. Note that it is not dependent on the observed data x_i 
+.. and does not appear in the expression q_i(z_i). It is only related to x_i 
+.. through the ELBO. 
 
+KL Divergence
+#############
+
+latent space regularization
+
+.. math:: 
+
+   \mathrm{KL} [q_{\phi}(\mathbf{z} | \mathbf{x}) \| p(\mathbf{z}) ]
+   = - \frac{1}{2} \sum_{k=1}^K \{ 1 + \log \sigma_k^2 - \mu_k^2 - \sigma_k^2 \}
+
+.. code:: python
+
+   class KLDivergenceLayer(Layer):  
+
+       """ Identity transform layer that adds KL divergence
+       to the final model loss.
+       """  
+
+       def __init__(self, *args, **kwargs):
+           self.is_placeholder = True
+           super(KLDivergenceLayer, self).__init__(*args, **kwargs)   
+
+       def call(self, inputs):  
+
+           mu, log_var = inputs   
+
+           kl_batch = - .5 * K.sum(1 + log_var -
+                                   K.square(mu) -
+                                   K.exp(log_var), axis=-1)   
+
+           self.add_loss(K.mean(kl_batch), inputs=inputs)   
+
+           return inputs
+
+.. code:: python
+
+   z_mu, z_log_var = KLDivergenceLayer()([z_mu, z_log_var])
+
+by itself, it will learn to ignore the input and map all outputs to 0.
+It is only when we tack on the decoder that the reconstruction likelihood
+is introduced. Only then will we reconcile the likelihood / observed data with 
+our prior to form the posterior over latent codes.
+
+At this stage we could specify 
+``prob_encoder = Model(inputs=x, outputs=[z_mu, z_sigma])``
+and compile it with something like 
+``prob_encoder.compile(optimizer='rmsprop`, loss=None)``. 
+When we fit it, it would trivially map all inputs to 0 and 1, thus learning the
+prior distribution.
+
+inputs mu and log_var are of shape (batch_size, latent_dim)
+the loss we add should be scalar. this is unlike loss 
+function specified in model compile which should returns 
+loss vector of shape (batch_size,) since it requires 
+loss for each datapoint in the batch for sample 
+weighting.
 
 Reparameterization using Merge Layers
 #####################################
@@ -423,66 +475,6 @@ and :math:`\mathbf{\sigma}_{\phi}(\mathbf{x})` now.
    :align: center
 
    Encoder architecture.
-
-KL Divergence
-#############
-
-
-
-
-latent space regularization
-
-.. math:: 
-
-   \mathrm{KL} [q_{\phi}(\mathbf{z} | \mathbf{x}) \| p(\mathbf{z}) ]
-   = - \frac{1}{2} \sum_{k=1}^K \{ 1 + \log \sigma_k^2 - \mu_k^2 - \sigma_k^2 \}
-
-.. code:: python
-
-   class KLDivergenceLayer(Layer):  
-
-       """ Identity transform layer that adds KL divergence
-       to the final model loss.
-       """  
-
-       def __init__(self, *args, **kwargs):
-           self.is_placeholder = True
-           super(KLDivergenceLayer, self).__init__(*args, **kwargs)   
-
-       def call(self, inputs):  
-
-           mu, log_var = inputs   
-
-           kl_batch = - .5 * K.sum(1 + log_var -
-                                   K.square(mu) -
-                                   K.exp(log_var), axis=-1)   
-
-           self.add_loss(K.mean(kl_batch), inputs=inputs)   
-
-           return inputs
-
-.. code:: python
-
-   z_mu, z_log_var = KLDivergenceLayer()([z_mu, z_log_var])
-
-by itself, it will learn to ignore the input and map all outputs to 0.
-It is only when we tack on the decoder that the reconstruction likelihood
-is introduced. Only then will we reconcile the likelihood / observed data with 
-our prior to form the posterior over latent codes.
-
-At this stage we could specify 
-``prob_encoder = Model(inputs=x, outputs=[z_mu, z_sigma])``
-and compile it with something like 
-``prob_encoder.compile(optimizer='rmsprop`, loss=None)``. 
-When we fit it, it would trivially map all inputs to 0 and 1, thus learning the
-prior distribution.
-
-inputs mu and log_var are of shape (batch_size, latent_dim)
-the loss we add should be scalar. this is unlike loss 
-function specified in model compile which should returns 
-loss vector of shape (batch_size,) since it requires 
-loss for each datapoint in the batch for sample 
-weighting.
 
 .. figure:: ../../images/vae/encoder_full.svg
    :height: 500px

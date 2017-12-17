@@ -164,6 +164,28 @@ family of DLGMs, which include *non-linear factor analysis*,
 *non-linear Gaussian belief networks*, *sigmoid belief networks*, and many 
 others [#rezende2014]_.
 
+.. code:: python
+
+   def nll(y_true, y_pred):
+       """ Negative log likelihood (Bernoulli). """
+
+       # keras.losses.binary_crossentropy give the mean
+       # over the last axis. we require the sum
+       return K.sum(K.binary_crossentropy(y_true, y_pred), axis=-1)
+
+.. Tip:: Here's something interesting.
+
+   post on how to :doc:`use-negative-log-likelihoods-of-tensorflow-distributions-as-keras-losses`, 
+
+   .. code:: python   
+
+      def nll(y_true, y_pred):
+          """ Negative log likelihood (Bernoulli). """
+
+          likelihood = K.tf.distributions.Bernoulli(probs=y_pred)   
+
+          return - K.sum(likelihood.log_prob(y_true), axis=-1)
+
 Inference
 =========
 
@@ -234,12 +256,12 @@ Encoder
 
 For each local observed variable :math:`\mathbf{x}_n`, we wish to approximate 
 the true posterior distribution :math:`p(\mathbf{z}_n|\mathbf{x}_n)` over its 
-corresponding local latent variables :math:`\mathbf{z}_n`. A traditional 
-approach it to approximate :math:`p(\mathbf{z}_n|\mathbf{x}_n)` using a 
-variational distribution :math:`q_{\phi_n}(\mathbf{z}_n | \mathbf{x}_n)` with 
-*local* variational parameters :math:`\phi_n`.
-A reasonable approximation to the true posterior is a diagonal Gaussian 
-distribution,
+corresponding local latent variables :math:`\mathbf{z}_n`. A common approach it 
+to approximate it using a variational distribution 
+:math:`q_{\phi_n}(\mathbf{z}_n | \mathbf{x}_n)` that is a diagonal Gaussian, 
+where the *local* variational parameters 
+:math:`\phi_n = \{ \mathbf{\mu}_n, \mathbf{\sigma}_n \}` are the means and 
+variances of this approximating distribution,
 
 .. math::
 
@@ -248,34 +270,42 @@ distribution,
      \mathbf{z}_n | 
      \mathbf{\mu}_n, 
      \mathrm{diag}(\mathbf{\sigma}_n^2)
-   ),
+   ).
 
-where the local variational parameters :math:`\phi_n = \{ \mathbf{\mu}_n, 
-\mathbf{\sigma}_n \}` are the means and variances of the approximate posterior.
+This approach has a number of shortcomings. First, the number of local 
+variational parameters we are required to optimize grows with the size of the
+dataset. Second, a new set of local variational parameters need to be optimized
+for new unseen test points. This not to mention the strong factorization 
+assumption we make by specifying diagonal Gaussian distributions as the family 
+of approximations.
 
+We *amortize* the cost of inference by introducing an *inference network* which
+approximates the local variational parameters :math:`\phi_n` for a given local
+observation :math:`x_n`. 
+In particular, given :math:`x_n`, we use the two outputs of the inference network  
+:math:`\mu_{\phi}(x_i)` and :math:`\sigma_{\phi}(x_i)` to approximate its local
+variational parameter :math:`\mathbf{\mu}_n` and :math:`\mathbf{\sigma}_n`, 
+respectively,
 
-and 
-:math:`\mathbf{z}` its corresponding local latent variable
+.. math::
 
+   q_{\phi}(\mathbf{z} | \mathbf{x}) 
+   = 
+   \mathcal{N}(
+     \mathbf{z} | 
+     \mathbf{\mu}_{\phi}(\mathbf{x}), 
+     \mathrm{diag}(\mathbf{\sigma}_{\phi}^2(\mathbf{x}))
+   ).
 
-Probabilistic encoder, inference network due to ..., recognition network, 
-due to ...
+This means that instead of learning local variational parameters :math:`\phi_n` 
+for each data-point, we learn a fixed number of *global* parameters :math:`\phi`
+which constitute the parameters of the inference network. 
 
-Every local latent variable x_i corresponding to observed variable x_i has its
-own set of local variational parameters \phi_i. For example,
-q_{\phi_i}(z_i) = N(z_i | mu_i, diag(sigma_i^2)), with variational parameters
-\phi_i = {mu_i, sigma_i}. 
 
 .. Note that it is not dependent on the observed data x_i 
 .. and does not appear in the expression q_i(z_i). It is only related to x_i 
 .. through the ELBO. 
 
-The number of local variational parameters grows with the size
-of the observed data. Furthermore, a new set of parameters must be optimized 
-for unseen test data points. We *amortize* the cost of inference by introducing 
-an *inference network* which outputs the local variational parameters \phi_i
-given x_i as input. This approximation allows statistical strength to be shared 
-across observed data-points and also generalize to unseen test points.
 
 .. This amortizes inference by only defining a set of global parameters, namely, 
 .. the parameters of the neural network.
@@ -288,17 +318,6 @@ In the specific case of autoencoders, the network that maps latent code
 
 More the general case of amortized variational inference, this is known as a
 recognition model, or an inference network.
-
-
-.. math::
-
-   q_{\phi}(\mathbf{z} | \mathbf{x}) 
-   = 
-   \mathcal{N}(
-     \mathbf{z} | 
-     \mathbf{\mu}_{\phi}(\mathbf{x}), 
-     \mathrm{diag}(\mathbf{\sigma}_{\phi}^2(\mathbf{x}))
-   )
 
 .. code:: python
 

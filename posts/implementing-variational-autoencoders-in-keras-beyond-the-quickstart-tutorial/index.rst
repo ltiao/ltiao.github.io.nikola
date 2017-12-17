@@ -176,7 +176,7 @@ others [#rezende2014]_.
 .. Tip:: If you are using the TensorFlow backend, you can directly use the 
    (negative) probability of ``Bernoulli`` from TensorFlow Distributions as a
    Keras loss, as I demonstrate in my post on 
-   :doc:`<using-negative-log-likelihoods-of-tensorflow-distributions-as-keras-losses>`.
+   :doc:`using-negative-log-likelihoods-of-tensorflow-distributions-as-keras-losses`.
 
    That is, the following is equivalent to our definition above using the 
    ``K.binary_crossentropy`` function:

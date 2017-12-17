@@ -223,8 +223,40 @@ zero, which happens iff
 Hence, simultaneously maximizing it with respect to :math:`\theta` and 
 :math:`\phi` gets us two birds with one stone.
 
+Next we discuss the form of the approximate posterior 
+:math:`q_{\phi}(\mathbf{z} | \mathbf{x})`, which can be viewed as a 
+*probabilistic* encoder. Its role is opposite to that of the decoder. 
+Given an observation :math:`x`, it "encodes" it into a distribution over its 
+hidden lower-dimensional representations.
+
 Encoder
 -------
+
+For each local observed variable :math:`\mathbf{x}_n`, we wish to approximate 
+the true posterior distribution :math:`p(\mathbf{z}_n|\mathbf{x}_n)` over its 
+corresponding local latent variables :math:`\mathbf{z}_n`. A traditional 
+approach it to approximate :math:`p(\mathbf{z}_n|\mathbf{x}_n)` using a 
+variational distribution :math:`q_{\phi_n}(\mathbf{z}_n | \mathbf{x}_n)` with 
+*local* variational parameters :math:`\phi_n`.
+A reasonable approximation to the true posterior is a diagonal Gaussian 
+distribution,
+
+.. math::
+
+   q_{\phi_n}(\mathbf{z}_n | \mathbf{x}_n) = 
+   \mathcal{N}(
+     \mathbf{z}_n | 
+     \mathbf{\mu}_n, 
+     \mathrm{diag}(\mathbf{\sigma}_n^2)
+   ),
+
+where the local variational parameters :math:`\phi_n = \{ \mathbf{\mu}_n, 
+\mathbf{\sigma}_n \}` are the means and variances of the approximate posterior.
+
+
+and 
+:math:`\mathbf{z}` its corresponding local latent variable
+
 
 Probabilistic encoder, inference network due to ..., recognition network, 
 due to ...

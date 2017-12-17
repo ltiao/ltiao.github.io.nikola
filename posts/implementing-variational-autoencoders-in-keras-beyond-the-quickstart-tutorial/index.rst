@@ -427,8 +427,9 @@ compute its gradients with respect to these parameters. This is easy to do for
 parameters :math:`theta`, but is generally intractable for parameters 
 :math:`\phi`. Currently, the dominant approach for circumventing this is by
 Monte Carlo (MC) estimation of the gradients. There exist a number of estimators
-based on different variance reduction techniques. However, the 
-*reparameterization gradients* can be shown to have the lowest variance among 
+based on different variance reduction techniques. However, stochastic gradients 
+based on the reparameterization trick, known as the 
+*reparameterization gradients*, can be shown to have the lowest variance among 
 competing estimators for continuous latent variables,
 
 The ELBO can be written as an expectation of a multivariate function 

@@ -194,15 +194,15 @@ Inference
 =========
 
 Having specified the generative process, we would now like to perform inference
-on the latent variables and model parameters, :math:`\mathbf{z}` and 
+on the latent variables and model parameters :math:`\mathbf{z}` and 
 :math:`\theta`, respectively.
 In particular, our goal is to compute the posterior 
 :math:`p_{\theta}(\mathbf{z} | \mathbf{x})`, the conditional density of the
 latent variable :math:`\mathbf{z}` given observed variable :math:`\mathbf{x}`.
 Additionally, we wish to optimize the model parameters :math:`\theta` with 
 respect to the marginal likelihood :math:`p_{\theta}(\mathbf{x})`. 
-Both depend on the marginal likelihood, which requires marginalizing out the 
-latent variables :math:`\mathbf{z}`. In general, this is computational 
+Both depend on the marginal likelihood, whose calculation requires marginalizing 
+out the latent variables :math:`\mathbf{z}`. In general, this is computational 
 intractable, requiring exponential time to compute. Or, it is analytically 
 intractable and cannot be evaluated in closed-form, as it is in our case 
 where the Gaussian prior is non-conjugate to the Bernoulli likelihood.

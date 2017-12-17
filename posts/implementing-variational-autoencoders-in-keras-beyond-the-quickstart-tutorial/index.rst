@@ -285,23 +285,12 @@ of approximations.
 
 We *amortize* the cost of inference by introducing an *inference network* which
 approximates the local variational parameters :math:`\phi_n` for a given local
-observation :math:`\textbf{x}_n`. 
-Inference networks are more classically known as *recognition models*, and are
-used in the closely-related Helmholtz machines [#dayan1995]_.
-
+observed variable :math:`\textbf{x}_n`. 
 For our approximating distribution in particular, given :math:`\textbf{x}_n` the 
 inference network yields two outputs :math:`\mu_{\phi}(\textbf{x}_n)` and 
 :math:`\sigma_{\phi}(\textbf{x}_n)`, and we use these to approximate its local 
 variational parameter :math:`\mathbf{\mu}_n` and :math:`\mathbf{\sigma}_n` 
-respectively.
-
-This means instead of learning local variational parameters :math:`\phi_n` for 
-each data-point, we now learn a fixed number of *global* variational parameters 
-:math:`\phi` which constitute the parameters of the inference network. 
-Moreover, this approximation allows statistical strength to be shared across 
-observed data-points and also generalize to unseen test points.
-
-Our approximate posterior distribution now becomes
+respectively. Our approximate posterior distribution now becomes
 
 .. math::
 
@@ -313,8 +302,17 @@ Our approximate posterior distribution now becomes
      \mathrm{diag}(\mathbf{\sigma}_{\phi}^2(\mathbf{x}))
    ).
 
+This means instead of learning local variational parameters :math:`\phi_n` for 
+each data-point, we now learn a fixed number of *global* variational parameters 
+:math:`\phi` which constitute the parameters of the inference network. 
+Moreover, this approximation allows statistical strength to be shared across 
+observed data-points and also generalize to unseen test points.
+
+Inference networks are more classically known as *recognition models*, and are
+used in the closely-related Helmholtz machines [#dayan1995]_.
+
 We specify the location and scale of this distribution as the output of an 
-inference network. In our example, we keep the architecture of the network 
+inference network. For this post, we keep the architecture of the network 
 simple, with only a single hidden layer and two fully-connected output layers. 
 Again, this is simple to define in Keras:
 
@@ -338,6 +336,7 @@ API as we did for the decoder. Instead, we must resort to the more powerful
 `Functional API <https://keras.io/getting-started/functional-api-guide/>`_, 
 which allows you to implement complex models with shared layers, multiple 
 inputs, multiple outputs, and so on.
+
 
 .. TODO
 .. **Figure here**

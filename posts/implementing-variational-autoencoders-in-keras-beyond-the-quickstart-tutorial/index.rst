@@ -173,18 +173,22 @@ others [#rezende2014]_.
        # over the last axis. we require the sum
        return K.sum(K.binary_crossentropy(y_true, y_pred), axis=-1)
 
-.. Tip:: Here's something interesting.
+.. Tip:: If you are using the TensorFlow backend, you can directly use the 
+   (negative) probability of ``Bernoulli`` from TensorFlow Distributions as a
+   Keras loss, as I demonstrate in my post on 
+   :doc:`<using-negative-log-likelihoods-of-tensorflow-distributions-as-keras-losses>`.
 
-   post on how to :doc:`use-negative-log-likelihoods-of-tensorflow-distributions-as-keras-losses`, 
+   That is, the following is equivalent to our definition above using the 
+   ``K.binary_crossentropy`` function:
 
    .. code:: python   
 
       def nll(y_true, y_pred):
           """ Negative log likelihood (Bernoulli). """
 
-          likelihood = K.tf.distributions.Bernoulli(probs=y_pred)   
+          lh = K.tf.distributions.Bernoulli(probs=y_pred)   
 
-          return - K.sum(likelihood.log_prob(y_true), axis=-1)
+          return - K.sum(lh.log_prob(y_true), axis=-1)
 
 Inference
 =========

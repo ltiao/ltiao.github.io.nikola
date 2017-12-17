@@ -286,10 +286,14 @@ of approximations.
 We *amortize* the cost of inference by introducing an *inference network* which
 approximates the local variational parameters :math:`\phi_n` for a given local
 observation :math:`\textbf{x}_n`. 
-In particular, given :math:`\textbf{x}_n` the inference network yields two 
-outputs :math:`\mu_{\phi}(\textbf{x}_n)` and :math:`\sigma_{\phi}(\textbf{x}_n)`, 
-and we use these to approximate its local variational parameter 
-:math:`\mathbf{\mu}_n` and :math:`\mathbf{\sigma}_n` respectively.
+Inference networks are more classically known as *recognition models*, and are
+used in the closely-related Helmholtz machines [#dayan1995]_.
+
+For our approximating distribution in particular, given :math:`\textbf{x}_n` the 
+inference network yields two outputs :math:`\mu_{\phi}(\textbf{x}_n)` and 
+:math:`\sigma_{\phi}(\textbf{x}_n)`, and we use these to approximate its local 
+variational parameter :math:`\mathbf{\mu}_n` and :math:`\mathbf{\sigma}_n` 
+respectively.
 
 This means instead of learning local variational parameters :math:`\phi_n` for 
 each data-point, we now learn a fixed number of *global* variational parameters 

@@ -308,8 +308,8 @@ data-point, we now learn a fixed number of *global* variational parameters
 :math:`\phi` which constitute the parameters of the inference network. 
 Moreover, this approximation allows statistical strength to be shared across 
 observed data-points and also generalize to unseen test points.
-Inference networks are more classically known as *recognition models*, and are
-used in the closely-related Helmholtz machines [#dayan1995]_.
+.. Inference networks are more classically known as *recognition models*, and are
+.. used in the closely-related Helmholtz machines [#dayan1995]_.
 
 We specify the location and scale of this distribution as the output of an 
 inference network. For this post, we keep the architecture of the network 

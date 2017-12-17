@@ -209,8 +209,10 @@ where the Gaussian prior is non-conjugate to the Bernoulli likelihood.
 
 To circumvent this intractability we turn to variational inference, which 
 formulates inference as an optimization problem. It seeks an approximate
-posterior :math:`q_{\phi}(\mathbf{z} | \mathbf{x})` with *variational parameters* 
-:math:`\phi` closest in Kullback-Leibler (KL) divergence to the true posterior. 
+posterior :math:`q_{\phi}(\mathbf{z} | \mathbf{x})` closest in Kullback-Leibler 
+(KL) divergence to the true posterior. More precisely, the approximate posterior 
+is parameterized by *variational parameters* :math:`\phi`, and we seek a setting
+of these parameters that minimizes the aforementioned KL divergence,
 
 .. math::
 

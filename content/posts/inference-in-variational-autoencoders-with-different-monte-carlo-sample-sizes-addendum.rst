@@ -23,6 +23,8 @@ using the basic modular framework we developed in an :doc:`earlier post
    The negative evidence lower bound (ELBO) plotted after each training epoch
    for various combinations of batch and Monte Carlo sample sizes.
 
+.. TEASER_END
+
 Appendix
 --------
 

@@ -288,9 +288,10 @@ approximates the local variational parameters :math:`\phi_n` for a given local
 observed variable :math:`\textbf{x}_n`. 
 For our approximating distribution in particular, given :math:`\textbf{x}_n` the 
 inference network yields two outputs :math:`\mu_{\phi}(\textbf{x}_n)` and 
-:math:`\sigma_{\phi}(\textbf{x}_n)`, and we use these to approximate its local 
-variational parameter :math:`\mathbf{\mu}_n` and :math:`\mathbf{\sigma}_n` 
-respectively. Our approximate posterior distribution now becomes
+:math:`\sigma_{\phi}(\textbf{x}_n)`, which we use to approximate its local 
+variational parameters :math:`\mathbf{\mu}_n` and :math:`\mathbf{\sigma}_n`, 
+respectively. 
+Our approximate posterior distribution now becomes
 
 .. math::
 
@@ -302,12 +303,11 @@ respectively. Our approximate posterior distribution now becomes
      \mathrm{diag}(\mathbf{\sigma}_{\phi}^2(\mathbf{x}))
    ).
 
-This means instead of learning local variational parameters :math:`\phi_n` for 
-each data-point, we now learn a fixed number of *global* variational parameters 
+Instead of learning local variational parameters :math:`\phi_n` for each 
+data-point, we now learn a fixed number of *global* variational parameters 
 :math:`\phi` which constitute the parameters of the inference network. 
 Moreover, this approximation allows statistical strength to be shared across 
 observed data-points and also generalize to unseen test points.
-
 Inference networks are more classically known as *recognition models*, and are
 used in the closely-related Helmholtz machines [#dayan1995]_.
 

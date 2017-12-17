@@ -235,10 +235,10 @@ non-linearity, and the model parameters
 consist of the weights and biases of this neural network.</p>
 <p>It is straightforward to implement this in Keras with the
 <a class="reference external" href="https://keras.io/models/sequential/">Sequential model API</a>:</p>
-<pre class="code python"><a name="rest_code_5ecc768c2fc7407c80487886419e5046-1"></a><span class="n">decoder</span> <span class="o">=</span> <span class="n">Sequential</span><span class="p">([</span>
-<a name="rest_code_5ecc768c2fc7407c80487886419e5046-2"></a>  <span class="n">Dense</span><span class="p">(</span><span class="n">intermediate_dim</span><span class="p">,</span> <span class="n">input_dim</span><span class="o">=</span><span class="n">latent_dim</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'relu'</span><span class="p">),</span>
-<a name="rest_code_5ecc768c2fc7407c80487886419e5046-3"></a>  <span class="n">Dense</span><span class="p">(</span><span class="n">original_dim</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'sigmoid'</span><span class="p">)</span>
-<a name="rest_code_5ecc768c2fc7407c80487886419e5046-4"></a><span class="p">])</span>
+<pre class="code python"><a name="rest_code_8aba6a30c9154a8bb1982fba1b8b04da-1"></a><span class="n">decoder</span> <span class="o">=</span> <span class="n">Sequential</span><span class="p">([</span>
+<a name="rest_code_8aba6a30c9154a8bb1982fba1b8b04da-2"></a>  <span class="n">Dense</span><span class="p">(</span><span class="n">intermediate_dim</span><span class="p">,</span> <span class="n">input_dim</span><span class="o">=</span><span class="n">latent_dim</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'relu'</span><span class="p">),</span>
+<a name="rest_code_8aba6a30c9154a8bb1982fba1b8b04da-3"></a>  <span class="n">Dense</span><span class="p">(</span><span class="n">original_dim</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'sigmoid'</span><span class="p">)</span>
+<a name="rest_code_8aba6a30c9154a8bb1982fba1b8b04da-4"></a><span class="p">])</span>
 </pre>
 <p>You can view a summary of the model parameters <span class="math">\(\theta\)</span> by calling
 <tt class="docutils literal">decoder.summary()</tt>. Additionally, you can produce a high-level diagram of
@@ -260,12 +260,12 @@ With similarly minor modifications, we can recover other members from the
 family of DLGMs, which include <em>non-linear factor analysis</em>,
 <em>non-linear Gaussian belief networks</em>, <em>sigmoid belief networks</em>, and many
 others <a class="footnote-reference" href="#rezende2014" id="id13">[5]</a>.</p>
-<pre class="code python"><a name="rest_code_26835f693773474fa2da27e0c29000f8-1"></a><span class="k">def</span> <span class="nf">nll</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">):</span>
-<a name="rest_code_26835f693773474fa2da27e0c29000f8-2"></a>    <span class="sd">""" Negative log likelihood (Bernoulli). """</span>
-<a name="rest_code_26835f693773474fa2da27e0c29000f8-3"></a>
-<a name="rest_code_26835f693773474fa2da27e0c29000f8-4"></a>    <span class="c1"># keras.losses.binary_crossentropy give the mean</span>
-<a name="rest_code_26835f693773474fa2da27e0c29000f8-5"></a>    <span class="c1"># over the last axis. we require the sum</span>
-<a name="rest_code_26835f693773474fa2da27e0c29000f8-6"></a>    <span class="k">return</span> <span class="n">K</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">K</span><span class="o">.</span><span class="n">binary_crossentropy</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+<pre class="code python"><a name="rest_code_462cb605206141d19ce77f2b187e392d-1"></a><span class="k">def</span> <span class="nf">nll</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">):</span>
+<a name="rest_code_462cb605206141d19ce77f2b187e392d-2"></a>    <span class="sd">""" Negative log likelihood (Bernoulli). """</span>
+<a name="rest_code_462cb605206141d19ce77f2b187e392d-3"></a>
+<a name="rest_code_462cb605206141d19ce77f2b187e392d-4"></a>    <span class="c1"># keras.losses.binary_crossentropy give the mean</span>
+<a name="rest_code_462cb605206141d19ce77f2b187e392d-5"></a>    <span class="c1"># over the last axis. we require the sum</span>
+<a name="rest_code_462cb605206141d19ce77f2b187e392d-6"></a>    <span class="k">return</span> <span class="n">K</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">K</span><span class="o">.</span><span class="n">binary_crossentropy</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
 </pre>
 <div class="admonition tip">
 <p class="first admonition-title">Tip</p>
@@ -275,12 +275,12 @@ a Keras loss, as I demonstrate in my post on
 <a class="reference external" href="../using-negative-log-likelihoods-of-tensorflow-distributions-as-keras-losses/">Using negative log-likelihoods of TensorFlow Distributions as Keras losses</a>.</p>
 <p>That is, the following is equivalent to the above definition which instead
 uses the <tt class="docutils literal">K.binary_crossentropy</tt> function:</p>
-<div class="last"><pre class="code python"><a name="rest_code_6731ee7501e647c89bb19821dc1fe129-1"></a><span class="k">def</span> <span class="nf">nll</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">):</span>
-<a name="rest_code_6731ee7501e647c89bb19821dc1fe129-2"></a>    <span class="sd">""" Negative log likelihood (Bernoulli). """</span>
-<a name="rest_code_6731ee7501e647c89bb19821dc1fe129-3"></a>
-<a name="rest_code_6731ee7501e647c89bb19821dc1fe129-4"></a>    <span class="n">lh</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">tf</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">Bernoulli</span><span class="p">(</span><span class="n">probs</span><span class="o">=</span><span class="n">y_pred</span><span class="p">)</span>
-<a name="rest_code_6731ee7501e647c89bb19821dc1fe129-5"></a>
-<a name="rest_code_6731ee7501e647c89bb19821dc1fe129-6"></a>    <span class="k">return</span> <span class="o">-</span> <span class="n">K</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">lh</span><span class="o">.</span><span class="n">log_prob</span><span class="p">(</span><span class="n">y_true</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+<div class="last"><pre class="code python"><a name="rest_code_cf2e2ba4c6fd4a18aa5b2f5004fb3ca2-1"></a><span class="k">def</span> <span class="nf">nll</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">):</span>
+<a name="rest_code_cf2e2ba4c6fd4a18aa5b2f5004fb3ca2-2"></a>    <span class="sd">""" Negative log likelihood (Bernoulli). """</span>
+<a name="rest_code_cf2e2ba4c6fd4a18aa5b2f5004fb3ca2-3"></a>
+<a name="rest_code_cf2e2ba4c6fd4a18aa5b2f5004fb3ca2-4"></a>    <span class="n">lh</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">tf</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">Bernoulli</span><span class="p">(</span><span class="n">probs</span><span class="o">=</span><span class="n">y_pred</span><span class="p">)</span>
+<a name="rest_code_cf2e2ba4c6fd4a18aa5b2f5004fb3ca2-5"></a>
+<a name="rest_code_cf2e2ba4c6fd4a18aa5b2f5004fb3ca2-6"></a>    <span class="k">return</span> <span class="o">-</span> <span class="n">K</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">lh</span><span class="o">.</span><span class="n">log_prob</span><span class="p">(</span><span class="n">y_true</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -377,9 +377,10 @@ approximates the local variational parameters <span class="math">\(\phi_n\)</spa
 observed variable <span class="math">\(\textbf{x}_n\)</span>.
 For our approximating distribution in particular, given <span class="math">\(\textbf{x}_n\)</span> the
 inference network yields two outputs <span class="math">\(\mu_{\phi}(\textbf{x}_n)\)</span> and
-<span class="math">\(\sigma_{\phi}(\textbf{x}_n)\)</span>, and we use these to approximate its local
-variational parameter <span class="math">\(\mathbf{\mu}_n\)</span> and <span class="math">\(\mathbf{\sigma}_n\)</span>
-respectively. Our approximate posterior distribution now becomes</p>
+<span class="math">\(\sigma_{\phi}(\textbf{x}_n)\)</span>, which we use to approximate its local
+variational parameters <span class="math">\(\mathbf{\mu}_n\)</span> and <span class="math">\(\mathbf{\sigma}_n\)</span>,
+respectively.
+Our approximate posterior distribution now becomes</p>
 <div class="math">
 \begin{equation*}
 q_{\phi}(\mathbf{z} | \mathbf{x})
@@ -391,29 +392,29 @@ q_{\phi}(\mathbf{z} | \mathbf{x})
 ).
 \end{equation*}
 </div>
-<p>This means instead of learning local variational parameters <span class="math">\(\phi_n\)</span> for
-each data-point, we now learn a fixed number of <em>global</em> variational parameters
+<p>Instead of learning local variational parameters <span class="math">\(\phi_n\)</span> for each
+data-point, we now learn a fixed number of <em>global</em> variational parameters
 <span class="math">\(\phi\)</span> which constitute the parameters of the inference network.
 Moreover, this approximation allows statistical strength to be shared across
-observed data-points and also generalize to unseen test points.</p>
-<p>Inference networks are more classically known as <em>recognition models</em>, and are
+observed data-points and also generalize to unseen test points.
+Inference networks are more classically known as <em>recognition models</em>, and are
 used in the closely-related Helmholtz machines <a class="footnote-reference" href="#dayan1995" id="id14">[4]</a>.</p>
 <p>We specify the location and scale of this distribution as the output of an
 inference network. For this post, we keep the architecture of the network
 simple, with only a single hidden layer and two fully-connected output layers.
 Again, this is simple to define in Keras:</p>
-<pre class="code python"><a name="rest_code_d709a1bac87542ab8ccefbd520367e13-1"></a><span class="c1"># input layer</span>
-<a name="rest_code_d709a1bac87542ab8ccefbd520367e13-2"></a><span class="n">x</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">original_dim</span><span class="p">,))</span>
-<a name="rest_code_d709a1bac87542ab8ccefbd520367e13-3"></a>
-<a name="rest_code_d709a1bac87542ab8ccefbd520367e13-4"></a><span class="c1"># hidden layer</span>
-<a name="rest_code_d709a1bac87542ab8ccefbd520367e13-5"></a><span class="n">h</span> <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="n">intermediate_dim</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'relu'</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
-<a name="rest_code_d709a1bac87542ab8ccefbd520367e13-6"></a>
-<a name="rest_code_d709a1bac87542ab8ccefbd520367e13-7"></a><span class="c1"># output layer for mu</span>
-<a name="rest_code_d709a1bac87542ab8ccefbd520367e13-8"></a><span class="n">z_mu</span> <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="n">latent_dim</span><span class="p">)(</span><span class="n">h</span><span class="p">)</span>
-<a name="rest_code_d709a1bac87542ab8ccefbd520367e13-9"></a>
-<a name="rest_code_d709a1bac87542ab8ccefbd520367e13-10"></a><span class="c1"># output layer for sigma</span>
-<a name="rest_code_d709a1bac87542ab8ccefbd520367e13-11"></a><span class="n">z_log_var</span> <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="n">latent_dim</span><span class="p">)(</span><span class="n">h</span><span class="p">)</span>
-<a name="rest_code_d709a1bac87542ab8ccefbd520367e13-12"></a><span class="n">z_sigma</span> <span class="o">=</span> <span class="n">Lambda</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">K</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">.</span><span class="mi">5</span><span class="o">*</span><span class="n">t</span><span class="p">))(</span><span class="n">z_log_var</span><span class="p">)</span>
+<pre class="code python"><a name="rest_code_18738480efc1439f9108aeee82bb0179-1"></a><span class="c1"># input layer</span>
+<a name="rest_code_18738480efc1439f9108aeee82bb0179-2"></a><span class="n">x</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">original_dim</span><span class="p">,))</span>
+<a name="rest_code_18738480efc1439f9108aeee82bb0179-3"></a>
+<a name="rest_code_18738480efc1439f9108aeee82bb0179-4"></a><span class="c1"># hidden layer</span>
+<a name="rest_code_18738480efc1439f9108aeee82bb0179-5"></a><span class="n">h</span> <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="n">intermediate_dim</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'relu'</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+<a name="rest_code_18738480efc1439f9108aeee82bb0179-6"></a>
+<a name="rest_code_18738480efc1439f9108aeee82bb0179-7"></a><span class="c1"># output layer for mu</span>
+<a name="rest_code_18738480efc1439f9108aeee82bb0179-8"></a><span class="n">z_mu</span> <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="n">latent_dim</span><span class="p">)(</span><span class="n">h</span><span class="p">)</span>
+<a name="rest_code_18738480efc1439f9108aeee82bb0179-9"></a>
+<a name="rest_code_18738480efc1439f9108aeee82bb0179-10"></a><span class="c1"># output layer for sigma</span>
+<a name="rest_code_18738480efc1439f9108aeee82bb0179-11"></a><span class="n">z_log_var</span> <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="n">latent_dim</span><span class="p">)(</span><span class="n">h</span><span class="p">)</span>
+<a name="rest_code_18738480efc1439f9108aeee82bb0179-12"></a><span class="n">z_sigma</span> <span class="o">=</span> <span class="n">Lambda</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">K</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">.</span><span class="mi">5</span><span class="o">*</span><span class="n">t</span><span class="p">))(</span><span class="n">z_log_var</span><span class="p">)</span>
 </pre>
 <p>Since this network has multiple outputs, we couldn't use the Sequential model
 API as we did for the decoder. Instead, we must resort to the more powerful
@@ -438,29 +439,29 @@ inputs, multiple outputs, and so on.</p>
 = - \frac{1}{2} \sum_{k=1}^K \{ 1 + \log \sigma_k^2 - \mu_k^2 - \sigma_k^2 \}
 \end{equation*}
 </div>
-<pre class="code python"><a name="rest_code_8b67cd1c849240ebb93d7d9204990e5e-1"></a><span class="k">class</span> <span class="nc">KLDivergenceLayer</span><span class="p">(</span><span class="n">Layer</span><span class="p">):</span>
-<a name="rest_code_8b67cd1c849240ebb93d7d9204990e5e-2"></a>
-<a name="rest_code_8b67cd1c849240ebb93d7d9204990e5e-3"></a>    <span class="sd">""" Identity transform layer that adds KL divergence</span>
-<a name="rest_code_8b67cd1c849240ebb93d7d9204990e5e-4"></a><span class="sd">    to the final model loss.</span>
-<a name="rest_code_8b67cd1c849240ebb93d7d9204990e5e-5"></a><span class="sd">    """</span>
-<a name="rest_code_8b67cd1c849240ebb93d7d9204990e5e-6"></a>
-<a name="rest_code_8b67cd1c849240ebb93d7d9204990e5e-7"></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<a name="rest_code_8b67cd1c849240ebb93d7d9204990e5e-8"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">is_placeholder</span> <span class="o">=</span> <span class="bp">True</span>
-<a name="rest_code_8b67cd1c849240ebb93d7d9204990e5e-9"></a>        <span class="nb">super</span><span class="p">(</span><span class="n">KLDivergenceLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-<a name="rest_code_8b67cd1c849240ebb93d7d9204990e5e-10"></a>
-<a name="rest_code_8b67cd1c849240ebb93d7d9204990e5e-11"></a>    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
-<a name="rest_code_8b67cd1c849240ebb93d7d9204990e5e-12"></a>
-<a name="rest_code_8b67cd1c849240ebb93d7d9204990e5e-13"></a>        <span class="n">mu</span><span class="p">,</span> <span class="n">log_var</span> <span class="o">=</span> <span class="n">inputs</span>
-<a name="rest_code_8b67cd1c849240ebb93d7d9204990e5e-14"></a>
-<a name="rest_code_8b67cd1c849240ebb93d7d9204990e5e-15"></a>        <span class="n">kl_batch</span> <span class="o">=</span> <span class="o">-</span> <span class="o">.</span><span class="mi">5</span> <span class="o">*</span> <span class="n">K</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">log_var</span> <span class="o">-</span>
-<a name="rest_code_8b67cd1c849240ebb93d7d9204990e5e-16"></a>                                <span class="n">K</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span> <span class="o">-</span>
-<a name="rest_code_8b67cd1c849240ebb93d7d9204990e5e-17"></a>                                <span class="n">K</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">log_var</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
-<a name="rest_code_8b67cd1c849240ebb93d7d9204990e5e-18"></a>
-<a name="rest_code_8b67cd1c849240ebb93d7d9204990e5e-19"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">add_loss</span><span class="p">(</span><span class="n">K</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">kl_batch</span><span class="p">),</span> <span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">)</span>
-<a name="rest_code_8b67cd1c849240ebb93d7d9204990e5e-20"></a>
-<a name="rest_code_8b67cd1c849240ebb93d7d9204990e5e-21"></a>        <span class="k">return</span> <span class="n">inputs</span>
+<pre class="code python"><a name="rest_code_82b25a683f6d481b803362dea06d7e57-1"></a><span class="k">class</span> <span class="nc">KLDivergenceLayer</span><span class="p">(</span><span class="n">Layer</span><span class="p">):</span>
+<a name="rest_code_82b25a683f6d481b803362dea06d7e57-2"></a>
+<a name="rest_code_82b25a683f6d481b803362dea06d7e57-3"></a>    <span class="sd">""" Identity transform layer that adds KL divergence</span>
+<a name="rest_code_82b25a683f6d481b803362dea06d7e57-4"></a><span class="sd">    to the final model loss.</span>
+<a name="rest_code_82b25a683f6d481b803362dea06d7e57-5"></a><span class="sd">    """</span>
+<a name="rest_code_82b25a683f6d481b803362dea06d7e57-6"></a>
+<a name="rest_code_82b25a683f6d481b803362dea06d7e57-7"></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<a name="rest_code_82b25a683f6d481b803362dea06d7e57-8"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">is_placeholder</span> <span class="o">=</span> <span class="bp">True</span>
+<a name="rest_code_82b25a683f6d481b803362dea06d7e57-9"></a>        <span class="nb">super</span><span class="p">(</span><span class="n">KLDivergenceLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<a name="rest_code_82b25a683f6d481b803362dea06d7e57-10"></a>
+<a name="rest_code_82b25a683f6d481b803362dea06d7e57-11"></a>    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+<a name="rest_code_82b25a683f6d481b803362dea06d7e57-12"></a>
+<a name="rest_code_82b25a683f6d481b803362dea06d7e57-13"></a>        <span class="n">mu</span><span class="p">,</span> <span class="n">log_var</span> <span class="o">=</span> <span class="n">inputs</span>
+<a name="rest_code_82b25a683f6d481b803362dea06d7e57-14"></a>
+<a name="rest_code_82b25a683f6d481b803362dea06d7e57-15"></a>        <span class="n">kl_batch</span> <span class="o">=</span> <span class="o">-</span> <span class="o">.</span><span class="mi">5</span> <span class="o">*</span> <span class="n">K</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">log_var</span> <span class="o">-</span>
+<a name="rest_code_82b25a683f6d481b803362dea06d7e57-16"></a>                                <span class="n">K</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span> <span class="o">-</span>
+<a name="rest_code_82b25a683f6d481b803362dea06d7e57-17"></a>                                <span class="n">K</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">log_var</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+<a name="rest_code_82b25a683f6d481b803362dea06d7e57-18"></a>
+<a name="rest_code_82b25a683f6d481b803362dea06d7e57-19"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">add_loss</span><span class="p">(</span><span class="n">K</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">kl_batch</span><span class="p">),</span> <span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">)</span>
+<a name="rest_code_82b25a683f6d481b803362dea06d7e57-20"></a>
+<a name="rest_code_82b25a683f6d481b803362dea06d7e57-21"></a>        <span class="k">return</span> <span class="n">inputs</span>
 </pre>
-<pre class="code python"><a name="rest_code_275072ebdd1f4cfa8a332f5ef4860584-1"></a><span class="n">z_mu</span><span class="p">,</span> <span class="n">z_log_var</span> <span class="o">=</span> <span class="n">KLDivergenceLayer</span><span class="p">()([</span><span class="n">z_mu</span><span class="p">,</span> <span class="n">z_log_var</span><span class="p">])</span>
+<pre class="code python"><a name="rest_code_e328990e3fa7417aaa5d32668bba4929-1"></a><span class="n">z_mu</span><span class="p">,</span> <span class="n">z_log_var</span> <span class="o">=</span> <span class="n">KLDivergenceLayer</span><span class="p">()([</span><span class="n">z_mu</span><span class="p">,</span> <span class="n">z_log_var</span><span class="p">])</span>
 </pre>
 <p>by itself, it will learn to ignore the input and map all outputs to 0.
 It is only when we tack on the decoder that the reconstruction likelihood
@@ -525,10 +526,10 @@ g_{\phi}(\mathbf{x}, \mathbf{\epsilon}) =
 </div>
 <p>Assume <tt class="docutils literal">z_mu</tt> and <tt class="docutils literal">z_sigma</tt> are the outputs of some layers. Then, using
 <a class="reference external" href="https://keras.io/layers/merge/">Merge Layers</a>, <tt class="docutils literal">Add</tt> and <tt class="docutils literal">Multiply</tt>:</p>
-<pre class="code python"><a name="rest_code_2f96179a4c8345639bd18eb21e8b27f1-1"></a><span class="n">eps</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">latent_dim</span><span class="p">,))</span>
-<a name="rest_code_2f96179a4c8345639bd18eb21e8b27f1-2"></a><span class="n">z_eps</span> <span class="o">=</span> <span class="n">Multiply</span><span class="p">()([</span><span class="n">z_sigma</span><span class="p">,</span> <span class="n">eps</span><span class="p">])</span>
-<a name="rest_code_2f96179a4c8345639bd18eb21e8b27f1-3"></a>
-<a name="rest_code_2f96179a4c8345639bd18eb21e8b27f1-4"></a><span class="n">z</span> <span class="o">=</span> <span class="n">Add</span><span class="p">()([</span><span class="n">z_mu</span><span class="p">,</span> <span class="n">z_eps</span><span class="p">])</span>
+<pre class="code python"><a name="rest_code_5bbea5f22b0f46319d90eb5886d40b2f-1"></a><span class="n">eps</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">latent_dim</span><span class="p">,))</span>
+<a name="rest_code_5bbea5f22b0f46319d90eb5886d40b2f-2"></a><span class="n">z_eps</span> <span class="o">=</span> <span class="n">Multiply</span><span class="p">()([</span><span class="n">z_sigma</span><span class="p">,</span> <span class="n">eps</span><span class="p">])</span>
+<a name="rest_code_5bbea5f22b0f46319d90eb5886d40b2f-3"></a>
+<a name="rest_code_5bbea5f22b0f46319d90eb5886d40b2f-4"></a><span class="n">z</span> <span class="o">=</span> <span class="n">Add</span><span class="p">()([</span><span class="n">z_mu</span><span class="p">,</span> <span class="n">z_eps</span><span class="p">])</span>
 </pre>
 <div class="figure align-center">
 <object data="../../images/vae/reparameterization.svg" style="height: 300px;" type="image/svg+xml">
@@ -543,7 +544,7 @@ each of these atomic building blocks are themselves deterministic
 transformations which together make up a deterministic transformation.
 The source of stochasticity comes from the input, which we are able to tweak at
 test time. Gumbel-softmax trick.</p>
-<pre class="code python"><a name="rest_code_f7553a8f868e409f96968981ed74df4c-1"></a><span class="n">eps</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">tensor</span><span class="o">=</span><span class="n">K</span><span class="o">.</span><span class="n">random_normal</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">K</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">x</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">latent_dim</span><span class="p">)))</span>
+<pre class="code python"><a name="rest_code_fdd1e931c85d4a11b2d7e22d518ce984-1"></a><span class="n">eps</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">tensor</span><span class="o">=</span><span class="n">K</span><span class="o">.</span><span class="n">random_normal</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">K</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">x</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">latent_dim</span><span class="p">)))</span>
 </pre>
 <p>For the sake of illustration, we've fixed <tt class="docutils literal">sigma</tt> and <tt class="docutils literal">mu</tt> as <tt class="docutils literal">Input</tt>
 layers. That's why it says <tt class="docutils literal">InputLayer</tt> next to it. In reality, it will be
@@ -563,28 +564,28 @@ and <span class="math">\(\mathbf{\sigma}_{\phi}(\mathbf{x})\)</span> now.</p>
 </div>
 <div class="section" id="putting-it-all-together">
 <h3>Putting it all together</h3>
-<pre class="code python"><a name="rest_code_da0b234fd63d450d94702f1e62a75e99-1"></a><span class="n">x</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">original_dim</span><span class="p">,))</span>
-<a name="rest_code_da0b234fd63d450d94702f1e62a75e99-2"></a><span class="n">h</span> <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="n">intermediate_dim</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'relu'</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
-<a name="rest_code_da0b234fd63d450d94702f1e62a75e99-3"></a>
-<a name="rest_code_da0b234fd63d450d94702f1e62a75e99-4"></a><span class="n">z_mu</span> <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="n">latent_dim</span><span class="p">)(</span><span class="n">h</span><span class="p">)</span>
-<a name="rest_code_da0b234fd63d450d94702f1e62a75e99-5"></a><span class="n">z_log_var</span> <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="n">latent_dim</span><span class="p">)(</span><span class="n">h</span><span class="p">)</span>
-<a name="rest_code_da0b234fd63d450d94702f1e62a75e99-6"></a>
-<a name="rest_code_da0b234fd63d450d94702f1e62a75e99-7"></a><span class="n">z_mu</span><span class="p">,</span> <span class="n">z_log_var</span> <span class="o">=</span> <span class="n">KLDivergenceLayer</span><span class="p">()([</span><span class="n">z_mu</span><span class="p">,</span> <span class="n">z_log_var</span><span class="p">])</span>
-<a name="rest_code_da0b234fd63d450d94702f1e62a75e99-8"></a><span class="n">z_sigma</span> <span class="o">=</span> <span class="n">Lambda</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">K</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">.</span><span class="mi">5</span><span class="o">*</span><span class="n">t</span><span class="p">))(</span><span class="n">z_log_var</span><span class="p">)</span>
-<a name="rest_code_da0b234fd63d450d94702f1e62a75e99-9"></a>
-<a name="rest_code_da0b234fd63d450d94702f1e62a75e99-10"></a><span class="n">eps</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">tensor</span><span class="o">=</span><span class="n">K</span><span class="o">.</span><span class="n">random_normal</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">K</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">x</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">latent_dim</span><span class="p">)))</span>
-<a name="rest_code_da0b234fd63d450d94702f1e62a75e99-11"></a><span class="n">z_eps</span> <span class="o">=</span> <span class="n">Multiply</span><span class="p">()([</span><span class="n">z_sigma</span><span class="p">,</span> <span class="n">eps</span><span class="p">])</span>
-<a name="rest_code_da0b234fd63d450d94702f1e62a75e99-12"></a><span class="n">z</span> <span class="o">=</span> <span class="n">Add</span><span class="p">()([</span><span class="n">z_mu</span><span class="p">,</span> <span class="n">z_eps</span><span class="p">])</span>
-<a name="rest_code_da0b234fd63d450d94702f1e62a75e99-13"></a>
-<a name="rest_code_da0b234fd63d450d94702f1e62a75e99-14"></a><span class="n">decoder</span> <span class="o">=</span> <span class="n">Sequential</span><span class="p">([</span>
-<a name="rest_code_da0b234fd63d450d94702f1e62a75e99-15"></a>    <span class="n">Dense</span><span class="p">(</span><span class="n">intermediate_dim</span><span class="p">,</span> <span class="n">input_dim</span><span class="o">=</span><span class="n">latent_dim</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'relu'</span><span class="p">),</span>
-<a name="rest_code_da0b234fd63d450d94702f1e62a75e99-16"></a>    <span class="n">Dense</span><span class="p">(</span><span class="n">original_dim</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'sigmoid'</span><span class="p">)</span>
-<a name="rest_code_da0b234fd63d450d94702f1e62a75e99-17"></a><span class="p">])</span>
-<a name="rest_code_da0b234fd63d450d94702f1e62a75e99-18"></a>
-<a name="rest_code_da0b234fd63d450d94702f1e62a75e99-19"></a><span class="n">x_mean</span> <span class="o">=</span> <span class="n">decoder</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+<pre class="code python"><a name="rest_code_7e2b143282e74569944be66952626ba0-1"></a><span class="n">x</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">original_dim</span><span class="p">,))</span>
+<a name="rest_code_7e2b143282e74569944be66952626ba0-2"></a><span class="n">h</span> <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="n">intermediate_dim</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'relu'</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+<a name="rest_code_7e2b143282e74569944be66952626ba0-3"></a>
+<a name="rest_code_7e2b143282e74569944be66952626ba0-4"></a><span class="n">z_mu</span> <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="n">latent_dim</span><span class="p">)(</span><span class="n">h</span><span class="p">)</span>
+<a name="rest_code_7e2b143282e74569944be66952626ba0-5"></a><span class="n">z_log_var</span> <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="n">latent_dim</span><span class="p">)(</span><span class="n">h</span><span class="p">)</span>
+<a name="rest_code_7e2b143282e74569944be66952626ba0-6"></a>
+<a name="rest_code_7e2b143282e74569944be66952626ba0-7"></a><span class="n">z_mu</span><span class="p">,</span> <span class="n">z_log_var</span> <span class="o">=</span> <span class="n">KLDivergenceLayer</span><span class="p">()([</span><span class="n">z_mu</span><span class="p">,</span> <span class="n">z_log_var</span><span class="p">])</span>
+<a name="rest_code_7e2b143282e74569944be66952626ba0-8"></a><span class="n">z_sigma</span> <span class="o">=</span> <span class="n">Lambda</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">K</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">.</span><span class="mi">5</span><span class="o">*</span><span class="n">t</span><span class="p">))(</span><span class="n">z_log_var</span><span class="p">)</span>
+<a name="rest_code_7e2b143282e74569944be66952626ba0-9"></a>
+<a name="rest_code_7e2b143282e74569944be66952626ba0-10"></a><span class="n">eps</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">tensor</span><span class="o">=</span><span class="n">K</span><span class="o">.</span><span class="n">random_normal</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">K</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">x</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">latent_dim</span><span class="p">)))</span>
+<a name="rest_code_7e2b143282e74569944be66952626ba0-11"></a><span class="n">z_eps</span> <span class="o">=</span> <span class="n">Multiply</span><span class="p">()([</span><span class="n">z_sigma</span><span class="p">,</span> <span class="n">eps</span><span class="p">])</span>
+<a name="rest_code_7e2b143282e74569944be66952626ba0-12"></a><span class="n">z</span> <span class="o">=</span> <span class="n">Add</span><span class="p">()([</span><span class="n">z_mu</span><span class="p">,</span> <span class="n">z_eps</span><span class="p">])</span>
+<a name="rest_code_7e2b143282e74569944be66952626ba0-13"></a>
+<a name="rest_code_7e2b143282e74569944be66952626ba0-14"></a><span class="n">decoder</span> <span class="o">=</span> <span class="n">Sequential</span><span class="p">([</span>
+<a name="rest_code_7e2b143282e74569944be66952626ba0-15"></a>    <span class="n">Dense</span><span class="p">(</span><span class="n">intermediate_dim</span><span class="p">,</span> <span class="n">input_dim</span><span class="o">=</span><span class="n">latent_dim</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'relu'</span><span class="p">),</span>
+<a name="rest_code_7e2b143282e74569944be66952626ba0-16"></a>    <span class="n">Dense</span><span class="p">(</span><span class="n">original_dim</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'sigmoid'</span><span class="p">)</span>
+<a name="rest_code_7e2b143282e74569944be66952626ba0-17"></a><span class="p">])</span>
+<a name="rest_code_7e2b143282e74569944be66952626ba0-18"></a>
+<a name="rest_code_7e2b143282e74569944be66952626ba0-19"></a><span class="n">x_mean</span> <span class="o">=</span> <span class="n">decoder</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
 </pre>
-<pre class="code python"><a name="rest_code_2ecfa093088f40c6adc2856f470cc136-1"></a><span class="n">vae</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">eps</span><span class="p">],</span> <span class="n">outputs</span><span class="o">=</span><span class="n">x_mean</span><span class="p">)</span>
-<a name="rest_code_2ecfa093088f40c6adc2856f470cc136-2"></a><span class="n">vae</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">optimizer</span><span class="o">=</span><span class="s1">'rmsprop'</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="n">nll</span><span class="p">)</span>
+<pre class="code python"><a name="rest_code_34789596c7574dfcb53c31efa208ef3c-1"></a><span class="n">vae</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">eps</span><span class="p">],</span> <span class="n">outputs</span><span class="o">=</span><span class="n">x_mean</span><span class="p">)</span>
+<a name="rest_code_34789596c7574dfcb53c31efa208ef3c-2"></a><span class="n">vae</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">optimizer</span><span class="o">=</span><span class="s1">'rmsprop'</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="n">nll</span><span class="p">)</span>
 </pre>
 <div class="figure align-center">
 <object data="../../images/vae/vae_full_shapes.svg" style="height: 500px;" type="image/svg+xml">
@@ -616,9 +617,9 @@ base distribution <span class="math">\(p(\mathbf{\epsilon})\)</span> and also ho
 samples of <span class="math">\(\mathbf{z}\)</span> for each datapoint <span class="math">\(\mathbf{x}\)</span>. Usually
 we just stick with a simple isotropic Gaussian distribution and draw a different
 MC sample for each datapoint.</p>
-<pre class="code python"><a name="rest_code_781a6040d6564b00aa6d84df051b75c5-1"></a><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">),</span> <span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span> <span class="o">=</span> <span class="n">mnist</span><span class="o">.</span><span class="n">load_data</span><span class="p">()</span>
-<a name="rest_code_781a6040d6564b00aa6d84df051b75c5-2"></a><span class="n">x_train</span> <span class="o">=</span> <span class="n">x_train</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">original_dim</span><span class="p">)</span> <span class="o">/</span> <span class="mf">255.</span>
-<a name="rest_code_781a6040d6564b00aa6d84df051b75c5-3"></a><span class="n">x_test</span> <span class="o">=</span> <span class="n">x_test</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">original_dim</span><span class="p">)</span> <span class="o">/</span> <span class="mf">255.</span>
+<pre class="code python"><a name="rest_code_bcc29117168f48b8908b581030ae2195-1"></a><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">),</span> <span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span> <span class="o">=</span> <span class="n">mnist</span><span class="o">.</span><span class="n">load_data</span><span class="p">()</span>
+<a name="rest_code_bcc29117168f48b8908b581030ae2195-2"></a><span class="n">x_train</span> <span class="o">=</span> <span class="n">x_train</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">original_dim</span><span class="p">)</span> <span class="o">/</span> <span class="mf">255.</span>
+<a name="rest_code_bcc29117168f48b8908b581030ae2195-3"></a><span class="n">x_test</span> <span class="o">=</span> <span class="n">x_test</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">original_dim</span><span class="p">)</span> <span class="o">/</span> <span class="mf">255.</span>
 </pre>
 <p>Model fitting feels less intuitive. The <tt class="docutils literal">vae</tt> is compiled with <tt class="docutils literal">loss=None</tt>
 explicitly specified which raises a warning. When fit is called, the targets
@@ -627,25 +628,25 @@ the <cite>CustomLayer</cite>. This mapping from mathematical problem formulation
 implementation appears more natural and straightforward. It's easy to understand
 at a glance from our call to the <tt class="docutils literal">fit</tt> method that we're training a
 probabilistic auto-encoder.</p>
-<pre class="code python"><a name="rest_code_1cadcf9a5f8f412c9dcf6359c1e58c2e-1"></a><span class="n">vae</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span>
-<a name="rest_code_1cadcf9a5f8f412c9dcf6359c1e58c2e-2"></a>        <span class="n">x_train</span><span class="p">,</span>
-<a name="rest_code_1cadcf9a5f8f412c9dcf6359c1e58c2e-3"></a>        <span class="n">shuffle</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
-<a name="rest_code_1cadcf9a5f8f412c9dcf6359c1e58c2e-4"></a>        <span class="n">epochs</span><span class="o">=</span><span class="n">epochs</span><span class="p">,</span>
-<a name="rest_code_1cadcf9a5f8f412c9dcf6359c1e58c2e-5"></a>        <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
-<a name="rest_code_1cadcf9a5f8f412c9dcf6359c1e58c2e-6"></a>        <span class="n">validation_data</span><span class="o">=</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">x_test</span><span class="p">))</span>
+<pre class="code python"><a name="rest_code_ef63dc49e71c477da8e1eb06085e9c9c-1"></a><span class="n">vae</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span>
+<a name="rest_code_ef63dc49e71c477da8e1eb06085e9c9c-2"></a>        <span class="n">x_train</span><span class="p">,</span>
+<a name="rest_code_ef63dc49e71c477da8e1eb06085e9c9c-3"></a>        <span class="n">shuffle</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+<a name="rest_code_ef63dc49e71c477da8e1eb06085e9c9c-4"></a>        <span class="n">epochs</span><span class="o">=</span><span class="n">epochs</span><span class="p">,</span>
+<a name="rest_code_ef63dc49e71c477da8e1eb06085e9c9c-5"></a>        <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
+<a name="rest_code_ef63dc49e71c477da8e1eb06085e9c9c-6"></a>        <span class="n">validation_data</span><span class="o">=</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">x_test</span><span class="p">))</span>
 </pre>
 <p>Personally, I prefer this view since the all sources of stochasticity emanate
 from the inputs to the model.</p>
 <div class="section" id="loss-nelbo-convergence">
 <h3>Loss (NELBO) Convergence</h3>
-<pre class="code python"><a name="rest_code_a132190408384f9b9099a790b22eae9b-1"></a><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
-<a name="rest_code_a132190408384f9b9099a790b22eae9b-2"></a>
-<a name="rest_code_a132190408384f9b9099a790b22eae9b-3"></a><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">hist</span><span class="o">.</span><span class="n">history</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
-<a name="rest_code_a132190408384f9b9099a790b22eae9b-4"></a>
-<a name="rest_code_a132190408384f9b9099a790b22eae9b-5"></a><span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'NELBO'</span><span class="p">)</span>
-<a name="rest_code_a132190408384f9b9099a790b22eae9b-6"></a><span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'# epochs'</span><span class="p">)</span>
-<a name="rest_code_a132190408384f9b9099a790b22eae9b-7"></a>
-<a name="rest_code_a132190408384f9b9099a790b22eae9b-8"></a><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<pre class="code python"><a name="rest_code_354cd4cd141848c5a409ace3d073b678-1"></a><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<a name="rest_code_354cd4cd141848c5a409ace3d073b678-2"></a>
+<a name="rest_code_354cd4cd141848c5a409ace3d073b678-3"></a><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">hist</span><span class="o">.</span><span class="n">history</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<a name="rest_code_354cd4cd141848c5a409ace3d073b678-4"></a>
+<a name="rest_code_354cd4cd141848c5a409ace3d073b678-5"></a><span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'NELBO'</span><span class="p">)</span>
+<a name="rest_code_354cd4cd141848c5a409ace3d073b678-6"></a><span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'# epochs'</span><span class="p">)</span>
+<a name="rest_code_354cd4cd141848c5a409ace3d073b678-7"></a>
+<a name="rest_code_354cd4cd141848c5a409ace3d073b678-8"></a><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre>
 <div class="figure align-center">
 <object data="../../images/vae/nelbo.svg" style="width: 500px;" type="image/svg+xml">
@@ -655,36 +656,36 @@ from the inputs to the model.</p>
 </div>
 <div class="section" id="model-evaluation">
 <h2>Model evaluation</h2>
-<pre class="code python"><a name="rest_code_2310192bdc8d44f5a71159e1b03c1d89-1"></a><span class="n">encoder</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">z_mu</span><span class="p">)</span>
-<a name="rest_code_2310192bdc8d44f5a71159e1b03c1d89-2"></a>
-<a name="rest_code_2310192bdc8d44f5a71159e1b03c1d89-3"></a><span class="c1"># display a 2D plot of the digit classes in the latent space</span>
-<a name="rest_code_2310192bdc8d44f5a71159e1b03c1d89-4"></a><span class="n">z_test</span> <span class="o">=</span> <span class="n">encoder</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">)</span>
-<a name="rest_code_2310192bdc8d44f5a71159e1b03c1d89-5"></a><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
-<a name="rest_code_2310192bdc8d44f5a71159e1b03c1d89-6"></a><span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">z_test</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">z_test</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="n">y_test</span><span class="p">,</span>
-<a name="rest_code_2310192bdc8d44f5a71159e1b03c1d89-7"></a>            <span class="n">alpha</span><span class="o">=.</span><span class="mi">4</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">3</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">'viridis'</span><span class="p">)</span>
-<a name="rest_code_2310192bdc8d44f5a71159e1b03c1d89-8"></a><span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
-<a name="rest_code_2310192bdc8d44f5a71159e1b03c1d89-9"></a><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<pre class="code python"><a name="rest_code_3d08ab60acf641beabc7e12a83894bbc-1"></a><span class="n">encoder</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">z_mu</span><span class="p">)</span>
+<a name="rest_code_3d08ab60acf641beabc7e12a83894bbc-2"></a>
+<a name="rest_code_3d08ab60acf641beabc7e12a83894bbc-3"></a><span class="c1"># display a 2D plot of the digit classes in the latent space</span>
+<a name="rest_code_3d08ab60acf641beabc7e12a83894bbc-4"></a><span class="n">z_test</span> <span class="o">=</span> <span class="n">encoder</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">)</span>
+<a name="rest_code_3d08ab60acf641beabc7e12a83894bbc-5"></a><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<a name="rest_code_3d08ab60acf641beabc7e12a83894bbc-6"></a><span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">z_test</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">z_test</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="n">y_test</span><span class="p">,</span>
+<a name="rest_code_3d08ab60acf641beabc7e12a83894bbc-7"></a>            <span class="n">alpha</span><span class="o">=.</span><span class="mi">4</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">3</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">'viridis'</span><span class="p">)</span>
+<a name="rest_code_3d08ab60acf641beabc7e12a83894bbc-8"></a><span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
+<a name="rest_code_3d08ab60acf641beabc7e12a83894bbc-9"></a><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre>
 <div class="figure align-center">
 <img alt="../../images/vae/result_latent_space.png" src="../../images/vae/result_latent_space.png" style="height: 500px;">
 </div>
-<pre class="code python"><a name="rest_code_0216d83426524865b31bed2505dc4e77-1"></a><span class="c1"># display a 2D manifold of the digits</span>
-<a name="rest_code_0216d83426524865b31bed2505dc4e77-2"></a><span class="n">n</span> <span class="o">=</span> <span class="mi">15</span>  <span class="c1"># figure with 15x15 digits</span>
-<a name="rest_code_0216d83426524865b31bed2505dc4e77-3"></a><span class="n">digit_size</span> <span class="o">=</span> <span class="mi">28</span>
-<a name="rest_code_0216d83426524865b31bed2505dc4e77-4"></a>
-<a name="rest_code_0216d83426524865b31bed2505dc4e77-5"></a><span class="c1"># linearly spaced coordinates on the unit square were transformed</span>
-<a name="rest_code_0216d83426524865b31bed2505dc4e77-6"></a><span class="c1"># through the inverse CDF (ppf) of the Gaussian to produce values</span>
-<a name="rest_code_0216d83426524865b31bed2505dc4e77-7"></a><span class="c1"># of the latent variables z, since the prior of the latent space</span>
-<a name="rest_code_0216d83426524865b31bed2505dc4e77-8"></a><span class="c1"># is Gaussian</span>
-<a name="rest_code_0216d83426524865b31bed2505dc4e77-9"></a><span class="n">u_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dstack</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">,</span> <span class="n">n</span><span class="p">),</span>
-<a name="rest_code_0216d83426524865b31bed2505dc4e77-10"></a>                               <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">,</span> <span class="n">n</span><span class="p">)))</span>
-<a name="rest_code_0216d83426524865b31bed2505dc4e77-11"></a><span class="n">z_grid</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">u_grid</span><span class="p">)</span>
-<a name="rest_code_0216d83426524865b31bed2505dc4e77-12"></a><span class="n">x_decoded</span> <span class="o">=</span> <span class="n">decoder</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">z_grid</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">n</span><span class="o">*</span><span class="n">n</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
-<a name="rest_code_0216d83426524865b31bed2505dc4e77-13"></a><span class="n">x_decoded</span> <span class="o">=</span> <span class="n">x_decoded</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">digit_size</span><span class="p">,</span> <span class="n">digit_size</span><span class="p">)</span>
-<a name="rest_code_0216d83426524865b31bed2505dc4e77-14"></a>
-<a name="rest_code_0216d83426524865b31bed2505dc4e77-15"></a><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
-<a name="rest_code_0216d83426524865b31bed2505dc4e77-16"></a><span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">block</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">x_decoded</span><span class="p">))),</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">'gray'</span><span class="p">)</span>
-<a name="rest_code_0216d83426524865b31bed2505dc4e77-17"></a><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<pre class="code python"><a name="rest_code_17f25290feb84b4ba08b2f44089d0bdc-1"></a><span class="c1"># display a 2D manifold of the digits</span>
+<a name="rest_code_17f25290feb84b4ba08b2f44089d0bdc-2"></a><span class="n">n</span> <span class="o">=</span> <span class="mi">15</span>  <span class="c1"># figure with 15x15 digits</span>
+<a name="rest_code_17f25290feb84b4ba08b2f44089d0bdc-3"></a><span class="n">digit_size</span> <span class="o">=</span> <span class="mi">28</span>
+<a name="rest_code_17f25290feb84b4ba08b2f44089d0bdc-4"></a>
+<a name="rest_code_17f25290feb84b4ba08b2f44089d0bdc-5"></a><span class="c1"># linearly spaced coordinates on the unit square were transformed</span>
+<a name="rest_code_17f25290feb84b4ba08b2f44089d0bdc-6"></a><span class="c1"># through the inverse CDF (ppf) of the Gaussian to produce values</span>
+<a name="rest_code_17f25290feb84b4ba08b2f44089d0bdc-7"></a><span class="c1"># of the latent variables z, since the prior of the latent space</span>
+<a name="rest_code_17f25290feb84b4ba08b2f44089d0bdc-8"></a><span class="c1"># is Gaussian</span>
+<a name="rest_code_17f25290feb84b4ba08b2f44089d0bdc-9"></a><span class="n">u_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dstack</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">,</span> <span class="n">n</span><span class="p">),</span>
+<a name="rest_code_17f25290feb84b4ba08b2f44089d0bdc-10"></a>                               <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">,</span> <span class="n">n</span><span class="p">)))</span>
+<a name="rest_code_17f25290feb84b4ba08b2f44089d0bdc-11"></a><span class="n">z_grid</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">u_grid</span><span class="p">)</span>
+<a name="rest_code_17f25290feb84b4ba08b2f44089d0bdc-12"></a><span class="n">x_decoded</span> <span class="o">=</span> <span class="n">decoder</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">z_grid</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">n</span><span class="o">*</span><span class="n">n</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+<a name="rest_code_17f25290feb84b4ba08b2f44089d0bdc-13"></a><span class="n">x_decoded</span> <span class="o">=</span> <span class="n">x_decoded</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">digit_size</span><span class="p">,</span> <span class="n">digit_size</span><span class="p">)</span>
+<a name="rest_code_17f25290feb84b4ba08b2f44089d0bdc-14"></a>
+<a name="rest_code_17f25290feb84b4ba08b2f44089d0bdc-15"></a><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+<a name="rest_code_17f25290feb84b4ba08b2f44089d0bdc-16"></a><span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">block</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">x_decoded</span><span class="p">))),</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">'gray'</span><span class="p">)</span>
+<a name="rest_code_17f25290feb84b4ba08b2f44089d0bdc-17"></a><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre>
 <div class="figure align-center">
 <img alt="../../images/vae/result_manifold.png" src="../../images/vae/result_manifold.png" style="height: 600px;">
@@ -878,118 +879,118 @@ in this post.</li>
 <li>The above snippets combined in a single executable Python file:</li>
 </ul>
 <p><a class="reference external" href="../../listings/vae/variational_autoencoder_improved.py.html">vae/variational_autoencoder_improved.py</a>  <a class="reference external" href="../../listings/vae/variational_autoencoder_improved.py">(Source)</a></p>
-<pre class="code python"><a name="rest_code_5c2c1949595b421e835bdffce81ccd67-1"></a><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-2"></a><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-3"></a><span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">norm</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-4"></a>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-5"></a><span class="kn">from</span> <span class="nn">keras</span> <span class="kn">import</span> <span class="n">backend</span> <span class="k">as</span> <span class="n">K</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-6"></a>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-7"></a><span class="kn">from</span> <span class="nn">keras.layers</span> <span class="kn">import</span> <span class="n">Input</span><span class="p">,</span> <span class="n">Dense</span><span class="p">,</span> <span class="n">Lambda</span><span class="p">,</span> <span class="n">Layer</span><span class="p">,</span> <span class="n">Add</span><span class="p">,</span> <span class="n">Multiply</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-8"></a><span class="kn">from</span> <span class="nn">keras.models</span> <span class="kn">import</span> <span class="n">Model</span><span class="p">,</span> <span class="n">Sequential</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-9"></a><span class="kn">from</span> <span class="nn">keras.datasets</span> <span class="kn">import</span> <span class="n">mnist</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-10"></a>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-11"></a>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-12"></a><span class="n">batch_size</span> <span class="o">=</span> <span class="mi">100</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-13"></a><span class="n">original_dim</span> <span class="o">=</span> <span class="mi">784</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-14"></a><span class="n">latent_dim</span> <span class="o">=</span> <span class="mi">2</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-15"></a><span class="n">intermediate_dim</span> <span class="o">=</span> <span class="mi">256</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-16"></a><span class="n">epochs</span> <span class="o">=</span> <span class="mi">50</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-17"></a><span class="n">epsilon_std</span> <span class="o">=</span> <span class="mf">1.0</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-18"></a>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-19"></a>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-20"></a><span class="k">def</span> <span class="nf">nll</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">):</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-21"></a>    <span class="sd">""" Bernoulli negative log likelihood. """</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-22"></a>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-23"></a>    <span class="c1"># keras.losses.binary_crossentropy gives the mean</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-24"></a>    <span class="c1"># over the last axis. We require the sum.</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-25"></a>    <span class="k">return</span> <span class="n">K</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">K</span><span class="o">.</span><span class="n">binary_crossentropy</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-26"></a>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-27"></a>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-28"></a><span class="k">class</span> <span class="nc">KLDivergenceLayer</span><span class="p">(</span><span class="n">Layer</span><span class="p">):</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-29"></a>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-30"></a>    <span class="sd">""" Identity transform layer that adds KL divergence</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-31"></a><span class="sd">    to the final model loss.</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-32"></a><span class="sd">    """</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-33"></a>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-34"></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-35"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">is_placeholder</span> <span class="o">=</span> <span class="bp">True</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-36"></a>        <span class="nb">super</span><span class="p">(</span><span class="n">KLDivergenceLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-37"></a>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-38"></a>    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-39"></a>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-40"></a>        <span class="n">mu</span><span class="p">,</span> <span class="n">log_var</span> <span class="o">=</span> <span class="n">inputs</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-41"></a>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-42"></a>        <span class="n">kl_batch</span> <span class="o">=</span> <span class="o">-</span> <span class="o">.</span><span class="mi">5</span> <span class="o">*</span> <span class="n">K</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">log_var</span> <span class="o">-</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-43"></a>                                <span class="n">K</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span> <span class="o">-</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-44"></a>                                <span class="n">K</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">log_var</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-45"></a>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-46"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">add_loss</span><span class="p">(</span><span class="n">K</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">kl_batch</span><span class="p">),</span> <span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">)</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-47"></a>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-48"></a>        <span class="k">return</span> <span class="n">inputs</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-49"></a>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-50"></a><span class="n">x</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">original_dim</span><span class="p">,))</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-51"></a><span class="n">h</span> <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="n">intermediate_dim</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'relu'</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-52"></a>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-53"></a><span class="n">z_mu</span> <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="n">latent_dim</span><span class="p">)(</span><span class="n">h</span><span class="p">)</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-54"></a><span class="n">z_log_var</span> <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="n">latent_dim</span><span class="p">)(</span><span class="n">h</span><span class="p">)</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-55"></a>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-56"></a><span class="n">z_mu</span><span class="p">,</span> <span class="n">z_log_var</span> <span class="o">=</span> <span class="n">KLDivergenceLayer</span><span class="p">()([</span><span class="n">z_mu</span><span class="p">,</span> <span class="n">z_log_var</span><span class="p">])</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-57"></a><span class="n">z_sigma</span> <span class="o">=</span> <span class="n">Lambda</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">K</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">.</span><span class="mi">5</span><span class="o">*</span><span class="n">t</span><span class="p">))(</span><span class="n">z_log_var</span><span class="p">)</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-58"></a>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-59"></a><span class="n">eps</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">tensor</span><span class="o">=</span><span class="n">K</span><span class="o">.</span><span class="n">random_normal</span><span class="p">(</span><span class="n">stddev</span><span class="o">=</span><span class="n">epsilon_std</span><span class="p">,</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-60"></a>                                   <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">K</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">x</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">latent_dim</span><span class="p">)))</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-61"></a><span class="n">z_eps</span> <span class="o">=</span> <span class="n">Multiply</span><span class="p">()([</span><span class="n">z_sigma</span><span class="p">,</span> <span class="n">eps</span><span class="p">])</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-62"></a><span class="n">z</span> <span class="o">=</span> <span class="n">Add</span><span class="p">()([</span><span class="n">z_mu</span><span class="p">,</span> <span class="n">z_eps</span><span class="p">])</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-63"></a>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-64"></a><span class="n">decoder</span> <span class="o">=</span> <span class="n">Sequential</span><span class="p">([</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-65"></a>    <span class="n">Dense</span><span class="p">(</span><span class="n">intermediate_dim</span><span class="p">,</span> <span class="n">input_dim</span><span class="o">=</span><span class="n">latent_dim</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'relu'</span><span class="p">),</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-66"></a>    <span class="n">Dense</span><span class="p">(</span><span class="n">original_dim</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'sigmoid'</span><span class="p">)</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-67"></a><span class="p">])</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-68"></a>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-69"></a><span class="n">x_mean</span> <span class="o">=</span> <span class="n">decoder</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-70"></a>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-71"></a><span class="n">vae</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">eps</span><span class="p">],</span> <span class="n">outputs</span><span class="o">=</span><span class="n">x_mean</span><span class="p">)</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-72"></a><span class="n">vae</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">optimizer</span><span class="o">=</span><span class="s1">'rmsprop'</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="n">nll</span><span class="p">)</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-73"></a>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-74"></a><span class="c1"># train the VAE on MNIST digits</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-75"></a><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">),</span> <span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span> <span class="o">=</span> <span class="n">mnist</span><span class="o">.</span><span class="n">load_data</span><span class="p">()</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-76"></a><span class="n">x_train</span> <span class="o">=</span> <span class="n">x_train</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">original_dim</span><span class="p">)</span> <span class="o">/</span> <span class="mf">255.</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-77"></a><span class="n">x_test</span> <span class="o">=</span> <span class="n">x_test</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">original_dim</span><span class="p">)</span> <span class="o">/</span> <span class="mf">255.</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-78"></a>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-79"></a><span class="n">vae</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-80"></a>        <span class="n">x_train</span><span class="p">,</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-81"></a>        <span class="n">shuffle</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-82"></a>        <span class="n">epochs</span><span class="o">=</span><span class="n">epochs</span><span class="p">,</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-83"></a>        <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-84"></a>        <span class="n">validation_data</span><span class="o">=</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">x_test</span><span class="p">))</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-85"></a>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-86"></a><span class="n">encoder</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">z_mu</span><span class="p">)</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-87"></a>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-88"></a><span class="c1"># display a 2D plot of the digit classes in the latent space</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-89"></a><span class="n">z_test</span> <span class="o">=</span> <span class="n">encoder</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">)</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-90"></a><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-91"></a><span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">z_test</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">z_test</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="n">y_test</span><span class="p">,</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-92"></a>            <span class="n">alpha</span><span class="o">=.</span><span class="mi">4</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">3</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">'viridis'</span><span class="p">)</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-93"></a><span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-94"></a><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-95"></a>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-96"></a><span class="c1"># display a 2D manifold of the digits</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-97"></a><span class="n">n</span> <span class="o">=</span> <span class="mi">15</span>  <span class="c1"># figure with 15x15 digits</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-98"></a><span class="n">digit_size</span> <span class="o">=</span> <span class="mi">28</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-99"></a>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-100"></a><span class="c1"># linearly spaced coordinates on the unit square were transformed</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-101"></a><span class="c1"># through the inverse CDF (ppf) of the Gaussian to produce values</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-102"></a><span class="c1"># of the latent variables z, since the prior of the latent space</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-103"></a><span class="c1"># is Gaussian</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-104"></a><span class="n">u_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dstack</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">,</span> <span class="n">n</span><span class="p">),</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-105"></a>                               <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">,</span> <span class="n">n</span><span class="p">)))</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-106"></a><span class="n">z_grid</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">u_grid</span><span class="p">)</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-107"></a><span class="n">x_decoded</span> <span class="o">=</span> <span class="n">decoder</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">z_grid</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">n</span><span class="o">*</span><span class="n">n</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-108"></a><span class="n">x_decoded</span> <span class="o">=</span> <span class="n">x_decoded</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">digit_size</span><span class="p">,</span> <span class="n">digit_size</span><span class="p">)</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-109"></a>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-110"></a><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-111"></a><span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">block</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">x_decoded</span><span class="p">))),</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">'gray'</span><span class="p">)</span>
-<a name="rest_code_5c2c1949595b421e835bdffce81ccd67-112"></a><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<pre class="code python"><a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-1"></a><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-2"></a><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-3"></a><span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">norm</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-4"></a>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-5"></a><span class="kn">from</span> <span class="nn">keras</span> <span class="kn">import</span> <span class="n">backend</span> <span class="k">as</span> <span class="n">K</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-6"></a>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-7"></a><span class="kn">from</span> <span class="nn">keras.layers</span> <span class="kn">import</span> <span class="n">Input</span><span class="p">,</span> <span class="n">Dense</span><span class="p">,</span> <span class="n">Lambda</span><span class="p">,</span> <span class="n">Layer</span><span class="p">,</span> <span class="n">Add</span><span class="p">,</span> <span class="n">Multiply</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-8"></a><span class="kn">from</span> <span class="nn">keras.models</span> <span class="kn">import</span> <span class="n">Model</span><span class="p">,</span> <span class="n">Sequential</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-9"></a><span class="kn">from</span> <span class="nn">keras.datasets</span> <span class="kn">import</span> <span class="n">mnist</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-10"></a>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-11"></a>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-12"></a><span class="n">batch_size</span> <span class="o">=</span> <span class="mi">100</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-13"></a><span class="n">original_dim</span> <span class="o">=</span> <span class="mi">784</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-14"></a><span class="n">latent_dim</span> <span class="o">=</span> <span class="mi">2</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-15"></a><span class="n">intermediate_dim</span> <span class="o">=</span> <span class="mi">256</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-16"></a><span class="n">epochs</span> <span class="o">=</span> <span class="mi">50</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-17"></a><span class="n">epsilon_std</span> <span class="o">=</span> <span class="mf">1.0</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-18"></a>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-19"></a>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-20"></a><span class="k">def</span> <span class="nf">nll</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">):</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-21"></a>    <span class="sd">""" Bernoulli negative log likelihood. """</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-22"></a>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-23"></a>    <span class="c1"># keras.losses.binary_crossentropy gives the mean</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-24"></a>    <span class="c1"># over the last axis. We require the sum.</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-25"></a>    <span class="k">return</span> <span class="n">K</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">K</span><span class="o">.</span><span class="n">binary_crossentropy</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-26"></a>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-27"></a>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-28"></a><span class="k">class</span> <span class="nc">KLDivergenceLayer</span><span class="p">(</span><span class="n">Layer</span><span class="p">):</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-29"></a>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-30"></a>    <span class="sd">""" Identity transform layer that adds KL divergence</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-31"></a><span class="sd">    to the final model loss.</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-32"></a><span class="sd">    """</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-33"></a>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-34"></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-35"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">is_placeholder</span> <span class="o">=</span> <span class="bp">True</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-36"></a>        <span class="nb">super</span><span class="p">(</span><span class="n">KLDivergenceLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-37"></a>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-38"></a>    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-39"></a>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-40"></a>        <span class="n">mu</span><span class="p">,</span> <span class="n">log_var</span> <span class="o">=</span> <span class="n">inputs</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-41"></a>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-42"></a>        <span class="n">kl_batch</span> <span class="o">=</span> <span class="o">-</span> <span class="o">.</span><span class="mi">5</span> <span class="o">*</span> <span class="n">K</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">log_var</span> <span class="o">-</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-43"></a>                                <span class="n">K</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span> <span class="o">-</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-44"></a>                                <span class="n">K</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">log_var</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-45"></a>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-46"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">add_loss</span><span class="p">(</span><span class="n">K</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">kl_batch</span><span class="p">),</span> <span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">)</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-47"></a>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-48"></a>        <span class="k">return</span> <span class="n">inputs</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-49"></a>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-50"></a><span class="n">x</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">original_dim</span><span class="p">,))</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-51"></a><span class="n">h</span> <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="n">intermediate_dim</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'relu'</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-52"></a>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-53"></a><span class="n">z_mu</span> <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="n">latent_dim</span><span class="p">)(</span><span class="n">h</span><span class="p">)</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-54"></a><span class="n">z_log_var</span> <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="n">latent_dim</span><span class="p">)(</span><span class="n">h</span><span class="p">)</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-55"></a>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-56"></a><span class="n">z_mu</span><span class="p">,</span> <span class="n">z_log_var</span> <span class="o">=</span> <span class="n">KLDivergenceLayer</span><span class="p">()([</span><span class="n">z_mu</span><span class="p">,</span> <span class="n">z_log_var</span><span class="p">])</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-57"></a><span class="n">z_sigma</span> <span class="o">=</span> <span class="n">Lambda</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">K</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">.</span><span class="mi">5</span><span class="o">*</span><span class="n">t</span><span class="p">))(</span><span class="n">z_log_var</span><span class="p">)</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-58"></a>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-59"></a><span class="n">eps</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">tensor</span><span class="o">=</span><span class="n">K</span><span class="o">.</span><span class="n">random_normal</span><span class="p">(</span><span class="n">stddev</span><span class="o">=</span><span class="n">epsilon_std</span><span class="p">,</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-60"></a>                                   <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">K</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">x</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">latent_dim</span><span class="p">)))</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-61"></a><span class="n">z_eps</span> <span class="o">=</span> <span class="n">Multiply</span><span class="p">()([</span><span class="n">z_sigma</span><span class="p">,</span> <span class="n">eps</span><span class="p">])</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-62"></a><span class="n">z</span> <span class="o">=</span> <span class="n">Add</span><span class="p">()([</span><span class="n">z_mu</span><span class="p">,</span> <span class="n">z_eps</span><span class="p">])</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-63"></a>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-64"></a><span class="n">decoder</span> <span class="o">=</span> <span class="n">Sequential</span><span class="p">([</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-65"></a>    <span class="n">Dense</span><span class="p">(</span><span class="n">intermediate_dim</span><span class="p">,</span> <span class="n">input_dim</span><span class="o">=</span><span class="n">latent_dim</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'relu'</span><span class="p">),</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-66"></a>    <span class="n">Dense</span><span class="p">(</span><span class="n">original_dim</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'sigmoid'</span><span class="p">)</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-67"></a><span class="p">])</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-68"></a>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-69"></a><span class="n">x_mean</span> <span class="o">=</span> <span class="n">decoder</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-70"></a>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-71"></a><span class="n">vae</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">eps</span><span class="p">],</span> <span class="n">outputs</span><span class="o">=</span><span class="n">x_mean</span><span class="p">)</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-72"></a><span class="n">vae</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">optimizer</span><span class="o">=</span><span class="s1">'rmsprop'</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="n">nll</span><span class="p">)</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-73"></a>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-74"></a><span class="c1"># train the VAE on MNIST digits</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-75"></a><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">),</span> <span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span> <span class="o">=</span> <span class="n">mnist</span><span class="o">.</span><span class="n">load_data</span><span class="p">()</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-76"></a><span class="n">x_train</span> <span class="o">=</span> <span class="n">x_train</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">original_dim</span><span class="p">)</span> <span class="o">/</span> <span class="mf">255.</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-77"></a><span class="n">x_test</span> <span class="o">=</span> <span class="n">x_test</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">original_dim</span><span class="p">)</span> <span class="o">/</span> <span class="mf">255.</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-78"></a>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-79"></a><span class="n">vae</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-80"></a>        <span class="n">x_train</span><span class="p">,</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-81"></a>        <span class="n">shuffle</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-82"></a>        <span class="n">epochs</span><span class="o">=</span><span class="n">epochs</span><span class="p">,</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-83"></a>        <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-84"></a>        <span class="n">validation_data</span><span class="o">=</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">x_test</span><span class="p">))</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-85"></a>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-86"></a><span class="n">encoder</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">z_mu</span><span class="p">)</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-87"></a>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-88"></a><span class="c1"># display a 2D plot of the digit classes in the latent space</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-89"></a><span class="n">z_test</span> <span class="o">=</span> <span class="n">encoder</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">)</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-90"></a><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-91"></a><span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">z_test</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">z_test</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="n">y_test</span><span class="p">,</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-92"></a>            <span class="n">alpha</span><span class="o">=.</span><span class="mi">4</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">3</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">'viridis'</span><span class="p">)</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-93"></a><span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-94"></a><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-95"></a>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-96"></a><span class="c1"># display a 2D manifold of the digits</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-97"></a><span class="n">n</span> <span class="o">=</span> <span class="mi">15</span>  <span class="c1"># figure with 15x15 digits</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-98"></a><span class="n">digit_size</span> <span class="o">=</span> <span class="mi">28</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-99"></a>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-100"></a><span class="c1"># linearly spaced coordinates on the unit square were transformed</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-101"></a><span class="c1"># through the inverse CDF (ppf) of the Gaussian to produce values</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-102"></a><span class="c1"># of the latent variables z, since the prior of the latent space</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-103"></a><span class="c1"># is Gaussian</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-104"></a><span class="n">u_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dstack</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">,</span> <span class="n">n</span><span class="p">),</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-105"></a>                               <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">,</span> <span class="n">n</span><span class="p">)))</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-106"></a><span class="n">z_grid</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">u_grid</span><span class="p">)</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-107"></a><span class="n">x_decoded</span> <span class="o">=</span> <span class="n">decoder</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">z_grid</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">n</span><span class="o">*</span><span class="n">n</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-108"></a><span class="n">x_decoded</span> <span class="o">=</span> <span class="n">x_decoded</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">digit_size</span><span class="p">,</span> <span class="n">digit_size</span><span class="p">)</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-109"></a>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-110"></a><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-111"></a><span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">block</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">x_decoded</span><span class="p">))),</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">'gray'</span><span class="p">)</span>
+<a name="rest_code_8e6f77b75e61442d86d73f3a2851e7b8-112"></a><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre>
 </div>
 </div>

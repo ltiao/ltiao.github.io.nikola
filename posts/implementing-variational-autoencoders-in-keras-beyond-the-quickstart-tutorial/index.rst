@@ -332,12 +332,12 @@ Again, this is simple to define in Keras:
 Since this network has multiple outputs, we couldn't use the Sequential model 
 API as we did for the decoder. Instead, we must resort to the more powerful 
 `Functional API <https://keras.io/getting-started/functional-api-guide/>`_, 
-which is much more general, and allows you to implement complex models with 
-shared layers, multiple inputs, multiple outputs, and so on.
+which allows you to implement complex models with shared layers, multiple 
+inputs, multiple outputs, and so on.
 
 .. TODO
 .. **Figure here**
-.. cannot use Sequential model API
+.. DONE cannot use Sequential model API 
 .. Lambda layer
 .. Reference to Helmholtz machines, which has a recognition model and inference
 .. is done using the wake-sleep algorithm.

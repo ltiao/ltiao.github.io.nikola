@@ -66,9 +66,9 @@ decoder = Sequential([
     Dense(original_dim, activation='sigmoid')
 ])
 
-x_mean = decoder(z)
+x_pred = decoder(z)
 
-vae = Model(inputs=[x, eps], outputs=x_mean)
+vae = Model(inputs=[x, eps], outputs=x_pred)
 vae.compile(optimizer='rmsprop', loss=nll)
 
 # train the VAE on MNIST digits

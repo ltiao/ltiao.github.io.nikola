@@ -341,6 +341,13 @@ API as we did for the decoder. Instead, we must resort to the more powerful
 which allows you to implement complex models with shared layers, multiple 
 inputs, multiple outputs, and so on.
 
+When combined end-to-end, the recognition and generative model can be seen as 
+having an autoencoder structure. 
+Indeed, this general structure contains the variational autoencoder as a special 
+case, and more classically, the Helmholtz machine. 
+Even more generally, we can use this structure to perform amortized variational 
+inference in complex generative models for a wide array of supervised, 
+unsupervised and semi-supervised tasks.
 
 .. TODO
 .. **Figure here**
@@ -464,8 +471,8 @@ Assume ``z_mu`` and ``z_sigma`` are the outputs of some layers. Then, using
 .. code:: python
 
    eps = Input(shape=(latent_dim,))
-   z_eps = Multiply()([z_sigma, eps])   
 
+   z_eps = Multiply()([z_sigma, eps])   
    z = Add()([z_mu, z_eps])
 
 .. figure:: ../../images/vae/reparameterization.svg
@@ -527,11 +534,11 @@ Putting it all together
        Dense(original_dim, activation='sigmoid')
    ]) 
 
-   x_mean = decoder(z)
+   x_pred = decoder(z)
 
 .. code:: python
 
-   vae = Model(inputs=[x, eps], outputs=x_mean)
+   vae = Model(inputs=[x, eps], outputs=x_pred)
    vae.compile(optimizer='rmsprop', loss=nll)
 
 .. figure:: ../../images/vae/vae_full_shapes.svg
@@ -540,13 +547,6 @@ Putting it all together
 
    Variational autoencoder architecture.
 
-When combined end-to-end, the inference network and the deep latent Gaussian
-model can be seen as having an autoencoder structure. 
-Indeed, this general structure contains the variational autoencoder as a special 
-case, and more traditionally, the Helmholtz machine. 
-Even more generally, we can use this structure to perform amortized variational 
-inference in complex generative models for a wide array of supervised, 
-unsupervised and semi-supervised tasks.
 
 The point of this tutorial is to illustrate the general framework for performing
 amortized variational inference using Keras, treating the inference network 

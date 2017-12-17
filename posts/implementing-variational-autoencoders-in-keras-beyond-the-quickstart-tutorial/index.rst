@@ -314,9 +314,6 @@ data-point, we now learn a fixed number of *global* variational parameters
 Moreover, this approximation allows statistical strength to be shared across 
 observed data-points and also generalize to unseen test points.
 
-.. Inference networks are more classically known as *recognition models*, and are
-.. used in the closely-related Helmholtz machines [#dayan1995]_.
-
 We specify the location and scale of this distribution as the output of an 
 inference network. For this post, we keep the architecture of the network 
 simple, with only a single hidden layer and two fully-connected output layers. 
@@ -343,13 +340,15 @@ API as we did for the decoder. Instead, we must resort to the more powerful
 which allows you to implement complex models with shared layers, multiple 
 inputs, multiple outputs, and so on.
 
-When combined end-to-end, the recognition and generative model can be seen as 
-having an autoencoder structure. 
-Indeed, this general structure contains the variational autoencoder as a special 
-case, and more classically, the Helmholtz machine. 
-Even more generally, we can use this structure to perform amortized variational 
-inference in complex generative models for a wide array of supervised, 
-unsupervised and semi-supervised tasks.
+To provide some context, we remark that inference networks are more classically 
+known as *recognition models*. When combined end-to-end, the recognition and 
+generative model can be seen as having an autoencoder structure. 
+Indeed, this structure contains the variational autoencoder as a special case, 
+and more classically, the Helmholtz machine [#dayan1995]_. 
+More generally, we can use this structure to perform approximate Bayesian
+inference in models that lie beyond even the large class of deep latent Gaussian 
+models. Hence, referring to it as a probabilistic encoder, though an accurate 
+interpretation, is a limited one.
 
 .. TODO
 .. **Figure here**

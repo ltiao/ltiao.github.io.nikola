@@ -14,8 +14,8 @@
 Keras_ is awesome. It is a very well-designed library that clearly abides by 
 its `guiding principles`_ of modularity and extensibility, and allows us to 
 easily assemble powerful, complex models from primitive building blocks. 
-This has been demonstrated in numerous blog posts and tutorials, such as the 
-excellent tutorial on `Building Autoencoders in Keras`_. 
+This has been demonstrated in numerous blog posts and tutorials, in particular,
+the excellent tutorial on `Building Autoencoders in Keras`_. 
 As the name suggests, that tutorial provides examples of how to implement 
 various kinds of autoencoders in Keras, including the variational autoencoder 
 (VAE) [#kingma2014]_. 

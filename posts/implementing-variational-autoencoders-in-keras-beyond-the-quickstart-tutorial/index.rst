@@ -288,12 +288,12 @@ approximates the local variational parameters :math:`\phi_n` for a given local
 observation :math:`\textbf{x}_n`. 
 In particular, given :math:`\textbf{x}_n` the inference network yields two 
 outputs :math:`\mu_{\phi}(\textbf{x}_n)` and :math:`\sigma_{\phi}(\textbf{x}_n)`, 
-and we use these to approximate its local variational sparameter 
+and we use these to approximate its local variational parameter 
 :math:`\mathbf{\mu}_n` and :math:`\mathbf{\sigma}_n` respectively.
 
-This means that instead of learning local variational parameters :math:`\phi_n` 
-for each data-point, we now learn a fixed number of *global* variational 
-parameters :math:`\phi` which constitute the parameters of the inference network. 
+This means instead of learning local variational parameters :math:`\phi_n` for 
+each data-point, we now learn a fixed number of *global* variational parameters 
+:math:`\phi` which constitute the parameters of the inference network. 
 Moreover, this approximation allows statistical strength to be shared across 
 observed data-points and also generalize to unseen test points.
 
@@ -310,15 +310,31 @@ Our approximate posterior distribution now becomes
    ).
 
 We specify the location and scale of this distribution as the output of an 
-inference network. defined in Keras as:
+inference network. In our example, we keep the architecture of the network 
+simple, with only a single hidden layer and two fully-connected output layers. 
+Again, this is simple to define in Keras:
 
 .. code:: python
 
+   # input layer
    x = Input(shape=(original_dim,))
+
+   # hidden layer
    h = Dense(intermediate_dim, activation='relu')(x)  
+
+   # output layer for mu
    z_mu = Dense(latent_dim)(h)
+
+   # output layer for sigma
    z_log_var = Dense(latent_dim)(h)
    z_sigma = Lambda(lambda t: K.exp(.5*t))(z_log_var)
+
+Since this network has multiple outputs, we couldn't use the Sequential model 
+API as we did for the decoder. Instead, we must resort to the more powerful 
+`Functional API <https://keras.io/getting-started/functional-api-guide/>`_, 
+which lets you do all kinds of things, such as implementing shared layers and 
+multi-input/multi-output models.
+
 
 .. TODO
 .. **Figure here**

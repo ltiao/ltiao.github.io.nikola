@@ -344,7 +344,7 @@ To provide some context, we remark that inference networks are more classically
 known as *recognition models*. When combined end-to-end, the recognition and 
 generative model can be seen as having an autoencoder structure. 
 Indeed, this structure contains the variational autoencoder as a special case, 
-and more classically, the Helmholtz machine [#dayan1995]_. 
+and more classically, the *Helmholtz machine* [#dayan1995]_. 
 More generally, we can use this structure to perform approximate Bayesian
 inference in models that lie beyond even the large class of deep latent Gaussian 
 models. Hence, referring to it as a probabilistic encoder, though an accurate 
@@ -421,15 +421,15 @@ weighting.
 Reparameterization using Merge Layers
 #####################################
 
-To perform gradient-based optimization of ELBO, we require its gradients with 
-respect to the variational parameters :math:`\phi`, which is generally 
-intractable. Currently, the dominant approach for circumventing this is by
-Monte Carlo (MC) estimation of the gradients. There are a several estimators
-based on different variance reduction techniques. However, for continuous 
-latent variables, the *reparameterization gradients* can be shown to have the 
-lowest variance among competing estimators.
-
-
+To perform gradient-based optimization of ELBO with respect to model parameters 
+:math:`theta` and variational parameters :math:`\phi`, we are required to 
+compute its gradients with respect to these parameters. This is easy to do for 
+parameters :math:`theta`, but is generally intractable for parameters 
+:math:`\phi`. Currently, the dominant approach for circumventing this is by
+Monte Carlo (MC) estimation of the gradients. There exist a number of estimators
+based on different variance reduction techniques. However, the 
+*reparameterization gradients* can be shown to have the lowest variance among 
+competing estimators for continuous latent variables,
 
 The ELBO can be written as an expectation of a multivariate function 
 :math:`f(\mathbf{x}, \mathbf{z}) = \log p_{\theta}(\mathbf{x} , \mathbf{z}) - \log q_{\phi}(\mathbf{z} | \mathbf{x})`

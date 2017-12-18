@@ -300,12 +300,12 @@ Our approximate posterior distribution now becomes
 
 .. math::
 
-   q_{\phi}(\mathbf{z} | \mathbf{x}) 
+   q_{\phi}(\mathbf{z}_n | \mathbf{x}_n) 
    = 
    \mathcal{N}(
-     \mathbf{z} | 
-     \mathbf{\mu}_{\phi}(\mathbf{x}), 
-     \mathrm{diag}(\mathbf{\sigma}_{\phi}^2(\mathbf{x}))
+     \mathbf{z}_n | 
+     \mathbf{\mu}_{\phi}(\mathbf{x}_n), 
+     \mathrm{diag}(\mathbf{\sigma}_{\phi}^2(\mathbf{x}_n))
    ).
 
 Instead of learning local variational parameters :math:`\phi_n` for each 
@@ -327,35 +327,45 @@ Again, this is simple to define in Keras:
    # hidden layer
    h = Dense(intermediate_dim, activation='relu')(x)  
 
-   # output layer for mu
+   # output layer for mean and log variance
    z_mu = Dense(latent_dim)(h)
-
-   # output layer for sigma
    z_log_var = Dense(latent_dim)(h)
-   z_sigma = Lambda(lambda t: K.exp(.5*t))(z_log_var)
+
+.. TODO
+.. **Figure here**
 
 Since this network has multiple outputs, we couldn't use the Sequential model 
-API as we did for the decoder. Instead, we must resort to the more powerful 
+API as we did for the decoder. Instead, we will resort to the more powerful 
 `Functional API <https://keras.io/getting-started/functional-api-guide/>`_, 
 which allows you to implement complex models with shared layers, multiple 
 inputs, multiple outputs, and so on.
 
-To provide some context, we remark that inference networks are more classically 
-known as *recognition models*. When combined end-to-end, the recognition and 
-generative model can be seen as having an autoencoder structure. 
-Indeed, this structure contains the variational autoencoder as a special case, 
-and more classically, the *Helmholtz machine* [#dayan1995]_. 
-More generally, we can use this structure to perform approximate Bayesian
-inference in models that lie beyond even the large class of deep latent Gaussian 
-models. Hence, referring to it as a probabilistic encoder, though an accurate 
-interpretation, is a limited one.
+Before moving on, we give some remarks on nomenclature and context. In the 
+prelude and title of this section, we characterized the approximate posterior 
+distribution with an inference network as a probabilistic encoder (analogously 
+to its counterpart, the probabilistic decoder). Although this is an accurate 
+interpretation, it is a limited one. 
+Classically, inference networks are known as *recognition models*, and have been 
+used successfully for decades now in a number of methods.
+When composed end-to-end, the recognition-generative model combination can be 
+seen as having an autoencoder structure. Indeed, this structure contains the 
+variational autoencoder as a special case, and the less fashionable
+*Helmholtz machine* [#dayan1995]_. 
+Even more generally, this recognition-generative model combination constitutes 
+a widely-applicable approach now known as *amortized variational inference*, 
+which can be used to perform approximate inference in models that lie beyond 
+even the large class of deep latent Gaussian models.
 
-.. TODO
-.. **Figure here**
-.. DONE cannot use Sequential model API 
-.. Lambda layer
-.. Reference to Helmholtz machines, which has a recognition model and inference
-.. is done using the wake-sleep algorithm.
+Having specified all the ingredients necessary to carry out variational 
+inference (namely, the prior, likelihood and approximate posterior), we next
+focus on finalizing the definition of the (negative) ELBO as our loss function 
+in Keras. As written earlier, ELBO can be decomposed into two terms, 
+:math:`\mathbb{E}_{q_{\phi}(\mathbf{z} | \mathbf{x})} [ \log p_{\theta}(\mathbf{x} | \mathbf{z}) ]`
+the expected log likelihood (ELL) over :math:`q_{\phi}(\mathbf{z} | \mathbf{x})`,
+and :math:`- \mathrm{KL} [q_{\phi}(\mathbf{z} | \mathbf{x}) \| p(\mathbf{z}) ]`
+the negative KL divergence between prior :math:`p(\mathbf{z})` and approximate 
+posterior :math:`q_{\phi}(\mathbf{z} | \mathbf{x})`. We first turn our attention
+to the KL divergence term.
 
 .. Note that it is not dependent on the observed data x_i 
 .. and does not appear in the expression q_i(z_i). It is only related to x_i 
@@ -364,12 +374,26 @@ interpretation, is a limited one.
 KL Divergence
 #############
 
-latent space regularization
+Intuitively, maximizing the negative KL divergence term encourages approximate 
+posterior densities that place its mass on configurations of the latent 
+variables which are closest to the prior. Effectively, this regularizes the 
+complexity of latent space.
+
+Now, since both the prior :math:`p(\mathbf{z})` and approximate posterior 
+:math:`q_{\phi}(\mathbf{z} | \mathbf{x})` are Gaussian, the KL divergence can
+actually be calculated with the closed-form expression,
 
 .. math:: 
 
    \mathrm{KL} [q_{\phi}(\mathbf{z} | \mathbf{x}) \| p(\mathbf{z}) ]
    = - \frac{1}{2} \sum_{k=1}^K \{ 1 + \log \sigma_k^2 - \mu_k^2 - \sigma_k^2 \}
+
+where :math:`\mu_k` and :math:`\sigma_k` are the :math:`k`-th components of 
+output vectors :math:`\mathbf{\mu}_{\phi}(\mathbf{x})` and 
+:math:`\mathbf{\sigma}_{\phi}(\mathbf{x})`, respectively.
+This is not too difficult to derive, and I would recommend verifying this as an 
+exercise. You can also find a derivation in the appendix of Kingma and Welling's 
+(2014) paper [#kingma2014]_.
 
 .. code:: python
 
@@ -394,6 +418,8 @@ latent space regularization
            self.add_loss(K.mean(kl_batch), inputs=inputs)   
 
            return inputs
+
+We feed ``z_mu`` and ``z_log_var`` through this layer.
 
 .. code:: python
 
@@ -422,7 +448,7 @@ Reparameterization using Merge Layers
 #####################################
 
 To perform gradient-based optimization of ELBO with respect to model parameters 
-:math:`theta` and variational parameters :math:`\phi`, we are required to 
+:math:`\theta` and variational parameters :math:`\phi`, we are required to 
 compute its gradients with respect to these parameters. This is easy to do for 
 parameters :math:`theta`, but is generally intractable for parameters 
 :math:`\phi`. Currently, the dominant approach for circumventing this is by

@@ -359,7 +359,7 @@ even the large class of deep latent Gaussian models.
 Having specified all the ingredients necessary to carry out variational 
 inference (namely, the prior, likelihood and approximate posterior), we next
 focus on finalizing the definition of the (negative) ELBO as our loss function 
-in Keras. As written earlier, ELBO can be decomposed into two terms, 
+in Keras. As written earlier, the ELBO can be decomposed into two terms, 
 :math:`\mathbb{E}_{q_{\phi}(\mathbf{z} | \mathbf{x})} [ \log p_{\theta}(\mathbf{x} | \mathbf{z}) ]`
 the expected log likelihood (ELL) over :math:`q_{\phi}(\mathbf{z} | \mathbf{x})`,
 and :math:`- \mathrm{KL} [q_{\phi}(\mathbf{z} | \mathbf{x}) \| p(\mathbf{z}) ]`
@@ -394,6 +394,8 @@ output vectors :math:`\mathbf{\mu}_{\phi}(\mathbf{x})` and
 This is not too difficult to derive, and I would recommend verifying this as an 
 exercise. You can also find a derivation in the appendix of Kingma and Welling's 
 (2014) paper [#kingma2014]_.
+
+We define this in a `custom Keras layer <https://keras.io/layers/writing-your-own-keras-layers/>`_.
 
 .. code:: python
 

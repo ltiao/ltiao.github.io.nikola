@@ -354,11 +354,11 @@ API as we did for the decoder. Instead, we will resort to the more powerful
 which allows you to implement complex models with shared layers, multiple 
 inputs, multiple outputs, and so on.
 
-Before moving on, we give some remarks on nomenclature and context. In the 
-prelude and title of this section, we characterized the approximate posterior 
-distribution with an inference network as a probabilistic encoder (analogously 
-to its counterpart, the probabilistic decoder). Although this is an accurate 
-interpretation, it is a limited one. 
+Before moving on, we give a few words on nomenclature and context. 
+In the prelude and title of this section, we characterized the approximate 
+posterior distribution with an inference network as a probabilistic encoder 
+(analogously to its counterpart, the probabilistic decoder). 
+Although this is an accurate interpretation, it is a limited one. 
 Classically, inference networks are known as *recognition models*, and have been 
 used successfully for decades now in a number of methods.
 When composed end-to-end, the recognition-generative model combination can be 
@@ -452,7 +452,7 @@ Next we feed ``z_mu`` and ``z_log_var`` through this layer.
    z_mu, z_log_var = KLDivergenceLayer()([z_mu, z_log_var])
 
 Now when the Keras model is finally compiled, the collection of losses will be 
-aggregated and added to the specified Keras loss function to form the loss we
+aggregated and added to the specified Keras loss fwunction to form the loss we
 ultimately minimize. If we specify the loss as the negative log-likelihood we 
 defined earlier (``nll``), we recover the negative ELBO as the final loss we 
 minimize.

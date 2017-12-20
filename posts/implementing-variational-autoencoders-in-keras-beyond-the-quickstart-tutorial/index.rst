@@ -391,11 +391,9 @@ KL Divergence
 Intuitively, maximizing the negative KL divergence term encourages approximate 
 posterior densities that place its mass on configurations of the latent 
 variables which are closest to the prior. Effectively, this regularizes the 
-complexity of latent space.
-
-Now, since both the prior :math:`p(\mathbf{z})` and approximate posterior 
-:math:`q_{\phi}(\mathbf{z} | \mathbf{x})` are Gaussian, the KL divergence can
-actually be calculated with the closed-form expression,
+complexity of latent space. Now, since both the prior :math:`p(\mathbf{z})` and 
+approximate posterior :math:`q_{\phi}(\mathbf{z} | \mathbf{x})` are Gaussian, 
+the KL divergence can actually be calculated with the closed-form expression,
 
 .. math:: 
 
@@ -593,16 +591,6 @@ Putting it all together
    :align: center
 
    Variational autoencoder architecture.
-
-
-The point of this tutorial is to illustrate the general framework for performing
-amortized variational inference using Keras, treating the inference network 
-(approximate posterior) and the generative network (likelihood) as black-boxes.
-What we've used for the encoder and decoder each with a single hidden 
-full-connected layer is perhaps the minimal viable architecture. 
-In the examples directory, Keras provides a more sophisticated variational 
-autoencoder with deconvolutional layers. The architecture definitions can be
-trivially copy-pasted here without need to modify anything else.
 
 Model fitting
 =============

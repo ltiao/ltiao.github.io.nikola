@@ -476,9 +476,9 @@ based on the reparameterization trick, known as the
 competing estimators for continuous latent variables,
 
 The ELBO can be written as an expectation of a multivariate function 
-:math:`f(\mathbf{x}, \mathbf{z}) = \log p_{\theta}(\mathbf{x} , \mathbf{z}) - \log q_{\phi}(\mathbf{z} | \mathbf{x})`
+:math:`f(\mathbf{x}, \mathbf{z}) = \log p_{\theta}(\mathbf{x} , \mathbf{z}) - 
+\log q_{\phi}(\mathbf{z} | \mathbf{x})`
 over distribution :math:`q_{\phi}(\mathbf{z} | \mathbf{x})`.
-
 
 .. math::
 
@@ -723,11 +723,15 @@ Footnotes
    inference in general, I highly recommend:
 
    * Jaan Altosaar's blog post, `What is a variational autoencoder? 
-     <https://jaan.io/what-is-variational-autoencoder-vae-tutorial/>`_.
+     <https://jaan.io/what-is-variational-autoencoder-vae-tutorial/>`_
    * Diederik P. Kingma's PhD Thesis, 
      `Variational Inference and Deep Learning: A New Synthesis 
      <https://www.dropbox.com/s/v6ua3d9yt44vgb3/cover_and_thesis.pdf?dl=1>`_.
-.. [*] Scalar tensor.
+.. [*] To support sample weighting (fined-tuning how much each data-point 
+   contributes to the loss) Keras losses are expected returns a scalar for each 
+   data-point in the batch. In contrast, losses appended with the ``add_loss``
+   method don't support this. Hence, we calculate the KL divergence for all 
+   data-points in the batch and take the mean before passing it to ``add_loss``.
 
 References
 ==========

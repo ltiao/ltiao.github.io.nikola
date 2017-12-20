@@ -184,7 +184,7 @@ However, it will still constitute the data-fitting term of our final loss.
 Note this is a valid definition of a `Keras loss <https://keras.io/losses/>`_, 
 which is required to compile and optimize a model. It is a symbolic function 
 that returns a scalar for each data-point in ``y_true`` and ``y_pred``. 
-In our example, ``y_pred`` will be the output of our ``decoder`` model, the 
+In our example, ``y_pred`` will be the output of our ``decoder`` network, the 
 predicted probabilities, and ``y_true`` will be the true probabilities.
 
 .. Tip:: If you are using the TensorFlow backend, you can directly use the 
@@ -409,9 +409,9 @@ exercise. You can also find a derivation in the appendix of Kingma and Welling's
 
 Recall that earlier, we defined the expected log likelihood term of the ELBO as
 a Keras loss. We were able to do this since the log likelihood is a function of
-the model's final output (the predicted probabilities), so it maps nicely to a 
+the network's final output (the predicted probabilities), so it maps nicely to a 
 Keras loss. Unfortunately, the same does not apply for the KL divergence term, 
-which is a function of the model's intermediate layer outputs, the mean ``mu`` 
+which is a function of the network's intermediate layer outputs, the mean ``mu`` 
 and log variance ``log_var``.
 
 We define an auxiliary `custom Keras layer <https://keras.io/layers/writing-your-own-keras-layers/>`_
@@ -451,7 +451,7 @@ Next we feed ``z_mu`` and ``z_log_var`` through this layer.
 
    z_mu, z_log_var = KLDivergenceLayer()([z_mu, z_log_var])
 
-Now when the final model is compiled, the collection of losses will be 
+Now when the Keras model is finally compiled, the collection of losses will be 
 aggregated and added to the specified Keras loss function to form the loss we
 ultimately minimize. If we specify the loss as the negative log-likelihood we 
 defined earlier (``nll``), we recover the negative ELBO as the final loss we 

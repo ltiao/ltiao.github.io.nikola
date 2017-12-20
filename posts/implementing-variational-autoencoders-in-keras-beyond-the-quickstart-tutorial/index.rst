@@ -179,7 +179,7 @@ negative log likelihood of a Bernoulli :math:`- \log p_{\theta}(\mathbf{x} |
        return K.sum(K.binary_crossentropy(y_true, y_pred), axis=-1)
 
 As we discuss later, this will not be the loss we ultimately minimize. 
-However, it will constitute the data-fitting term of our final loss.
+However, it will still constitute the data-fitting term of our final loss.
 
 Note this is a valid definition of a `Keras loss <https://keras.io/losses/>`_, 
 which is required to compile and optimize a model. It is a symbolic function 
@@ -419,7 +419,7 @@ which takes ``mu``  and ``log_var`` as input and simply returns them as output
 without modification. However, we explicitly introduce the 
 `side-effect <https://en.wikipedia.org/wiki/Side_effect_(computer_science)>`_
 of calculating the KL divergence and adding it to a collection of losses by 
-calling the method ``add_loss``.
+calling the method ``add_loss`` [*]_.
 
 .. code:: python
 
@@ -727,6 +727,7 @@ Footnotes
    * Diederik P. Kingma's PhD Thesis, 
      `Variational Inference and Deep Learning: A New Synthesis 
      <https://www.dropbox.com/s/v6ua3d9yt44vgb3/cover_and_thesis.pdf?dl=1>`_.
+.. [*] Scalar tensor.
 
 References
 ==========

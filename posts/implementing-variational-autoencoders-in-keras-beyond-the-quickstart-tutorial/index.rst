@@ -412,7 +412,7 @@ exercise. You can also find a derivation in the appendix of Kingma and Welling's
 Recall that earlier, we defined the expected log likelihood term of the ELBO as
 a Keras loss. We were able to do this since the log likelihood is a function of
 the model's final output (the predicted probabilities), so it maps nicely to a 
-Keras loss. Unfortunately, the same cannot be said for the KL divergence term, 
+Keras loss. Unfortunately, the same does not apply for the KL divergence term, 
 which is a function of the model's intermediate layer outputs, the mean ``mu`` 
 and log variance ``log_var``.
 
@@ -447,17 +447,17 @@ calling the method ``add_loss``.
 
            return inputs
 
-Now when the final model is compiled, the collection of losses will be 
-aggregated and added to the specified Keras loss function to form the loss we
-ultimately minimize. If we specify the loss as the negative log-likelihood we 
-defined earlier (``nll``), we recover the negative ELBO as the final loss to 
-minimize.
-
-We feed ``z_mu`` and ``z_log_var`` through this layer.
+Next we feed ``z_mu`` and ``z_log_var`` through this layer.
 
 .. code:: python
 
    z_mu, z_log_var = KLDivergenceLayer()([z_mu, z_log_var])
+
+Now when the final model is compiled, the collection of losses will be 
+aggregated and added to the specified Keras loss function to form the loss we
+ultimately minimize. If we specify the loss as the negative log-likelihood we 
+defined earlier (``nll``), we recover the negative ELBO as the final loss we 
+minimize.
 
 .. TODO
 .. - add_loss should be scalar

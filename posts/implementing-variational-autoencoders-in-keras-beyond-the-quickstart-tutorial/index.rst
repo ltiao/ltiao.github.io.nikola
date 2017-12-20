@@ -345,6 +345,10 @@ Again, this is simple to define in Keras:
    z_mu = Dense(latent_dim)(h)
    z_log_var = Dense(latent_dim)(h)
 
+   # normalize log variance to std dev
+   z_sigma = Lambda(lambda t: K.exp(.5*t))(z_log_var)
+
+
 .. TODO
 .. **Figure here**
 
@@ -465,20 +469,36 @@ Reparameterization using Merge Layers
 #####################################
 
 To perform gradient-based optimization of ELBO with respect to model parameters 
-:math:`\theta` and variational parameters :math:`\phi`, we are required to 
-compute its gradients with respect to these parameters. This is easy to do for 
-parameters :math:`theta`, but is generally intractable for parameters 
-:math:`\phi`. Currently, the dominant approach for circumventing this is by
-Monte Carlo (MC) estimation of the gradients. There exist a number of estimators
-based on different variance reduction techniques. However, stochastic gradients 
-based on the reparameterization trick, known as the 
-*reparameterization gradients*, can be shown to have the lowest variance among 
-competing estimators for continuous latent variables,
+:math:`\theta` and variational parameters :math:`\phi`, we require its gradients 
+with respect to these parameters, which is generally intractable. 
+Currently, the dominant approach for circumventing this is by Monte Carlo (MC) 
+estimation of the gradients. The basic idea is to write the gradient of the 
+ELBO as an expectation of the gradient, approximate it with MC estimates, then 
+perform stochastic gradient descent with repeated MC gradient estimates.
 
-The ELBO can be written as an expectation of a multivariate function 
-:math:`f(\mathbf{x}, \mathbf{z}) = \log p_{\theta}(\mathbf{x} , \mathbf{z}) - 
-\log q_{\phi}(\mathbf{z} | \mathbf{x})`
-over distribution :math:`q_{\phi}(\mathbf{z} | \mathbf{x})`.
+There exist a number of estimators based on different variance reduction 
+techniques. However, MC gradient estimates based on the reparameterization trick, 
+known as the *reparameterization gradients*, have be shown to have the lowest 
+variance among competing estimators for continuous latent variables.
+The reparameterization trick is a straightforward change of variables that 
+expresses the random variable :math:`\mathbf{z} \sim q_{\phi}(\mathbf{z} | \mathbf{x})`
+as a deterministic transformation :math:`g_{\phi}` of another random variable 
+:math:`\mathbf{\epsilon}`, given :math:`\mathbf{x}`, and parameterized by :math:`\phi`,
+
+.. math::
+
+   z = g_{\phi}(\mathbf{x}, \mathbf{\epsilon}), \quad 
+     \mathbf{\epsilon} \sim p(\mathbf{\epsilon}).
+
+Note the base distribution :math:`p(\mathbf{\epsilon})` is parameter-free and 
+independent of :math:`\mathbf{x}` or :math:`\phi`. To prevent clutter, we write 
+the ELBO as an expectation of the function :math:`f(\mathbf{x}, \mathbf{z}) = 
+\log p_{\theta}(\mathbf{x} , \mathbf{z}) - \log q_{\phi}(\mathbf{z} | \mathbf{x})` 
+over distribution :math:`q_{\phi}(\mathbf{z} | \mathbf{x})`. 
+Now, for any function :math:`f(\mathbf{x}, \mathbf{z})`, taking the gradient of 
+the expectation with respect to :math:`\phi`, and substituting all occurrences
+of :math:`\mathbf{z}` with :math:`g_{\phi}(\mathbf{x}, \mathbf{\epsilon})`, we
+have
 
 .. math::
 
@@ -492,14 +512,20 @@ over distribution :math:`q_{\phi}(\mathbf{z} | \mathbf{x})`.
     \nabla_{\phi}
     f(\mathbf{x}, 
       g_{\phi}(\mathbf{x}, \mathbf{\epsilon})) 
-   ] \\
+   ].
 
-Specifying  gives us the gradient of the ELBO above.
+That is, this this simple reparameterization allows the gradient and the 
+expectation to commute, thereby allowing us to take unbiased stochastic estimates 
+of ELBO gradients by drawing noise samples :math:`\mathbf{\epsilon}` from 
+:math:`p(\mathbf{\epsilon})`.
 
-.. math::
-
-   z = g_{\phi}(\mathbf{x}, \mathbf{\epsilon}), \quad 
-     \mathbf{\epsilon} \sim p(\mathbf{\epsilon})
+To recover our diagonal Gaussian approximation 
+:math:`q_{\phi}(\mathbf{z}_n | \mathbf{x}_n) = 
+\mathcal{N}(
+\mathbf{z}_n | 
+\mathbf{\mu}_{\phi}(\mathbf{x}_n), 
+\mathrm{diag}(\mathbf{\sigma}_{\phi}^2(\mathbf{x}_n)))`, 
+we require a simple location-scale transformation and a Normal base distribution,
 
 .. math::
 
@@ -508,10 +534,12 @@ Specifying  gives us the gradient of the ELBO above.
      \mathbf{\sigma}_{\phi}(\mathbf{x}) \odot 
      \mathbf{\epsilon}, \quad 
      \mathbf{\epsilon} \sim 
-     \mathcal{N}(\mathbf{0}, \mathbf{I})
-   
-Assume ``z_mu`` and ``z_sigma`` are the outputs of some layers. Then, using  
-`Merge Layers <https://keras.io/layers/merge/>`_, ``Add`` and ``Multiply``:
+     \mathcal{N}(\mathbf{0}, \mathbf{I}).
+
+where :math:`\mathbf{\mu}_{\phi}(\mathbf{x})` and 
+:math:`\mathbf{\sigma}_{\phi}(\mathbf{x})` are the outputs of the inference 
+network with parameter :math:`\phi` as before, and :math:`\odot` denotes the 
+elementwise product.
 
 .. code:: python
 
@@ -527,6 +555,10 @@ Assume ``z_mu`` and ``z_sigma`` are the outputs of some layers. Then, using
    Reparameterization with simple location-scale transformation using Keras 
    merge layers.
 
+.. code:: python
+
+   eps = Input(tensor=K.random_normal(shape=(K.shape(x)[0], latent_dim)))
+
 Lambda layer, which simultaneously draws samples from a hard-coded base 
 distribution and performs reparameterization. This implementation achieves a 
 more appropriate level of modularity and abstraction. It's makes it clear that
@@ -534,15 +566,6 @@ each of these atomic building blocks are themselves deterministic
 transformations which together make up a deterministic transformation. 
 The source of stochasticity comes from the input, which we are able to tweak at
 test time. Gumbel-softmax trick.
-
-.. code:: python
-
-   eps = Input(tensor=K.random_normal(shape=(K.shape(x)[0], latent_dim)))
-
-For the sake of illustration, we've fixed ``sigma`` and ``mu`` as ``Input`` 
-layers. That's why it says ``InputLayer`` next to it. In reality, it will be 
-the output layer of a network. We specify :math:`\mathbf{\mu}_{\phi}(\mathbf{x})` 
-and :math:`\mathbf{\sigma}_{\phi}(\mathbf{x})` now.
 
 .. figure:: ../../images/vae/encoder.svg
    :height: 500px

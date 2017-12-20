@@ -164,14 +164,28 @@ family of DLGMs, which include *non-linear factor analysis*,
 *non-linear Gaussian belief networks*, *sigmoid belief networks*, and many 
 others [#rezende2014]_.
 
+Having specified how the probabilities are computed, we can now define the 
+negative log likelihood of a Bernoulli :math:`- \log p_{\theta}(\mathbf{x} | 
+\mathbf{z})`, which is in fact equivalent to the `binary cross-entropy loss 
+<https://en.wikipedia.org/wiki/Cross_entropy>`_:
+
 .. code:: python
 
    def nll(y_true, y_pred):
        """ Negative log likelihood (Bernoulli). """
 
-       # keras.losses.binary_crossentropy give the mean
+       # keras.losses.binary_crossentropy gives the mean
        # over the last axis. we require the sum
        return K.sum(K.binary_crossentropy(y_true, y_pred), axis=-1)
+
+As we discuss later, this will not be the loss we ultimately minimize. 
+However, it will constitute the data-fitting term of our final loss.
+
+Note this is a valid definition of a `Keras loss <https://keras.io/losses/>`_, 
+which is required to compile and optimize a model. It is a symbolic function 
+that returns a scalar for each data-point in ``y_true`` and ``y_pred``. 
+In our example, ``y_pred`` will be the output of our ``decoder`` model, the 
+predicted probabilities, and ``y_true`` will be the true probabilities.
 
 .. Tip:: If you are using the TensorFlow backend, you can directly use the 
    (negative) log probability of ``Bernoulli`` from TensorFlow Distributions as 
@@ -244,9 +258,9 @@ Therefore, maximizing it with respect to the model parameters :math:`\theta`
 approximately maximizes the log marginal likelihood. 
 Additionally, maximizing it with respect variational parameter :math:`\phi` can 
 be shown to minimize
-:math:`\mathrm{KL} [q_{\phi}(\mathbf{z} | \mathbf{x}) \| p_{\theta}(\mathbf{z} | \mathbf{x}) ]`. Also, it turns out that the KL divergence determines the 
-tightness of the lower bound, where we have equality iff the KL divergence is 
-zero, which happens iff 
+:math:`\mathrm{KL} [q_{\phi}(\mathbf{z} | \mathbf{x}) \| p_{\theta}(\mathbf{z} | \mathbf{x}) ]`. 
+Also, it turns out that the KL divergence determines the tightness of the lower 
+bound, where we have equality iff the KL divergence is zero, which happens iff 
 :math:`q_{\phi}(\mathbf{z} | \mathbf{x}) = p_{\theta}(\mathbf{z} | \mathbf{x})`.
 Hence, simultaneously maximizing it with respect to :math:`\theta` and 
 :math:`\phi` gets us two birds with one stone.
@@ -349,7 +363,7 @@ Classically, inference networks are known as *recognition models*, and have been
 used successfully for decades now in a number of methods.
 When composed end-to-end, the recognition-generative model combination can be 
 seen as having an autoencoder structure. Indeed, this structure contains the 
-variational autoencoder as a special case, and the less fashionable
+variational autoencoder as a special case, and the now less fashionable
 *Helmholtz machine* [#dayan1995]_. 
 Even more generally, this recognition-generative model combination constitutes 
 a widely-applicable approach now known as *amortized variational inference*, 
@@ -395,7 +409,19 @@ This is not too difficult to derive, and I would recommend verifying this as an
 exercise. You can also find a derivation in the appendix of Kingma and Welling's 
 (2014) paper [#kingma2014]_.
 
-We define this in a `custom Keras layer <https://keras.io/layers/writing-your-own-keras-layers/>`_.
+Recall that earlier, we defined the expected log likelihood term of the ELBO as
+a Keras loss. We were able to do this since the log likelihood is a function of
+the model's final output (the predicted probabilities), so it maps nicely to a 
+Keras loss. Unfortunately, the same cannot be said for the KL divergence term, 
+which is a function of the model's intermediate layer outputs, the mean ``mu`` 
+and log variance ``log_var``.
+
+We define an auxiliary `custom Keras layer <https://keras.io/layers/writing-your-own-keras-layers/>`_
+which takes ``mu``  and ``log_var`` as input and simply returns them as output 
+without modification. However, we explicitly introduce the 
+`side-effect <https://en.wikipedia.org/wiki/Side_effect_(computer_science)>`_
+of calculating the KL divergence and adding it to a collection of losses by 
+calling the method ``add_loss``.
 
 .. code:: python
 
@@ -421,30 +447,21 @@ We define this in a `custom Keras layer <https://keras.io/layers/writing-your-ow
 
            return inputs
 
+Now when the final model is compiled, the collection of losses will be 
+aggregated and added to the specified Keras loss function to form the loss we
+ultimately minimize. If we specify the loss as the negative log-likelihood we 
+defined earlier (``nll``), we recover the negative ELBO as the final loss to 
+minimize.
+
 We feed ``z_mu`` and ``z_log_var`` through this layer.
 
 .. code:: python
 
    z_mu, z_log_var = KLDivergenceLayer()([z_mu, z_log_var])
 
-by itself, it will learn to ignore the input and map all outputs to 0.
-It is only when we tack on the decoder that the reconstruction likelihood
-is introduced. Only then will we reconcile the likelihood / observed data with 
-our prior to form the posterior over latent codes.
-
-At this stage we could specify 
-``prob_encoder = Model(inputs=x, outputs=[z_mu, z_sigma])``
-and compile it with something like 
-``prob_encoder.compile(optimizer='rmsprop`, loss=None)``. 
-When we fit it, it would trivially map all inputs to 0 and 1, thus learning the
-prior distribution.
-
-inputs mu and log_var are of shape (batch_size, latent_dim)
-the loss we add should be scalar. this is unlike loss 
-function specified in model compile which should returns 
-loss vector of shape (batch_size,) since it requires 
-loss for each datapoint in the batch for sample 
-weighting.
+.. TODO
+.. - add_loss should be scalar
+.. - though experiment
 
 Reparameterization using Merge Layers
 #####################################

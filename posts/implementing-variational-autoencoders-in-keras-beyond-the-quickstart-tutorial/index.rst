@@ -7,10 +7,6 @@
 .. description: 
 .. type: text
 
-.. admonition:: Draft
-
-   Please do not share or link.
-
 Keras_ is awesome. It is a very well-designed library that clearly abides by 
 its `guiding principles`_ of modularity and extensibility, and allows us to 
 easily assemble powerful, complex models from primitive building blocks. 
@@ -74,7 +70,7 @@ estimation techniques for likelihood-free inference [#mescheder2017]_ [#tran2017
 .. _guiding principles: https://keras.io/#guiding-principles
 .. _Building Autoencoders in Keras: https://blog.keras.io/building-autoencoders-in-keras.html
 .. _is not a way to train generative models: http://dustintran.com/blog/variational-auto-encoders-do-not-train-complex-generative-models
-.. _its implementation of the variational autoencoder: https://github.com/fchollet/keras/blob/2.0.8/examples/variational_autoencoder.py
+.. _its implementation of the variational autoencoder: https://github.com/fchollet/keras/blob/2.1.1/examples/variational_autoencoder.py
 
 Model specification
 ===================
@@ -256,8 +252,8 @@ first place. Instead, we *maximize* an alternative objective function, the
 Importantly, the ELBO is a lower bound to the log marginal likelihood. 
 Therefore, maximizing it with respect to the model parameters :math:`\theta` 
 approximately maximizes the log marginal likelihood. 
-Additionally, maximizing it with respect variational parameter :math:`\phi` can 
-be shown to minimize
+Additionally, maximizing it with respect to variational parameters :math:`\phi` 
+can be shown to minimize
 :math:`\mathrm{KL} [q_{\phi}(\mathbf{z} | \mathbf{x}) \| p_{\theta}(\mathbf{z} | \mathbf{x}) ]`. 
 Also, it turns out that the KL divergence determines the tightness of the lower 
 bound, where we have equality iff the KL divergence is zero, which happens iff 
@@ -345,10 +341,6 @@ Again, this is simple to define in Keras:
    z_mu = Dense(latent_dim)(h)
    z_log_var = Dense(latent_dim)(h)
 
-   # normalize log variance to std dev
-   z_sigma = Lambda(lambda t: K.exp(.5*t))(z_log_var)
-
-
 .. TODO
 .. **Figure here**
 
@@ -356,7 +348,17 @@ Since this network has multiple outputs, we couldn't use the Sequential model
 API as we did for the decoder. Instead, we will resort to the more powerful 
 `Functional API <https://keras.io/getting-started/functional-api-guide/>`_, 
 which allows you to implement complex models with shared layers, multiple 
-inputs, multiple outputs, and so on.
+inputs, multiple outputs, and so on. Note we defined one of the outputs to be 
+the log variance :math:`\log \sigma_{\phi}^2(\mathbf{x})` instead of the 
+standard deviation :math:`\sigma_{\phi}^2(\mathbf{x})`. This is more convenient
+to work with and helps with numerical stability. To recover the latter, we 
+simply implement the appropriate transformation in a 
+`Lambda layer <https://keras.io/layers/core/#lambda>`_.
+
+.. code:: python
+
+   # normalize log variance to std dev
+   z_sigma = Lambda(lambda t: K.exp(.5*t))(z_log_var)
 
 Before moving on, we give a few words on nomenclature and context. 
 In the prelude and title of this section, we characterized the approximate 
@@ -449,7 +451,8 @@ calling the method ``add_loss`` [*]_.
 
            return inputs
 
-Next we feed ``z_mu`` and ``z_log_var`` through this layer.
+Next we feed ``z_mu`` and ``z_log_var`` through this layer. This needs to take 
+place before feeding ``z_log_var`` through the Lambda layer to recover ``z_sigma``.
 
 .. code:: python
 
@@ -490,10 +493,11 @@ as a deterministic transformation :math:`g_{\phi}` of another random variable
    z = g_{\phi}(\mathbf{x}, \mathbf{\epsilon}), \quad 
      \mathbf{\epsilon} \sim p(\mathbf{\epsilon}).
 
-Note the base distribution :math:`p(\mathbf{\epsilon})` is parameter-free and 
-independent of :math:`\mathbf{x}` or :math:`\phi`. To prevent clutter, we write 
-the ELBO as an expectation of the function :math:`f(\mathbf{x}, \mathbf{z}) = 
-\log p_{\theta}(\mathbf{x} , \mathbf{z}) - \log q_{\phi}(\mathbf{z} | \mathbf{x})` 
+Note that :math:`p(\mathbf{\epsilon})` is simpler base distribution which is
+parameter-free and independent of :math:`\mathbf{x}` or :math:`\phi`. 
+To prevent clutter, we write the ELBO as an expectation of the function 
+:math:`f(\mathbf{x}, \mathbf{z}) = \log p_{\theta}(\mathbf{x} , \mathbf{z}) - 
+\log q_{\phi}(\mathbf{z} | \mathbf{x})` 
 over distribution :math:`q_{\phi}(\mathbf{z} | \mathbf{x})`. 
 Now, for any function :math:`f(\mathbf{x}, \mathbf{z})`, taking the gradient of 
 the expectation with respect to :math:`\phi`, and substituting all occurrences
@@ -514,10 +518,12 @@ have
       g_{\phi}(\mathbf{x}, \mathbf{\epsilon})) 
    ].
 
-That is, this this simple reparameterization allows the gradient and the 
-expectation to commute, thereby allowing us to take unbiased stochastic estimates 
-of ELBO gradients by drawing noise samples :math:`\mathbf{\epsilon}` from 
-:math:`p(\mathbf{\epsilon})`.
+In other words, this simple reparameterization allows the gradient and the 
+expectation to commute, thereby allowing us to take unbiased stochastic 
+estimates of ELBO gradients by drawing noise samples :math:`\mathbf{\epsilon}` 
+from :math:`p(\mathbf{\epsilon})`.
+
+-----
 
 To recover our diagonal Gaussian approximation 
 :math:`q_{\phi}(\mathbf{z}_n | \mathbf{x}_n) = 
@@ -525,21 +531,26 @@ To recover our diagonal Gaussian approximation
 \mathbf{z}_n | 
 \mathbf{\mu}_{\phi}(\mathbf{x}_n), 
 \mathrm{diag}(\mathbf{\sigma}_{\phi}^2(\mathbf{x}_n)))`, 
-we require a simple location-scale transformation and a Normal base distribution,
+we draw noise from the Normal base distribution, and specify a simple 
+location-scale transformation 
 
 .. math::
 
+   \mathbf{z} =
    g_{\phi}(\mathbf{x}, \mathbf{\epsilon}) = 
      \mathbf{\mu}_{\phi}(\mathbf{x}) + 
      \mathbf{\sigma}_{\phi}(\mathbf{x}) \odot 
      \mathbf{\epsilon}, \quad 
      \mathbf{\epsilon} \sim 
-     \mathcal{N}(\mathbf{0}, \mathbf{I}).
+     \mathcal{N}(\mathbf{0}, \mathbf{I})
 
 where :math:`\mathbf{\mu}_{\phi}(\mathbf{x})` and 
 :math:`\mathbf{\sigma}_{\phi}(\mathbf{x})` are the outputs of the inference 
 network with parameter :math:`\phi` as before, and :math:`\odot` denotes the 
-elementwise product.
+elementwise product. In Keras, we explicitly make the noise vector as an input 
+to the model by defining it as an Input layer. We then make use of 
+`Merge layers <https://keras.io/layers/merge/>`_ ``Add`` and ``Multiply`` to 
+achieve the required location-scale transformation.
 
 .. code:: python
 
@@ -555,17 +566,41 @@ elementwise product.
    Reparameterization with simple location-scale transformation using Keras 
    merge layers.
 
+Since the noise samples are to be drawn from a Normal distribution, we can save 
+from having to feed this in as input from outside the computation graph by 
+binding a tensor this Input layer. Specifically, we bind a tensor initialized 
+with ``K.random_normal``, as required. 
+
 .. code:: python
 
    eps = Input(tensor=K.random_normal(shape=(K.shape(x)[0], latent_dim)))
 
-Lambda layer, which simultaneously draws samples from a hard-coded base 
-distribution and performs reparameterization. This implementation achieves a 
-more appropriate level of modularity and abstraction. It's makes it clear that
-each of these atomic building blocks are themselves deterministic 
-transformations which together make up a deterministic transformation. 
-The source of stochasticity comes from the input, which we are able to tweak at
-test time. Gumbel-softmax trick.
+While this still needs to be explicitly specified as an input to compile the 
+model, this input will no longer need to be passed in to methods such as ``fit``, 
+``predict``. Samples from this distribution will just generated within the 
+computation graph when a dependency of this input is evaluated. See my notes on
+:doc:`keras-constant-input-layers-with-fixed-source-of-stochasticity` for more
+information. 
+
+In the `example implementation <https://github.com/keras-team/keras/blob/2.1.1/examples/variational_autoencoder.py>`_, they encapsulate all of this logic in a Lambda 
+layer, simultaneously drawing samples from a hard-coded base distribution and 
+performing the location-scale transformation. In contrast, this approach 
+achieves a good level of `loose coupling <https://en.wikipedia.org/wiki/Loose_coupling>`_
+and `separation of concerns <https://en.wikipedia.org/wiki/Separation_of_concerns>`_.
+By decoupling the random noise vector from the layer's internal logic and 
+explicitly making it a model input, we make it clear that all sources of 
+stochasticity emanate from this input. Furthermore, it more obvious that a 
+random sample from a specific family of approximate distributions is obtained by 
+feeding this source of stochasticity through successive layers of deterministic 
+transformations.
+
+For example, we could provide samples drawn from the Uniform distribution as 
+noise input. By applying a number of deterministic transformations known as the
+Gumbel-softmax reparameterization trick [#jang2016]_, we obtain samples from a
+Categorical distribution. This allows us to perform inference on *discrete* 
+latent variables, and can be implemented in this framework by modifying just a 
+few lines of code!
+
 
 .. figure:: ../../images/vae/encoder.svg
    :height: 500px
@@ -615,15 +650,8 @@ Putting it all together
 
    Variational autoencoder architecture.
 
-Model fitting
-=============
-
-We load the training data as usual. Now the ``vae`` is explicitly specified with
-random noise source as an auxiliary input. This allows to easily control the 
-base distribution :math:`p(\mathbf{\epsilon})` and also how we draw Monte Carlo
-samples of :math:`\mathbf{z}` for each datapoint :math:`\mathbf{x}`. Usually
-we just stick with a simple isotropic Gaussian distribution and draw a different
-MC sample for each datapoint.
+Fitting the model to MNIST digits
+=================================
 
 .. code:: python
 
@@ -631,13 +659,13 @@ MC sample for each datapoint.
    x_train = x_train.reshape(-1, original_dim) / 255.
    x_test = x_test.reshape(-1, original_dim) / 255.   
 
-Model fitting feels less intuitive. The ``vae`` is compiled with ``loss=None``
-explicitly specified which raises a warning. When fit is called, the targets 
-argument is left unspecified, and the reconstruction loss is optimized through
-the `CustomLayer`. This mapping from mathematical problem formulation to code
-implementation appears more natural and straightforward. It's easy to understand
-at a glance from our call to the ``fit`` method that we're training a
-probabilistic auto-encoder.
+.. Model fitting feels less intuitive. The ``vae`` is compiled with ``loss=None``
+.. explicitly specified which raises a warning. When fit is called, the targets 
+.. argument is left unspecified, and the reconstruction loss is optimized through
+.. the `CustomLayer`. This mapping from mathematical problem formulation to code
+.. implementation appears more natural and straightforward. It's easy to understand
+.. at a glance from our call to the ``fit`` method that we're training a
+.. probabilistic auto-encoder.
 
 .. code:: python
 
@@ -647,9 +675,6 @@ probabilistic auto-encoder.
            epochs=epochs,
            batch_size=batch_size,
            validation_data=(x_test, x_test))
-
-Personally, I prefer this view since the all sources of stochasticity emanate
-from the inputs to the model. 
 
 Loss (NELBO) Convergence
 ------------------------
@@ -716,17 +741,18 @@ Recap
 =====
 
 - Demonstration of Sequential and functional Model API
-- Custom auxiliary layers that augments the model loss
-- Fixing input to source of stochasticity
+- Auxiliary Custom layers that augments the model loss
+- Lambda layers
 - Reparameterization using Merge layers
+- Fixing input to source of stochasticity
 
 What's next
 ===========
 
-Normalizing flows
+.. Normalizing flows
 
-We illustrate how to employ the simple Gumbel-Softmax reparameterization to 
-build a Categorical VAE with discrete latent variables.
+.. We illustrate how to employ the simple Gumbel-Softmax reparameterization to 
+.. build a Categorical VAE with discrete latent variables.
 
 We can easily extend ``KLDivergenceLayer`` to use an auxiliary density ratio 
 estimator function, instead of evaluating the KL divergence in the closed-form

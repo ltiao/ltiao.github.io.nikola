@@ -730,8 +730,9 @@ Footnotes
 .. [*] To support sample weighting (fined-tuning how much each data-point 
    contributes to the loss) Keras losses are expected returns a scalar for each 
    data-point in the batch. In contrast, losses appended with the ``add_loss``
-   method don't support this. Hence, we calculate the KL divergence for all 
-   data-points in the batch and take the mean before passing it to ``add_loss``.
+   method don't support this, and are expected to be single scalar. 
+   Hence, we calculate the KL divergence for all data-points in the batch and 
+   take the mean before passing it to ``add_loss``.
 
 References
 ==========

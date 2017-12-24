@@ -740,14 +740,30 @@ Model evaluation
 Recap
 =====
 
-- Demonstration of Sequential and functional Model API
-- Auxiliary Custom layers that augments the model loss
-- Lambda layers
-- Reparameterization using Merge layers
-- Fixing input to source of stochasticity
+In this post, we covered the basics of amortized variational inference, looking
+at variational autoencoders as an example. In particular, we
+
+- Implemented the decoder and encoder using the
+  `Sequential <https://keras.io/models/sequential/>`_ and 
+  `functional Model API <https://keras.io/models/model/>`_ respectively.
+- Augmented the final loss with the KL divergence term by writing an auxiliary 
+  `custom layer <https://keras.io/layers/writing-your-own-keras-layers/>`_.
+- Worked with the log variance for numerical stability, and used a 
+  `Lambda layer <https://keras.io/layers/core/#lambda>`_ to transform it to the
+  standard deviation when necessary.
+- Explicitly made the source of stochasticity an Input, and implemented the 
+  Reparameterization trick using `Merge layers <https://keras.io/layers/merge/>`_.
+- Fixed the stochastic input to a tensor, so random samples are generated 
+  *within* the computation graph.
+
+.. convolutional
+.. animation
+.. MC samples size
 
 What's next
 ===========
+
+.. The appeal of this pattern is its simplicity and extensibility
 
 .. Normalizing flows
 

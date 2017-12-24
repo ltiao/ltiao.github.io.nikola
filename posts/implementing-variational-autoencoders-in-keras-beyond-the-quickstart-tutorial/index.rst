@@ -365,8 +365,8 @@ In the prelude and title of this section, we characterized the approximate
 posterior distribution with an inference network as a probabilistic encoder 
 (analogously to its counterpart, the probabilistic decoder). 
 Although this is an accurate interpretation, it is a limited one. 
-Classically, inference networks are known as *recognition models*, and have been 
-used successfully for decades now in a number of methods.
+Classically, inference networks are known as *recognition models*, and have now
+been used successfully for decades in a number of methods.
 When composed end-to-end, the recognition-generative model combination can be 
 seen as having an autoencoder structure. Indeed, this structure contains the 
 variational autoencoder as a special case, and the now less fashionable
@@ -596,10 +596,10 @@ transformations.
 
 For example, we could provide samples drawn from the Uniform distribution as 
 noise input. By applying a number of deterministic transformations that 
-constitute the Gumbel-softmax reparameterization trick [#jang2016]_, we obtain 
-samples from a Categorical distribution. This allows us to perform inference on 
-*discrete* latent variables, and can be implemented in this framework by 
-modifying just a few lines of code!
+constitute the *Gumbel-softmax reparameterization trick* [#jang2016]_, we obtain 
+samples from a Categorical distribution. This allows us to perform approximate 
+inference on *discrete* latent variables, and can be implemented in this 
+framework by modifying just a few lines of code!
 
 
 .. figure:: ../../images/vae/encoder.svg

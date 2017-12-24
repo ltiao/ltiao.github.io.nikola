@@ -8,7 +8,7 @@
 .. type: text
 
 Keras_ is awesome. It is a very well-designed library that clearly abides by 
-its `guiding principles`_ of modularity and extensibility, and allows us to 
+its `guiding principles`_ of modularity and extensibility, enabling us to 
 easily assemble powerful, complex models from primitive building blocks. 
 This has been demonstrated in numerous blog posts and tutorials, in particular,
 the excellent tutorial on `Building Autoencoders in Keras`_. 
@@ -486,7 +486,7 @@ variance among competing estimators for continuous latent variables.
 The reparameterization trick is a straightforward change of variables that 
 expresses the random variable :math:`\mathbf{z} \sim q_{\phi}(\mathbf{z} | \mathbf{x})`
 as a deterministic transformation :math:`g_{\phi}` of another random variable 
-:math:`\mathbf{\epsilon}`, given :math:`\mathbf{x}`, and parameterized by :math:`\phi`,
+:math:`\mathbf{\epsilon}` and input :math:`\mathbf{x}`, with parameters :math:`\phi`,
 
 .. math::
 
@@ -546,11 +546,11 @@ location-scale transformation
 
 where :math:`\mathbf{\mu}_{\phi}(\mathbf{x})` and 
 :math:`\mathbf{\sigma}_{\phi}(\mathbf{x})` are the outputs of the inference 
-network with parameter :math:`\phi` as before, and :math:`\odot` denotes the 
-elementwise product. In Keras, we explicitly make the noise vector as an input 
-to the model by defining it as an Input layer. We then make use of 
-`Merge layers <https://keras.io/layers/merge/>`_ ``Add`` and ``Multiply`` to 
-achieve the required location-scale transformation.
+network with parameter :math:`\phi` specified earlier, and :math:`\odot` denotes 
+the elementwise product. In Keras, we explicitly make the noise vector as an 
+input to the model by defining it as an Input layer. We then implement the 
+above location-scale transformation using 
+`Merge layers <https://keras.io/layers/merge/>`_, namely ``Add`` and ``Multiply``. 
 
 .. code:: python
 
@@ -566,10 +566,10 @@ achieve the required location-scale transformation.
    Reparameterization with simple location-scale transformation using Keras 
    merge layers.
 
-Since the noise samples are to be drawn from a Normal distribution, we can save 
-from having to feed this in as input from outside the computation graph by 
-binding a tensor this Input layer. Specifically, we bind a tensor initialized 
-with ``K.random_normal``, as required. 
+Since the noise input is drawn from a Normal distribution, we can save from 
+having to feed this in as input from outside the computation graph by binding a 
+tensor this Input layer. Specifically, we bind a tensor created using 
+``K.random_normal`` with the required shape:
 
 .. code:: python
 
@@ -577,7 +577,7 @@ with ``K.random_normal``, as required.
 
 While this still needs to be explicitly specified as an input to compile the 
 model, this input will no longer need to be passed in to methods such as ``fit``, 
-``predict``. Samples from this distribution will just generated within the 
+``predict``. Samples from this distribution will just be generated within the 
 computation graph when a dependency of this input is evaluated. See my notes on
 :doc:`keras-constant-input-layers-with-fixed-source-of-stochasticity` for more
 information. 
@@ -608,11 +608,11 @@ few lines of code!
 
    Encoder architecture.
 
-.. figure:: ../../images/vae/encoder_full.svg
-   :height: 500px
-   :align: center
+.. .. figure:: ../../images/vae/encoder_full.svg
+..    :height: 500px
+..    :align: center
 
-   Full encoder architecture, including auxiliary KL divergence layer.
+..    Full encoder architecture, including auxiliary KL divergence layer.
 
 Putting it all together
 -----------------------
@@ -763,7 +763,8 @@ This relaxes the requirement on approximate posterior
 a cruder estimate of the ELBO. 
 This is known as Adversarial Variational Bayes [#mescheder2017]_, and is an 
 important line of recent research that extends the applicability of variational 
-inference to arbitrarily expressive implicit probabilistic models [#tran2017]_.
+inference to arbitrarily expressive implicit probabilistic models with 
+intractable likelihoods [#tran2017]_.
 
 Footnotes
 =========

@@ -591,15 +591,15 @@ By decoupling the random noise vector from the layer's internal logic and
 explicitly making it a model input, we make it clear that all sources of 
 stochasticity emanate from this input. Furthermore, it more obvious that a 
 random sample from a specific family of approximate distributions is obtained by 
-feeding this source of stochasticity through successive layers of deterministic 
+feeding this source of stochasticity through a number of successive deterministic 
 transformations.
 
 For example, we could provide samples drawn from the Uniform distribution as 
-noise input. By applying a number of deterministic transformations known as the
-Gumbel-softmax reparameterization trick [#jang2016]_, we obtain samples from a
-Categorical distribution. This allows us to perform inference on *discrete* 
-latent variables, and can be implemented in this framework by modifying just a 
-few lines of code!
+noise input. By applying a number of deterministic transformations that 
+constitute the Gumbel-softmax reparameterization trick [#jang2016]_, we obtain 
+samples from a Categorical distribution. This allows us to perform inference on 
+*discrete* latent variables, and can be implemented in this framework by 
+modifying just a few lines of code!
 
 
 .. figure:: ../../images/vae/encoder.svg

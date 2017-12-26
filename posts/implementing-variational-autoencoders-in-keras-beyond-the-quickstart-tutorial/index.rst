@@ -133,8 +133,9 @@ It is straightforward to implement this in Keras with the
 .. code:: python
 
    decoder = Sequential([
-     Dense(intermediate_dim, input_dim=latent_dim, activation='relu'),
-     Dense(original_dim, activation='sigmoid')
+       Dense(intermediate_dim, input_dim=latent_dim, 
+             activation='relu'),
+       Dense(original_dim, activation='sigmoid')
    ])
 
 You can view a summary of the model parameters :math:`\theta` by calling 
@@ -293,7 +294,7 @@ variational parameters we are required to optimize grows with the size of the
 dataset. Second, a new set of local variational parameters need to be optimized
 for new unseen test points. This is not to mention the strong factorization 
 assumption we make by specifying diagonal Gaussian distributions as the family 
-of approximations.
+of approximations. We address the first two using an inference network.
 
 Inference network
 #################
@@ -341,18 +342,23 @@ Again, this is simple to define in Keras:
    z_mu = Dense(latent_dim)(h)
    z_log_var = Dense(latent_dim)(h)
 
-.. TODO
-.. **Figure here**
-
 Since this network has multiple outputs, we couldn't use the Sequential model 
 API as we did for the decoder. Instead, we will resort to the more powerful 
 `Functional API <https://keras.io/getting-started/functional-api-guide/>`_, 
 which allows you to implement complex models with shared layers, multiple 
-inputs, multiple outputs, and so on. Note we defined one of the outputs to be 
-the log variance :math:`\log \sigma_{\phi}^2(\mathbf{x})` instead of the 
-standard deviation :math:`\sigma_{\phi}^2(\mathbf{x})`. This is more convenient
-to work with and helps with numerical stability. To recover the latter, we 
-simply implement the appropriate transformation in a 
+inputs, multiple outputs, and so on. 
+
+.. figure:: ../../images/vae/inference_network.svg
+   :height: 200px
+   :align: center
+
+   Inference network.
+
+Note we defined one of the outputs to be the log variance 
+:math:`\log \sigma_{\phi}^2(\mathbf{x})` instead of the standard deviation 
+:math:`\sigma_{\phi}(\mathbf{x})`. This is not only more convenient to work 
+with but also helps with numerical stability. To recover the latter, we simply 
+implement the appropriate transformation and encapsulate it in a 
 `Lambda layer <https://keras.io/layers/core/#lambda>`_.
 
 .. code:: python
@@ -422,10 +428,10 @@ and log variance ``log_var``.
 
 We define an auxiliary `custom Keras layer <https://keras.io/layers/writing-your-own-keras-layers/>`_
 which takes ``mu``  and ``log_var`` as input and simply returns them as output 
-without modification. However, we explicitly introduce the 
-`side-effect <https://en.wikipedia.org/wiki/Side_effect_(computer_science)>`_
-of calculating the KL divergence and adding it to a collection of losses by 
-calling the method ``add_loss`` [*]_.
+without modification. We do however explicitly introduce the `side-effect 
+<https://en.wikipedia.org/wiki/Side_effect_(computer_science)>`_ of calculating 
+the KL divergence and adding it to a collection of losses, by calling the method 
+``add_loss`` [*]_.
 
 .. code:: python
 
@@ -465,8 +471,7 @@ defined earlier (``nll``), we recover the negative ELBO as the final loss we
 minimize.
 
 .. TODO
-.. - add_loss should be scalar
-.. - though experiment
+.. - thought experiment
 
 Reparameterization using Merge Layers
 #####################################
@@ -560,7 +565,7 @@ above location-scale transformation using
    z = Add()([z_mu, z_eps])
 
 .. figure:: ../../images/vae/reparameterization.svg
-   :height: 300px
+   :height: 250px
    :align: center
 
    Reparameterization with simple location-scale transformation using Keras 
@@ -573,7 +578,8 @@ tensor this Input layer. Specifically, we bind a tensor created using
 
 .. code:: python
 
-   eps = Input(tensor=K.random_normal(shape=(K.shape(x)[0], latent_dim)))
+   eps = Input(tensor=K.random_normal(shape=(K.shape(x)[0], 
+                                             latent_dim)))
 
 While this still needs to be explicitly specified as an input to compile the 
 model, this input will no longer need to be passed in to methods such as ``fit``, 
@@ -582,16 +588,23 @@ computation graph when a dependency of this input is evaluated. See my notes on
 :doc:`keras-constant-input-layers-with-fixed-source-of-stochasticity` for more
 information. 
 
-In the `example implementation <https://github.com/keras-team/keras/blob/2.1.1/examples/variational_autoencoder.py>`_, they encapsulate all of this logic in a Lambda 
-layer, simultaneously drawing samples from a hard-coded base distribution and 
-performing the location-scale transformation. In contrast, this approach 
-achieves a good level of `loose coupling <https://en.wikipedia.org/wiki/Loose_coupling>`_
+.. figure:: ../../images/vae/encoder.svg
+   :height: 500px
+   :align: center
+
+   Encoder architecture.
+
+In the `example implementation <https://github.com/keras-team/keras/blob/2.1.1/examples/variational_autoencoder.py>`_, all of this logic is encapsulated in a single 
+Lambda layer, which simultaneously draws samples from a hard-coded base 
+distribution and also performs the location-scale transformation. 
+In contrast, this approach achieves a good level of 
+`loose coupling <https://en.wikipedia.org/wiki/Loose_coupling>`_
 and `separation of concerns <https://en.wikipedia.org/wiki/Separation_of_concerns>`_.
 By decoupling the random noise vector from the layer's internal logic and 
-explicitly making it a model input, we make it clear that all sources of 
-stochasticity emanate from this input. Furthermore, it more obvious that a 
-random sample from a specific family of approximate distributions is obtained by 
-feeding this source of stochasticity through a number of successive deterministic 
+explicitly making it a model input, we emphasize the fact that all sources of 
+stochasticity emanate from this input. Then it becomes obvious that a random 
+sample drawn from a particular approximating distribution is obtained by feeding 
+this source of stochasticity through a number of successive deterministic 
 transformations.
 
 For example, we could provide samples drawn from the Uniform distribution as 
@@ -599,14 +612,7 @@ noise input. By applying a number of deterministic transformations that
 constitute the *Gumbel-softmax reparameterization trick* [#jang2016]_, we obtain 
 samples from a Categorical distribution. This allows us to perform approximate 
 inference on *discrete* latent variables, and can be implemented in this 
-framework by modifying just a few lines of code!
-
-
-.. figure:: ../../images/vae/encoder.svg
-   :height: 500px
-   :align: center
-
-   Encoder architecture.
+framework by adding a dozen or so lines of code!
 
 .. .. figure:: ../../images/vae/encoder_full.svg
 ..    :height: 500px
@@ -628,36 +634,47 @@ Putting it all together
    z_mu, z_log_var = KLDivergenceLayer()([z_mu, z_log_var])
    z_sigma = Lambda(lambda t: K.exp(.5*t))(z_log_var) 
 
-   eps = Input(tensor=K.random_normal(shape=(K.shape(x)[0], latent_dim)))
+   eps = Input(tensor=K.random_normal(shape=(K.shape(x)[0], 
+                                             latent_dim)))
    z_eps = Multiply()([z_sigma, eps])
    z = Add()([z_mu, z_eps]) 
 
    decoder = Sequential([
-       Dense(intermediate_dim, input_dim=latent_dim, activation='relu'),
+       Dense(intermediate_dim, input_dim=latent_dim, 
+             activation='relu'),
        Dense(original_dim, activation='sigmoid')
    ]) 
 
    x_pred = decoder(z)
+
+.. figure:: ../../images/vae/vae_full.svg
+   :height: 700px
+   :align: center
+
+   Variational autoencoder architecture.
 
 .. code:: python
 
    vae = Model(inputs=[x, eps], outputs=x_pred)
    vae.compile(optimizer='rmsprop', loss=nll)
 
-.. figure:: ../../images/vae/vae_full_shapes.svg
-   :height: 500px
-   :align: center
+Model fitting
+=============
 
-   Variational autoencoder architecture.
-
-Fitting the model to MNIST digits
-=================================
+Dataset: MNIST digits
+---------------------
 
 .. code:: python
 
    (x_train, y_train), (x_test, y_test) = mnist.load_data()
    x_train = x_train.reshape(-1, original_dim) / 255.
    x_test = x_test.reshape(-1, original_dim) / 255.   
+
+.. figure:: ../../images/vae/vae_full_shapes.svg
+   :height: 700px
+   :align: center
+
+   Variational autoencoder architecture.
 
 .. Model fitting feels less intuitive. The ``vae`` is compiled with ``loss=None``
 .. explicitly specified which raises a warning. When fit is called, the targets 
@@ -681,14 +698,7 @@ Loss (NELBO) Convergence
 
 .. code:: python
 
-   fig, ax = plt.subplots() 
-
    pd.DataFrame(hist.history).plot(ax=ax) 
-
-   ax.set_ylabel('NELBO')
-   ax.set_xlabel('# epochs') 
-
-   plt.show()
 
 .. figure:: ../../images/vae/nelbo.svg
    :width: 500px
@@ -699,7 +709,7 @@ Model evaluation
 
 .. code:: python
 
-   encoder = Model(x, z_mu) 
+   encoder = Model(x, z_mu)
 
    # display a 2D plot of the digit classes in the latent space
    z_test = encoder.predict(x_test, batch_size=batch_size)
@@ -723,14 +733,16 @@ Model evaluation
    # through the inverse CDF (ppf) of the Gaussian to produce values
    # of the latent variables z, since the prior of the latent space
    # is Gaussian
-   u_grid = np.dstack(np.meshgrid(np.linspace(0.05, 0.95, n),
-                                  np.linspace(0.05, 0.95, n)))
-   z_grid = norm.ppf(u_grid)
-   x_decoded = decoder.predict(z_grid.reshape(n*n, 2))
-   x_decoded = x_decoded.reshape(n, n, digit_size, digit_size) 
+
+   z1 = norm.ppf(np.linspace(0.01, 0.99, n))
+   z2 = norm.ppf(np.linspace(0.01, 0.99, n))
+   z_grid = np.dstack(np.meshgrid(z1, z2))
+
+   x_pred_grid = decoder.predict(z_grid.reshape(n*n, latent_dim)) \
+                        .reshape(n, n, digit_size, digit_size)
 
    plt.figure(figsize=(10, 10))
-   plt.imshow(np.block(list(map(list, x_decoded))), cmap='gray')
+   plt.imshow(np.block(list(map(list, x_pred_grid))), cmap='gray')
    plt.show()
 
 .. figure:: ../../images/vae/result_manifold.png
@@ -741,7 +753,7 @@ Recap
 =====
 
 In this post, we covered the basics of amortized variational inference, looking
-at variational autoencoders as an example. In particular, we
+at variational autoencoders as a specific example. In particular, we
 
 - Implemented the decoder and encoder using the
   `Sequential <https://keras.io/models/sequential/>`_ and 
@@ -751,10 +763,11 @@ at variational autoencoders as an example. In particular, we
 - Worked with the log variance for numerical stability, and used a 
   `Lambda layer <https://keras.io/layers/core/#lambda>`_ to transform it to the
   standard deviation when necessary.
-- Explicitly made the source of stochasticity an Input, and implemented the 
-  Reparameterization trick using `Merge layers <https://keras.io/layers/merge/>`_.
-- Fixed the stochastic input to a tensor, so random samples are generated 
-  *within* the computation graph.
+- Explicitly made the noise an Input layer, and implemented the 
+  reparameterization trick using `Merge layers <https://keras.io/layers/merge/>`_.
+- :doc:`Fixed the noise input to a stochastic tensor 
+  <keras-constant-input-layers-with-fixed-source-of-stochasticity>`, so random 
+  samples are generated *within* the computation graph.
 
 .. convolutional
 .. animation
@@ -794,9 +807,9 @@ Footnotes
      `Variational Inference and Deep Learning: A New Synthesis 
      <https://www.dropbox.com/s/v6ua3d9yt44vgb3/cover_and_thesis.pdf?dl=1>`_.
 .. [*] To support sample weighting (fined-tuning how much each data-point 
-   contributes to the loss) Keras losses are expected returns a scalar for each 
+   contributes to the loss), Keras losses are expected returns a scalar for each 
    data-point in the batch. In contrast, losses appended with the ``add_loss``
-   method don't support this, and are expected to be single scalar. 
+   method don't support this, and are expected to be a single scalar. 
    Hence, we calculate the KL divergence for all data-points in the batch and 
    take the mean before passing it to ``add_loss``.
 
@@ -849,6 +862,6 @@ Below, you can find:
   in this post.
 * The above snippets combined in a single executable Python file:
 
-.. listing:: vae/variational_autoencoder_improved.py python
+.. listing:: vae/variational_autoencoder.py python
 
 .. _accompanying Jupyter Notebook: /listings/vae/variational_autoencoder.ipynb.html

@@ -7,12 +7,8 @@
 .. description: 
 .. type: text
 
-.. admonition:: Draft
-
-   Please do not share or link.
-
 Keras_ is awesome. It is a very well-designed library that clearly abides by 
-its `guiding principles`_ of modularity and extensibility, and allows us to 
+its `guiding principles`_ of modularity and extensibility, enabling us to 
 easily assemble powerful, complex models from primitive building blocks. 
 This has been demonstrated in numerous blog posts and tutorials, in particular,
 the excellent tutorial on `Building Autoencoders in Keras`_. 
@@ -74,7 +70,7 @@ estimation techniques for likelihood-free inference [#mescheder2017]_ [#tran2017
 .. _guiding principles: https://keras.io/#guiding-principles
 .. _Building Autoencoders in Keras: https://blog.keras.io/building-autoencoders-in-keras.html
 .. _is not a way to train generative models: http://dustintran.com/blog/variational-auto-encoders-do-not-train-complex-generative-models
-.. _its implementation of the variational autoencoder: https://github.com/fchollet/keras/blob/2.0.8/examples/variational_autoencoder.py
+.. _its implementation of the variational autoencoder: https://github.com/fchollet/keras/blob/2.1.1/examples/variational_autoencoder.py
 
 Model specification
 ===================
@@ -137,8 +133,9 @@ It is straightforward to implement this in Keras with the
 .. code:: python
 
    decoder = Sequential([
-     Dense(intermediate_dim, input_dim=latent_dim, activation='relu'),
-     Dense(original_dim, activation='sigmoid')
+       Dense(intermediate_dim, input_dim=latent_dim, 
+             activation='relu'),
+       Dense(original_dim, activation='sigmoid')
    ])
 
 You can view a summary of the model parameters :math:`\theta` by calling 
@@ -164,14 +161,28 @@ family of DLGMs, which include *non-linear factor analysis*,
 *non-linear Gaussian belief networks*, *sigmoid belief networks*, and many 
 others [#rezende2014]_.
 
+Having specified how the probabilities are computed, we can now define the 
+negative log likelihood of a Bernoulli :math:`- \log p_{\theta}(\mathbf{x} | 
+\mathbf{z})`, which is in fact equivalent to the `binary cross-entropy loss 
+<https://en.wikipedia.org/wiki/Cross_entropy>`_:
+
 .. code:: python
 
    def nll(y_true, y_pred):
        """ Negative log likelihood (Bernoulli). """
 
-       # keras.losses.binary_crossentropy give the mean
+       # keras.losses.binary_crossentropy gives the mean
        # over the last axis. we require the sum
        return K.sum(K.binary_crossentropy(y_true, y_pred), axis=-1)
+
+As we discuss later, this will not be the loss we ultimately minimize. 
+However, it will still constitute the data-fitting term of our final loss.
+
+Note this is a valid definition of a `Keras loss <https://keras.io/losses/>`_, 
+which is required to compile and optimize a model. It is a symbolic function 
+that returns a scalar for each data-point in ``y_true`` and ``y_pred``. 
+In our example, ``y_pred`` will be the output of our ``decoder`` network, the 
+predicted probabilities, and ``y_true`` will be the true probabilities.
 
 .. Tip:: If you are using the TensorFlow backend, you can directly use the 
    (negative) log probability of ``Bernoulli`` from TensorFlow Distributions as 
@@ -209,8 +220,10 @@ where the Gaussian prior is non-conjugate to the Bernoulli likelihood.
 
 To circumvent this intractability we turn to variational inference, which 
 formulates inference as an optimization problem. It seeks an approximate
-posterior :math:`q_{\phi}(\mathbf{z} | \mathbf{x})` with *variational parameters* 
-:math:`\phi` closest in Kullback-Leibler (KL) divergence to the true posterior. 
+posterior :math:`q_{\phi}(\mathbf{z} | \mathbf{x})` closest in Kullback-Leibler 
+(KL) divergence to the true posterior. More precisely, the approximate posterior 
+is parameterized by *variational parameters* :math:`\phi`, and we seek a setting
+of these parameters that minimizes the aforementioned KL divergence,
 
 .. math::
 
@@ -240,11 +253,11 @@ first place. Instead, we *maximize* an alternative objective function, the
 Importantly, the ELBO is a lower bound to the log marginal likelihood. 
 Therefore, maximizing it with respect to the model parameters :math:`\theta` 
 approximately maximizes the log marginal likelihood. 
-Additionally, maximizing it with respect variational parameter :math:`\phi` can 
-be shown to minimize
-:math:`\mathrm{KL} [q_{\phi}(\mathbf{z} | \mathbf{x}) \| p_{\theta}(\mathbf{z} | \mathbf{x}) ]`. Also, it turns out that the KL divergence determines the 
-tightness of the lower bound, where we have equality iff the KL divergence is 
-zero, which happens iff 
+Additionally, maximizing it with respect to variational parameters :math:`\phi` 
+can be shown to minimize
+:math:`\mathrm{KL} [q_{\phi}(\mathbf{z} | \mathbf{x}) \| p_{\theta}(\mathbf{z} | \mathbf{x}) ]`. 
+Also, it turns out that the KL divergence determines the tightness of the lower 
+bound, where we have equality iff the KL divergence is zero, which happens iff 
 :math:`q_{\phi}(\mathbf{z} | \mathbf{x}) = p_{\theta}(\mathbf{z} | \mathbf{x})`.
 Hence, simultaneously maximizing it with respect to :math:`\theta` and 
 :math:`\phi` gets us two birds with one stone.
@@ -281,40 +294,39 @@ variational parameters we are required to optimize grows with the size of the
 dataset. Second, a new set of local variational parameters need to be optimized
 for new unseen test points. This is not to mention the strong factorization 
 assumption we make by specifying diagonal Gaussian distributions as the family 
-of approximations.
+of approximations. We address the first two using an inference network.
+
+Inference network
+#################
 
 We *amortize* the cost of inference by introducing an *inference network* which
 approximates the local variational parameters :math:`\phi_n` for a given local
-observation :math:`\textbf{x}_n`. 
-Inference networks are more classically known as *recognition models*, and are
-used in the closely-related Helmholtz machines [#dayan1995]_.
-
+observed variable :math:`\textbf{x}_n`. 
 For our approximating distribution in particular, given :math:`\textbf{x}_n` the 
 inference network yields two outputs :math:`\mu_{\phi}(\textbf{x}_n)` and 
-:math:`\sigma_{\phi}(\textbf{x}_n)`, and we use these to approximate its local 
-variational parameter :math:`\mathbf{\mu}_n` and :math:`\mathbf{\sigma}_n` 
-respectively.
-
-This means instead of learning local variational parameters :math:`\phi_n` for 
-each data-point, we now learn a fixed number of *global* variational parameters 
-:math:`\phi` which constitute the parameters of the inference network. 
-Moreover, this approximation allows statistical strength to be shared across 
-observed data-points and also generalize to unseen test points.
-
+:math:`\sigma_{\phi}(\textbf{x}_n)`, which we use to approximate its local 
+variational parameters :math:`\mathbf{\mu}_n` and :math:`\mathbf{\sigma}_n`, 
+respectively. 
 Our approximate posterior distribution now becomes
 
 .. math::
 
-   q_{\phi}(\mathbf{z} | \mathbf{x}) 
+   q_{\phi}(\mathbf{z}_n | \mathbf{x}_n) 
    = 
    \mathcal{N}(
-     \mathbf{z} | 
-     \mathbf{\mu}_{\phi}(\mathbf{x}), 
-     \mathrm{diag}(\mathbf{\sigma}_{\phi}^2(\mathbf{x}))
+     \mathbf{z}_n | 
+     \mathbf{\mu}_{\phi}(\mathbf{x}_n), 
+     \mathrm{diag}(\mathbf{\sigma}_{\phi}^2(\mathbf{x}_n))
    ).
 
+Instead of learning local variational parameters :math:`\phi_n` for each 
+data-point, we now learn a fixed number of *global* variational parameters 
+:math:`\phi` which constitute the parameters of the inference network. 
+Moreover, this approximation allows statistical strength to be shared across 
+observed data-points and also generalize to unseen test points.
+
 We specify the location and scale of this distribution as the output of an 
-inference network. In our example, we keep the architecture of the network 
+inference network. For this post, we keep the architecture of the network 
 simple, with only a single hidden layer and two fully-connected output layers. 
 Again, this is simple to define in Keras:
 
@@ -326,25 +338,60 @@ Again, this is simple to define in Keras:
    # hidden layer
    h = Dense(intermediate_dim, activation='relu')(x)  
 
-   # output layer for mu
+   # output layer for mean and log variance
    z_mu = Dense(latent_dim)(h)
-
-   # output layer for sigma
    z_log_var = Dense(latent_dim)(h)
-   z_sigma = Lambda(lambda t: K.exp(.5*t))(z_log_var)
 
 Since this network has multiple outputs, we couldn't use the Sequential model 
-API as we did for the decoder. Instead, we must resort to the more powerful 
+API as we did for the decoder. Instead, we will resort to the more powerful 
 `Functional API <https://keras.io/getting-started/functional-api-guide/>`_, 
 which allows you to implement complex models with shared layers, multiple 
-inputs, multiple outputs, and so on.
+inputs, multiple outputs, and so on. 
 
-.. TODO
-.. **Figure here**
-.. DONE cannot use Sequential model API 
-.. Lambda layer
-.. Reference to Helmholtz machines, which has a recognition model and inference
-.. is done using the wake-sleep algorithm.
+.. figure:: ../../images/vae/inference_network.svg
+   :height: 200px
+   :align: center
+
+   Inference network.
+
+Note we defined one of the outputs to be the log variance 
+:math:`\log \sigma_{\phi}^2(\mathbf{x})` instead of the standard deviation 
+:math:`\sigma_{\phi}(\mathbf{x})`. This is not only more convenient to work 
+with but also helps with numerical stability. To recover the latter, we simply 
+implement the appropriate transformation and encapsulate it in a 
+`Lambda layer <https://keras.io/layers/core/#lambda>`_.
+
+.. code:: python
+
+   # normalize log variance to std dev
+   z_sigma = Lambda(lambda t: K.exp(.5*t))(z_log_var)
+
+Before moving on, we give a few words on nomenclature and context. 
+In the prelude and title of this section, we characterized the approximate 
+posterior distribution with an inference network as a probabilistic encoder 
+(analogously to its counterpart, the probabilistic decoder). 
+Although this is an accurate interpretation, it is a limited one. 
+Classically, inference networks are known as *recognition models*, and have now
+been used successfully for decades in a number of methods.
+When composed end-to-end, the recognition-generative model combination can be 
+seen as having an autoencoder structure. Indeed, this structure contains the 
+variational autoencoder as a special case, and the now less fashionable
+*Helmholtz machine* [#dayan1995]_. 
+Even more generally, this recognition-generative model combination constitutes 
+a widely-applicable approach now known as *amortized variational inference*, 
+which can be used to perform approximate inference in models that lie beyond 
+even the large class of deep latent Gaussian models.
+
+Having specified all the ingredients necessary to carry out variational 
+inference (namely, the prior, likelihood and approximate posterior), we next
+focus on finalizing the definition of the (negative) ELBO as our loss function 
+in Keras. As written earlier, the ELBO can be decomposed into two terms, 
+:math:`\mathbb{E}_{q_{\phi}(\mathbf{z} | \mathbf{x})} [ \log p_{\theta}(\mathbf{x} | \mathbf{z}) ]`
+the expected log likelihood (ELL) over :math:`q_{\phi}(\mathbf{z} | \mathbf{x})`,
+and :math:`- \mathrm{KL} [q_{\phi}(\mathbf{z} | \mathbf{x}) \| p(\mathbf{z}) ]`
+the negative KL divergence between prior :math:`p(\mathbf{z})` and approximate 
+posterior :math:`q_{\phi}(\mathbf{z} | \mathbf{x})`. We first turn our attention
+to the KL divergence term.
 
 .. Note that it is not dependent on the observed data x_i 
 .. and does not appear in the expression q_i(z_i). It is only related to x_i 
@@ -353,12 +400,38 @@ inputs, multiple outputs, and so on.
 KL Divergence
 #############
 
-latent space regularization
+Intuitively, maximizing the negative KL divergence term encourages approximate 
+posterior densities that place its mass on configurations of the latent 
+variables which are closest to the prior. Effectively, this regularizes the 
+complexity of latent space. Now, since both the prior :math:`p(\mathbf{z})` and 
+approximate posterior :math:`q_{\phi}(\mathbf{z} | \mathbf{x})` are Gaussian, 
+the KL divergence can actually be calculated with the closed-form expression,
 
 .. math:: 
 
    \mathrm{KL} [q_{\phi}(\mathbf{z} | \mathbf{x}) \| p(\mathbf{z}) ]
    = - \frac{1}{2} \sum_{k=1}^K \{ 1 + \log \sigma_k^2 - \mu_k^2 - \sigma_k^2 \}
+
+where :math:`\mu_k` and :math:`\sigma_k` are the :math:`k`-th components of 
+output vectors :math:`\mathbf{\mu}_{\phi}(\mathbf{x})` and 
+:math:`\mathbf{\sigma}_{\phi}(\mathbf{x})`, respectively.
+This is not too difficult to derive, and I would recommend verifying this as an 
+exercise. You can also find a derivation in the appendix of Kingma and Welling's 
+(2014) paper [#kingma2014]_.
+
+Recall that earlier, we defined the expected log likelihood term of the ELBO as
+a Keras loss. We were able to do this since the log likelihood is a function of
+the network's final output (the predicted probabilities), so it maps nicely to a 
+Keras loss. Unfortunately, the same does not apply for the KL divergence term, 
+which is a function of the network's intermediate layer outputs, the mean ``mu`` 
+and log variance ``log_var``.
+
+We define an auxiliary `custom Keras layer <https://keras.io/layers/writing-your-own-keras-layers/>`_
+which takes ``mu``  and ``log_var`` as input and simply returns them as output 
+without modification. We do however explicitly introduce the `side-effect 
+<https://en.wikipedia.org/wiki/Side_effect_(computer_science)>`_ of calculating 
+the KL divergence and adding it to a collection of losses, by calling the method 
+``add_loss`` [*]_.
 
 .. code:: python
 
@@ -384,46 +457,57 @@ latent space regularization
 
            return inputs
 
+Next we feed ``z_mu`` and ``z_log_var`` through this layer. This needs to take 
+place before feeding ``z_log_var`` through the Lambda layer to recover ``z_sigma``.
+
 .. code:: python
 
    z_mu, z_log_var = KLDivergenceLayer()([z_mu, z_log_var])
 
-by itself, it will learn to ignore the input and map all outputs to 0.
-It is only when we tack on the decoder that the reconstruction likelihood
-is introduced. Only then will we reconcile the likelihood / observed data with 
-our prior to form the posterior over latent codes.
+Now when the Keras model is finally compiled, the collection of losses will be 
+aggregated and added to the specified Keras loss fwunction to form the loss we
+ultimately minimize. If we specify the loss as the negative log-likelihood we 
+defined earlier (``nll``), we recover the negative ELBO as the final loss we 
+minimize.
 
-At this stage we could specify 
-``prob_encoder = Model(inputs=x, outputs=[z_mu, z_sigma])``
-and compile it with something like 
-``prob_encoder.compile(optimizer='rmsprop`, loss=None)``. 
-When we fit it, it would trivially map all inputs to 0 and 1, thus learning the
-prior distribution.
-
-inputs mu and log_var are of shape (batch_size, latent_dim)
-the loss we add should be scalar. this is unlike loss 
-function specified in model compile which should returns 
-loss vector of shape (batch_size,) since it requires 
-loss for each datapoint in the batch for sample 
-weighting.
+.. TODO
+.. - thought experiment
 
 Reparameterization using Merge Layers
 #####################################
 
-To perform gradient-based optimization of ELBO, we require its gradients with 
-respect to the variational parameters :math:`\phi`, which is generally 
-intractable. Currently, the dominant approach for circumventing this is by
-Monte Carlo (MC) estimation of the gradients. There are a several estimators
-based on different variance reduction techniques. However, for continuous 
-latent variables, the *reparameterization gradients* can be shown to have the 
-lowest variance among competing estimators.
+To perform gradient-based optimization of ELBO with respect to model parameters 
+:math:`\theta` and variational parameters :math:`\phi`, we require its gradients 
+with respect to these parameters, which is generally intractable. 
+Currently, the dominant approach for circumventing this is by Monte Carlo (MC) 
+estimation of the gradients. The basic idea is to write the gradient of the 
+ELBO as an expectation of the gradient, approximate it with MC estimates, then 
+perform stochastic gradient descent with repeated MC gradient estimates.
 
+There exist a number of estimators based on different variance reduction 
+techniques. However, MC gradient estimates based on the reparameterization trick, 
+known as the *reparameterization gradients*, have be shown to have the lowest 
+variance among competing estimators for continuous latent variables.
+The reparameterization trick is a straightforward change of variables that 
+expresses the random variable :math:`\mathbf{z} \sim q_{\phi}(\mathbf{z} | \mathbf{x})`
+as a deterministic transformation :math:`g_{\phi}` of another random variable 
+:math:`\mathbf{\epsilon}` and input :math:`\mathbf{x}`, with parameters :math:`\phi`,
 
+.. math::
 
-The ELBO can be written as an expectation of a multivariate function 
-:math:`f(\mathbf{x}, \mathbf{z}) = \log p_{\theta}(\mathbf{x} , \mathbf{z}) - \log q_{\phi}(\mathbf{z} | \mathbf{x})`
-over distribution :math:`q_{\phi}(\mathbf{z} | \mathbf{x})`.
+   z = g_{\phi}(\mathbf{x}, \mathbf{\epsilon}), \quad 
+     \mathbf{\epsilon} \sim p(\mathbf{\epsilon}).
 
+Note that :math:`p(\mathbf{\epsilon})` is simpler base distribution which is
+parameter-free and independent of :math:`\mathbf{x}` or :math:`\phi`. 
+To prevent clutter, we write the ELBO as an expectation of the function 
+:math:`f(\mathbf{x}, \mathbf{z}) = \log p_{\theta}(\mathbf{x} , \mathbf{z}) - 
+\log q_{\phi}(\mathbf{z} | \mathbf{x})` 
+over distribution :math:`q_{\phi}(\mathbf{z} | \mathbf{x})`. 
+Now, for any function :math:`f(\mathbf{x}, \mathbf{z})`, taking the gradient of 
+the expectation with respect to :math:`\phi`, and substituting all occurrences
+of :math:`\mathbf{z}` with :math:`g_{\phi}(\mathbf{x}, \mathbf{\epsilon})`, we
+have
 
 .. math::
 
@@ -437,57 +521,72 @@ over distribution :math:`q_{\phi}(\mathbf{z} | \mathbf{x})`.
     \nabla_{\phi}
     f(\mathbf{x}, 
       g_{\phi}(\mathbf{x}, \mathbf{\epsilon})) 
-   ] \\
+   ].
 
-Specifying  gives us the gradient of the ELBO above.
+In other words, this simple reparameterization allows the gradient and the 
+expectation to commute, thereby allowing us to take unbiased stochastic 
+estimates of ELBO gradients by drawing noise samples :math:`\mathbf{\epsilon}` 
+from :math:`p(\mathbf{\epsilon})`.
+
+-----
+
+To recover our diagonal Gaussian approximation 
+:math:`q_{\phi}(\mathbf{z}_n | \mathbf{x}_n) = 
+\mathcal{N}(
+\mathbf{z}_n | 
+\mathbf{\mu}_{\phi}(\mathbf{x}_n), 
+\mathrm{diag}(\mathbf{\sigma}_{\phi}^2(\mathbf{x}_n)))`, 
+we draw noise from the Normal base distribution, and specify a simple 
+location-scale transformation 
 
 .. math::
 
-   z = g_{\phi}(\mathbf{x}, \mathbf{\epsilon}), \quad 
-     \mathbf{\epsilon} \sim p(\mathbf{\epsilon})
-
-.. math::
-
+   \mathbf{z} =
    g_{\phi}(\mathbf{x}, \mathbf{\epsilon}) = 
      \mathbf{\mu}_{\phi}(\mathbf{x}) + 
      \mathbf{\sigma}_{\phi}(\mathbf{x}) \odot 
      \mathbf{\epsilon}, \quad 
      \mathbf{\epsilon} \sim 
      \mathcal{N}(\mathbf{0}, \mathbf{I})
-   
-Assume ``z_mu`` and ``z_sigma`` are the outputs of some layers. Then, using  
-`Merge Layers <https://keras.io/layers/merge/>`_, ``Add`` and ``Multiply``:
+
+where :math:`\mathbf{\mu}_{\phi}(\mathbf{x})` and 
+:math:`\mathbf{\sigma}_{\phi}(\mathbf{x})` are the outputs of the inference 
+network with parameter :math:`\phi` specified earlier, and :math:`\odot` denotes 
+the elementwise product. In Keras, we explicitly make the noise vector as an 
+input to the model by defining it as an Input layer. We then implement the 
+above location-scale transformation using 
+`Merge layers <https://keras.io/layers/merge/>`_, namely ``Add`` and ``Multiply``. 
 
 .. code:: python
 
    eps = Input(shape=(latent_dim,))
-   z_eps = Multiply()([z_sigma, eps])   
 
+   z_eps = Multiply()([z_sigma, eps])   
    z = Add()([z_mu, z_eps])
 
 .. figure:: ../../images/vae/reparameterization.svg
-   :height: 300px
+   :height: 250px
    :align: center
 
    Reparameterization with simple location-scale transformation using Keras 
    merge layers.
 
-Lambda layer, which simultaneously draws samples from a hard-coded base 
-distribution and performs reparameterization. This implementation achieves a 
-more appropriate level of modularity and abstraction. It's makes it clear that
-each of these atomic building blocks are themselves deterministic 
-transformations which together make up a deterministic transformation. 
-The source of stochasticity comes from the input, which we are able to tweak at
-test time. Gumbel-softmax trick.
+Since the noise input is drawn from a Normal distribution, we can save from 
+having to feed this in as input from outside the computation graph by binding a 
+tensor this Input layer. Specifically, we bind a tensor created using 
+``K.random_normal`` with the required shape:
 
 .. code:: python
 
-   eps = Input(tensor=K.random_normal(shape=(K.shape(x)[0], latent_dim)))
+   eps = Input(tensor=K.random_normal(shape=(K.shape(x)[0], 
+                                             latent_dim)))
 
-For the sake of illustration, we've fixed ``sigma`` and ``mu`` as ``Input`` 
-layers. That's why it says ``InputLayer`` next to it. In reality, it will be 
-the output layer of a network. We specify :math:`\mathbf{\mu}_{\phi}(\mathbf{x})` 
-and :math:`\mathbf{\sigma}_{\phi}(\mathbf{x})` now.
+While this still needs to be explicitly specified as an input to compile the 
+model, this input will no longer need to be passed in to methods such as ``fit``, 
+``predict``. Samples from this distribution will just be generated within the 
+computation graph when a dependency of this input is evaluated. See my notes on
+:doc:`keras-constant-input-layers-with-fixed-source-of-stochasticity` for more
+information. 
 
 .. figure:: ../../images/vae/encoder.svg
    :height: 500px
@@ -495,11 +594,31 @@ and :math:`\mathbf{\sigma}_{\phi}(\mathbf{x})` now.
 
    Encoder architecture.
 
-.. figure:: ../../images/vae/encoder_full.svg
-   :height: 500px
-   :align: center
+In the `example implementation <https://github.com/keras-team/keras/blob/2.1.1/examples/variational_autoencoder.py>`_, all of this logic is encapsulated in a single 
+Lambda layer, which simultaneously draws samples from a hard-coded base 
+distribution and also performs the location-scale transformation. 
+In contrast, this approach achieves a good level of 
+`loose coupling <https://en.wikipedia.org/wiki/Loose_coupling>`_
+and `separation of concerns <https://en.wikipedia.org/wiki/Separation_of_concerns>`_.
+By decoupling the random noise vector from the layer's internal logic and 
+explicitly making it a model input, we emphasize the fact that all sources of 
+stochasticity emanate from this input. Then it becomes obvious that a random 
+sample drawn from a particular approximating distribution is obtained by feeding 
+this source of stochasticity through a number of successive deterministic 
+transformations.
 
-   Full encoder architecture, including auxiliary KL divergence layer.
+For example, we could provide samples drawn from the Uniform distribution as 
+noise input. By applying a number of deterministic transformations that 
+constitute the *Gumbel-softmax reparameterization trick* [#jang2016]_, we obtain 
+samples from a Categorical distribution. This allows us to perform approximate 
+inference on *discrete* latent variables, and can be implemented in this 
+framework by adding a dozen or so lines of code!
+
+.. .. figure:: ../../images/vae/encoder_full.svg
+..    :height: 500px
+..    :align: center
+
+..    Full encoder architecture, including auxiliary KL divergence layer.
 
 Putting it all together
 -----------------------
@@ -515,54 +634,35 @@ Putting it all together
    z_mu, z_log_var = KLDivergenceLayer()([z_mu, z_log_var])
    z_sigma = Lambda(lambda t: K.exp(.5*t))(z_log_var) 
 
-   eps = Input(tensor=K.random_normal(shape=(K.shape(x)[0], latent_dim)))
+   eps = Input(tensor=K.random_normal(shape=(K.shape(x)[0], 
+                                             latent_dim)))
    z_eps = Multiply()([z_sigma, eps])
    z = Add()([z_mu, z_eps]) 
 
    decoder = Sequential([
-       Dense(intermediate_dim, input_dim=latent_dim, activation='relu'),
+       Dense(intermediate_dim, input_dim=latent_dim, 
+             activation='relu'),
        Dense(original_dim, activation='sigmoid')
    ]) 
 
-   x_mean = decoder(z)
+   x_pred = decoder(z)
 
-.. code:: python
-
-   vae = Model(inputs=[x, eps], outputs=x_mean)
-   vae.compile(optimizer='rmsprop', loss=nll)
-
-.. figure:: ../../images/vae/vae_full_shapes.svg
-   :height: 500px
+.. figure:: ../../images/vae/vae_full.svg
+   :height: 700px
    :align: center
 
    Variational autoencoder architecture.
 
-When combined end-to-end, the inference network and the deep latent Gaussian
-model can be seen as having an autoencoder structure. 
-Indeed, this general structure contains the variational autoencoder as a special 
-case, and more traditionally, the Helmholtz machine. 
-Even more generally, we can use this structure to perform amortized variational 
-inference in complex generative models for a wide array of supervised, 
-unsupervised and semi-supervised tasks.
+.. code:: python
 
-The point of this tutorial is to illustrate the general framework for performing
-amortized variational inference using Keras, treating the inference network 
-(approximate posterior) and the generative network (likelihood) as black-boxes.
-What we've used for the encoder and decoder each with a single hidden 
-full-connected layer is perhaps the minimal viable architecture. 
-In the examples directory, Keras provides a more sophisticated variational 
-autoencoder with deconvolutional layers. The architecture definitions can be
-trivially copy-pasted here without need to modify anything else.
+   vae = Model(inputs=[x, eps], outputs=x_pred)
+   vae.compile(optimizer='rmsprop', loss=nll)
 
-Parameter Learning
-==================
+Model fitting
+=============
 
-We load the training data as usual. Now the ``vae`` is explicitly specified with
-random noise source as an auxiliary input. This allows to easily control the 
-base distribution :math:`p(\mathbf{\epsilon})` and also how we draw Monte Carlo
-samples of :math:`\mathbf{z}` for each datapoint :math:`\mathbf{x}`. Usually
-we just stick with a simple isotropic Gaussian distribution and draw a different
-MC sample for each datapoint.
+Dataset: MNIST digits
+---------------------
 
 .. code:: python
 
@@ -570,13 +670,19 @@ MC sample for each datapoint.
    x_train = x_train.reshape(-1, original_dim) / 255.
    x_test = x_test.reshape(-1, original_dim) / 255.   
 
-Model fitting feels less intuitive. The ``vae`` is compiled with ``loss=None``
-explicitly specified which raises a warning. When fit is called, the targets 
-argument is left unspecified, and the reconstruction loss is optimized through
-the `CustomLayer`. This mapping from mathematical problem formulation to code
-implementation appears more natural and straightforward. It's easy to understand
-at a glance from our call to the ``fit`` method that we're training a
-probabilistic auto-encoder.
+.. figure:: ../../images/vae/vae_full_shapes.svg
+   :height: 700px
+   :align: center
+
+   Variational autoencoder architecture.
+
+.. Model fitting feels less intuitive. The ``vae`` is compiled with ``loss=None``
+.. explicitly specified which raises a warning. When fit is called, the targets 
+.. argument is left unspecified, and the reconstruction loss is optimized through
+.. the `CustomLayer`. This mapping from mathematical problem formulation to code
+.. implementation appears more natural and straightforward. It's easy to understand
+.. at a glance from our call to the ``fit`` method that we're training a
+.. probabilistic auto-encoder.
 
 .. code:: python
 
@@ -587,22 +693,12 @@ probabilistic auto-encoder.
            batch_size=batch_size,
            validation_data=(x_test, x_test))
 
-Personally, I prefer this view since the all sources of stochasticity emanate
-from the inputs to the model. 
-
 Loss (NELBO) Convergence
 ------------------------
 
 .. code:: python
 
-   fig, ax = plt.subplots() 
-
    pd.DataFrame(hist.history).plot(ax=ax) 
-
-   ax.set_ylabel('NELBO')
-   ax.set_xlabel('# epochs') 
-
-   plt.show()
 
 .. figure:: ../../images/vae/nelbo.svg
    :width: 500px
@@ -613,7 +709,7 @@ Model evaluation
 
 .. code:: python
 
-   encoder = Model(x, z_mu) 
+   encoder = Model(x, z_mu)
 
    # display a 2D plot of the digit classes in the latent space
    z_test = encoder.predict(x_test, batch_size=batch_size)
@@ -637,14 +733,16 @@ Model evaluation
    # through the inverse CDF (ppf) of the Gaussian to produce values
    # of the latent variables z, since the prior of the latent space
    # is Gaussian
-   u_grid = np.dstack(np.meshgrid(np.linspace(0.05, 0.95, n),
-                                  np.linspace(0.05, 0.95, n)))
-   z_grid = norm.ppf(u_grid)
-   x_decoded = decoder.predict(z_grid.reshape(n*n, 2))
-   x_decoded = x_decoded.reshape(n, n, digit_size, digit_size) 
+
+   z1 = norm.ppf(np.linspace(0.01, 0.99, n))
+   z2 = norm.ppf(np.linspace(0.01, 0.99, n))
+   z_grid = np.dstack(np.meshgrid(z1, z2))
+
+   x_pred_grid = decoder.predict(z_grid.reshape(n*n, latent_dim)) \
+                        .reshape(n, n, digit_size, digit_size)
 
    plt.figure(figsize=(10, 10))
-   plt.imshow(np.block(list(map(list, x_decoded))), cmap='gray')
+   plt.imshow(np.block(list(map(list, x_pred_grid))), cmap='gray')
    plt.show()
 
 .. figure:: ../../images/vae/result_manifold.png
@@ -654,18 +752,36 @@ Model evaluation
 Recap
 =====
 
-- Demonstration of Sequential and functional Model API
-- Custom auxiliary layers that augments the model loss
-- Fixing input to source of stochasticity
-- Reparameterization using Merge layers
+In this post, we covered the basics of amortized variational inference, looking
+at variational autoencoders as a specific example. In particular, we
+
+- Implemented the decoder and encoder using the
+  `Sequential <https://keras.io/models/sequential/>`_ and 
+  `functional Model API <https://keras.io/models/model/>`_ respectively.
+- Augmented the final loss with the KL divergence term by writing an auxiliary 
+  `custom layer <https://keras.io/layers/writing-your-own-keras-layers/>`_.
+- Worked with the log variance for numerical stability, and used a 
+  `Lambda layer <https://keras.io/layers/core/#lambda>`_ to transform it to the
+  standard deviation when necessary.
+- Explicitly made the noise an Input layer, and implemented the 
+  reparameterization trick using `Merge layers <https://keras.io/layers/merge/>`_.
+- :doc:`Fixed the noise input to a stochastic tensor 
+  <keras-constant-input-layers-with-fixed-source-of-stochasticity>`, so random 
+  samples are generated *within* the computation graph.
+
+.. convolutional
+.. animation
+.. MC samples size
 
 What's next
 ===========
 
-Normalizing flows
+.. The appeal of this pattern is its simplicity and extensibility
 
-We illustrate how to employ the simple Gumbel-Softmax reparameterization to 
-build a Categorical VAE with discrete latent variables.
+.. Normalizing flows
+
+.. We illustrate how to employ the simple Gumbel-Softmax reparameterization to 
+.. build a Categorical VAE with discrete latent variables.
 
 We can easily extend ``KLDivergenceLayer`` to use an auxiliary density ratio 
 estimator function, instead of evaluating the KL divergence in the closed-form
@@ -676,7 +792,8 @@ This relaxes the requirement on approximate posterior
 a cruder estimate of the ELBO. 
 This is known as Adversarial Variational Bayes [#mescheder2017]_, and is an 
 important line of recent research that extends the applicability of variational 
-inference to arbitrarily expressive implicit probabilistic models [#tran2017]_.
+inference to arbitrarily expressive implicit probabilistic models with 
+intractable likelihoods [#tran2017]_.
 
 Footnotes
 =========
@@ -685,10 +802,16 @@ Footnotes
    inference in general, I highly recommend:
 
    * Jaan Altosaar's blog post, `What is a variational autoencoder? 
-     <https://jaan.io/what-is-variational-autoencoder-vae-tutorial/>`_.
+     <https://jaan.io/what-is-variational-autoencoder-vae-tutorial/>`_
    * Diederik P. Kingma's PhD Thesis, 
      `Variational Inference and Deep Learning: A New Synthesis 
      <https://www.dropbox.com/s/v6ua3d9yt44vgb3/cover_and_thesis.pdf?dl=1>`_.
+.. [*] To support sample weighting (fined-tuning how much each data-point 
+   contributes to the loss), Keras losses are expected returns a scalar for each 
+   data-point in the batch. In contrast, losses appended with the ``add_loss``
+   method don't support this, and are expected to be a single scalar. 
+   Hence, we calculate the KL divergence for all data-points in the batch and 
+   take the mean before passing it to ``add_loss``.
 
 References
 ==========
@@ -739,6 +862,6 @@ Below, you can find:
   in this post.
 * The above snippets combined in a single executable Python file:
 
-.. listing:: vae/variational_autoencoder_improved.py python
+.. listing:: vae/variational_autoencoder.py python
 
 .. _accompanying Jupyter Notebook: /listings/vae/variational_autoencoder.ipynb.html

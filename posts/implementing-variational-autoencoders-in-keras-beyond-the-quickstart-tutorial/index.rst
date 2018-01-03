@@ -51,20 +51,20 @@ combinations for which the generative model belongs to a large family of
 The goal of this post is to propose a clean and elegant alternative 
 implementation that takes better advantage of Keras' modular design. 
 It is not intended as tutorial on variational autoencoders [*]_. 
-Rather, we study variational autoencoders as a specific case of variational 
-inference in deep latent Gaussian models with inference networks, and 
+Rather, we study variational autoencoders as a special case of variational 
+inference in deep latent Gaussian models using inference networks, and 
 demonstrate how we can use Keras to implement them in a modular fashion such 
-that they can be easily adapted to approximate inference in various common 
-problems with different (non-Gaussian) likelihoods, such as classification with 
-Bayesian logistic / softmax regression. 
+that they can be easily adapted to approximate inference in tasks beyond 
+unsupervised learning, and with complicated (non-Gaussian) likelihoods.
 
 This first post will lay the groundwork for a series of future posts that 
-explore ways to extend this basic modular framework to implement the more
-powerful methods proposed in the latest research, such as the normalizing flows 
-for building richer posterior approximations [#rezende2015]_, importance weighted
-autoencoders [#burda2015]_, the Gumbel-softmax trick for inference in discrete 
-latent variables [#jang2016]_, and even the most recent GAN-based density-ratio 
-estimation techniques for likelihood-free inference [#mescheder2017]_ [#tran2017]_.
+explore ways to extend this basic modular framework to implement the 
+cutting-edge methods proposed in the latest research, such as the normalizing 
+flows for building richer posterior approximations [#rezende2015]_, importance 
+weighted autoencoders [#burda2015]_, the Gumbel-softmax trick for inference in 
+discrete latent variables [#jang2016]_, and even the most recent GAN-based 
+density-ratio estimation techniques for likelihood-free inference [#mescheder2017]_ 
+[#tran2017]_.
 
 .. _Keras: https://keras.io/
 .. _guiding principles: https://keras.io/#guiding-principles
@@ -175,14 +175,14 @@ negative log likelihood of a Bernoulli :math:`- \log p_{\theta}(\mathbf{x} |
        # over the last axis. we require the sum
        return K.sum(K.binary_crossentropy(y_true, y_pred), axis=-1)
 
-As we discuss later, this will not be the loss we ultimately minimize. 
-However, it will still constitute the data-fitting term of our final loss.
+As we discuss later, this will not be the loss we ultimately minimize, but will
+constitute the data-fitting term of our final loss.
 
 Note this is a valid definition of a `Keras loss <https://keras.io/losses/>`_, 
 which is required to compile and optimize a model. It is a symbolic function 
 that returns a scalar for each data-point in ``y_true`` and ``y_pred``. 
-In our example, ``y_pred`` will be the output of our ``decoder`` network, the 
-predicted probabilities, and ``y_true`` will be the true probabilities.
+In our example, ``y_pred`` will be the output of our ``decoder`` network, which
+are the predicted probabilities, and ``y_true`` will be the true probabilities.
 
 .. Tip:: If you are using the TensorFlow backend, you can directly use the 
    (negative) log probability of ``Bernoulli`` from TensorFlow Distributions as 
@@ -214,11 +214,12 @@ Additionally, we wish to optimize the model parameters :math:`\theta` with
 respect to the marginal likelihood :math:`p_{\theta}(\mathbf{x})`. 
 Both depend on the marginal likelihood, whose calculation requires marginalizing 
 out the latent variables :math:`\mathbf{z}`. In general, this is computational 
-intractable, requiring exponential time to compute. Or, it is analytically 
-intractable and cannot be evaluated in closed-form, as it is in our case 
-where the Gaussian prior is non-conjugate to the Bernoulli likelihood.
+intractable, requiring exponential time to compute, or it is analytically 
+intractable and cannot be evaluated in closed-form. In our case, we suffer from
+the latter intractability, since our prior is Gaussian non-conjugate to the 
+Bernoulli likelihood.
 
-To circumvent this intractability we turn to variational inference, which 
+To circumvent this intractability we turn to *variational inference*, which 
 formulates inference as an optimization problem. It seeks an approximate
 posterior :math:`q_{\phi}(\mathbf{z} | \mathbf{x})` closest in Kullback-Leibler 
 (KL) divergence to the true posterior. More precisely, the approximate posterior 
@@ -273,12 +274,12 @@ Encoder
 
 For each local observed variable :math:`\mathbf{x}_n`, we wish to approximate 
 the true posterior distribution :math:`p(\mathbf{z}_n|\mathbf{x}_n)` over its 
-corresponding local latent variables :math:`\mathbf{z}_n`. A common approach it 
-to approximate it using a variational distribution 
-:math:`q_{\phi_n}(\mathbf{z}_n | \mathbf{x}_n)` that is a diagonal Gaussian, 
-where the *local* variational parameters 
+corresponding local latent variables :math:`\mathbf{z}_n`. A common approach is 
+to approximate it using a *variational distribution* 
+:math:`q_{\phi_n}(\mathbf{z}_n | \mathbf{x}_n)`, specified as a diagonal 
+Gaussian, where the *local* variational parameters 
 :math:`\phi_n = \{ \mathbf{\mu}_n, \mathbf{\sigma}_n \}` are the means and 
-variances of this approximating distribution,
+standard deviations of this approximating distribution,
 
 .. math::
 
@@ -294,7 +295,9 @@ variational parameters we are required to optimize grows with the size of the
 dataset. Second, a new set of local variational parameters need to be optimized
 for new unseen test points. This is not to mention the strong factorization 
 assumption we make by specifying diagonal Gaussian distributions as the family 
-of approximations. We address the first two using an inference network.
+of approximations. The last is still an active area of research, and the first 
+two can we addressed by introducing a further approximation that uses an 
+*inference network*.
 
 Inference network
 #################
@@ -325,8 +328,9 @@ data-point, we now learn a fixed number of *global* variational parameters
 Moreover, this approximation allows statistical strength to be shared across 
 observed data-points and also generalize to unseen test points.
 
-We specify the location and scale of this distribution as the output of an 
-inference network. For this post, we keep the architecture of the network 
+We specify the mean :math:`\mathbf{\mu}_{\phi}(\mathbf{x})` and log variance 
+:math:`\log \sigma_{\phi}^2(\mathbf{x})` of this distribution as the output of 
+an inference network. For this post, we keep the architecture of the network 
 simple, with only a single hidden layer and two fully-connected output layers. 
 Again, this is simple to define in Keras:
 
@@ -354,11 +358,10 @@ inputs, multiple outputs, and so on.
 
    Inference network.
 
-Note we defined one of the outputs to be the log variance 
-:math:`\log \sigma_{\phi}^2(\mathbf{x})` instead of the standard deviation 
-:math:`\sigma_{\phi}(\mathbf{x})`. This is not only more convenient to work 
-with but also helps with numerical stability. To recover the latter, we simply 
-implement the appropriate transformation and encapsulate it in a 
+Note that we output the log variance instead of the standard deviation because
+this is not only more convenient to work with, but also helps with numerical 
+stability. However, we still require the standard deviation later. To recover 
+it, we simply implement the appropriate transformation and encapsulate it in a 
 `Lambda layer <https://keras.io/layers/core/#lambda>`_.
 
 .. code:: python
@@ -457,18 +460,36 @@ the KL divergence and adding it to a collection of losses, by calling the method
 
            return inputs
 
-Next we feed ``z_mu`` and ``z_log_var`` through this layer. This needs to take 
-place before feeding ``z_log_var`` through the Lambda layer to recover ``z_sigma``.
+Next we feed ``z_mu`` and ``z_log_var`` through this layer (this needs to take 
+place before feeding ``z_log_var`` through the Lambda layer to recover ``z_sigma``).
 
 .. code:: python
 
    z_mu, z_log_var = KLDivergenceLayer()([z_mu, z_log_var])
 
 Now when the Keras model is finally compiled, the collection of losses will be 
-aggregated and added to the specified Keras loss fwunction to form the loss we
+aggregated and added to the specified Keras loss function to form the loss we
 ultimately minimize. If we specify the loss as the negative log-likelihood we 
 defined earlier (``nll``), we recover the negative ELBO as the final loss we 
-minimize.
+minimize, as intended.
+
+A key benefit of encapsulating the divergence in an auxiliary layer is that we 
+can easily implement and swap in other divergences, such as the 
+:math:`\chi`-divergence or the :math:`\alpha`-divergence. 
+Alternative divergences for variational inference is an active research topic
+[#li2016]_ [#dieng2017]_.
+
+Additionally, we could also extend the divergence layer to use an auxiliary 
+density ratio estimator function, instead of evaluating the KL divergence in 
+the closed-form expression above. 
+This relaxes the requirement on approximate posterior 
+:math:`q_{\phi}(\mathbf{z}|\mathbf{x})` (and incidentally also prior 
+:math:`p(\mathbf{z})`) to yield tractable densities, at the cost of maximizing 
+a cruder estimate of the ELBO. 
+This is known as Adversarial Variational Bayes [#mescheder2017]_, and is an 
+important line of recent research that extends the applicability of variational 
+inference to arbitrarily expressive implicit probabilistic models with 
+intractable likelihoods [#tran2017]_.
 
 .. TODO
 .. - thought experiment
@@ -623,6 +644,10 @@ framework by adding a dozen or so lines of code!
 Putting it all together
 -----------------------
 
+So far, we've dissected the variational autoencoder into modular components and 
+discussed the role and implementation of each one at some length. 
+Now let's hook them up together end-to-end to form the autoencoder architecture.
+
 .. code:: python
 
    x = Input(shape=(original_dim,))
@@ -647,11 +672,18 @@ Putting it all together
 
    x_pred = decoder(z)
 
+It's surprisingly concise, requiring around 20 lines of code. 
+The diagram of the full model architecture is visualized below.
+
 .. figure:: ../../images/vae/vae_full.svg
    :height: 700px
    :align: center
 
    Variational autoencoder architecture.
+
+Again, note that we explicitly made the noise an input to the model (``eps``).
+Finally, we specify and compile the model, using the negative log likelihood 
+``nll`` defined earlier as the loss.
 
 .. code:: python
 
@@ -674,7 +706,7 @@ Dataset: MNIST digits
    :height: 700px
    :align: center
 
-   Variational autoencoder architecture.
+   Variational autoencoder architecture for the MNIST digits dataset.
 
 .. Model fitting feels less intuitive. The ``vae`` is compiled with ``loss=None``
 .. explicitly specified which raises a warning. When fit is called, the targets 
@@ -844,6 +876,12 @@ References
    "Categorical Reparameterization with Gumbel-Softmax," Nov. 2016.
    in Proceedings of the 5th International Conference on Learning 
    Representations (ICLR), 2017.
+.. [#li2016] Y. Li and R. E. Turner, 
+   "Rényi Divergence Variational Inference," in Advances in Neural Information 
+   Processing Systems 29, 2016.
+.. [#dieng2017] A. B. Dieng, D. Tran, R. Ranganath, J. Paisley, and D. Blei, 
+   "Variational Inference via chi Upper Bound Minimization," 
+   in Advances in Neural Information Processing Systems 30, 2017.
 .. [#mescheder2017] L. Mescheder, S. Nowozin, and A. Geiger, 
    "Adversarial Variational Bayes: Unifying Variational Autoencoders and 
    Generative Adversarial Networks," 
@@ -851,7 +889,7 @@ References
    vol. 70, pp. 2391–2400.
 .. [#tran2017] D. Tran, R. Ranganath, and D. Blei, 
    "Hierarchical Implicit Models and Likelihood-Free Variational Inference," 
-   *to appear in* Advances in Neural Information Processing Systems 31, 2017.
+   in Advances in Neural Information Processing Systems 30, 2017.
 
 Appendix
 ========

@@ -278,8 +278,8 @@ corresponding local latent variables :math:`\mathbf{z}_n`. A common approach is
 to approximate it using a *variational distribution* 
 :math:`q_{\phi_n}(\mathbf{z}_n | \mathbf{x}_n)`, specified as a diagonal 
 Gaussian, where the *local* variational parameters 
-:math:`\phi_n = \{ \mathbf{\mu}_n, \mathbf{\sigma}_n \}` are the means and 
-standard deviations of this approximating distribution,
+:math:`\phi_n = \{ \mathbf{\mu}_n, \mathbf{\sigma}_n \}` are the mean and 
+standard deviation of this approximating distribution,
 
 .. math::
 

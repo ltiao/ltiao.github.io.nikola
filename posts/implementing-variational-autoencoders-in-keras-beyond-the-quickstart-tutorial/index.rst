@@ -184,13 +184,14 @@ that returns a scalar for each data-point in ``y_true`` and ``y_pred``.
 In our example, ``y_pred`` will be the output of our ``decoder`` network, which
 are the predicted probabilities, and ``y_true`` will be the true probabilities.
 
-.. Tip:: If you are using the TensorFlow backend, you can directly use the 
-   (negative) log probability of ``Bernoulli`` from TensorFlow Distributions as 
-   a Keras loss, as I demonstrate in my post on 
+.. admonition:: Using TensorFlow Distributions in loss
+
+   If you are using the TensorFlow backend, you can directly use the (negative) 
+   log probability of ``Bernoulli`` from TensorFlow Distributions as a Keras 
+   loss, as I demonstrate in my post on 
    :doc:`using-negative-log-likelihoods-of-tensorflow-distributions-as-keras-losses`.
 
-   That is, the following is equivalent to the above definition which instead 
-   uses the ``K.binary_crossentropy`` function:
+   Specifically we can define the loss as,
 
    .. code:: python   
 
@@ -200,6 +201,9 @@ are the predicted probabilities, and ``y_true`` will be the true probabilities.
           lh = K.tf.distributions.Bernoulli(probs=y_pred)   
 
           return - K.sum(lh.log_prob(y_true), axis=-1)
+
+   This is exactly equivalent to the previous definition, but does not call 
+   ``K.binary_crossentropy`` directly.
 
 Inference
 =========
@@ -473,23 +477,27 @@ ultimately minimize. If we specify the loss as the negative log-likelihood we
 defined earlier (``nll``), we recover the negative ELBO as the final loss we 
 minimize, as intended.
 
-A key benefit of encapsulating the divergence in an auxiliary layer is that we 
-can easily implement and swap in other divergences, such as the 
-:math:`\chi`-divergence or the :math:`\alpha`-divergence. 
-Alternative divergences for variational inference is an active research topic
-[#li2016]_ [#dieng2017]_.
+.. admonition:: Alternative divergences
 
-Additionally, we could also extend the divergence layer to use an auxiliary 
-density ratio estimator function, instead of evaluating the KL divergence in 
-the closed-form expression above. 
-This relaxes the requirement on approximate posterior 
-:math:`q_{\phi}(\mathbf{z}|\mathbf{x})` (and incidentally also prior 
-:math:`p(\mathbf{z})`) to yield tractable densities, at the cost of maximizing 
-a cruder estimate of the ELBO. 
-This is known as Adversarial Variational Bayes [#mescheder2017]_, and is an 
-important line of recent research that extends the applicability of variational 
-inference to arbitrarily expressive implicit probabilistic models with 
-intractable likelihoods [#tran2017]_.
+   A key benefit of encapsulating the divergence in an auxiliary layer is that 
+   we can easily implement and swap in other divergences, such as the 
+   :math:`\chi`-divergence or the :math:`\alpha`-divergence. 
+   Alternative divergences for variational inference is an active research topic
+   [#li2016]_ [#dieng2017]_.
+
+.. admonition:: Implicit models
+
+   Additionally, we could also extend the divergence layer to use an auxiliary 
+   density ratio estimator function, instead of evaluating the KL divergence in 
+   the closed-form expression above. 
+   This relaxes the requirement on approximate posterior 
+   :math:`q_{\phi}(\mathbf{z}|\mathbf{x})` (and incidentally also prior 
+   :math:`p(\mathbf{z})`) to yield tractable densities, at the cost of 
+   maximizing a cruder estimate of the ELBO. 
+   This is known as Adversarial Variational Bayes [#mescheder2017]_, and is an 
+   important line of recent research that extends the applicability of 
+   variational inference to arbitrarily expressive implicit probabilistic models 
+   with intractable likelihoods [#tran2017]_.
 
 .. TODO
 .. - thought experiment
@@ -628,12 +636,14 @@ sample drawn from a particular approximating distribution is obtained by feeding
 this source of stochasticity through a number of successive deterministic 
 transformations.
 
-For example, we could provide samples drawn from the Uniform distribution as 
-noise input. By applying a number of deterministic transformations that 
-constitute the *Gumbel-softmax reparameterization trick* [#jang2016]_, we obtain 
-samples from a Categorical distribution. This allows us to perform approximate 
-inference on *discrete* latent variables, and can be implemented in this 
-framework by adding a dozen or so lines of code!
+.. admonition:: Gumbel-softmax trick for discrete latent variables
+
+   For example, we could provide samples drawn from the Uniform distribution as 
+   noise input. By applying a number of deterministic transformations that 
+   constitute the *Gumbel-softmax reparameterization trick* [#jang2016]_, we 
+   obtain samples from a Categorical distribution. This allows us to perform 
+   approximate inference on *discrete* latent variables, and can be implemented 
+   in this framework by adding a dozen or so lines of code!
 
 .. .. figure:: ../../images/vae/encoder_full.svg
 ..    :height: 500px

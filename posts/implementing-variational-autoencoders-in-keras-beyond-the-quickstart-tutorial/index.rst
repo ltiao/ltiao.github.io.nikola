@@ -482,14 +482,14 @@ minimize, as intended.
    A key benefit of encapsulating the divergence in an auxiliary layer is that 
    we can easily implement and swap in other divergences, such as the 
    :math:`\chi`-divergence or the :math:`\alpha`-divergence. 
-   Alternative divergences for variational inference is an active research topic
-   [#li2016]_ [#dieng2017]_.
+   Using alternative divergences for variational inference is an active research 
+   topic [#li2016]_ [#dieng2017]_.
 
-.. admonition:: Implicit models
+.. admonition:: Implicit models and adversarial learning
 
    Additionally, we could also extend the divergence layer to use an auxiliary 
    density ratio estimator function, instead of evaluating the KL divergence in 
-   the closed-form expression above. 
+   the analytical form above. 
    This relaxes the requirement on approximate posterior 
    :math:`q_{\phi}(\mathbf{z}|\mathbf{x})` (and incidentally also prior 
    :math:`p(\mathbf{z})`) to yield tractable densities, at the cost of 
@@ -582,7 +582,7 @@ where :math:`\mathbf{\mu}_{\phi}(\mathbf{x})` and
 :math:`\mathbf{\sigma}_{\phi}(\mathbf{x})` are the outputs of the inference 
 network with parameter :math:`\phi` specified earlier, and :math:`\odot` denotes 
 the elementwise product. In Keras, we explicitly make the noise vector as an 
-input to the model by defining it as an Input layer. We then implement the 
+input to the model by defining an Input layer for it. We then implement the 
 above location-scale transformation using 
 `Merge layers <https://keras.io/layers/merge/>`_, namely ``Add`` and ``Multiply``. 
 
@@ -600,22 +600,37 @@ above location-scale transformation using
    Reparameterization with simple location-scale transformation using Keras 
    merge layers.
 
-Since the noise input is drawn from a Normal distribution, we can save from 
-having to feed this in as input from outside the computation graph by binding a 
-tensor this Input layer. Specifically, we bind a tensor created using 
-``K.random_normal`` with the required shape:
+.. admonition:: Monte Carlo sample size
+
+   Note both the inputs for observed variables and noise (``x`` and ``eps``) 
+   need to be specified explicitly as inputs to our final model. 
+   Furthermore, the size of their first dimension (i.e. batch size) are required 
+   to be the same. 
+   This corresponds to using a only one Monte Carlo sample to approximate the 
+   expected log likelihood, drawing a single sample :math:`\mathbf{z}_n` from 
+   :math:`q_{\phi}(\mathbf{z}_n | \mathbf{x}_n)` for each data-point 
+   :math:`\mathbf{x}_n` in the batch. Although you might find an MC sample size 
+   of 1 surprisingly small, it is actually adequate for a sufficiently large 
+   batch size (~100) [#kingma2014]_.
+   In a :doc:`follow-up post <inference-in-variational-autoencoders-with-different-monte-carlo-sample-sizes>`,
+   I demonstrate how to extend this approach to support larger MC sample sizes 
+   using just a few minor tweaks. This extension is crucial for implementing 
+   the *importance weighted autoencoder* [#burda2015]_.
+
+Now, since the noise input is drawn from the Normal distribution, we can save 
+from having to feed in values for this input from outside the computation graph 
+by binding a tensor to this Input layer. Specifically, we bind a tensor created 
+using ``K.random_normal`` with the required shape,
 
 .. code:: python
 
    eps = Input(tensor=K.random_normal(shape=(K.shape(x)[0], 
                                              latent_dim)))
 
-While this still needs to be explicitly specified as an input to compile the 
-model, this input will no longer need to be passed in to methods such as ``fit``, 
-``predict``. Samples from this distribution will just be generated within the 
-computation graph when a dependency of this input is evaluated. See my notes on
-:doc:`keras-constant-input-layers-with-fixed-source-of-stochasticity` for more
-information. 
+While ``eps`` still needs to be explicitly specified as an input to compile the 
+model, values for this input will no longer be expected by methods such as 
+``fit``, ``predict``. Instead, samples from this distribution will be generated 
+within the computation graph when required. See my notes on :doc:`keras-constant-input-layers-with-fixed-source-of-stochasticity` for more details. 
 
 .. figure:: ../../images/vae/encoder.svg
    :height: 500px
@@ -631,25 +646,34 @@ In contrast, this approach achieves a good level of
 and `separation of concerns <https://en.wikipedia.org/wiki/Separation_of_concerns>`_.
 By decoupling the random noise vector from the layer's internal logic and 
 explicitly making it a model input, we emphasize the fact that all sources of 
-stochasticity emanate from this input. Then it becomes obvious that a random 
+stochasticity emanate from this input. It thereby becomes clear that a random 
 sample drawn from a particular approximating distribution is obtained by feeding 
 this source of stochasticity through a number of successive deterministic 
 transformations.
 
 .. admonition:: Gumbel-softmax trick for discrete latent variables
 
-   For example, we could provide samples drawn from the Uniform distribution as 
-   noise input. By applying a number of deterministic transformations that 
+   As an example, we could provide samples drawn from the Uniform distribution 
+   as noise input. By applying a number of deterministic transformations that 
    constitute the *Gumbel-softmax reparameterization trick* [#jang2016]_, we 
-   obtain samples from a Categorical distribution. This allows us to perform 
-   approximate inference on *discrete* latent variables, and can be implemented 
-   in this framework by adding a dozen or so lines of code!
+   are able to obtain samples from the Categorical distribution. This allows us 
+   to perform approximate inference on *discrete* latent variables, and can be 
+   implemented in this framework by adding a dozen or so lines of code!
 
-.. .. figure:: ../../images/vae/encoder_full.svg
-..    :height: 500px
-..    :align: center
+.. .. admonition:: Normalizing flows for richer posterior approximations
 
-..    Full encoder architecture, including auxiliary KL divergence layer.
+..    Normalizing flows [#rezende2015]_
+
+..    Sketch:
+
+..    - In addition to the mean and std. deviation, the inference network would 
+..      output the parameters of the flow. 
+..    - Implement the required transformations that constitute the flow with Merge 
+..      layers or Lambda layers.
+..    - The KL divergence would no longer be analytical. However, we can compute 
+..      its MC estimates. To do this, we are required to compute the log density 
+..      :math:`\log q_{\phi}(\mathbf{z} | \mathbf{x})`, which requires the log 
+..      determinant of the Jacobian of the transformation.
 
 Putting it all together
 -----------------------
@@ -691,7 +715,6 @@ The diagram of the full model architecture is visualized below.
 
    Variational autoencoder architecture.
 
-Again, note that we explicitly made the noise an input to the model (``eps``).
 Finally, we specify and compile the model, using the negative log likelihood 
 ``nll`` defined earlier as the loss.
 
@@ -813,7 +836,6 @@ at variational autoencoders as a specific example. In particular, we
 
 .. convolutional
 .. animation
-.. MC samples size
 
 What's next
 ===========
@@ -826,8 +848,8 @@ What's next
 .. build a Categorical VAE with discrete latent variables.
 
 We can easily extend ``KLDivergenceLayer`` to use an auxiliary density ratio 
-estimator function, instead of evaluating the KL divergence in the closed-form
-expression above. 
+estimator function, instead of evaluating the KL divergence in the analytical 
+form above. 
 This relaxes the requirement on approximate posterior 
 :math:`q(\mathbf{z}|\mathbf{x})` (and incidentally, also prior 
 :math:`p(\mathbf{z})`) to yield tractable densities, at the cost of maximizing 

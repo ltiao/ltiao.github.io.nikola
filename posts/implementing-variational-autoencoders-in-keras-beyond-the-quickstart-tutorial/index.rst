@@ -184,7 +184,7 @@ that returns a scalar for each data-point in ``y_true`` and ``y_pred``.
 In our example, ``y_pred`` will be the output of our ``decoder`` network, which
 are the predicted probabilities, and ``y_true`` will be the true probabilities.
 
-.. admonition:: Using TensorFlow Distributions in loss
+.. topic:: Using TensorFlow Distributions in loss
 
    If you are using the TensorFlow backend, you can directly use the (negative) 
    log probability of ``Bernoulli`` from TensorFlow Distributions as a Keras 
@@ -295,12 +295,12 @@ standard deviation of this approximating distribution,
    ).
 
 This approach has a number of shortcomings. First, the number of local 
-variational parameters we are required to optimize grows with the size of the
-dataset. Second, a new set of local variational parameters need to be optimized
-for new unseen test points. This is not to mention the strong factorization 
-assumption we make by specifying diagonal Gaussian distributions as the family 
-of approximations. The last is still an active area of research, and the first 
-two can we addressed by introducing a further approximation that uses an 
+variational parameters we need to optimize grows with the size of the dataset. 
+Second, a new set of local variational parameters need to be optimized for new 
+unseen test points. This is not to mention the strong factorization assumption 
+we make by specifying diagonal Gaussian distributions as the family of 
+approximations. The last is still an active area of research, and the first 
+two can be addressed by introducing a further approximation using an 
 *inference network*.
 
 Inference network
@@ -328,7 +328,8 @@ Our approximate posterior distribution now becomes
 
 Instead of learning local variational parameters :math:`\phi_n` for each 
 data-point, we now learn a fixed number of *global* variational parameters 
-:math:`\phi` which constitute the parameters of the inference network. 
+:math:`\phi` which constitute the parameters (i.e. weights) of the inference 
+network. 
 Moreover, this approximation allows statistical strength to be shared across 
 observed data-points and also generalize to unseen test points.
 
@@ -353,7 +354,7 @@ Again, this is simple to define in Keras:
 Since this network has multiple outputs, we couldn't use the Sequential model 
 API as we did for the decoder. Instead, we will resort to the more powerful 
 `Functional API <https://keras.io/getting-started/functional-api-guide/>`_, 
-which allows you to implement complex models with shared layers, multiple 
+which allows us to implement complex models with shared layers, multiple 
 inputs, multiple outputs, and so on. 
 
 .. figure:: ../../images/vae/inference_network.svg
@@ -379,13 +380,13 @@ posterior distribution with an inference network as a probabilistic encoder
 (analogously to its counterpart, the probabilistic decoder). 
 Although this is an accurate interpretation, it is a limited one. 
 Classically, inference networks are known as *recognition models*, and have now
-been used successfully for decades in a number of methods.
+been used for decades in a wide variety of probabilistic methods.
 When composed end-to-end, the recognition-generative model combination can be 
 seen as having an autoencoder structure. Indeed, this structure contains the 
-variational autoencoder as a special case, and the now less fashionable
+variational autoencoder as a special case, and also the now less fashionable
 *Helmholtz machine* [#dayan1995]_. 
 Even more generally, this recognition-generative model combination constitutes 
-a widely-applicable approach now known as *amortized variational inference*, 
+a widely-applicable approach currently known as *amortized variational inference*, 
 which can be used to perform approximate inference in models that lie beyond 
 even the large class of deep latent Gaussian models.
 
@@ -477,7 +478,7 @@ ultimately minimize. If we specify the loss as the negative log-likelihood we
 defined earlier (``nll``), we recover the negative ELBO as the final loss we 
 minimize, as intended.
 
-.. admonition:: Alternative divergences
+.. topic:: Alternative divergences
 
    A key benefit of encapsulating the divergence in an auxiliary layer is that 
    we can easily implement and swap in other divergences, such as the 
@@ -485,7 +486,7 @@ minimize, as intended.
    Using alternative divergences for variational inference is an active research 
    topic [#li2016]_ [#dieng2017]_.
 
-.. admonition:: Implicit models and adversarial learning
+.. topic:: Implicit models and adversarial learning
 
    Additionally, we could also extend the divergence layer to use an auxiliary 
    density ratio estimator function, instead of evaluating the KL divergence in 
@@ -600,7 +601,7 @@ above location-scale transformation using
    Reparameterization with simple location-scale transformation using Keras 
    merge layers.
 
-.. admonition:: Monte Carlo sample size
+.. topic:: Monte Carlo sample size
 
    Note both the inputs for observed variables and noise (``x`` and ``eps``) 
    need to be specified explicitly as inputs to our final model. 
@@ -651,7 +652,7 @@ sample drawn from a particular approximating distribution is obtained by feeding
 this source of stochasticity through a number of successive deterministic 
 transformations.
 
-.. admonition:: Gumbel-softmax trick for discrete latent variables
+.. topic:: Gumbel-softmax trick for discrete latent variables
 
    As an example, we could provide samples drawn from the Uniform distribution 
    as noise input. By applying a number of deterministic transformations that 
@@ -660,7 +661,7 @@ transformations.
    to perform approximate inference on *discrete* latent variables, and can be 
    implemented in this framework by adding a dozen or so lines of code!
 
-.. .. admonition:: Normalizing flows for richer posterior approximations
+.. .. topic:: Normalizing flows for richer posterior approximations
 
 ..    Normalizing flows [#rezende2015]_
 

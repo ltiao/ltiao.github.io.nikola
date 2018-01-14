@@ -512,12 +512,12 @@ with respect to these parameters, which is generally intractable.
 Currently, the dominant approach for circumventing this is by Monte Carlo (MC) 
 estimation of the gradients. The basic idea is to write the gradient of the 
 ELBO as an expectation of the gradient, approximate it with MC estimates, then 
-perform stochastic gradient descent with repeated MC gradient estimates.
+perform stochastic gradient descent with the repeated MC gradient estimates.
 
 There exist a number of estimators based on different variance reduction 
 techniques. However, MC gradient estimates based on the reparameterization trick, 
 known as the *reparameterization gradients*, have be shown to have the lowest 
-variance among competing estimators for continuous latent variables.
+variance among competing estimators for continuous latent variables [#rezende2014]_.
 The reparameterization trick is a straightforward change of variables that 
 expresses the random variable :math:`\mathbf{z} \sim q_{\phi}(\mathbf{z} | \mathbf{x})`
 as a deterministic transformation :math:`g_{\phi}` of another random variable 
@@ -554,13 +554,13 @@ have
    ].
 
 In other words, this simple reparameterization allows the gradient and the 
-expectation to commute, thereby allowing us to take unbiased stochastic 
-estimates of ELBO gradients by drawing noise samples :math:`\mathbf{\epsilon}` 
-from :math:`p(\mathbf{\epsilon})`.
+expectation to commute, thereby allowing us to compute unbiased stochastic 
+estimates of the ELBO gradients by drawing noise samples 
+:math:`\mathbf{\epsilon}` from :math:`p(\mathbf{\epsilon})`.
 
 -----
 
-To recover our diagonal Gaussian approximation 
+To recover the diagonal Gaussian approximation we specified earlier
 :math:`q_{\phi}(\mathbf{z}_n | \mathbf{x}_n) = 
 \mathcal{N}(
 \mathbf{z}_n | 
@@ -581,8 +581,8 @@ location-scale transformation
 
 where :math:`\mathbf{\mu}_{\phi}(\mathbf{x})` and 
 :math:`\mathbf{\sigma}_{\phi}(\mathbf{x})` are the outputs of the inference 
-network with parameter :math:`\phi` specified earlier, and :math:`\odot` denotes 
-the elementwise product. In Keras, we explicitly make the noise vector as an 
+network defined earlier with parameters :math:`\phi`, and :math:`\odot` denotes 
+the elementwise product. In Keras, we explicitly make the noise vector an 
 input to the model by defining an Input layer for it. We then implement the 
 above location-scale transformation using 
 `Merge layers <https://keras.io/layers/merge/>`_, namely ``Add`` and ``Multiply``. 
@@ -607,14 +607,14 @@ above location-scale transformation using
    need to be specified explicitly as inputs to our final model. 
    Furthermore, the size of their first dimension (i.e. batch size) are required 
    to be the same. 
-   This corresponds to using a only one Monte Carlo sample to approximate the 
+   This corresponds to using a exactly one Monte Carlo sample to approximate the 
    expected log likelihood, drawing a single sample :math:`\mathbf{z}_n` from 
    :math:`q_{\phi}(\mathbf{z}_n | \mathbf{x}_n)` for each data-point 
    :math:`\mathbf{x}_n` in the batch. Although you might find an MC sample size 
    of 1 surprisingly small, it is actually adequate for a sufficiently large 
    batch size (~100) [#kingma2014]_.
    In a :doc:`follow-up post <inference-in-variational-autoencoders-with-different-monte-carlo-sample-sizes>`,
-   I demonstrate how to extend this approach to support larger MC sample sizes 
+   I demonstrate how to extend our approach to support larger MC sample sizes 
    using just a few minor tweaks. This extension is crucial for implementing 
    the *importance weighted autoencoder* [#burda2015]_.
 
@@ -630,8 +630,8 @@ using ``K.random_normal`` with the required shape,
 
 While ``eps`` still needs to be explicitly specified as an input to compile the 
 model, values for this input will no longer be expected by methods such as 
-``fit``, ``predict``. Instead, samples from this distribution will be generated 
-within the computation graph when required. See my notes on :doc:`keras-constant-input-layers-with-fixed-source-of-stochasticity` for more details. 
+``fit``, ``predict``. Instead, samples from this distribution will be lazily 
+generated inside the computation graph when required. See my notes on :doc:`keras-constant-input-layers-with-fixed-source-of-stochasticity` for more details. 
 
 .. figure:: ../../images/vae/encoder.svg
    :height: 500px

@@ -14,7 +14,7 @@ article: http://ogp.me/ns/article#
 <meta name="theme-color" content="#5670d4">
 <meta name="generator" content="Nikola (getnikola.com)">
 <link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
-<link rel="canonical" href="http://louistiao.me/posts/re-implementing-the-kubernetes-guestbook-example-with-flask-and-nginx/">
+<link rel="canonical" href="http://tiao.io/posts/re-implementing-the-kubernetes-guestbook-example-with-flask-and-nginx/">
 <link rel="icon" href="../../favicon_16x16.ico" sizes="16x16">
 <link rel="icon" href="../../favicon_32x32.ico" sizes="32x32">
 <link rel="icon" href="../../favicon_256x256.ico" sizes="256x256">
@@ -47,7 +47,7 @@ MathJax.Hub.Config({
 <link rel="next" href="../walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes/" title="Walkthrough: Deploying a Flask app with Redis Queue (RQ) Workers and Dashboard using Kubernetes" type="text/html">
 <meta property="og:site_name" content="Louis Tiao">
 <meta property="og:title" content="Re-implementing the Kubernetes Guestbook Example with Flask and NGINX">
-<meta property="og:url" content="http://louistiao.me/posts/re-implementing-the-kubernetes-guestbook-example-with-flask-and-nginx/">
+<meta property="og:url" content="http://tiao.io/posts/re-implementing-the-kubernetes-guestbook-example-with-flask-and-nginx/">
 <meta property="og:description" content="The official Kubernetes walkthrough guides often points to the guestbook
 application as a quintessential example of how a simple, but complete multi-tier
 web application can be deployed with Kubernete">
@@ -82,7 +82,7 @@ web application can be deployed with Kubernete">
 
           
         </li>
-</ul></nav><a href="http://louistiao.me/">
+</ul></nav><a href="http://tiao.io/">
 
         <h3 class="text-muted">
           <span id="blog-title">Louis Tiao</span>
@@ -151,85 +151,85 @@ containers. A common practice for deploying Flask applications is to use <a clas
 as the WSGI server with <a class="reference external" href="https://nginx.org/en/">NGINX</a> as the reverse proxy.</p>
 <p>First we fork from the <a class="reference external" href="https://github.com/kubernetes/kubernetes">official Kubernetes repo</a> and create an exact copy of
 the guestbook example:</p>
-<pre class="code console"><a name="rest_code_f2c062e2bb854539900cdaa1663d9189-1"></a><span class="gp">$</span> git clone https://github.com/ltiao/kubernetes
-<a name="rest_code_f2c062e2bb854539900cdaa1663d9189-2"></a><span class="gp">$</span> <span class="nb">cd</span> kubernetes/examples/
-<a name="rest_code_f2c062e2bb854539900cdaa1663d9189-3"></a><span class="gp">$</span> cp -r guestbook guestbook-flask
+<pre class="code console"><a name="rest_code_dc99045a4af34adda56b0a7fa76491f3-1"></a><span class="gp">$</span> git clone https://github.com/ltiao/kubernetes
+<a name="rest_code_dc99045a4af34adda56b0a7fa76491f3-2"></a><span class="gp">$</span> <span class="nb">cd</span> kubernetes/examples/
+<a name="rest_code_dc99045a4af34adda56b0a7fa76491f3-3"></a><span class="gp">$</span> cp -r guestbook guestbook-flask
 </pre>
 <p>The current directory structure looks like this:</p>
-<pre class="code console"><a name="rest_code_8e78ba76effa4ed3a09f6940d995449d-1"></a><span class="gp">$</span> tree guestbook-flask
-<a name="rest_code_8e78ba76effa4ed3a09f6940d995449d-2"></a><span class="go">guestbook-flask</span>
-<a name="rest_code_8e78ba76effa4ed3a09f6940d995449d-3"></a><span class="go">├── README.md</span>
-<a name="rest_code_8e78ba76effa4ed3a09f6940d995449d-4"></a><span class="go">├── all-in-one</span>
-<a name="rest_code_8e78ba76effa4ed3a09f6940d995449d-5"></a><span class="go">│   ├── frontend.yaml</span>
-<a name="rest_code_8e78ba76effa4ed3a09f6940d995449d-6"></a><span class="go">│   ├── guestbook-all-in-one.yaml</span>
-<a name="rest_code_8e78ba76effa4ed3a09f6940d995449d-7"></a><span class="go">│   └── redis-slave.yaml</span>
-<a name="rest_code_8e78ba76effa4ed3a09f6940d995449d-8"></a><span class="go">├── frontend-deployment.yaml</span>
-<a name="rest_code_8e78ba76effa4ed3a09f6940d995449d-9"></a><span class="go">├── frontend-service.yaml</span>
-<a name="rest_code_8e78ba76effa4ed3a09f6940d995449d-10"></a><span class="go">├── legacy</span>
-<a name="rest_code_8e78ba76effa4ed3a09f6940d995449d-11"></a><span class="go">│   ├── frontend-controller.yaml</span>
-<a name="rest_code_8e78ba76effa4ed3a09f6940d995449d-12"></a><span class="go">│   ├── redis-master-controller.yaml</span>
-<a name="rest_code_8e78ba76effa4ed3a09f6940d995449d-13"></a><span class="go">│   └── redis-slave-controller.yaml</span>
-<a name="rest_code_8e78ba76effa4ed3a09f6940d995449d-14"></a><span class="go">├── php-redis</span>
-<a name="rest_code_8e78ba76effa4ed3a09f6940d995449d-15"></a><span class="go">│   ├── Dockerfile</span>
-<a name="rest_code_8e78ba76effa4ed3a09f6940d995449d-16"></a><span class="go">│   ├── controllers.js</span>
-<a name="rest_code_8e78ba76effa4ed3a09f6940d995449d-17"></a><span class="go">│   ├── guestbook.php</span>
-<a name="rest_code_8e78ba76effa4ed3a09f6940d995449d-18"></a><span class="go">│   └── index.html</span>
-<a name="rest_code_8e78ba76effa4ed3a09f6940d995449d-19"></a><span class="go">├── redis-master-deployment.yaml</span>
-<a name="rest_code_8e78ba76effa4ed3a09f6940d995449d-20"></a><span class="go">├── redis-master-service.yaml</span>
-<a name="rest_code_8e78ba76effa4ed3a09f6940d995449d-21"></a><span class="go">├── redis-slave</span>
-<a name="rest_code_8e78ba76effa4ed3a09f6940d995449d-22"></a><span class="go">│   ├── Dockerfile</span>
-<a name="rest_code_8e78ba76effa4ed3a09f6940d995449d-23"></a><span class="go">│   └── run.sh</span>
-<a name="rest_code_8e78ba76effa4ed3a09f6940d995449d-24"></a><span class="go">├── redis-slave-deployment.yaml</span>
-<a name="rest_code_8e78ba76effa4ed3a09f6940d995449d-25"></a><span class="go">└── redis-slave-service.yaml</span>
-<a name="rest_code_8e78ba76effa4ed3a09f6940d995449d-26"></a>
-<a name="rest_code_8e78ba76effa4ed3a09f6940d995449d-27"></a><span class="go">4 directories, 19 files</span>
+<pre class="code console"><a name="rest_code_5174bf8df7a449618b647711071d475c-1"></a><span class="gp">$</span> tree guestbook-flask
+<a name="rest_code_5174bf8df7a449618b647711071d475c-2"></a><span class="go">guestbook-flask</span>
+<a name="rest_code_5174bf8df7a449618b647711071d475c-3"></a><span class="go">├── README.md</span>
+<a name="rest_code_5174bf8df7a449618b647711071d475c-4"></a><span class="go">├── all-in-one</span>
+<a name="rest_code_5174bf8df7a449618b647711071d475c-5"></a><span class="go">│   ├── frontend.yaml</span>
+<a name="rest_code_5174bf8df7a449618b647711071d475c-6"></a><span class="go">│   ├── guestbook-all-in-one.yaml</span>
+<a name="rest_code_5174bf8df7a449618b647711071d475c-7"></a><span class="go">│   └── redis-slave.yaml</span>
+<a name="rest_code_5174bf8df7a449618b647711071d475c-8"></a><span class="go">├── frontend-deployment.yaml</span>
+<a name="rest_code_5174bf8df7a449618b647711071d475c-9"></a><span class="go">├── frontend-service.yaml</span>
+<a name="rest_code_5174bf8df7a449618b647711071d475c-10"></a><span class="go">├── legacy</span>
+<a name="rest_code_5174bf8df7a449618b647711071d475c-11"></a><span class="go">│   ├── frontend-controller.yaml</span>
+<a name="rest_code_5174bf8df7a449618b647711071d475c-12"></a><span class="go">│   ├── redis-master-controller.yaml</span>
+<a name="rest_code_5174bf8df7a449618b647711071d475c-13"></a><span class="go">│   └── redis-slave-controller.yaml</span>
+<a name="rest_code_5174bf8df7a449618b647711071d475c-14"></a><span class="go">├── php-redis</span>
+<a name="rest_code_5174bf8df7a449618b647711071d475c-15"></a><span class="go">│   ├── Dockerfile</span>
+<a name="rest_code_5174bf8df7a449618b647711071d475c-16"></a><span class="go">│   ├── controllers.js</span>
+<a name="rest_code_5174bf8df7a449618b647711071d475c-17"></a><span class="go">│   ├── guestbook.php</span>
+<a name="rest_code_5174bf8df7a449618b647711071d475c-18"></a><span class="go">│   └── index.html</span>
+<a name="rest_code_5174bf8df7a449618b647711071d475c-19"></a><span class="go">├── redis-master-deployment.yaml</span>
+<a name="rest_code_5174bf8df7a449618b647711071d475c-20"></a><span class="go">├── redis-master-service.yaml</span>
+<a name="rest_code_5174bf8df7a449618b647711071d475c-21"></a><span class="go">├── redis-slave</span>
+<a name="rest_code_5174bf8df7a449618b647711071d475c-22"></a><span class="go">│   ├── Dockerfile</span>
+<a name="rest_code_5174bf8df7a449618b647711071d475c-23"></a><span class="go">│   └── run.sh</span>
+<a name="rest_code_5174bf8df7a449618b647711071d475c-24"></a><span class="go">├── redis-slave-deployment.yaml</span>
+<a name="rest_code_5174bf8df7a449618b647711071d475c-25"></a><span class="go">└── redis-slave-service.yaml</span>
+<a name="rest_code_5174bf8df7a449618b647711071d475c-26"></a>
+<a name="rest_code_5174bf8df7a449618b647711071d475c-27"></a><span class="go">4 directories, 19 files</span>
 </pre>
 <p>Let's track these files:</p>
-<pre class="code console"><a name="rest_code_721d593e73e34d199bcc7f59e555de6c-1"></a><span class="gp">$</span> git add guestbook-flask/
+<pre class="code console"><a name="rest_code_09dc8531758f45599bdb6e53d6a12d8a-1"></a><span class="gp">$</span> git add guestbook-flask/
 </pre>
 <div class="section" id="reverse-proxy-server-nginx-container">
 <h2>Reverse Proxy Server (NGINX) Container</h2>
 <p>We begin by setting up the reverse proxy server container. Let's create a
 new directory for the files associated with this container.</p>
-<pre class="code console"><a name="rest_code_c9d17eb06ba54ae48d536ab00e0ef614-1"></a><span class="gp">$</span> mkdir guestbook-flask/nginx
+<pre class="code console"><a name="rest_code_39775c248b3e4188b8b6212ecb58a572-1"></a><span class="gp">$</span> mkdir guestbook-flask/nginx
 </pre>
 <div class="section" id="index-html">
 <h3>index.html</h3>
 <p>The <tt class="docutils literal">index.html</tt> page can remain exactly the same. We can just copy this directly:</p>
-<pre class="code console"><a name="rest_code_12c10c2e566f4edfa19ca170126c2876-1"></a><span class="gp">$</span> cp guestbook/php-redis/index.html guestbook-flask/nginx/index.html
+<pre class="code console"><a name="rest_code_78267cc0663c457689ce251a9320082f-1"></a><span class="gp">$</span> cp guestbook/php-redis/index.html guestbook-flask/nginx/index.html
 </pre>
 </div>
 <div class="section" id="controllers-js">
 <h3>controllers.js</h3>
 <p>The <tt class="docutils literal">controllers.js</tt> file just needs to be modified slightly:</p>
-<pre class="code console"><a name="rest_code_b1ee82992baa4d84a4c4dbe35b24cfa2-1"></a><span class="gp">$</span> cp guestbook/php-redis/controllers.js guestbook-flask/nginx/controllers.js
+<pre class="code console"><a name="rest_code_67fcdfec7e394eafa2a94b6e0e2d7c54-1"></a><span class="gp">$</span> cp guestbook/php-redis/controllers.js guestbook-flask/nginx/controllers.js
 </pre>
 <p>Since we are doing away with PHP, the HTTP endpoint URLs just need to be updated.
 I simply update <tt class="docutils literal">guestbook.php</tt> to <tt class="docutils literal">guestbook/</tt> (in the subsequent section,
 we will set up the Flask routes and NGINX location blocks to be consistent with
 this):</p>
-<pre class="code console"><a name="rest_code_f9dbd5db77124700a9fb10cf78783481-1"></a><span class="gp">$</span> diff -u guestbook/php-redis/controllers.js guestbook-flask/nginx/controllers.js
+<pre class="code console"><a name="rest_code_d810abc689154d49893cefbbdd977e56-1"></a><span class="gp">$</span> diff -u guestbook/php-redis/controllers.js guestbook-flask/nginx/controllers.js
 </pre>
-<pre class="code diff"><a name="rest_code_34ade85236ef4aa48085c003dd9b9ff9-1"></a><span class="gd">--- guestbook/php-redis/controllers.js  2016-06-02 14:01:30.000000000 +1000</span>
-<a name="rest_code_34ade85236ef4aa48085c003dd9b9ff9-2"></a><span class="gi">+++ guestbook-flask/nginx/controllers.js    2016-06-02 14:45:10.000000000 +1000</span>
-<a name="rest_code_34ade85236ef4aa48085c003dd9b9ff9-3"></a><span class="gu">@@ -9,7 +9,7 @@</span>
-<a name="rest_code_34ade85236ef4aa48085c003dd9b9ff9-4"></a>     this.scope_.messages.push(this.scope_.msg);
-<a name="rest_code_34ade85236ef4aa48085c003dd9b9ff9-5"></a>     this.scope_.msg = "";
-<a name="rest_code_34ade85236ef4aa48085c003dd9b9ff9-6"></a>     var value = this.scope_.messages.join();
-<a name="rest_code_34ade85236ef4aa48085c003dd9b9ff9-7"></a><span class="gd">-    this.http_.get("guestbook.php?cmd=set&amp;key=messages&amp;value=" + value)</span>
-<a name="rest_code_34ade85236ef4aa48085c003dd9b9ff9-8"></a><span class="gi">+    this.http_.get("guestbook/?cmd=set&amp;key=messages&amp;value=" + value)</span>
-<a name="rest_code_34ade85236ef4aa48085c003dd9b9ff9-9"></a>             .success(angular.bind(this, function(data) {
-<a name="rest_code_34ade85236ef4aa48085c003dd9b9ff9-10"></a>                 this.scope_.redisResponse = "Updated.";
-<a name="rest_code_34ade85236ef4aa48085c003dd9b9ff9-11"></a>             }));
-<a name="rest_code_34ade85236ef4aa48085c003dd9b9ff9-12"></a><span class="gu">@@ -21,7 +21,7 @@</span>
-<a name="rest_code_34ade85236ef4aa48085c003dd9b9ff9-13"></a>         $scope.controller.location_ = $location;
-<a name="rest_code_34ade85236ef4aa48085c003dd9b9ff9-14"></a>         $scope.controller.http_ = $http;
-<a name="rest_code_34ade85236ef4aa48085c003dd9b9ff9-15"></a>
-<a name="rest_code_34ade85236ef4aa48085c003dd9b9ff9-16"></a><span class="gd">-        $scope.controller.http_.get("guestbook.php?cmd=get&amp;key=messages")</span>
-<a name="rest_code_34ade85236ef4aa48085c003dd9b9ff9-17"></a><span class="gi">+        $scope.controller.http_.get("guestbook/?cmd=get&amp;key=messages")</span>
-<a name="rest_code_34ade85236ef4aa48085c003dd9b9ff9-18"></a>             .success(function(data) {
-<a name="rest_code_34ade85236ef4aa48085c003dd9b9ff9-19"></a>                 console.log(data);
-<a name="rest_code_34ade85236ef4aa48085c003dd9b9ff9-20"></a>                 $scope.messages = data.data.split(",");
+<pre class="code diff"><a name="rest_code_952f2a0220044ae085662db1cd066300-1"></a><span class="gd">--- guestbook/php-redis/controllers.js  2016-06-02 14:01:30.000000000 +1000</span>
+<a name="rest_code_952f2a0220044ae085662db1cd066300-2"></a><span class="gi">+++ guestbook-flask/nginx/controllers.js    2016-06-02 14:45:10.000000000 +1000</span>
+<a name="rest_code_952f2a0220044ae085662db1cd066300-3"></a><span class="gu">@@ -9,7 +9,7 @@</span>
+<a name="rest_code_952f2a0220044ae085662db1cd066300-4"></a>     this.scope_.messages.push(this.scope_.msg);
+<a name="rest_code_952f2a0220044ae085662db1cd066300-5"></a>     this.scope_.msg = "";
+<a name="rest_code_952f2a0220044ae085662db1cd066300-6"></a>     var value = this.scope_.messages.join();
+<a name="rest_code_952f2a0220044ae085662db1cd066300-7"></a><span class="gd">-    this.http_.get("guestbook.php?cmd=set&amp;key=messages&amp;value=" + value)</span>
+<a name="rest_code_952f2a0220044ae085662db1cd066300-8"></a><span class="gi">+    this.http_.get("guestbook/?cmd=set&amp;key=messages&amp;value=" + value)</span>
+<a name="rest_code_952f2a0220044ae085662db1cd066300-9"></a>             .success(angular.bind(this, function(data) {
+<a name="rest_code_952f2a0220044ae085662db1cd066300-10"></a>                 this.scope_.redisResponse = "Updated.";
+<a name="rest_code_952f2a0220044ae085662db1cd066300-11"></a>             }));
+<a name="rest_code_952f2a0220044ae085662db1cd066300-12"></a><span class="gu">@@ -21,7 +21,7 @@</span>
+<a name="rest_code_952f2a0220044ae085662db1cd066300-13"></a>         $scope.controller.location_ = $location;
+<a name="rest_code_952f2a0220044ae085662db1cd066300-14"></a>         $scope.controller.http_ = $http;
+<a name="rest_code_952f2a0220044ae085662db1cd066300-15"></a>
+<a name="rest_code_952f2a0220044ae085662db1cd066300-16"></a><span class="gd">-        $scope.controller.http_.get("guestbook.php?cmd=get&amp;key=messages")</span>
+<a name="rest_code_952f2a0220044ae085662db1cd066300-17"></a><span class="gi">+        $scope.controller.http_.get("guestbook/?cmd=get&amp;key=messages")</span>
+<a name="rest_code_952f2a0220044ae085662db1cd066300-18"></a>             .success(function(data) {
+<a name="rest_code_952f2a0220044ae085662db1cd066300-19"></a>                 console.log(data);
+<a name="rest_code_952f2a0220044ae085662db1cd066300-20"></a>                 $scope.messages = data.data.split(",");
 </pre>
 </div>
 <div class="section" id="nginx-conf">
@@ -237,52 +237,52 @@ this):</p>
 <p>We create a minimal NGINX configuration which serves the static assets at <cite>/</cite>
 (<tt class="docutils literal">index.html</tt>, <tt class="docutils literal">controllers.js</tt>) and proxies requests at <cite>/guestbook/</cite> to
 an upstream uWSGI server (<tt class="docutils literal">127.0.0.1:8080</tt>) defined in subsequent sections.</p>
-<pre class="code console"><a name="rest_code_9c983728b4484e6eadd204d82ea86bf9-1"></a><span class="gp">$</span> vim guestbook-flask/nginx/nginx.conf
+<pre class="code console"><a name="rest_code_4ad1c2ea8169496bb8f247d51f7e3388-1"></a><span class="gp">$</span> vim guestbook-flask/nginx/nginx.conf
 </pre>
-<pre class="code nginx"><a name="rest_code_a45d0cb512644e1bb4d7609273cf9b4d-1"></a><span class="k">worker_processes</span> <span class="mi">1</span><span class="p">;</span>
-<a name="rest_code_a45d0cb512644e1bb4d7609273cf9b4d-2"></a>
-<a name="rest_code_a45d0cb512644e1bb4d7609273cf9b4d-3"></a><span class="k">events</span> <span class="p">{</span>
-<a name="rest_code_a45d0cb512644e1bb4d7609273cf9b4d-4"></a>
-<a name="rest_code_a45d0cb512644e1bb4d7609273cf9b4d-5"></a>    <span class="kn">worker_connections</span> <span class="mi">1024</span><span class="p">;</span>
-<a name="rest_code_a45d0cb512644e1bb4d7609273cf9b4d-6"></a><span class="p">}</span>
-<a name="rest_code_a45d0cb512644e1bb4d7609273cf9b4d-7"></a>
-<a name="rest_code_a45d0cb512644e1bb4d7609273cf9b4d-8"></a><span class="k">http</span> <span class="p">{</span>
-<a name="rest_code_a45d0cb512644e1bb4d7609273cf9b4d-9"></a>
-<a name="rest_code_a45d0cb512644e1bb4d7609273cf9b4d-10"></a>    <span class="kn">sendfile</span> <span class="no">on</span><span class="p">;</span>
-<a name="rest_code_a45d0cb512644e1bb4d7609273cf9b4d-11"></a>
-<a name="rest_code_a45d0cb512644e1bb4d7609273cf9b4d-12"></a>    <span class="kn">client_max_body_size</span>    <span class="s">2000M</span><span class="p">;</span>
-<a name="rest_code_a45d0cb512644e1bb4d7609273cf9b4d-13"></a>
-<a name="rest_code_a45d0cb512644e1bb4d7609273cf9b4d-14"></a>    <span class="c1"># Configuration containing list of application servers</span>
-<a name="rest_code_a45d0cb512644e1bb4d7609273cf9b4d-15"></a>    <span class="kn">upstream</span> <span class="s">uwsgicluster</span> <span class="p">{</span>
-<a name="rest_code_a45d0cb512644e1bb4d7609273cf9b4d-16"></a>
-<a name="rest_code_a45d0cb512644e1bb4d7609273cf9b4d-17"></a>        <span class="kn">server</span> <span class="n">127.0.0.1</span><span class="p">:</span><span class="mi">8080</span><span class="p">;</span>
-<a name="rest_code_a45d0cb512644e1bb4d7609273cf9b4d-18"></a>    <span class="p">}</span>
-<a name="rest_code_a45d0cb512644e1bb4d7609273cf9b4d-19"></a>
-<a name="rest_code_a45d0cb512644e1bb4d7609273cf9b4d-20"></a>    <span class="c1"># Configuration for Nginx</span>
-<a name="rest_code_a45d0cb512644e1bb4d7609273cf9b4d-21"></a>    <span class="kn">server</span> <span class="p">{</span>
-<a name="rest_code_a45d0cb512644e1bb4d7609273cf9b4d-22"></a>
-<a name="rest_code_a45d0cb512644e1bb4d7609273cf9b4d-23"></a>        <span class="c1"># Running port</span>
-<a name="rest_code_a45d0cb512644e1bb4d7609273cf9b4d-24"></a>        <span class="kn">listen</span> <span class="mi">80</span><span class="p">;</span>
-<a name="rest_code_a45d0cb512644e1bb4d7609273cf9b4d-25"></a>
-<a name="rest_code_a45d0cb512644e1bb4d7609273cf9b4d-26"></a>        <span class="kn">location</span> <span class="s">/</span> <span class="p">{</span>
-<a name="rest_code_a45d0cb512644e1bb4d7609273cf9b4d-27"></a>
-<a name="rest_code_a45d0cb512644e1bb4d7609273cf9b4d-28"></a>            <span class="kn">root</span> <span class="s">html</span><span class="p">;</span>
-<a name="rest_code_a45d0cb512644e1bb4d7609273cf9b4d-29"></a>            <span class="kn">index</span> <span class="s">index.html</span><span class="p">;</span>
-<a name="rest_code_a45d0cb512644e1bb4d7609273cf9b4d-30"></a>        <span class="p">}</span>
-<a name="rest_code_a45d0cb512644e1bb4d7609273cf9b4d-31"></a>
-<a name="rest_code_a45d0cb512644e1bb4d7609273cf9b4d-32"></a>        <span class="c1"># Proxying connections to application servers</span>
-<a name="rest_code_a45d0cb512644e1bb4d7609273cf9b4d-33"></a>        <span class="kn">location</span> <span class="s">/guestbook/</span> <span class="p">{</span>
-<a name="rest_code_a45d0cb512644e1bb4d7609273cf9b4d-34"></a>
-<a name="rest_code_a45d0cb512644e1bb4d7609273cf9b4d-35"></a>            <span class="kn">include</span> <span class="s">uwsgi_params</span><span class="p">;</span>
-<a name="rest_code_a45d0cb512644e1bb4d7609273cf9b4d-36"></a>            <span class="kn">uwsgi_pass</span> <span class="s">uwsgicluster</span><span class="p">;</span>
-<a name="rest_code_a45d0cb512644e1bb4d7609273cf9b4d-37"></a>
-<a name="rest_code_a45d0cb512644e1bb4d7609273cf9b4d-38"></a>            <span class="kn">uwsgi_param</span> <span class="s">Host</span> <span class="nv">$host</span><span class="p">;</span>
-<a name="rest_code_a45d0cb512644e1bb4d7609273cf9b4d-39"></a>            <span class="kn">uwsgi_param</span> <span class="s">X-Real-IP</span> <span class="nv">$remote_addr</span><span class="p">;</span>
-<a name="rest_code_a45d0cb512644e1bb4d7609273cf9b4d-40"></a>            <span class="kn">uwsgi_param</span> <span class="s">X-Forwarded-For</span> <span class="nv">$proxy_add_x_forwarded_for</span><span class="p">;</span>
-<a name="rest_code_a45d0cb512644e1bb4d7609273cf9b4d-41"></a>            <span class="kn">uwsgi_param</span> <span class="s">X-Forwarded-Proto</span> <span class="nv">$http_x_forwarded_proto</span><span class="p">;</span>
-<a name="rest_code_a45d0cb512644e1bb4d7609273cf9b4d-42"></a>        <span class="p">}</span>
-<a name="rest_code_a45d0cb512644e1bb4d7609273cf9b4d-43"></a>    <span class="p">}</span>
-<a name="rest_code_a45d0cb512644e1bb4d7609273cf9b4d-44"></a><span class="p">}</span>
+<pre class="code nginx"><a name="rest_code_3553e388818e4f1cb095d23714d46a7e-1"></a><span class="k">worker_processes</span> <span class="mi">1</span><span class="p">;</span>
+<a name="rest_code_3553e388818e4f1cb095d23714d46a7e-2"></a>
+<a name="rest_code_3553e388818e4f1cb095d23714d46a7e-3"></a><span class="k">events</span> <span class="p">{</span>
+<a name="rest_code_3553e388818e4f1cb095d23714d46a7e-4"></a>
+<a name="rest_code_3553e388818e4f1cb095d23714d46a7e-5"></a>    <span class="kn">worker_connections</span> <span class="mi">1024</span><span class="p">;</span>
+<a name="rest_code_3553e388818e4f1cb095d23714d46a7e-6"></a><span class="p">}</span>
+<a name="rest_code_3553e388818e4f1cb095d23714d46a7e-7"></a>
+<a name="rest_code_3553e388818e4f1cb095d23714d46a7e-8"></a><span class="k">http</span> <span class="p">{</span>
+<a name="rest_code_3553e388818e4f1cb095d23714d46a7e-9"></a>
+<a name="rest_code_3553e388818e4f1cb095d23714d46a7e-10"></a>    <span class="kn">sendfile</span> <span class="no">on</span><span class="p">;</span>
+<a name="rest_code_3553e388818e4f1cb095d23714d46a7e-11"></a>
+<a name="rest_code_3553e388818e4f1cb095d23714d46a7e-12"></a>    <span class="kn">client_max_body_size</span>    <span class="s">2000M</span><span class="p">;</span>
+<a name="rest_code_3553e388818e4f1cb095d23714d46a7e-13"></a>
+<a name="rest_code_3553e388818e4f1cb095d23714d46a7e-14"></a>    <span class="c1"># Configuration containing list of application servers</span>
+<a name="rest_code_3553e388818e4f1cb095d23714d46a7e-15"></a>    <span class="kn">upstream</span> <span class="s">uwsgicluster</span> <span class="p">{</span>
+<a name="rest_code_3553e388818e4f1cb095d23714d46a7e-16"></a>
+<a name="rest_code_3553e388818e4f1cb095d23714d46a7e-17"></a>        <span class="kn">server</span> <span class="n">127.0.0.1</span><span class="p">:</span><span class="mi">8080</span><span class="p">;</span>
+<a name="rest_code_3553e388818e4f1cb095d23714d46a7e-18"></a>    <span class="p">}</span>
+<a name="rest_code_3553e388818e4f1cb095d23714d46a7e-19"></a>
+<a name="rest_code_3553e388818e4f1cb095d23714d46a7e-20"></a>    <span class="c1"># Configuration for Nginx</span>
+<a name="rest_code_3553e388818e4f1cb095d23714d46a7e-21"></a>    <span class="kn">server</span> <span class="p">{</span>
+<a name="rest_code_3553e388818e4f1cb095d23714d46a7e-22"></a>
+<a name="rest_code_3553e388818e4f1cb095d23714d46a7e-23"></a>        <span class="c1"># Running port</span>
+<a name="rest_code_3553e388818e4f1cb095d23714d46a7e-24"></a>        <span class="kn">listen</span> <span class="mi">80</span><span class="p">;</span>
+<a name="rest_code_3553e388818e4f1cb095d23714d46a7e-25"></a>
+<a name="rest_code_3553e388818e4f1cb095d23714d46a7e-26"></a>        <span class="kn">location</span> <span class="s">/</span> <span class="p">{</span>
+<a name="rest_code_3553e388818e4f1cb095d23714d46a7e-27"></a>
+<a name="rest_code_3553e388818e4f1cb095d23714d46a7e-28"></a>            <span class="kn">root</span> <span class="s">html</span><span class="p">;</span>
+<a name="rest_code_3553e388818e4f1cb095d23714d46a7e-29"></a>            <span class="kn">index</span> <span class="s">index.html</span><span class="p">;</span>
+<a name="rest_code_3553e388818e4f1cb095d23714d46a7e-30"></a>        <span class="p">}</span>
+<a name="rest_code_3553e388818e4f1cb095d23714d46a7e-31"></a>
+<a name="rest_code_3553e388818e4f1cb095d23714d46a7e-32"></a>        <span class="c1"># Proxying connections to application servers</span>
+<a name="rest_code_3553e388818e4f1cb095d23714d46a7e-33"></a>        <span class="kn">location</span> <span class="s">/guestbook/</span> <span class="p">{</span>
+<a name="rest_code_3553e388818e4f1cb095d23714d46a7e-34"></a>
+<a name="rest_code_3553e388818e4f1cb095d23714d46a7e-35"></a>            <span class="kn">include</span> <span class="s">uwsgi_params</span><span class="p">;</span>
+<a name="rest_code_3553e388818e4f1cb095d23714d46a7e-36"></a>            <span class="kn">uwsgi_pass</span> <span class="s">uwsgicluster</span><span class="p">;</span>
+<a name="rest_code_3553e388818e4f1cb095d23714d46a7e-37"></a>
+<a name="rest_code_3553e388818e4f1cb095d23714d46a7e-38"></a>            <span class="kn">uwsgi_param</span> <span class="s">Host</span> <span class="nv">$host</span><span class="p">;</span>
+<a name="rest_code_3553e388818e4f1cb095d23714d46a7e-39"></a>            <span class="kn">uwsgi_param</span> <span class="s">X-Real-IP</span> <span class="nv">$remote_addr</span><span class="p">;</span>
+<a name="rest_code_3553e388818e4f1cb095d23714d46a7e-40"></a>            <span class="kn">uwsgi_param</span> <span class="s">X-Forwarded-For</span> <span class="nv">$proxy_add_x_forwarded_for</span><span class="p">;</span>
+<a name="rest_code_3553e388818e4f1cb095d23714d46a7e-41"></a>            <span class="kn">uwsgi_param</span> <span class="s">X-Forwarded-Proto</span> <span class="nv">$http_x_forwarded_proto</span><span class="p">;</span>
+<a name="rest_code_3553e388818e4f1cb095d23714d46a7e-42"></a>        <span class="p">}</span>
+<a name="rest_code_3553e388818e4f1cb095d23714d46a7e-43"></a>    <span class="p">}</span>
+<a name="rest_code_3553e388818e4f1cb095d23714d46a7e-44"></a><span class="p">}</span>
 </pre>
 <p>Some useful guides on configuring Nginx as an application gateway with uWSGI and
 Python WSGI applications:</p>
@@ -300,26 +300,26 @@ it is actually even easier to modify it to work for Flask.</p>
 image</a>. All that needs to be done is copy our NGINX configuration file to the
 primary configuration location (<tt class="docutils literal">/etc/nginx/nginx.conf</tt>) and all static assets
 (<tt class="docutils literal">index.html</tt>, <tt class="docutils literal">controllers.js</tt>) to <tt class="docutils literal">/etc/nginx/html/</tt>:</p>
-<pre class="code console"><a name="rest_code_68f3b924c9314caa8c853376fa491da1-1"></a><span class="gp">$</span> vim guestbook-flask/nginx/Dockerfile
+<pre class="code console"><a name="rest_code_bed3e5ead6704989b6052ef2b07d9b6f-1"></a><span class="gp">$</span> vim guestbook-flask/nginx/Dockerfile
 </pre>
-<pre class="code docker"><a name="rest_code_5e40c648ec9947a18c07a367d317bcea-1"></a><span class="k">FROM</span><span class="s"> nginx:latest</span>
-<a name="rest_code_5e40c648ec9947a18c07a367d317bcea-2"></a>
-<a name="rest_code_5e40c648ec9947a18c07a367d317bcea-3"></a>COPY nginx.conf /etc/nginx/nginx.conf
-<a name="rest_code_5e40c648ec9947a18c07a367d317bcea-4"></a>COPY index.html controllers.js /etc/nginx/html/
+<pre class="code docker"><a name="rest_code_ba57ffa80b054b13b468aa4ec688ce15-1"></a><span class="k">FROM</span><span class="s"> nginx:latest</span>
+<a name="rest_code_ba57ffa80b054b13b468aa4ec688ce15-2"></a>
+<a name="rest_code_ba57ffa80b054b13b468aa4ec688ce15-3"></a>COPY nginx.conf /etc/nginx/nginx.conf
+<a name="rest_code_ba57ffa80b054b13b468aa4ec688ce15-4"></a>COPY index.html controllers.js /etc/nginx/html/
 </pre>
 <p>See the official nginx base image documentation for more information on how to
 fully leverage this image, and <a class="reference external" href="https://www.linode.com/docs/websites/nginx/how-to-configure-nginx">How to Configure Nginx</a>
 for more information on NGINX configuration files.</p>
 <p>Before moving on, let's track our additions:</p>
-<pre class="code console"><a name="rest_code_2885c80a0c814afaa393d95bfa3d0311-1"></a><span class="gp">$</span> git add guestbook-flask/nginx/
+<pre class="code console"><a name="rest_code_58697a56d18a44a4ba3797ab6d8586be-1"></a><span class="gp">$</span> git add guestbook-flask/nginx/
 </pre>
 <p>Now we build and push the image:</p>
-<pre class="code console"><a name="rest_code_c9c44cc14f114bb2a2aa85ff01fa0959-1"></a><span class="gp">$</span> docker build -t tiao/gb-frontend-nginx guestbook-flask/nginx
-<a name="rest_code_c9c44cc14f114bb2a2aa85ff01fa0959-2"></a><span class="gp">$</span> docker push tiao/gb-frontend-nginx
+<pre class="code console"><a name="rest_code_14bb42e4921549baac80737b36252169-1"></a><span class="gp">$</span> docker build -t tiao/gb-frontend-nginx guestbook-flask/nginx
+<a name="rest_code_14bb42e4921549baac80737b36252169-2"></a><span class="gp">$</span> docker push tiao/gb-frontend-nginx
 </pre>
 <p>While the WSGI server is not yet ready, we can still run the container as a
 sanity test to make sure the static files are being served correctly:</p>
-<pre class="code console"><a name="rest_code_9538efdd8772451ab6a6b83e17c97207-1"></a><span class="gp">$</span> docker run -d -p <span class="m">80</span>:80 tiao/gb-frontend-nginx
+<pre class="code console"><a name="rest_code_23893d79353f44b28a2c32f5969af329-1"></a><span class="gp">$</span> docker run -d -p <span class="m">80</span>:80 tiao/gb-frontend-nginx
 </pre>
 <p>Now you should be able to see the guestbook UI at <tt class="docutils literal"><span class="pre">http://$(docker-machine</span> <span class="pre">ip):80</span></tt>:</p>
 <a class="reference external image-reference" href="../../images/guestbook.png"><img alt="../../images/guestbook.thumbnail.png" class="align-center" src="../../images/guestbook.thumbnail.png"></a>
@@ -330,18 +330,18 @@ sanity test to make sure the static files are being served correctly:</p>
 <h2>The Flask/uWSGI Container</h2>
 <p>Now we re-implement the server that interacts with redis in Flask. First, let's
 create a new directory for the files associated with this container.</p>
-<pre class="code console"><a name="rest_code_19049cbb09a5418dbed299b58201f248-1"></a><span class="gp">$</span> mkdir guestbook-flask/flask-redis
+<pre class="code console"><a name="rest_code_dbfbc31002004755ac39ae0dee09e74d-1"></a><span class="gp">$</span> mkdir guestbook-flask/flask-redis
 </pre>
 <div class="section" id="requirements-txt">
 <h3>requirements.txt</h3>
 <p>To run Flask with uWSGI in our container, we just need to install <tt class="docutils literal">flask</tt> and
 <tt class="docutils literal">uwsgi</tt> from PyPI. The only other Python package our Flask app depends on is
 <a class="reference external" href="https://redis-py.readthedocs.io/en/latest/">redis-py</a> (simply <a class="reference external" href="https://pypi.python.org/pypi/redis">redis</a> on <a class="reference external" href="https://pypi.python.org/">PyPI</a>):</p>
-<pre class="code console"><a name="rest_code_555cb87a7c314e6e9eaa0a133babca72-1"></a><span class="gp">$</span> vim guestbook-flask/flask-redis/requirements.txt
+<pre class="code console"><a name="rest_code_a9a4a840ba0b48048046260890ed64a6-1"></a><span class="gp">$</span> vim guestbook-flask/flask-redis/requirements.txt
 </pre>
-<pre class="code text"><a name="rest_code_27fac90374b9442fa444606a25605e35-1"></a>flask
-<a name="rest_code_27fac90374b9442fa444606a25605e35-2"></a>uwsgi
-<a name="rest_code_27fac90374b9442fa444606a25605e35-3"></a>redis
+<pre class="code text"><a name="rest_code_7361607e4e97407490bcd6112778b01e-1"></a>flask
+<a name="rest_code_7361607e4e97407490bcd6112778b01e-2"></a>uwsgi
+<a name="rest_code_7361607e4e97407490bcd6112778b01e-3"></a>redis
 </pre>
 </div>
 <div class="section" id="app-py">
@@ -349,41 +349,41 @@ create a new directory for the files associated with this container.</p>
 <p>Our Flask app re-implements the PHP server (<tt class="docutils literal">guestbook.php</tt>), which handles
 requests and interacts with the redis master and slaves. The only supported route
 is <tt class="docutils literal">GET</tt> requests to <tt class="docutils literal">/guestbook/</tt>.</p>
-<pre class="code console"><a name="rest_code_9b2e5b28ac214ba79d53b8b54805b343-1"></a><span class="gp">$</span> vim guestbook-flask/flask-redis/app.py
+<pre class="code console"><a name="rest_code_133956c843a34d54870cf937212868ed-1"></a><span class="gp">$</span> vim guestbook-flask/flask-redis/app.py
 </pre>
-<pre class="code python"><a name="rest_code_e5f2049babcd46488ecb1dac919354aa-1"></a><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span><span class="p">,</span> <span class="n">jsonify</span><span class="p">,</span> <span class="n">request</span>
-<a name="rest_code_e5f2049babcd46488ecb1dac919354aa-2"></a><span class="kn">from</span> <span class="nn">redis</span> <span class="kn">import</span> <span class="n">StrictRedis</span>
-<a name="rest_code_e5f2049babcd46488ecb1dac919354aa-3"></a>
-<a name="rest_code_e5f2049babcd46488ecb1dac919354aa-4"></a><span class="kn">import</span> <span class="nn">os</span>
-<a name="rest_code_e5f2049babcd46488ecb1dac919354aa-5"></a>
-<a name="rest_code_e5f2049babcd46488ecb1dac919354aa-6"></a>
-<a name="rest_code_e5f2049babcd46488ecb1dac919354aa-7"></a><span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
-<a name="rest_code_e5f2049babcd46488ecb1dac919354aa-8"></a>
-<a name="rest_code_e5f2049babcd46488ecb1dac919354aa-9"></a>
-<a name="rest_code_e5f2049babcd46488ecb1dac919354aa-10"></a><span class="nd">@app.route</span><span class="p">(</span><span class="s1">'/guestbook/'</span><span class="p">)</span>
-<a name="rest_code_e5f2049babcd46488ecb1dac919354aa-11"></a><span class="k">def</span> <span class="nf">redis</span><span class="p">():</span>
-<a name="rest_code_e5f2049babcd46488ecb1dac919354aa-12"></a>
-<a name="rest_code_e5f2049babcd46488ecb1dac919354aa-13"></a>    <span class="k">if</span> <span class="s1">'cmd'</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="p">:</span>
-<a name="rest_code_e5f2049babcd46488ecb1dac919354aa-14"></a>
-<a name="rest_code_e5f2049babcd46488ecb1dac919354aa-15"></a>        <span class="n">host</span> <span class="o">=</span> <span class="s1">'redis-master'</span>
-<a name="rest_code_e5f2049babcd46488ecb1dac919354aa-16"></a>        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'GET_HOSTS_FROM'</span><span class="p">)</span> <span class="o">==</span> <span class="s1">'env'</span><span class="p">:</span>
-<a name="rest_code_e5f2049babcd46488ecb1dac919354aa-17"></a>            <span class="n">host</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'REDIS_MASTER_SERVICE_HOST'</span><span class="p">)</span>
-<a name="rest_code_e5f2049babcd46488ecb1dac919354aa-18"></a>
-<a name="rest_code_e5f2049babcd46488ecb1dac919354aa-19"></a>        <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'cmd'</span><span class="p">)</span> <span class="o">==</span> <span class="s1">'set'</span><span class="p">:</span>
-<a name="rest_code_e5f2049babcd46488ecb1dac919354aa-20"></a>
-<a name="rest_code_e5f2049babcd46488ecb1dac919354aa-21"></a>            <span class="n">r</span> <span class="o">=</span> <span class="n">StrictRedis</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">6379</span><span class="p">)</span>
-<a name="rest_code_e5f2049babcd46488ecb1dac919354aa-22"></a>            <span class="n">r</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'key'</span><span class="p">),</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'value'</span><span class="p">))</span>
-<a name="rest_code_e5f2049babcd46488ecb1dac919354aa-23"></a>            <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s1">'Updated'</span><span class="p">)</span>
-<a name="rest_code_e5f2049babcd46488ecb1dac919354aa-24"></a>
-<a name="rest_code_e5f2049babcd46488ecb1dac919354aa-25"></a>        <span class="k">else</span><span class="p">:</span>
-<a name="rest_code_e5f2049babcd46488ecb1dac919354aa-26"></a>
-<a name="rest_code_e5f2049babcd46488ecb1dac919354aa-27"></a>            <span class="n">host</span> <span class="o">=</span> <span class="s1">'redis-slave'</span>
-<a name="rest_code_e5f2049babcd46488ecb1dac919354aa-28"></a>            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'GET_HOSTS_FROM'</span><span class="p">)</span> <span class="o">==</span> <span class="s1">'env'</span><span class="p">:</span>
-<a name="rest_code_e5f2049babcd46488ecb1dac919354aa-29"></a>                <span class="n">host</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'REDIS_SLAVE_SERVICE_HOST'</span><span class="p">)</span>
-<a name="rest_code_e5f2049babcd46488ecb1dac919354aa-30"></a>
-<a name="rest_code_e5f2049babcd46488ecb1dac919354aa-31"></a>            <span class="n">r</span> <span class="o">=</span> <span class="n">StrictRedis</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">6379</span><span class="p">)</span>
-<a name="rest_code_e5f2049babcd46488ecb1dac919354aa-32"></a>            <span class="n">value</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'key'</span><span class="p">))</span> <span class="ow">or</span> <span class="sa">b</span><span class="s1">''</span>
-<a name="rest_code_e5f2049babcd46488ecb1dac919354aa-33"></a>            <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">value</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">'utf-8'</span><span class="p">))</span>
+<pre class="code python"><a name="rest_code_6cd0cdc4b8734d10b89855cc6d92fe5f-1"></a><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span><span class="p">,</span> <span class="n">jsonify</span><span class="p">,</span> <span class="n">request</span>
+<a name="rest_code_6cd0cdc4b8734d10b89855cc6d92fe5f-2"></a><span class="kn">from</span> <span class="nn">redis</span> <span class="kn">import</span> <span class="n">StrictRedis</span>
+<a name="rest_code_6cd0cdc4b8734d10b89855cc6d92fe5f-3"></a>
+<a name="rest_code_6cd0cdc4b8734d10b89855cc6d92fe5f-4"></a><span class="kn">import</span> <span class="nn">os</span>
+<a name="rest_code_6cd0cdc4b8734d10b89855cc6d92fe5f-5"></a>
+<a name="rest_code_6cd0cdc4b8734d10b89855cc6d92fe5f-6"></a>
+<a name="rest_code_6cd0cdc4b8734d10b89855cc6d92fe5f-7"></a><span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<a name="rest_code_6cd0cdc4b8734d10b89855cc6d92fe5f-8"></a>
+<a name="rest_code_6cd0cdc4b8734d10b89855cc6d92fe5f-9"></a>
+<a name="rest_code_6cd0cdc4b8734d10b89855cc6d92fe5f-10"></a><span class="nd">@app.route</span><span class="p">(</span><span class="s1">'/guestbook/'</span><span class="p">)</span>
+<a name="rest_code_6cd0cdc4b8734d10b89855cc6d92fe5f-11"></a><span class="k">def</span> <span class="nf">redis</span><span class="p">():</span>
+<a name="rest_code_6cd0cdc4b8734d10b89855cc6d92fe5f-12"></a>
+<a name="rest_code_6cd0cdc4b8734d10b89855cc6d92fe5f-13"></a>    <span class="k">if</span> <span class="s1">'cmd'</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="p">:</span>
+<a name="rest_code_6cd0cdc4b8734d10b89855cc6d92fe5f-14"></a>
+<a name="rest_code_6cd0cdc4b8734d10b89855cc6d92fe5f-15"></a>        <span class="n">host</span> <span class="o">=</span> <span class="s1">'redis-master'</span>
+<a name="rest_code_6cd0cdc4b8734d10b89855cc6d92fe5f-16"></a>        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'GET_HOSTS_FROM'</span><span class="p">)</span> <span class="o">==</span> <span class="s1">'env'</span><span class="p">:</span>
+<a name="rest_code_6cd0cdc4b8734d10b89855cc6d92fe5f-17"></a>            <span class="n">host</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'REDIS_MASTER_SERVICE_HOST'</span><span class="p">)</span>
+<a name="rest_code_6cd0cdc4b8734d10b89855cc6d92fe5f-18"></a>
+<a name="rest_code_6cd0cdc4b8734d10b89855cc6d92fe5f-19"></a>        <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'cmd'</span><span class="p">)</span> <span class="o">==</span> <span class="s1">'set'</span><span class="p">:</span>
+<a name="rest_code_6cd0cdc4b8734d10b89855cc6d92fe5f-20"></a>
+<a name="rest_code_6cd0cdc4b8734d10b89855cc6d92fe5f-21"></a>            <span class="n">r</span> <span class="o">=</span> <span class="n">StrictRedis</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">6379</span><span class="p">)</span>
+<a name="rest_code_6cd0cdc4b8734d10b89855cc6d92fe5f-22"></a>            <span class="n">r</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'key'</span><span class="p">),</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'value'</span><span class="p">))</span>
+<a name="rest_code_6cd0cdc4b8734d10b89855cc6d92fe5f-23"></a>            <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s1">'Updated'</span><span class="p">)</span>
+<a name="rest_code_6cd0cdc4b8734d10b89855cc6d92fe5f-24"></a>
+<a name="rest_code_6cd0cdc4b8734d10b89855cc6d92fe5f-25"></a>        <span class="k">else</span><span class="p">:</span>
+<a name="rest_code_6cd0cdc4b8734d10b89855cc6d92fe5f-26"></a>
+<a name="rest_code_6cd0cdc4b8734d10b89855cc6d92fe5f-27"></a>            <span class="n">host</span> <span class="o">=</span> <span class="s1">'redis-slave'</span>
+<a name="rest_code_6cd0cdc4b8734d10b89855cc6d92fe5f-28"></a>            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'GET_HOSTS_FROM'</span><span class="p">)</span> <span class="o">==</span> <span class="s1">'env'</span><span class="p">:</span>
+<a name="rest_code_6cd0cdc4b8734d10b89855cc6d92fe5f-29"></a>                <span class="n">host</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'REDIS_SLAVE_SERVICE_HOST'</span><span class="p">)</span>
+<a name="rest_code_6cd0cdc4b8734d10b89855cc6d92fe5f-30"></a>
+<a name="rest_code_6cd0cdc4b8734d10b89855cc6d92fe5f-31"></a>            <span class="n">r</span> <span class="o">=</span> <span class="n">StrictRedis</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">6379</span><span class="p">)</span>
+<a name="rest_code_6cd0cdc4b8734d10b89855cc6d92fe5f-32"></a>            <span class="n">value</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'key'</span><span class="p">))</span> <span class="ow">or</span> <span class="sa">b</span><span class="s1">''</span>
+<a name="rest_code_6cd0cdc4b8734d10b89855cc6d92fe5f-33"></a>            <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">value</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">'utf-8'</span><span class="p">))</span>
 </pre>
 <p>For brevity, and also in the interest of remaining faithful to the original
 implementation, we intentionally omit any robust error handling. Just be aware
@@ -395,38 +395,38 @@ only guaranteed to work correctly with the AngularJS controller
 <div class="section" id="conf-ini">
 <h3>conf.ini</h3>
 <p>Create and edit the uWSGI configuration file:</p>
-<pre class="code console"><a name="rest_code_60fb91daf3884b0d9d18286d8628f011-1"></a><span class="gp">$</span> vim guestbook-flask/flask-redis/conf.ini
+<pre class="code console"><a name="rest_code_3b9dc5e0d4744d42b5ac055868b13a95-1"></a><span class="gp">$</span> vim guestbook-flask/flask-redis/conf.ini
 </pre>
-<pre class="code ini"><a name="rest_code_916ed27ec24f4fc6a295db2ec4b9038d-1"></a><span class="k">[uwsgi]</span>
-<a name="rest_code_916ed27ec24f4fc6a295db2ec4b9038d-2"></a><span class="na">socket</span> <span class="o">=</span> <span class="s">:8080</span>
-<a name="rest_code_916ed27ec24f4fc6a295db2ec4b9038d-3"></a><span class="na">wsgi-file</span> <span class="o">=</span> <span class="s">app.py</span>
-<a name="rest_code_916ed27ec24f4fc6a295db2ec4b9038d-4"></a><span class="na">callable</span> <span class="o">=</span> <span class="s">app</span>
-<a name="rest_code_916ed27ec24f4fc6a295db2ec4b9038d-5"></a><span class="na">master</span> <span class="o">=</span> <span class="s">true</span>
-<a name="rest_code_916ed27ec24f4fc6a295db2ec4b9038d-6"></a><span class="na">processes</span> <span class="o">=</span> <span class="s">4</span>
-<a name="rest_code_916ed27ec24f4fc6a295db2ec4b9038d-7"></a><span class="na">threads</span> <span class="o">=</span> <span class="s">2</span>
+<pre class="code ini"><a name="rest_code_acbf9ce49e564bea97afa3ad18d7f46c-1"></a><span class="k">[uwsgi]</span>
+<a name="rest_code_acbf9ce49e564bea97afa3ad18d7f46c-2"></a><span class="na">socket</span> <span class="o">=</span> <span class="s">:8080</span>
+<a name="rest_code_acbf9ce49e564bea97afa3ad18d7f46c-3"></a><span class="na">wsgi-file</span> <span class="o">=</span> <span class="s">app.py</span>
+<a name="rest_code_acbf9ce49e564bea97afa3ad18d7f46c-4"></a><span class="na">callable</span> <span class="o">=</span> <span class="s">app</span>
+<a name="rest_code_acbf9ce49e564bea97afa3ad18d7f46c-5"></a><span class="na">master</span> <span class="o">=</span> <span class="s">true</span>
+<a name="rest_code_acbf9ce49e564bea97afa3ad18d7f46c-6"></a><span class="na">processes</span> <span class="o">=</span> <span class="s">4</span>
+<a name="rest_code_acbf9ce49e564bea97afa3ad18d7f46c-7"></a><span class="na">threads</span> <span class="o">=</span> <span class="s">2</span>
 </pre>
 <p>Refer to the <a class="reference external" href="https://uwsgi-docs.readthedocs.io/en/latest/WSGIquickstart.html#deploying-flask">uWSGI documentation</a> for more information on these settings.</p>
 </div>
 <div class="section" id="id1">
 <h3>Dockerfile</h3>
 <p>Finally, we create and edit the Dockerfile for this image:</p>
-<pre class="code console"><a name="rest_code_f4960892f5de44118771aff6c7a7983d-1"></a><span class="gp">$</span> vim guestbook-flask/flask-redis/Dockerfile
+<pre class="code console"><a name="rest_code_f3d12a17481f4005bc43c949d50f8a8b-1"></a><span class="gp">$</span> vim guestbook-flask/flask-redis/Dockerfile
 </pre>
-<pre class="code docker"><a name="rest_code_dadcbb0f05fe425fb24b71c92b770499-1"></a><span class="k">FROM</span><span class="s"> python:3.5.1-onbuild</span>
-<a name="rest_code_dadcbb0f05fe425fb24b71c92b770499-2"></a>
-<a name="rest_code_dadcbb0f05fe425fb24b71c92b770499-3"></a><span class="k">EXPOSE</span><span class="s"> 8080</span>
-<a name="rest_code_dadcbb0f05fe425fb24b71c92b770499-4"></a><span class="k">CMD</span><span class="s"> ["uwsgi", "--ini", "conf.ini"]</span>
+<pre class="code docker"><a name="rest_code_58be60ba743c4ab79ea15bbd0ef2641e-1"></a><span class="k">FROM</span><span class="s"> python:3.5.1-onbuild</span>
+<a name="rest_code_58be60ba743c4ab79ea15bbd0ef2641e-2"></a>
+<a name="rest_code_58be60ba743c4ab79ea15bbd0ef2641e-3"></a><span class="k">EXPOSE</span><span class="s"> 8080</span>
+<a name="rest_code_58be60ba743c4ab79ea15bbd0ef2641e-4"></a><span class="k">CMD</span><span class="s"> ["uwsgi", "--ini", "conf.ini"]</span>
 </pre>
 <p>This image uses the <a class="reference external" href="https://github.com/docker-library/python/blob/0fa3202789648132971160f686f5a37595108f44/3.5/onbuild/Dockerfile">onbuild variant</a> of the <a class="reference external" href="https://hub.docker.com/_/python/">official Python image</a>, which
 automatically copies our files (<tt class="docutils literal">app.py</tt>, <tt class="docutils literal">requirements.txt</tt>, <tt class="docutils literal">conf.ini</tt>)
 to the image, and uses <tt class="docutils literal">pip</tt> to install the requirements. For more information
 about the <tt class="docutils literal">ONBUILD</tt> command please see the <a class="reference external" href="https://docs.docker.com/engine/reference/builder/#onbuild">Dockerfile reference</a>.</p>
 <p>Before moving on, let's track our additions:</p>
-<pre class="code console"><a name="rest_code_3f03c2f90d3d476d80d74e788ac74594-1"></a><span class="gp">$</span> git add guestbook-flask/flask-redis/
+<pre class="code console"><a name="rest_code_39efdf74c4f44ec0a040178b20e35761-1"></a><span class="gp">$</span> git add guestbook-flask/flask-redis/
 </pre>
 <p>Like before, we build and push the image:</p>
-<pre class="code console"><a name="rest_code_2c48118044284b6b9c9e473178a9fd36-1"></a><span class="gp">$</span> docker build -t tiao/gb-frontend-flask-redis guestbook-flask/flask-redis
-<a name="rest_code_2c48118044284b6b9c9e473178a9fd36-2"></a><span class="gp">$</span> docker push tiao/gb-frontend-flask-redis
+<pre class="code console"><a name="rest_code_ba6a2f6083454210abaa11e82e06449c-1"></a><span class="gp">$</span> docker build -t tiao/gb-frontend-flask-redis guestbook-flask/flask-redis
+<a name="rest_code_ba6a2f6083454210abaa11e82e06449c-2"></a><span class="gp">$</span> docker push tiao/gb-frontend-flask-redis
 </pre>
 <p>There is no point in running it as a sanity test, as none of the redis masters
 or slaves will exist, and because there is no error handling, everything will
@@ -437,68 +437,68 @@ just crash immediately.</p>
 <h2>Updating the Frontend Deployment</h2>
 <p>Lastly, we modify the frontend Deployment to replace the existing container in
 the frontend Pod with the containers we just created and pushed.</p>
-<pre class="code console"><a name="rest_code_b9b3906646a240d39c5b173f31799912-1"></a><span class="gp">$</span> vim guestbook-flask/frontend-deployment.yaml
+<pre class="code console"><a name="rest_code_ec5f02fa87da41d09c68aa545c0404f4-1"></a><span class="gp">$</span> vim guestbook-flask/frontend-deployment.yaml
 </pre>
 <p>Under <tt class="docutils literal">.spec.template.spec.containers</tt>, add the following containers:</p>
-<pre class="code yaml"><a name="rest_code_b6c05af5ad2449878b0fc54447b4037b-1"></a><span class="l l-Scalar l-Scalar-Plain">containers</span><span class="p p-Indicator">:</span>
-<a name="rest_code_b6c05af5ad2449878b0fc54447b4037b-2"></a><span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">flask-redis</span>
-<a name="rest_code_b6c05af5ad2449878b0fc54447b4037b-3"></a>  <span class="l l-Scalar l-Scalar-Plain">image</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">tiao/gb-frontend-flask-redis</span>
-<a name="rest_code_b6c05af5ad2449878b0fc54447b4037b-4"></a>  <span class="l l-Scalar l-Scalar-Plain">resources</span><span class="p p-Indicator">:</span>
-<a name="rest_code_b6c05af5ad2449878b0fc54447b4037b-5"></a>    <span class="l l-Scalar l-Scalar-Plain">requests</span><span class="p p-Indicator">:</span>
-<a name="rest_code_b6c05af5ad2449878b0fc54447b4037b-6"></a>      <span class="l l-Scalar l-Scalar-Plain">cpu</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">100m</span>
-<a name="rest_code_b6c05af5ad2449878b0fc54447b4037b-7"></a>      <span class="l l-Scalar l-Scalar-Plain">memory</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">100Mi</span>
-<a name="rest_code_b6c05af5ad2449878b0fc54447b4037b-8"></a>  <span class="l l-Scalar l-Scalar-Plain">env</span><span class="p p-Indicator">:</span>
-<a name="rest_code_b6c05af5ad2449878b0fc54447b4037b-9"></a>  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">GET_HOSTS_FROM</span>
-<a name="rest_code_b6c05af5ad2449878b0fc54447b4037b-10"></a>    <span class="l l-Scalar l-Scalar-Plain">value</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">dns</span>
-<a name="rest_code_b6c05af5ad2449878b0fc54447b4037b-11"></a>    <span class="c1"># If your cluster config does not include a dns service, then to</span>
-<a name="rest_code_b6c05af5ad2449878b0fc54447b4037b-12"></a>    <span class="c1"># instead access environment variables to find service host</span>
-<a name="rest_code_b6c05af5ad2449878b0fc54447b4037b-13"></a>    <span class="c1"># info, comment out the 'value: dns' line above, and uncomment the</span>
-<a name="rest_code_b6c05af5ad2449878b0fc54447b4037b-14"></a>    <span class="c1"># line below.</span>
-<a name="rest_code_b6c05af5ad2449878b0fc54447b4037b-15"></a>    <span class="c1"># value: env</span>
-<a name="rest_code_b6c05af5ad2449878b0fc54447b4037b-16"></a>  <span class="l l-Scalar l-Scalar-Plain">ports</span><span class="p p-Indicator">:</span>
-<a name="rest_code_b6c05af5ad2449878b0fc54447b4037b-17"></a>  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">containerPort</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">8080</span>
-<a name="rest_code_b6c05af5ad2449878b0fc54447b4037b-18"></a><span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">nginx</span>
-<a name="rest_code_b6c05af5ad2449878b0fc54447b4037b-19"></a>  <span class="l l-Scalar l-Scalar-Plain">image</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">tiao/gb-frontend-nginx</span>
-<a name="rest_code_b6c05af5ad2449878b0fc54447b4037b-20"></a>  <span class="l l-Scalar l-Scalar-Plain">ports</span><span class="p p-Indicator">:</span>
-<a name="rest_code_b6c05af5ad2449878b0fc54447b4037b-21"></a>  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">containerPort</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">80</span>
+<pre class="code yaml"><a name="rest_code_9a2d3ed2603c4fbd8ad613cfb31e4730-1"></a><span class="l l-Scalar l-Scalar-Plain">containers</span><span class="p p-Indicator">:</span>
+<a name="rest_code_9a2d3ed2603c4fbd8ad613cfb31e4730-2"></a><span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">flask-redis</span>
+<a name="rest_code_9a2d3ed2603c4fbd8ad613cfb31e4730-3"></a>  <span class="l l-Scalar l-Scalar-Plain">image</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">tiao/gb-frontend-flask-redis</span>
+<a name="rest_code_9a2d3ed2603c4fbd8ad613cfb31e4730-4"></a>  <span class="l l-Scalar l-Scalar-Plain">resources</span><span class="p p-Indicator">:</span>
+<a name="rest_code_9a2d3ed2603c4fbd8ad613cfb31e4730-5"></a>    <span class="l l-Scalar l-Scalar-Plain">requests</span><span class="p p-Indicator">:</span>
+<a name="rest_code_9a2d3ed2603c4fbd8ad613cfb31e4730-6"></a>      <span class="l l-Scalar l-Scalar-Plain">cpu</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">100m</span>
+<a name="rest_code_9a2d3ed2603c4fbd8ad613cfb31e4730-7"></a>      <span class="l l-Scalar l-Scalar-Plain">memory</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">100Mi</span>
+<a name="rest_code_9a2d3ed2603c4fbd8ad613cfb31e4730-8"></a>  <span class="l l-Scalar l-Scalar-Plain">env</span><span class="p p-Indicator">:</span>
+<a name="rest_code_9a2d3ed2603c4fbd8ad613cfb31e4730-9"></a>  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">GET_HOSTS_FROM</span>
+<a name="rest_code_9a2d3ed2603c4fbd8ad613cfb31e4730-10"></a>    <span class="l l-Scalar l-Scalar-Plain">value</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">dns</span>
+<a name="rest_code_9a2d3ed2603c4fbd8ad613cfb31e4730-11"></a>    <span class="c1"># If your cluster config does not include a dns service, then to</span>
+<a name="rest_code_9a2d3ed2603c4fbd8ad613cfb31e4730-12"></a>    <span class="c1"># instead access environment variables to find service host</span>
+<a name="rest_code_9a2d3ed2603c4fbd8ad613cfb31e4730-13"></a>    <span class="c1"># info, comment out the 'value: dns' line above, and uncomment the</span>
+<a name="rest_code_9a2d3ed2603c4fbd8ad613cfb31e4730-14"></a>    <span class="c1"># line below.</span>
+<a name="rest_code_9a2d3ed2603c4fbd8ad613cfb31e4730-15"></a>    <span class="c1"># value: env</span>
+<a name="rest_code_9a2d3ed2603c4fbd8ad613cfb31e4730-16"></a>  <span class="l l-Scalar l-Scalar-Plain">ports</span><span class="p p-Indicator">:</span>
+<a name="rest_code_9a2d3ed2603c4fbd8ad613cfb31e4730-17"></a>  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">containerPort</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">8080</span>
+<a name="rest_code_9a2d3ed2603c4fbd8ad613cfb31e4730-18"></a><span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">nginx</span>
+<a name="rest_code_9a2d3ed2603c4fbd8ad613cfb31e4730-19"></a>  <span class="l l-Scalar l-Scalar-Plain">image</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">tiao/gb-frontend-nginx</span>
+<a name="rest_code_9a2d3ed2603c4fbd8ad613cfb31e4730-20"></a>  <span class="l l-Scalar l-Scalar-Plain">ports</span><span class="p p-Indicator">:</span>
+<a name="rest_code_9a2d3ed2603c4fbd8ad613cfb31e4730-21"></a>  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">containerPort</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">80</span>
 </pre>
 <p>The change should look exactly like this:</p>
-<pre class="code diff"><a name="rest_code_0d7b3b831b8d45e58739d7c5c8ecd86a-1"></a><span class="gd">--- guestbook/frontend-deployment.yaml  2016-06-02 14:01:30.000000000 +1000</span>
-<a name="rest_code_0d7b3b831b8d45e58739d7c5c8ecd86a-2"></a><span class="gi">+++ guestbook-flask/frontend-deployment.yaml    2016-06-02 16:56:24.000000000 +1000</span>
-<a name="rest_code_0d7b3b831b8d45e58739d7c5c8ecd86a-3"></a><span class="gu">@@ -24,8 +24,8 @@</span>
-<a name="rest_code_0d7b3b831b8d45e58739d7c5c8ecd86a-4"></a>         tier: frontend
-<a name="rest_code_0d7b3b831b8d45e58739d7c5c8ecd86a-5"></a>     spec:
-<a name="rest_code_0d7b3b831b8d45e58739d7c5c8ecd86a-6"></a>       containers:
-<a name="rest_code_0d7b3b831b8d45e58739d7c5c8ecd86a-7"></a><span class="gd">-      - name: php-redis</span>
-<a name="rest_code_0d7b3b831b8d45e58739d7c5c8ecd86a-8"></a><span class="gd">-        image: gcr.io/google-samples/gb-frontend:v4</span>
-<a name="rest_code_0d7b3b831b8d45e58739d7c5c8ecd86a-9"></a><span class="gi">+      - name: flask-redis</span>
-<a name="rest_code_0d7b3b831b8d45e58739d7c5c8ecd86a-10"></a><span class="gi">+        image: tiao/gb-frontend-flask-redis</span>
-<a name="rest_code_0d7b3b831b8d45e58739d7c5c8ecd86a-11"></a>         resources:
-<a name="rest_code_0d7b3b831b8d45e58739d7c5c8ecd86a-12"></a>           requests:
-<a name="rest_code_0d7b3b831b8d45e58739d7c5c8ecd86a-13"></a>             cpu: 100m
-<a name="rest_code_0d7b3b831b8d45e58739d7c5c8ecd86a-14"></a><span class="gu">@@ -39,4 +39,8 @@</span>
-<a name="rest_code_0d7b3b831b8d45e58739d7c5c8ecd86a-15"></a>           # line below.
-<a name="rest_code_0d7b3b831b8d45e58739d7c5c8ecd86a-16"></a>           # value: env
-<a name="rest_code_0d7b3b831b8d45e58739d7c5c8ecd86a-17"></a>         ports:
-<a name="rest_code_0d7b3b831b8d45e58739d7c5c8ecd86a-18"></a><span class="gi">+        - containerPort: 8080</span>
-<a name="rest_code_0d7b3b831b8d45e58739d7c5c8ecd86a-19"></a><span class="gi">+      - name: nginx</span>
-<a name="rest_code_0d7b3b831b8d45e58739d7c5c8ecd86a-20"></a><span class="gi">+        image: tiao/gb-frontend-nginx</span>
-<a name="rest_code_0d7b3b831b8d45e58739d7c5c8ecd86a-21"></a><span class="gi">+        ports:</span>
-<a name="rest_code_0d7b3b831b8d45e58739d7c5c8ecd86a-22"></a>         - containerPort: 80
+<pre class="code diff"><a name="rest_code_e373582c855e40098350a9d42fa29749-1"></a><span class="gd">--- guestbook/frontend-deployment.yaml  2016-06-02 14:01:30.000000000 +1000</span>
+<a name="rest_code_e373582c855e40098350a9d42fa29749-2"></a><span class="gi">+++ guestbook-flask/frontend-deployment.yaml    2016-06-02 16:56:24.000000000 +1000</span>
+<a name="rest_code_e373582c855e40098350a9d42fa29749-3"></a><span class="gu">@@ -24,8 +24,8 @@</span>
+<a name="rest_code_e373582c855e40098350a9d42fa29749-4"></a>         tier: frontend
+<a name="rest_code_e373582c855e40098350a9d42fa29749-5"></a>     spec:
+<a name="rest_code_e373582c855e40098350a9d42fa29749-6"></a>       containers:
+<a name="rest_code_e373582c855e40098350a9d42fa29749-7"></a><span class="gd">-      - name: php-redis</span>
+<a name="rest_code_e373582c855e40098350a9d42fa29749-8"></a><span class="gd">-        image: gcr.io/google-samples/gb-frontend:v4</span>
+<a name="rest_code_e373582c855e40098350a9d42fa29749-9"></a><span class="gi">+      - name: flask-redis</span>
+<a name="rest_code_e373582c855e40098350a9d42fa29749-10"></a><span class="gi">+        image: tiao/gb-frontend-flask-redis</span>
+<a name="rest_code_e373582c855e40098350a9d42fa29749-11"></a>         resources:
+<a name="rest_code_e373582c855e40098350a9d42fa29749-12"></a>           requests:
+<a name="rest_code_e373582c855e40098350a9d42fa29749-13"></a>             cpu: 100m
+<a name="rest_code_e373582c855e40098350a9d42fa29749-14"></a><span class="gu">@@ -39,4 +39,8 @@</span>
+<a name="rest_code_e373582c855e40098350a9d42fa29749-15"></a>           # line below.
+<a name="rest_code_e373582c855e40098350a9d42fa29749-16"></a>           # value: env
+<a name="rest_code_e373582c855e40098350a9d42fa29749-17"></a>         ports:
+<a name="rest_code_e373582c855e40098350a9d42fa29749-18"></a><span class="gi">+        - containerPort: 8080</span>
+<a name="rest_code_e373582c855e40098350a9d42fa29749-19"></a><span class="gi">+      - name: nginx</span>
+<a name="rest_code_e373582c855e40098350a9d42fa29749-20"></a><span class="gi">+        image: tiao/gb-frontend-nginx</span>
+<a name="rest_code_e373582c855e40098350a9d42fa29749-21"></a><span class="gi">+        ports:</span>
+<a name="rest_code_e373582c855e40098350a9d42fa29749-22"></a>         - containerPort: 80
 </pre>
 <p>We also update the "all-in-one" variants of these configurations in exactly the
 same way:</p>
-<pre class="code console"><a name="rest_code_a1282c3eb823404886c050a8735324d3-1"></a><span class="gp">$</span> vim guestbook-flask/all-in-one/frontend.yaml
-<a name="rest_code_a1282c3eb823404886c050a8735324d3-2"></a><span class="gp">$</span> vim guestbook-flask/all-in-one/guestbook-all-in-one.yaml
+<pre class="code console"><a name="rest_code_7c50e832bdaa47afbc0ac12cff2180f8-1"></a><span class="gp">$</span> vim guestbook-flask/all-in-one/frontend.yaml
+<a name="rest_code_7c50e832bdaa47afbc0ac12cff2180f8-2"></a><span class="gp">$</span> vim guestbook-flask/all-in-one/guestbook-all-in-one.yaml
 </pre>
 <p>At last, we can create all related Deployments and Services:</p>
-<pre class="code console"><a name="rest_code_541ab77242c648839fd084f8bd0790cf-1"></a><span class="gp">$</span> kubectl create -f guestbook-flask
-<a name="rest_code_541ab77242c648839fd084f8bd0790cf-2"></a><span class="go">deployment "frontend" created</span>
-<a name="rest_code_541ab77242c648839fd084f8bd0790cf-3"></a><span class="go">service "frontend" created</span>
-<a name="rest_code_541ab77242c648839fd084f8bd0790cf-4"></a><span class="go">deployment "redis-master" created</span>
-<a name="rest_code_541ab77242c648839fd084f8bd0790cf-5"></a><span class="go">service "redis-master" created</span>
-<a name="rest_code_541ab77242c648839fd084f8bd0790cf-6"></a><span class="go">deployment "redis-slave" created</span>
-<a name="rest_code_541ab77242c648839fd084f8bd0790cf-7"></a><span class="go">service "redis-slave" created</span>
+<pre class="code console"><a name="rest_code_6e772b10910d43c59ba974c912a3be4a-1"></a><span class="gp">$</span> kubectl create -f guestbook-flask
+<a name="rest_code_6e772b10910d43c59ba974c912a3be4a-2"></a><span class="go">deployment "frontend" created</span>
+<a name="rest_code_6e772b10910d43c59ba974c912a3be4a-3"></a><span class="go">service "frontend" created</span>
+<a name="rest_code_6e772b10910d43c59ba974c912a3be4a-4"></a><span class="go">deployment "redis-master" created</span>
+<a name="rest_code_6e772b10910d43c59ba974c912a3be4a-5"></a><span class="go">service "redis-master" created</span>
+<a name="rest_code_6e772b10910d43c59ba974c912a3be4a-6"></a><span class="go">deployment "redis-slave" created</span>
+<a name="rest_code_6e772b10910d43c59ba974c912a3be4a-7"></a><span class="go">service "redis-slave" created</span>
 </pre>
 <p>Now you should be able to see a live, running Guestbook example with functionality
 and behavior identical to that of the original PHP implementation.</p>
@@ -506,50 +506,50 @@ and behavior identical to that of the original PHP implementation.</p>
 <div class="section" id="wrapping-up">
 <h2>Wrapping Up</h2>
 <p>Time wrap things up. First, let's delete the Deployments and Services:</p>
-<pre class="code console"><a name="rest_code_c1c4b644f98d4ae29ebe102c3cbd6bd8-1"></a><span class="gp">$</span> kubectl delete -f guestbook-flask
-<a name="rest_code_c1c4b644f98d4ae29ebe102c3cbd6bd8-2"></a><span class="go">deployment "frontend" deleted</span>
-<a name="rest_code_c1c4b644f98d4ae29ebe102c3cbd6bd8-3"></a><span class="go">service "frontend" deleted</span>
-<a name="rest_code_c1c4b644f98d4ae29ebe102c3cbd6bd8-4"></a><span class="go">deployment "redis-master" deleted</span>
-<a name="rest_code_c1c4b644f98d4ae29ebe102c3cbd6bd8-5"></a><span class="go">service "redis-master" deleted</span>
-<a name="rest_code_c1c4b644f98d4ae29ebe102c3cbd6bd8-6"></a><span class="go">deployment "redis-slave" deleted</span>
-<a name="rest_code_c1c4b644f98d4ae29ebe102c3cbd6bd8-7"></a><span class="go">service "redis-slave" deleted</span>
+<pre class="code console"><a name="rest_code_5c48016443784c029b05d7633f324e69-1"></a><span class="gp">$</span> kubectl delete -f guestbook-flask
+<a name="rest_code_5c48016443784c029b05d7633f324e69-2"></a><span class="go">deployment "frontend" deleted</span>
+<a name="rest_code_5c48016443784c029b05d7633f324e69-3"></a><span class="go">service "frontend" deleted</span>
+<a name="rest_code_5c48016443784c029b05d7633f324e69-4"></a><span class="go">deployment "redis-master" deleted</span>
+<a name="rest_code_5c48016443784c029b05d7633f324e69-5"></a><span class="go">service "redis-master" deleted</span>
+<a name="rest_code_5c48016443784c029b05d7633f324e69-6"></a><span class="go">deployment "redis-slave" deleted</span>
+<a name="rest_code_5c48016443784c029b05d7633f324e69-7"></a><span class="go">service "redis-slave" deleted</span>
 </pre>
 <p>We can get rid of the PHP server, and other irrelevant legacy stuff:</p>
-<pre class="code console"><a name="rest_code_2faf6c0593d9411994ede421e0ea6986-1"></a><span class="gp">$</span> rm -r guestbook-flask/legacy guestbook-flask/php-redis
+<pre class="code console"><a name="rest_code_44eabfef203f43d4945d4cdc6b7d87fc-1"></a><span class="gp">$</span> rm -r guestbook-flask/legacy guestbook-flask/php-redis
 </pre>
 <p>At this point, the directory structure should look like this:</p>
-<pre class="code console"><a name="rest_code_ac008ab18b224887bad3b9f125b17407-1"></a><span class="gp">$</span> tree guestbook-flask
-<a name="rest_code_ac008ab18b224887bad3b9f125b17407-2"></a><span class="go">guestbook-flask</span>
-<a name="rest_code_ac008ab18b224887bad3b9f125b17407-3"></a><span class="go">├── README.md</span>
-<a name="rest_code_ac008ab18b224887bad3b9f125b17407-4"></a><span class="go">├── all-in-one</span>
-<a name="rest_code_ac008ab18b224887bad3b9f125b17407-5"></a><span class="go">│   ├── frontend.yaml</span>
-<a name="rest_code_ac008ab18b224887bad3b9f125b17407-6"></a><span class="go">│   ├── guestbook-all-in-one.yaml</span>
-<a name="rest_code_ac008ab18b224887bad3b9f125b17407-7"></a><span class="go">│   └── redis-slave.yaml</span>
-<a name="rest_code_ac008ab18b224887bad3b9f125b17407-8"></a><span class="go">├── flask-redis</span>
-<a name="rest_code_ac008ab18b224887bad3b9f125b17407-9"></a><span class="go">│   ├── Dockerfile</span>
-<a name="rest_code_ac008ab18b224887bad3b9f125b17407-10"></a><span class="go">│   ├── app.py</span>
-<a name="rest_code_ac008ab18b224887bad3b9f125b17407-11"></a><span class="go">│   ├── conf.ini</span>
-<a name="rest_code_ac008ab18b224887bad3b9f125b17407-12"></a><span class="go">│   └── requirements.txt</span>
-<a name="rest_code_ac008ab18b224887bad3b9f125b17407-13"></a><span class="go">├── frontend-deployment.yaml</span>
-<a name="rest_code_ac008ab18b224887bad3b9f125b17407-14"></a><span class="go">├── frontend-service.yaml</span>
-<a name="rest_code_ac008ab18b224887bad3b9f125b17407-15"></a><span class="go">├── nginx</span>
-<a name="rest_code_ac008ab18b224887bad3b9f125b17407-16"></a><span class="go">│   ├── Dockerfile</span>
-<a name="rest_code_ac008ab18b224887bad3b9f125b17407-17"></a><span class="go">│   ├── controllers.js</span>
-<a name="rest_code_ac008ab18b224887bad3b9f125b17407-18"></a><span class="go">│   ├── index.html</span>
-<a name="rest_code_ac008ab18b224887bad3b9f125b17407-19"></a><span class="go">│   └── nginx.conf</span>
-<a name="rest_code_ac008ab18b224887bad3b9f125b17407-20"></a><span class="go">├── redis-master-deployment.yaml</span>
-<a name="rest_code_ac008ab18b224887bad3b9f125b17407-21"></a><span class="go">├── redis-master-service.yaml</span>
-<a name="rest_code_ac008ab18b224887bad3b9f125b17407-22"></a><span class="go">├── redis-slave</span>
-<a name="rest_code_ac008ab18b224887bad3b9f125b17407-23"></a><span class="go">│   ├── Dockerfile</span>
-<a name="rest_code_ac008ab18b224887bad3b9f125b17407-24"></a><span class="go">│   └── run.sh</span>
-<a name="rest_code_ac008ab18b224887bad3b9f125b17407-25"></a><span class="go">├── redis-slave-deployment.yaml</span>
-<a name="rest_code_ac008ab18b224887bad3b9f125b17407-26"></a><span class="go">└── redis-slave-service.yaml</span>
-<a name="rest_code_ac008ab18b224887bad3b9f125b17407-27"></a>
-<a name="rest_code_ac008ab18b224887bad3b9f125b17407-28"></a><span class="go">4 directories, 20 files</span>
+<pre class="code console"><a name="rest_code_33ebd72ad39e4be089a10cc1e95c1ce7-1"></a><span class="gp">$</span> tree guestbook-flask
+<a name="rest_code_33ebd72ad39e4be089a10cc1e95c1ce7-2"></a><span class="go">guestbook-flask</span>
+<a name="rest_code_33ebd72ad39e4be089a10cc1e95c1ce7-3"></a><span class="go">├── README.md</span>
+<a name="rest_code_33ebd72ad39e4be089a10cc1e95c1ce7-4"></a><span class="go">├── all-in-one</span>
+<a name="rest_code_33ebd72ad39e4be089a10cc1e95c1ce7-5"></a><span class="go">│   ├── frontend.yaml</span>
+<a name="rest_code_33ebd72ad39e4be089a10cc1e95c1ce7-6"></a><span class="go">│   ├── guestbook-all-in-one.yaml</span>
+<a name="rest_code_33ebd72ad39e4be089a10cc1e95c1ce7-7"></a><span class="go">│   └── redis-slave.yaml</span>
+<a name="rest_code_33ebd72ad39e4be089a10cc1e95c1ce7-8"></a><span class="go">├── flask-redis</span>
+<a name="rest_code_33ebd72ad39e4be089a10cc1e95c1ce7-9"></a><span class="go">│   ├── Dockerfile</span>
+<a name="rest_code_33ebd72ad39e4be089a10cc1e95c1ce7-10"></a><span class="go">│   ├── app.py</span>
+<a name="rest_code_33ebd72ad39e4be089a10cc1e95c1ce7-11"></a><span class="go">│   ├── conf.ini</span>
+<a name="rest_code_33ebd72ad39e4be089a10cc1e95c1ce7-12"></a><span class="go">│   └── requirements.txt</span>
+<a name="rest_code_33ebd72ad39e4be089a10cc1e95c1ce7-13"></a><span class="go">├── frontend-deployment.yaml</span>
+<a name="rest_code_33ebd72ad39e4be089a10cc1e95c1ce7-14"></a><span class="go">├── frontend-service.yaml</span>
+<a name="rest_code_33ebd72ad39e4be089a10cc1e95c1ce7-15"></a><span class="go">├── nginx</span>
+<a name="rest_code_33ebd72ad39e4be089a10cc1e95c1ce7-16"></a><span class="go">│   ├── Dockerfile</span>
+<a name="rest_code_33ebd72ad39e4be089a10cc1e95c1ce7-17"></a><span class="go">│   ├── controllers.js</span>
+<a name="rest_code_33ebd72ad39e4be089a10cc1e95c1ce7-18"></a><span class="go">│   ├── index.html</span>
+<a name="rest_code_33ebd72ad39e4be089a10cc1e95c1ce7-19"></a><span class="go">│   └── nginx.conf</span>
+<a name="rest_code_33ebd72ad39e4be089a10cc1e95c1ce7-20"></a><span class="go">├── redis-master-deployment.yaml</span>
+<a name="rest_code_33ebd72ad39e4be089a10cc1e95c1ce7-21"></a><span class="go">├── redis-master-service.yaml</span>
+<a name="rest_code_33ebd72ad39e4be089a10cc1e95c1ce7-22"></a><span class="go">├── redis-slave</span>
+<a name="rest_code_33ebd72ad39e4be089a10cc1e95c1ce7-23"></a><span class="go">│   ├── Dockerfile</span>
+<a name="rest_code_33ebd72ad39e4be089a10cc1e95c1ce7-24"></a><span class="go">│   └── run.sh</span>
+<a name="rest_code_33ebd72ad39e4be089a10cc1e95c1ce7-25"></a><span class="go">├── redis-slave-deployment.yaml</span>
+<a name="rest_code_33ebd72ad39e4be089a10cc1e95c1ce7-26"></a><span class="go">└── redis-slave-service.yaml</span>
+<a name="rest_code_33ebd72ad39e4be089a10cc1e95c1ce7-27"></a>
+<a name="rest_code_33ebd72ad39e4be089a10cc1e95c1ce7-28"></a><span class="go">4 directories, 20 files</span>
 </pre>
 <p>We can commit our changes and push to the fork:</p>
-<pre class="code console"><a name="rest_code_59764b4282c34cbca3c2dfded8f11b45-1"></a><span class="gp">$</span> git commit -am <span class="s1">'Re-implemented Guestbook example with Flask/uWSGI/NGINX'</span>
-<a name="rest_code_59764b4282c34cbca3c2dfded8f11b45-2"></a><span class="gp">$</span> git push origin master
+<pre class="code console"><a name="rest_code_68beabefcd9e4e4bbaca408e1bc75a85-1"></a><span class="gp">$</span> git commit -am <span class="s1">'Re-implemented Guestbook example with Flask/uWSGI/NGINX'</span>
+<a name="rest_code_68beabefcd9e4e4bbaca408e1bc75a85-2"></a><span class="gp">$</span> git push origin master
 </pre>
 <p>At some point, if deemed useful by the Kubernetes Development Team and Community,
 I will submit a pull request to incorporate this into the <tt class="docutils literal">examples</tt> directory.
@@ -579,7 +579,7 @@ wish to tinker with this example.</p>
                         <div id="disqus_thread"></div>
         <script>
         var disqus_shortname ="ltiao",
-            disqus_url="http://louistiao.me/posts/re-implementing-the-kubernetes-guestbook-example-with-flask-and-nginx/",
+            disqus_url="http://tiao.io/posts/re-implementing-the-kubernetes-guestbook-example-with-flask-and-nginx/",
         disqus_title="Re-implementing the Kubernetes Guestbook Example with Flask and NGINX",
         disqus_identifier="cache/content/posts/re-implementing-the-kubernetes-guestbook-example-with-flask-and-nginx.html",
         disqus_config = function () {

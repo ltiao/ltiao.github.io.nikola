@@ -133,8 +133,7 @@ It is straightforward to implement this in Keras with the
 .. code:: python
 
    decoder = Sequential([
-       Dense(intermediate_dim, input_dim=latent_dim, 
-             activation='relu'),
+       Dense(intermediate_dim, input_dim=latent_dim, activation='relu'),
        Dense(original_dim, activation='sigmoid')
    ])
 
@@ -571,13 +570,13 @@ location-scale transformation
 
 .. math::
 
-   \mathbf{z} =
-   g_{\phi}(\mathbf{x}, \mathbf{\epsilon}) = 
-     \mathbf{\mu}_{\phi}(\mathbf{x}) + 
+   \mathbf{z} 
+   = g_{\phi}(\mathbf{x}, \mathbf{\epsilon}) 
+   = \mathbf{\mu}_{\phi}(\mathbf{x}) + 
      \mathbf{\sigma}_{\phi}(\mathbf{x}) \odot 
-     \mathbf{\epsilon}, \quad 
-     \mathbf{\epsilon} \sim 
-     \mathcal{N}(\mathbf{0}, \mathbf{I})
+     \mathbf{\epsilon}, \quad
+   \mathbf{\epsilon} 
+   \sim \mathcal{N}(\mathbf{0}, \mathbf{I}),
 
 where :math:`\mathbf{\mu}_{\phi}(\mathbf{x})` and 
 :math:`\mathbf{\sigma}_{\phi}(\mathbf{x})` are the outputs of the inference 
@@ -591,8 +590,13 @@ above location-scale transformation using
 
    eps = Input(shape=(latent_dim,))
 
-   z_eps = Multiply()([z_sigma, eps])   
+   z_eps = Multiply()([z_sigma, eps])
    z = Add()([z_mu, z_eps])
+
+.. Specifically, we transformed the scale of the Normal distributed noise ``eps`` 
+.. by multiplying it elementwise with ``z_sigma`` using the ``Multiply`` layer. 
+.. and transformed the location of the result by 
+
 
 .. figure:: ../../images/vae/reparameterization.svg
    :height: 250px
@@ -625,19 +629,22 @@ using ``K.random_normal`` with the required shape,
 
 .. code:: python
 
-   eps = Input(tensor=K.random_normal(shape=(K.shape(x)[0], 
-                                             latent_dim)))
+   eps = Input(tensor=K.random_normal(shape=(K.shape(x)[0], latent_dim)))
 
 While ``eps`` still needs to be explicitly specified as an input to compile the 
 model, values for this input will no longer be expected by methods such as 
 ``fit``, ``predict``. Instead, samples from this distribution will be lazily 
 generated inside the computation graph when required. See my notes on :doc:`keras-constant-input-layers-with-fixed-source-of-stochasticity` for more details. 
 
+-----
+
 .. figure:: ../../images/vae/encoder.svg
    :height: 500px
    :align: center
 
    Encoder architecture.
+
+-----
 
 In the `example implementation <https://github.com/keras-team/keras/blob/2.1.1/examples/variational_autoencoder.py>`_, all of this logic is encapsulated in a single 
 Lambda layer, which simultaneously draws samples from a hard-coded base 
@@ -681,7 +688,8 @@ Putting it all together
 
 So far, we've dissected the variational autoencoder into modular components and 
 discussed the role and implementation of each one at some length. 
-Now let's hook them up together end-to-end to form the autoencoder architecture.
+Now let's compose these components together end-to-end to form the final 
+autoencoder architecture.
 
 .. code:: python
 
@@ -700,14 +708,13 @@ Now let's hook them up together end-to-end to form the autoencoder architecture.
    z = Add()([z_mu, z_eps]) 
 
    decoder = Sequential([
-       Dense(intermediate_dim, input_dim=latent_dim, 
-             activation='relu'),
+       Dense(intermediate_dim, input_dim=latent_dim, activation='relu'),
        Dense(original_dim, activation='sigmoid')
    ]) 
 
    x_pred = decoder(z)
 
-It's surprisingly concise, requiring around 20 lines of code. 
+It's surprisingly concise, taking up around 20 lines of code. 
 The diagram of the full model architecture is visualized below.
 
 .. figure:: ../../images/vae/vae_full.svg

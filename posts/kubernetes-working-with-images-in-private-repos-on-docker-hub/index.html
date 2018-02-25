@@ -14,7 +14,7 @@ article: http://ogp.me/ns/article#
 <meta name="theme-color" content="#5670d4">
 <meta name="generator" content="Nikola (getnikola.com)">
 <link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
-<link rel="canonical" href="http://louistiao.me/posts/kubernetes-working-with-images-in-private-repos-on-docker-hub/">
+<link rel="canonical" href="http://tiao.io/posts/kubernetes-working-with-images-in-private-repos-on-docker-hub/">
 <link rel="icon" href="../../favicon_16x16.ico" sizes="16x16">
 <link rel="icon" href="../../favicon_32x32.ico" sizes="32x32">
 <link rel="icon" href="../../favicon_256x256.ico" sizes="256x256">
@@ -46,7 +46,7 @@ MathJax.Hub.Config({
 <meta name="robots" content="noindex">
 <meta property="og:site_name" content="Louis Tiao">
 <meta property="og:title" content="Kubernetes: Working with Images in Private Repos on Docker Hub">
-<meta property="og:url" content="http://louistiao.me/posts/kubernetes-working-with-images-in-private-repos-on-docker-hub/">
+<meta property="og:url" content="http://tiao.io/posts/kubernetes-working-with-images-in-private-repos-on-docker-hub/">
 <meta property="og:description" content='$ kubectl create -f web-example
 persistentvolumeclaim "tinydb-pv-claim" created
 deployment "web-example" created
@@ -81,7 +81,7 @@ $ kubectl get pods
 
           
         </li>
-</ul></nav><a href="http://louistiao.me/">
+</ul></nav><a href="http://tiao.io/">
 
         <h3 class="text-muted">
           <span id="blog-title">Louis Tiao</span>
@@ -122,113 +122,113 @@ $ kubectl get pods
         
     </header><div class="e-content entry-content" itemprop="articleBody text">
     <div>
-<pre class="code console"><a name="rest_code_363d06487af0426c913888e954e75d10-1"></a><span class="gp">$</span> kubectl create -f web-example
-<a name="rest_code_363d06487af0426c913888e954e75d10-2"></a><span class="go">persistentvolumeclaim "tinydb-pv-claim" created</span>
-<a name="rest_code_363d06487af0426c913888e954e75d10-3"></a><span class="go">deployment "web-example" created</span>
-<a name="rest_code_363d06487af0426c913888e954e75d10-4"></a><span class="go">service "web-example" created</span>
-<a name="rest_code_363d06487af0426c913888e954e75d10-5"></a><span class="go">persistentvolume "aws-pv-001" created</span>
+<pre class="code console"><a name="rest_code_bba5482a15f94b498bef852a3f4712ef-1"></a><span class="gp">$</span> kubectl create -f web-example
+<a name="rest_code_bba5482a15f94b498bef852a3f4712ef-2"></a><span class="go">persistentvolumeclaim "tinydb-pv-claim" created</span>
+<a name="rest_code_bba5482a15f94b498bef852a3f4712ef-3"></a><span class="go">deployment "web-example" created</span>
+<a name="rest_code_bba5482a15f94b498bef852a3f4712ef-4"></a><span class="go">service "web-example" created</span>
+<a name="rest_code_bba5482a15f94b498bef852a3f4712ef-5"></a><span class="go">persistentvolume "aws-pv-001" created</span>
 </pre>
-<pre class="code console"><a name="rest_code_03e2bfbdf611484895659ded3692c89d-1"></a><span class="gp">$</span> kubectl get pods
-<a name="rest_code_03e2bfbdf611484895659ded3692c89d-2"></a><span class="go">NAME                           READY     STATUS         RESTARTS   AGE</span>
-<a name="rest_code_03e2bfbdf611484895659ded3692c89d-3"></a><span class="go">web-example-2455310000-032qp   1/2       ErrImagePull   0          3m</span>
+<pre class="code console"><a name="rest_code_246fcbfc610e446d8af04acef7932fdb-1"></a><span class="gp">$</span> kubectl get pods
+<a name="rest_code_246fcbfc610e446d8af04acef7932fdb-2"></a><span class="go">NAME                           READY     STATUS         RESTARTS   AGE</span>
+<a name="rest_code_246fcbfc610e446d8af04acef7932fdb-3"></a><span class="go">web-example-2455310000-032qp   1/2       ErrImagePull   0          3m</span>
 </pre>
-<pre class="code console"><a name="rest_code_51f3618113be4c0f8b215280f6afbfbc-1"></a><span class="gp">$</span> kubectl get events
-<a name="rest_code_51f3618113be4c0f8b215280f6afbfbc-2"></a><span class="go">FIRSTSEEN   LASTSEEN   COUNT     NAME                           KIND      SUBOBJECT                            TYPE      REASON             SOURCE                                                    MESSAGE</span>
-<a name="rest_code_51f3618113be4c0f8b215280f6afbfbc-3"></a><span class="go">8m          6m         11        web-example-2455310000-032qp   Pod                                            Warning   FailedScheduling   {default-scheduler }                                      PersistentVolumeClaim is not bound: "tinydb-pv-claim"</span>
-<a name="rest_code_51f3618113be4c0f8b215280f6afbfbc-4"></a><span class="go">6m          6m         1         web-example-2455310000-032qp   Pod                                            Normal    Scheduled          {default-scheduler }                                      Successfully assigned web-example-2455310000-032qp to ip-10-0-0-183.ap-southeast-2.compute.internal</span>
-<a name="rest_code_51f3618113be4c0f8b215280f6afbfbc-5"></a><span class="go">6m          6m         1         web-example-2455310000-032qp   Pod       spec.containers{web-example-nginx}   Normal    Pulling            {kubelet ip-10-0-0-183.ap-southeast-2.compute.internal}   pulling image "terriajs/web-example-nginx"</span>
-<a name="rest_code_51f3618113be4c0f8b215280f6afbfbc-6"></a><span class="go">5m          5m         1         web-example-2455310000-032qp   Pod       spec.containers{web-example-nginx}   Normal    Pulled             {kubelet ip-10-0-0-183.ap-southeast-2.compute.internal}   Successfully pulled image "terriajs/web-example-nginx"</span>
-<a name="rest_code_51f3618113be4c0f8b215280f6afbfbc-7"></a><span class="go">5m          5m         1         web-example-2455310000-032qp   Pod       spec.containers{web-example-nginx}   Normal    Created            {kubelet ip-10-0-0-183.ap-southeast-2.compute.internal}   Created container with docker id 0069b654869f</span>
-<a name="rest_code_51f3618113be4c0f8b215280f6afbfbc-8"></a><span class="go">5m          5m         1         web-example-2455310000-032qp   Pod       spec.containers{web-example-nginx}   Normal    Started            {kubelet ip-10-0-0-183.ap-southeast-2.compute.internal}   Started container with docker id 0069b654869f</span>
-<a name="rest_code_51f3618113be4c0f8b215280f6afbfbc-9"></a><span class="go">5m          2m         5         web-example-2455310000-032qp   Pod       spec.containers{web-example-flask}   Normal    Pulling            {kubelet ip-10-0-0-183.ap-southeast-2.compute.internal}   pulling image "terriajs/web-example-flask"</span>
-<a name="rest_code_51f3618113be4c0f8b215280f6afbfbc-10"></a><span class="go">5m          2m         5         web-example-2455310000-032qp   Pod       spec.containers{web-example-flask}   Warning   Failed             {kubelet ip-10-0-0-183.ap-southeast-2.compute.internal}   Failed to pull image "terriajs/web-example-flask": Error: image terriajs/web-example-flask not found</span>
-<a name="rest_code_51f3618113be4c0f8b215280f6afbfbc-11"></a><span class="go">5m          2m         5         web-example-2455310000-032qp   Pod                                            Warning   FailedSync         {kubelet ip-10-0-0-183.ap-southeast-2.compute.internal}   Error syncing pod, skipping: failed to "StartContainer" for "web-example-flask" with ErrImagePull: "Error: image terriajs/web-example-flask not found"</span>
-<a name="rest_code_51f3618113be4c0f8b215280f6afbfbc-12"></a>
-<a name="rest_code_51f3618113be4c0f8b215280f6afbfbc-13"></a><span class="go">5m        9s        23        web-example-2455310000-032qp   Pod       spec.containers{web-example-flask}   Normal    BackOff      {kubelet ip-10-0-0-183.ap-southeast-2.compute.internal}   Back-off pulling image "terriajs/web-example-flask"</span>
-<a name="rest_code_51f3618113be4c0f8b215280f6afbfbc-14"></a><span class="go">5m        9s        23        web-example-2455310000-032qp   Pod                                            Warning   FailedSync   {kubelet ip-10-0-0-183.ap-southeast-2.compute.internal}   Error syncing pod, skipping: failed to "StartContainer" for "web-example-flask" with ImagePullBackOff: "Back-off pulling image \"terriajs/web-example-flask\""</span>
-<a name="rest_code_51f3618113be4c0f8b215280f6afbfbc-15"></a>
-<a name="rest_code_51f3618113be4c0f8b215280f6afbfbc-16"></a><span class="go">8m        8m        1         web-example-2455310000-fngpt   Pod          spec.containers{web-example-nginx}   Normal    Killing                {kubelet ip-10-0-0-184.ap-southeast-2.compute.internal}   Killing container with docker id 8b5e7cf9b505: Need to kill pod.</span>
-<a name="rest_code_51f3618113be4c0f8b215280f6afbfbc-17"></a><span class="go">8m        8m        1         web-example-2455310000-fngpt   Pod          spec.containers{web-example-flask}   Normal    Killing                {kubelet ip-10-0-0-184.ap-southeast-2.compute.internal}   Killing container with docker id 2f8dcbb94508: Need to kill pod.</span>
-<a name="rest_code_51f3618113be4c0f8b215280f6afbfbc-18"></a><span class="go">8m        8m        1         web-example-2455310000         ReplicaSet                                        Normal    SuccessfulDelete       {replicaset-controller }                                  Deleted pod: web-example-2455310000-fngpt</span>
-<a name="rest_code_51f3618113be4c0f8b215280f6afbfbc-19"></a><span class="go">8m        8m        1         web-example-2455310000         ReplicaSet                                        Normal    SuccessfulCreate       {replicaset-controller }                                  Created pod: web-example-2455310000-032qp</span>
-<a name="rest_code_51f3618113be4c0f8b215280f6afbfbc-20"></a><span class="go">8m        8m        1         web-example                    Deployment                                        Normal    ScalingReplicaSet      {deployment-controller }                                  Scaled up replica set web-example-2455310000 to 1</span>
-<a name="rest_code_51f3618113be4c0f8b215280f6afbfbc-21"></a><span class="go">8m        8m        1         web-example                    Service                                           Normal    DeletedLoadBalancer    {service-controller }                                     Deleted load balancer</span>
-<a name="rest_code_51f3618113be4c0f8b215280f6afbfbc-22"></a><span class="go">8m        8m        2         web-example                    Service                                           Normal    CreatingLoadBalancer   {service-controller }                                     Creating load balancer</span>
-<a name="rest_code_51f3618113be4c0f8b215280f6afbfbc-23"></a><span class="go">8m        8m        2         web-example                    Service                                           Normal    CreatedLoadBalancer    {service-controller }                                     Created load balancer</span>
+<pre class="code console"><a name="rest_code_f0790200fa6b4598bfb6fba097c7e903-1"></a><span class="gp">$</span> kubectl get events
+<a name="rest_code_f0790200fa6b4598bfb6fba097c7e903-2"></a><span class="go">FIRSTSEEN   LASTSEEN   COUNT     NAME                           KIND      SUBOBJECT                            TYPE      REASON             SOURCE                                                    MESSAGE</span>
+<a name="rest_code_f0790200fa6b4598bfb6fba097c7e903-3"></a><span class="go">8m          6m         11        web-example-2455310000-032qp   Pod                                            Warning   FailedScheduling   {default-scheduler }                                      PersistentVolumeClaim is not bound: "tinydb-pv-claim"</span>
+<a name="rest_code_f0790200fa6b4598bfb6fba097c7e903-4"></a><span class="go">6m          6m         1         web-example-2455310000-032qp   Pod                                            Normal    Scheduled          {default-scheduler }                                      Successfully assigned web-example-2455310000-032qp to ip-10-0-0-183.ap-southeast-2.compute.internal</span>
+<a name="rest_code_f0790200fa6b4598bfb6fba097c7e903-5"></a><span class="go">6m          6m         1         web-example-2455310000-032qp   Pod       spec.containers{web-example-nginx}   Normal    Pulling            {kubelet ip-10-0-0-183.ap-southeast-2.compute.internal}   pulling image "terriajs/web-example-nginx"</span>
+<a name="rest_code_f0790200fa6b4598bfb6fba097c7e903-6"></a><span class="go">5m          5m         1         web-example-2455310000-032qp   Pod       spec.containers{web-example-nginx}   Normal    Pulled             {kubelet ip-10-0-0-183.ap-southeast-2.compute.internal}   Successfully pulled image "terriajs/web-example-nginx"</span>
+<a name="rest_code_f0790200fa6b4598bfb6fba097c7e903-7"></a><span class="go">5m          5m         1         web-example-2455310000-032qp   Pod       spec.containers{web-example-nginx}   Normal    Created            {kubelet ip-10-0-0-183.ap-southeast-2.compute.internal}   Created container with docker id 0069b654869f</span>
+<a name="rest_code_f0790200fa6b4598bfb6fba097c7e903-8"></a><span class="go">5m          5m         1         web-example-2455310000-032qp   Pod       spec.containers{web-example-nginx}   Normal    Started            {kubelet ip-10-0-0-183.ap-southeast-2.compute.internal}   Started container with docker id 0069b654869f</span>
+<a name="rest_code_f0790200fa6b4598bfb6fba097c7e903-9"></a><span class="go">5m          2m         5         web-example-2455310000-032qp   Pod       spec.containers{web-example-flask}   Normal    Pulling            {kubelet ip-10-0-0-183.ap-southeast-2.compute.internal}   pulling image "terriajs/web-example-flask"</span>
+<a name="rest_code_f0790200fa6b4598bfb6fba097c7e903-10"></a><span class="go">5m          2m         5         web-example-2455310000-032qp   Pod       spec.containers{web-example-flask}   Warning   Failed             {kubelet ip-10-0-0-183.ap-southeast-2.compute.internal}   Failed to pull image "terriajs/web-example-flask": Error: image terriajs/web-example-flask not found</span>
+<a name="rest_code_f0790200fa6b4598bfb6fba097c7e903-11"></a><span class="go">5m          2m         5         web-example-2455310000-032qp   Pod                                            Warning   FailedSync         {kubelet ip-10-0-0-183.ap-southeast-2.compute.internal}   Error syncing pod, skipping: failed to "StartContainer" for "web-example-flask" with ErrImagePull: "Error: image terriajs/web-example-flask not found"</span>
+<a name="rest_code_f0790200fa6b4598bfb6fba097c7e903-12"></a>
+<a name="rest_code_f0790200fa6b4598bfb6fba097c7e903-13"></a><span class="go">5m        9s        23        web-example-2455310000-032qp   Pod       spec.containers{web-example-flask}   Normal    BackOff      {kubelet ip-10-0-0-183.ap-southeast-2.compute.internal}   Back-off pulling image "terriajs/web-example-flask"</span>
+<a name="rest_code_f0790200fa6b4598bfb6fba097c7e903-14"></a><span class="go">5m        9s        23        web-example-2455310000-032qp   Pod                                            Warning   FailedSync   {kubelet ip-10-0-0-183.ap-southeast-2.compute.internal}   Error syncing pod, skipping: failed to "StartContainer" for "web-example-flask" with ImagePullBackOff: "Back-off pulling image \"terriajs/web-example-flask\""</span>
+<a name="rest_code_f0790200fa6b4598bfb6fba097c7e903-15"></a>
+<a name="rest_code_f0790200fa6b4598bfb6fba097c7e903-16"></a><span class="go">8m        8m        1         web-example-2455310000-fngpt   Pod          spec.containers{web-example-nginx}   Normal    Killing                {kubelet ip-10-0-0-184.ap-southeast-2.compute.internal}   Killing container with docker id 8b5e7cf9b505: Need to kill pod.</span>
+<a name="rest_code_f0790200fa6b4598bfb6fba097c7e903-17"></a><span class="go">8m        8m        1         web-example-2455310000-fngpt   Pod          spec.containers{web-example-flask}   Normal    Killing                {kubelet ip-10-0-0-184.ap-southeast-2.compute.internal}   Killing container with docker id 2f8dcbb94508: Need to kill pod.</span>
+<a name="rest_code_f0790200fa6b4598bfb6fba097c7e903-18"></a><span class="go">8m        8m        1         web-example-2455310000         ReplicaSet                                        Normal    SuccessfulDelete       {replicaset-controller }                                  Deleted pod: web-example-2455310000-fngpt</span>
+<a name="rest_code_f0790200fa6b4598bfb6fba097c7e903-19"></a><span class="go">8m        8m        1         web-example-2455310000         ReplicaSet                                        Normal    SuccessfulCreate       {replicaset-controller }                                  Created pod: web-example-2455310000-032qp</span>
+<a name="rest_code_f0790200fa6b4598bfb6fba097c7e903-20"></a><span class="go">8m        8m        1         web-example                    Deployment                                        Normal    ScalingReplicaSet      {deployment-controller }                                  Scaled up replica set web-example-2455310000 to 1</span>
+<a name="rest_code_f0790200fa6b4598bfb6fba097c7e903-21"></a><span class="go">8m        8m        1         web-example                    Service                                           Normal    DeletedLoadBalancer    {service-controller }                                     Deleted load balancer</span>
+<a name="rest_code_f0790200fa6b4598bfb6fba097c7e903-22"></a><span class="go">8m        8m        2         web-example                    Service                                           Normal    CreatingLoadBalancer   {service-controller }                                     Creating load balancer</span>
+<a name="rest_code_f0790200fa6b4598bfb6fba097c7e903-23"></a><span class="go">8m        8m        2         web-example                    Service                                           Normal    CreatedLoadBalancer    {service-controller }                                     Created load balancer</span>
 </pre>
-<pre class="code console"><a name="rest_code_47ef916fa770440a9481b077cd2e7e21-1"></a><span class="gp">$</span> kubectl delete -f web-example
-<a name="rest_code_47ef916fa770440a9481b077cd2e7e21-2"></a><span class="go">persistentvolumeclaim "tinydb-pv-claim" deleted</span>
-<a name="rest_code_47ef916fa770440a9481b077cd2e7e21-3"></a><span class="go">deployment "web-example" deleted</span>
-<a name="rest_code_47ef916fa770440a9481b077cd2e7e21-4"></a><span class="go">service "web-example" deleted</span>
-<a name="rest_code_47ef916fa770440a9481b077cd2e7e21-5"></a><span class="go">persistentvolume "aws-pv-001" deleted</span>
+<pre class="code console"><a name="rest_code_5593189b6d4f47e98e11acd64b79f8fc-1"></a><span class="gp">$</span> kubectl delete -f web-example
+<a name="rest_code_5593189b6d4f47e98e11acd64b79f8fc-2"></a><span class="go">persistentvolumeclaim "tinydb-pv-claim" deleted</span>
+<a name="rest_code_5593189b6d4f47e98e11acd64b79f8fc-3"></a><span class="go">deployment "web-example" deleted</span>
+<a name="rest_code_5593189b6d4f47e98e11acd64b79f8fc-4"></a><span class="go">service "web-example" deleted</span>
+<a name="rest_code_5593189b6d4f47e98e11acd64b79f8fc-5"></a><span class="go">persistentvolume "aws-pv-001" deleted</span>
 </pre>
-<pre class="code console"><a name="rest_code_624b2be9afcb4189b08e6c7b59791a27-1"></a><span class="gp">$</span> kubectl create secret docker-registry --help
-<a name="rest_code_624b2be9afcb4189b08e6c7b59791a27-2"></a><span class="go">Create a new secret for use with Docker registries.</span>
-<a name="rest_code_624b2be9afcb4189b08e6c7b59791a27-3"></a>
-<a name="rest_code_624b2be9afcb4189b08e6c7b59791a27-4"></a><span class="go">Dockercfg secrets are used to authenticate against Docker registries.</span>
-<a name="rest_code_624b2be9afcb4189b08e6c7b59791a27-5"></a>
-<a name="rest_code_624b2be9afcb4189b08e6c7b59791a27-6"></a><span class="go">When using the Docker command line to push images, you can authenticate to a given registry by running</span>
-<a name="rest_code_624b2be9afcb4189b08e6c7b59791a27-7"></a><span class="go">  'docker login DOCKER_REGISTRY_SERVER --username=DOCKER_USER --password=DOCKER_PASSWORD --email=DOCKER_EMAIL'.</span>
-<a name="rest_code_624b2be9afcb4189b08e6c7b59791a27-8"></a><span class="go">That produces a ~/.dockercfg file that is used by subsequent 'docker push' and 'docker pull' commands to</span>
-<a name="rest_code_624b2be9afcb4189b08e6c7b59791a27-9"></a><span class="go">authenticate to the registry.</span>
-<a name="rest_code_624b2be9afcb4189b08e6c7b59791a27-10"></a>
-<a name="rest_code_624b2be9afcb4189b08e6c7b59791a27-11"></a><span class="go">When creating applications, you may have a Docker registry that requires authentication.  In order for the</span>
-<a name="rest_code_624b2be9afcb4189b08e6c7b59791a27-12"></a><span class="go">nodes to pull images on your behalf, they have to have the credentials.  You can provide this information</span>
-<a name="rest_code_624b2be9afcb4189b08e6c7b59791a27-13"></a><span class="go">by creating a dockercfg secret and attaching it to your service account.</span>
-<a name="rest_code_624b2be9afcb4189b08e6c7b59791a27-14"></a>
-<a name="rest_code_624b2be9afcb4189b08e6c7b59791a27-15"></a><span class="go">Usage:</span>
-<a name="rest_code_624b2be9afcb4189b08e6c7b59791a27-16"></a><span class="go">  kubectl create secret docker-registry NAME --docker-username=user --docker-password=password --docker-email=email [--docker-server=string] [--from-literal=key1=value1] [--dry-run] [flags]</span>
-<a name="rest_code_624b2be9afcb4189b08e6c7b59791a27-17"></a>
-<a name="rest_code_624b2be9afcb4189b08e6c7b59791a27-18"></a><span class="go">Examples:</span>
-<a name="rest_code_624b2be9afcb4189b08e6c7b59791a27-19"></a><span class="gp">  #</span> If you don<span class="err">'</span>t already have a .dockercfg file, you can create a dockercfg secret directly by using:
-<a name="rest_code_624b2be9afcb4189b08e6c7b59791a27-20"></a><span class="gp">  $</span> kubectl create secret docker-registry my-secret --docker-server<span class="o">=</span>DOCKER_REGISTRY_SERVER --docker-username<span class="o">=</span>DOCKER_USER --docker-password<span class="o">=</span>DOCKER_PASSWORD --docker-email<span class="o">=</span>DOCKER_EMAIL
+<pre class="code console"><a name="rest_code_ea2ea03d3e0a4b0c9df14d105ee8b630-1"></a><span class="gp">$</span> kubectl create secret docker-registry --help
+<a name="rest_code_ea2ea03d3e0a4b0c9df14d105ee8b630-2"></a><span class="go">Create a new secret for use with Docker registries.</span>
+<a name="rest_code_ea2ea03d3e0a4b0c9df14d105ee8b630-3"></a>
+<a name="rest_code_ea2ea03d3e0a4b0c9df14d105ee8b630-4"></a><span class="go">Dockercfg secrets are used to authenticate against Docker registries.</span>
+<a name="rest_code_ea2ea03d3e0a4b0c9df14d105ee8b630-5"></a>
+<a name="rest_code_ea2ea03d3e0a4b0c9df14d105ee8b630-6"></a><span class="go">When using the Docker command line to push images, you can authenticate to a given registry by running</span>
+<a name="rest_code_ea2ea03d3e0a4b0c9df14d105ee8b630-7"></a><span class="go">  'docker login DOCKER_REGISTRY_SERVER --username=DOCKER_USER --password=DOCKER_PASSWORD --email=DOCKER_EMAIL'.</span>
+<a name="rest_code_ea2ea03d3e0a4b0c9df14d105ee8b630-8"></a><span class="go">That produces a ~/.dockercfg file that is used by subsequent 'docker push' and 'docker pull' commands to</span>
+<a name="rest_code_ea2ea03d3e0a4b0c9df14d105ee8b630-9"></a><span class="go">authenticate to the registry.</span>
+<a name="rest_code_ea2ea03d3e0a4b0c9df14d105ee8b630-10"></a>
+<a name="rest_code_ea2ea03d3e0a4b0c9df14d105ee8b630-11"></a><span class="go">When creating applications, you may have a Docker registry that requires authentication.  In order for the</span>
+<a name="rest_code_ea2ea03d3e0a4b0c9df14d105ee8b630-12"></a><span class="go">nodes to pull images on your behalf, they have to have the credentials.  You can provide this information</span>
+<a name="rest_code_ea2ea03d3e0a4b0c9df14d105ee8b630-13"></a><span class="go">by creating a dockercfg secret and attaching it to your service account.</span>
+<a name="rest_code_ea2ea03d3e0a4b0c9df14d105ee8b630-14"></a>
+<a name="rest_code_ea2ea03d3e0a4b0c9df14d105ee8b630-15"></a><span class="go">Usage:</span>
+<a name="rest_code_ea2ea03d3e0a4b0c9df14d105ee8b630-16"></a><span class="go">  kubectl create secret docker-registry NAME --docker-username=user --docker-password=password --docker-email=email [--docker-server=string] [--from-literal=key1=value1] [--dry-run] [flags]</span>
+<a name="rest_code_ea2ea03d3e0a4b0c9df14d105ee8b630-17"></a>
+<a name="rest_code_ea2ea03d3e0a4b0c9df14d105ee8b630-18"></a><span class="go">Examples:</span>
+<a name="rest_code_ea2ea03d3e0a4b0c9df14d105ee8b630-19"></a><span class="gp">  #</span> If you don<span class="err">'</span>t already have a .dockercfg file, you can create a dockercfg secret directly by using:
+<a name="rest_code_ea2ea03d3e0a4b0c9df14d105ee8b630-20"></a><span class="gp">  $</span> kubectl create secret docker-registry my-secret --docker-server<span class="o">=</span>DOCKER_REGISTRY_SERVER --docker-username<span class="o">=</span>DOCKER_USER --docker-password<span class="o">=</span>DOCKER_PASSWORD --docker-email<span class="o">=</span>DOCKER_EMAIL
 </pre>
-<pre class="code console"><a name="rest_code_4a341ba800674e62badfea939e791074-1"></a><span class="gp">$</span> kubectl create secret docker-registry docker-hub --docker-username<span class="o">=</span>REDACTED <span class="se">\</span>
-<a name="rest_code_4a341ba800674e62badfea939e791074-2"></a>&gt;                                                  --docker-password<span class="o">=</span>REDACTED <span class="se">\</span>
-<a name="rest_code_4a341ba800674e62badfea939e791074-3"></a>&gt;                                                  --docker-email<span class="o">=</span>REDACTED <span class="se">\</span>
-<a name="rest_code_4a341ba800674e62badfea939e791074-4"></a>&gt;                                                  --docker-server<span class="o">=</span><span class="s2">"https://index.docker.io/v1/"</span> <span class="se">\</span>
-<a name="rest_code_4a341ba800674e62badfea939e791074-5"></a>&gt;                                                  --dry-run --output<span class="o">=</span>yaml
-<a name="rest_code_4a341ba800674e62badfea939e791074-6"></a><span class="go">apiVersion: v1</span>
-<a name="rest_code_4a341ba800674e62badfea939e791074-7"></a><span class="go">data:</span>
-<a name="rest_code_4a341ba800674e62badfea939e791074-8"></a><span class="go">  .dockercfg: REDACTED</span>
-<a name="rest_code_4a341ba800674e62badfea939e791074-9"></a><span class="go">kind: Secret</span>
-<a name="rest_code_4a341ba800674e62badfea939e791074-10"></a><span class="go">metadata:</span>
-<a name="rest_code_4a341ba800674e62badfea939e791074-11"></a><span class="go">  creationTimestamp: null</span>
-<a name="rest_code_4a341ba800674e62badfea939e791074-12"></a><span class="go">  name: docker-hub</span>
-<a name="rest_code_4a341ba800674e62badfea939e791074-13"></a><span class="go">type: kubernetes.io/dockercfg</span>
+<pre class="code console"><a name="rest_code_aa3f1fb390774f5b9e1236f10e28afff-1"></a><span class="gp">$</span> kubectl create secret docker-registry docker-hub --docker-username<span class="o">=</span>REDACTED <span class="se">\</span>
+<a name="rest_code_aa3f1fb390774f5b9e1236f10e28afff-2"></a>&gt;                                                  --docker-password<span class="o">=</span>REDACTED <span class="se">\</span>
+<a name="rest_code_aa3f1fb390774f5b9e1236f10e28afff-3"></a>&gt;                                                  --docker-email<span class="o">=</span>REDACTED <span class="se">\</span>
+<a name="rest_code_aa3f1fb390774f5b9e1236f10e28afff-4"></a>&gt;                                                  --docker-server<span class="o">=</span><span class="s2">"https://index.docker.io/v1/"</span> <span class="se">\</span>
+<a name="rest_code_aa3f1fb390774f5b9e1236f10e28afff-5"></a>&gt;                                                  --dry-run --output<span class="o">=</span>yaml
+<a name="rest_code_aa3f1fb390774f5b9e1236f10e28afff-6"></a><span class="go">apiVersion: v1</span>
+<a name="rest_code_aa3f1fb390774f5b9e1236f10e28afff-7"></a><span class="go">data:</span>
+<a name="rest_code_aa3f1fb390774f5b9e1236f10e28afff-8"></a><span class="go">  .dockercfg: REDACTED</span>
+<a name="rest_code_aa3f1fb390774f5b9e1236f10e28afff-9"></a><span class="go">kind: Secret</span>
+<a name="rest_code_aa3f1fb390774f5b9e1236f10e28afff-10"></a><span class="go">metadata:</span>
+<a name="rest_code_aa3f1fb390774f5b9e1236f10e28afff-11"></a><span class="go">  creationTimestamp: null</span>
+<a name="rest_code_aa3f1fb390774f5b9e1236f10e28afff-12"></a><span class="go">  name: docker-hub</span>
+<a name="rest_code_aa3f1fb390774f5b9e1236f10e28afff-13"></a><span class="go">type: kubernetes.io/dockercfg</span>
 </pre>
-<pre class="code console"><a name="rest_code_80ec12946cfb4cd9a1ec887b9e79dfbb-1"></a><span class="gp">$</span> kubectl create secret docker-registry docker-hub --docker-username<span class="o">=</span>REDACTED <span class="se">\</span>
-<a name="rest_code_80ec12946cfb4cd9a1ec887b9e79dfbb-2"></a>&gt;                                                  --docker-password<span class="o">=</span>REDACTED <span class="se">\</span>
-<a name="rest_code_80ec12946cfb4cd9a1ec887b9e79dfbb-3"></a>&gt;                                                  --docker-email<span class="o">=</span>REDACTED <span class="se">\</span>
-<a name="rest_code_80ec12946cfb4cd9a1ec887b9e79dfbb-4"></a>&gt;                                                  --docker-server<span class="o">=</span><span class="s2">"https://index.docker.io/v1/"</span> <span class="se">\</span>
-<a name="rest_code_80ec12946cfb4cd9a1ec887b9e79dfbb-5"></a>secret <span class="s2">"docker-hub"</span> created
+<pre class="code console"><a name="rest_code_104f8ca3f2ce43a1bc144c34d3832a65-1"></a><span class="gp">$</span> kubectl create secret docker-registry docker-hub --docker-username<span class="o">=</span>REDACTED <span class="se">\</span>
+<a name="rest_code_104f8ca3f2ce43a1bc144c34d3832a65-2"></a>&gt;                                                  --docker-password<span class="o">=</span>REDACTED <span class="se">\</span>
+<a name="rest_code_104f8ca3f2ce43a1bc144c34d3832a65-3"></a>&gt;                                                  --docker-email<span class="o">=</span>REDACTED <span class="se">\</span>
+<a name="rest_code_104f8ca3f2ce43a1bc144c34d3832a65-4"></a>&gt;                                                  --docker-server<span class="o">=</span><span class="s2">"https://index.docker.io/v1/"</span> <span class="se">\</span>
+<a name="rest_code_104f8ca3f2ce43a1bc144c34d3832a65-5"></a>secret <span class="s2">"docker-hub"</span> created
 </pre>
-<pre class="code console"><a name="rest_code_09680b30e43543babb28beeba0bc2dc1-1"></a><span class="gp">$</span> kubectl get secrets
-<a name="rest_code_09680b30e43543babb28beeba0bc2dc1-2"></a><span class="go">NAME                  TYPE                                  DATA      AGE</span>
-<a name="rest_code_09680b30e43543babb28beeba0bc2dc1-3"></a><span class="go">default-token-24hxr   kubernetes.io/service-account-token   3         1d</span>
-<a name="rest_code_09680b30e43543babb28beeba0bc2dc1-4"></a><span class="go">docker-hub            kubernetes.io/dockercfg               1         1m</span>
+<pre class="code console"><a name="rest_code_b867a0dae291462aadd0036df0de7d91-1"></a><span class="gp">$</span> kubectl get secrets
+<a name="rest_code_b867a0dae291462aadd0036df0de7d91-2"></a><span class="go">NAME                  TYPE                                  DATA      AGE</span>
+<a name="rest_code_b867a0dae291462aadd0036df0de7d91-3"></a><span class="go">default-token-24hxr   kubernetes.io/service-account-token   3         1d</span>
+<a name="rest_code_b867a0dae291462aadd0036df0de7d91-4"></a><span class="go">docker-hub            kubernetes.io/dockercfg               1         1m</span>
 </pre>
-<pre class="code console"><a name="rest_code_2fe8a1dec60c48b39ef8b336ad085d3a-1"></a><span class="gp">$</span> kubectl describe secrets docker-hub
-<a name="rest_code_2fe8a1dec60c48b39ef8b336ad085d3a-2"></a><span class="go">Name:       docker-hub</span>
-<a name="rest_code_2fe8a1dec60c48b39ef8b336ad085d3a-3"></a><span class="go">Namespace:  default</span>
-<a name="rest_code_2fe8a1dec60c48b39ef8b336ad085d3a-4"></a><span class="go">Labels:     &lt;none&gt;</span>
-<a name="rest_code_2fe8a1dec60c48b39ef8b336ad085d3a-5"></a><span class="go">Annotations:    &lt;none&gt;</span>
-<a name="rest_code_2fe8a1dec60c48b39ef8b336ad085d3a-6"></a>
-<a name="rest_code_2fe8a1dec60c48b39ef8b336ad085d3a-7"></a><span class="go">Type:   kubernetes.io/dockercfg</span>
-<a name="rest_code_2fe8a1dec60c48b39ef8b336ad085d3a-8"></a>
-<a name="rest_code_2fe8a1dec60c48b39ef8b336ad085d3a-9"></a><span class="go">Data</span>
-<a name="rest_code_2fe8a1dec60c48b39ef8b336ad085d3a-10"></a><span class="go">====</span>
-<a name="rest_code_2fe8a1dec60c48b39ef8b336ad085d3a-11"></a><span class="go">.dockercfg: 135 bytes</span>
+<pre class="code console"><a name="rest_code_425e0c67da184e7eb02704be7ea1e630-1"></a><span class="gp">$</span> kubectl describe secrets docker-hub
+<a name="rest_code_425e0c67da184e7eb02704be7ea1e630-2"></a><span class="go">Name:       docker-hub</span>
+<a name="rest_code_425e0c67da184e7eb02704be7ea1e630-3"></a><span class="go">Namespace:  default</span>
+<a name="rest_code_425e0c67da184e7eb02704be7ea1e630-4"></a><span class="go">Labels:     &lt;none&gt;</span>
+<a name="rest_code_425e0c67da184e7eb02704be7ea1e630-5"></a><span class="go">Annotations:    &lt;none&gt;</span>
+<a name="rest_code_425e0c67da184e7eb02704be7ea1e630-6"></a>
+<a name="rest_code_425e0c67da184e7eb02704be7ea1e630-7"></a><span class="go">Type:   kubernetes.io/dockercfg</span>
+<a name="rest_code_425e0c67da184e7eb02704be7ea1e630-8"></a>
+<a name="rest_code_425e0c67da184e7eb02704be7ea1e630-9"></a><span class="go">Data</span>
+<a name="rest_code_425e0c67da184e7eb02704be7ea1e630-10"></a><span class="go">====</span>
+<a name="rest_code_425e0c67da184e7eb02704be7ea1e630-11"></a><span class="go">.dockercfg: 135 bytes</span>
 </pre>
-<pre class="code console"><a name="rest_code_ad3f5c241e6743da8300b2ab784301cd-1"></a><span class="gp">$</span> kubectl create -f web-example
-<a name="rest_code_ad3f5c241e6743da8300b2ab784301cd-2"></a><span class="go">persistentvolumeclaim "tinydb-pv-claim" created</span>
-<a name="rest_code_ad3f5c241e6743da8300b2ab784301cd-3"></a><span class="go">deployment "web-example" created</span>
-<a name="rest_code_ad3f5c241e6743da8300b2ab784301cd-4"></a><span class="go">service "web-example" created</span>
-<a name="rest_code_ad3f5c241e6743da8300b2ab784301cd-5"></a><span class="go">persistentvolume "aws-pv-001" created</span>
+<pre class="code console"><a name="rest_code_c4a73a8b7b104d87a4c33486be0db1c4-1"></a><span class="gp">$</span> kubectl create -f web-example
+<a name="rest_code_c4a73a8b7b104d87a4c33486be0db1c4-2"></a><span class="go">persistentvolumeclaim "tinydb-pv-claim" created</span>
+<a name="rest_code_c4a73a8b7b104d87a4c33486be0db1c4-3"></a><span class="go">deployment "web-example" created</span>
+<a name="rest_code_c4a73a8b7b104d87a4c33486be0db1c4-4"></a><span class="go">service "web-example" created</span>
+<a name="rest_code_c4a73a8b7b104d87a4c33486be0db1c4-5"></a><span class="go">persistentvolume "aws-pv-001" created</span>
 </pre>
-<pre class="code text"><a name="rest_code_afbb050339d748d4b163ddbb22b06c08-1"></a>$ kubectl get pods
-<a name="rest_code_afbb050339d748d4b163ddbb22b06c08-2"></a>NAME                           READY     STATUS    RESTARTS   AGE
-<a name="rest_code_afbb050339d748d4b163ddbb22b06c08-3"></a>web-example-2673741533-ydbrw   2/2       Running   0          1h
+<pre class="code text"><a name="rest_code_dac0886ce9c9499c8a481ad2f0baed89-1"></a>$ kubectl get pods
+<a name="rest_code_dac0886ce9c9499c8a481ad2f0baed89-2"></a>NAME                           READY     STATUS    RESTARTS   AGE
+<a name="rest_code_dac0886ce9c9499c8a481ad2f0baed89-3"></a>web-example-2673741533-ydbrw   2/2       Running   0          1h
 </pre>
 <ul class="simple">
 <li><a class="reference external" href="https://docs.docker.com/docker-hub/repos/#private-repositories">https://docs.docker.com/docker-hub/repos/#private-repositories</a></li>
@@ -246,7 +246,7 @@ $ kubectl get pods
                         <div id="disqus_thread"></div>
         <script>
         var disqus_shortname ="ltiao",
-            disqus_url="http://louistiao.me/posts/kubernetes-working-with-images-in-private-repos-on-docker-hub/",
+            disqus_url="http://tiao.io/posts/kubernetes-working-with-images-in-private-repos-on-docker-hub/",
         disqus_title="Kubernetes: Working with Images in Private Repos on Docker Hub",
         disqus_identifier="cache/content/posts/kubernetes-working-with-images-in-private-repos-on-docker-hub.html",
         disqus_config = function () {

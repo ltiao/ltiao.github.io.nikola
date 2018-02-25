@@ -7,42 +7,53 @@
 .. description: 
 .. type: text
 
-.. topic:: COMP9418 (Advanced Topics in Statistical Machine Learning) - `UNSW Sydney`_
+.. contents:: Courses
 
-   In Semester 2 2017, I was a teaching assistant for COMP9418_: Advanced Topics 
-   in Statistical Machine Learning, a brand new course created and taught by 
-   the brilliant `Edwin Bonilla`_. 
+Advanced Topics in Statistical Machine Learning (COMP9418) - `UNSW Sydney`_
+---------------------------------------------------------------------------
 
-   The course has a primary focus on probabilistic machine learning methods, 
-   covering the topics of exact and approximate inference in directed and 
-   undirected probabilistic graphical models - continuous latent variable 
-   models, structured prediction models, and non-parametric models based on 
-   Gaussian processes. 
+In Semester 2 2017, I was a teaching assistant for "Advanced Topics in 
+Statistical Machine Learning" (COMP9418_), a brand new course created and taught 
+by the brilliant `Edwin Bonilla`_. 
+The course has a primary focus on probabilistic machine learning methods, 
+covering the topics of exact and approximate inference in directed and 
+undirected probabilistic graphical models - continuous latent variable 
+models, structured prediction models, and non-parametric models based on 
+Gaussian processes. 
 
-   There was major emphasis on maintaining a good balance between theory and 
-   practice, and my primary responsibility was creating lab exercises to 
-   help students gain hands-on experience in applying these methods on 
-   real-world data with the current tools and libraries. 
-   The labs were purely implemented in Python, and relied heavily on the Python 
-   scientific computing and data analysis stack (NumPy, SciPy, Matplotlib, 
-   Seaborn, Pandas, IPython/Jupyter notebooks), and the popular machine 
-   learning libraries scikit-learn and TensorFlow. 
+.. figure:: ../images/cs9418-lab-screenshots/gp-regression-title.png
+   :align: center
 
-   Students were given the chance to experiment with a broad range of methods 
-   on various problems, such as Markov chain Monte Carlo (MCMC) for Bayesian 
-   logistic regression, probabilistic PCA (PPCA), factor analysis (FA) and 
-   independent component analysis (ICA) for dimensionality reduction, hidden 
-   Markov models (HMMs) for speech recognition, conditional random fields (CRFs) 
-   for named-entity recognition, and Gaussian processes (GPs) for regression and
-   classification.
+   Lab exercise on Gaussian Process Regression, running in `JupyterLab`_. 
 
-   .. .. slides::   
+This course has a major emphasis on maintaining a good balance between theory 
+and practice. My primary responsibility was to create lab exercises that 
+aid students in gaining hands-on experience with these methods, specifically
+applying them to real-world data using the most current tools and libraries. 
+The labs were Python-based, and relied heavily on the Python scientific 
+computing and data analysis stack (NumPy_, SciPy_, Matplotlib_, Seaborn_, 
+Pandas_, `IPython/Jupyter notebooks`_), and the popular machine learning 
+libraries `scikit-learn`_ and TensorFlow_. 
 
-   ..    /galleries/example-notebook.png
-   ..    /galleries/Jupyter-2.png
-   ..    /galleries/jupyterpreview.png
-   
+Students were given the chance to experiment with a broad range of methods 
+on various problems, such as Markov chain Monte Carlo (MCMC) for Bayesian 
+logistic regression, probabilistic PCA (PPCA), factor analysis (FA) and 
+independent component analysis (ICA) for dimensionality reduction, hidden 
+Markov models (HMMs) for speech recognition, conditional random fields (CRFs) 
+for named-entity recognition, and Gaussian processes (GPs) for regression and
+classification.
 
+-----
+
+.. _NumPy: http://www.numpy.org/
+.. _SciPy: https://www.scipy.org/
+.. _Matplotlib: https://matplotlib.org/
+.. _Seaborn: https://seaborn.pydata.org/
+.. _Pandas: https://pandas.pydata.org/
+.. _IPython/Jupyter notebooks: http://jupyter.org/
+.. _scikit-learn: http://scikit-learn.org/
+.. _TensorFlow: https://www.tensorflow.org/
+.. _JupyterLab: https://blog.jupyter.org/jupyterlab-is-ready-for-users-5a6f039b8906
 .. _COMP9418: http://www.handbook.unsw.edu.au/postgraduate/courses/2017/COMP9418.html
 .. _UNSW Sydney: https://www.unsw.edu.au/
 .. _Edwin Bonilla: http://ebonilla.github.io/

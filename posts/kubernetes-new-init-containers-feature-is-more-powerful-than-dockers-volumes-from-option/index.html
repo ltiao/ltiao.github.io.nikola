@@ -14,7 +14,7 @@ article: http://ogp.me/ns/article#
 <meta name="theme-color" content="#5670d4">
 <meta name="generator" content="Nikola (getnikola.com)">
 <link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
-<link rel="canonical" href="http://louistiao.me/posts/kubernetes-new-init-containers-feature-is-more-powerful-than-dockers-volumes-from-option/">
+<link rel="canonical" href="http://tiao.io/posts/kubernetes-new-init-containers-feature-is-more-powerful-than-dockers-volumes-from-option/">
 <link rel="icon" href="../../favicon_16x16.ico" sizes="16x16">
 <link rel="icon" href="../../favicon_32x32.ico" sizes="32x32">
 <link rel="icon" href="../../favicon_256x256.ico" sizes="256x256">
@@ -46,7 +46,7 @@ MathJax.Hub.Config({
 <meta name="robots" content="noindex">
 <meta property="og:site_name" content="Louis Tiao">
 <meta property="og:title" content="Kubernetes' new init containers feature is more powerful than Docker's">
-<meta property="og:url" content="http://louistiao.me/posts/kubernetes-new-init-containers-feature-is-more-powerful-than-dockers-volumes-from-option/">
+<meta property="og:url" content="http://tiao.io/posts/kubernetes-new-init-containers-feature-is-more-powerful-than-dockers-volumes-from-option/">
 <meta property="og:description" content="Often, containerized applications depend on a list of initialization steps to be
 performed before they can carry out their functions. In fact, most non-trivial
 applications would. These steps may incl">
@@ -79,7 +79,7 @@ applications would. These steps may incl">
 
           
         </li>
-</ul></nav><a href="http://louistiao.me/">
+</ul></nav><a href="http://tiao.io/">
 
         <h3 class="text-muted">
           <span id="blog-title">Louis Tiao</span>
@@ -126,7 +126,7 @@ applications would. These steps may include such things as downloading and
 seeding applications with data, fetching remote configurations or pre-loading
 existing database snapshots.</p>
 <p>Consider the simple case of running a <tt class="docutils literal">nginx</tt> container with the official Docker image:</p>
-<pre class="code console"><a name="rest_code_3b8e926504f04fa6bdff03e5cdce1c3f-1"></a><span class="gp">$</span> docker run -d -p <span class="m">80</span>:80 nginx
+<pre class="code console"><a name="rest_code_9d637d5a00004063817f842801849009-1"></a><span class="gp">$</span> docker run -d -p <span class="m">80</span>:80 nginx
 </pre>
 <p>This will host the generic <tt class="docutils literal">nginx</tt> welcome page at <tt class="docutils literal"><span class="pre">http://$(docker-machine</span> <span class="pre">ip):80/</span></tt>.
 But what if what if we wanted a quick way to host some static files or pictures
@@ -144,37 +144,37 @@ Visit <a class="reference external" href="https://www.reddit.com/r/duck/">/r/duc
 <div class="section" id="using-docker-compose-volumes-from">
 <h2>Using Docker (Compose) 'volumes from'</h2>
 <p>Using Docker Compose, this looks like:</p>
-<pre class="code yaml"><a name="rest_code_1c55510c066c4a1da89cf46235b22056-1"></a><span class="l l-Scalar l-Scalar-Plain">version</span><span class="p p-Indicator">:</span> <span class="s">'2'</span>
-<a name="rest_code_1c55510c066c4a1da89cf46235b22056-2"></a>
-<a name="rest_code_1c55510c066c4a1da89cf46235b22056-3"></a><span class="l l-Scalar l-Scalar-Plain">services</span><span class="p p-Indicator">:</span>
-<a name="rest_code_1c55510c066c4a1da89cf46235b22056-4"></a>
-<a name="rest_code_1c55510c066c4a1da89cf46235b22056-5"></a>  <span class="l l-Scalar l-Scalar-Plain">init</span><span class="p p-Indicator">:</span>
-<a name="rest_code_1c55510c066c4a1da89cf46235b22056-6"></a>    <span class="l l-Scalar l-Scalar-Plain">image</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">busybox</span>
-<a name="rest_code_1c55510c066c4a1da89cf46235b22056-7"></a>    <span class="l l-Scalar l-Scalar-Plain">command</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">wget -O /usr/share/nginx/html/duck.jpg http://i.imgur.com/Yy3hrM1.jpg</span>
-<a name="rest_code_1c55510c066c4a1da89cf46235b22056-8"></a>    <span class="l l-Scalar l-Scalar-Plain">volumes</span><span class="p p-Indicator">:</span>
-<a name="rest_code_1c55510c066c4a1da89cf46235b22056-9"></a>      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">/usr/share/nginx/html</span>
-<a name="rest_code_1c55510c066c4a1da89cf46235b22056-10"></a>
-<a name="rest_code_1c55510c066c4a1da89cf46235b22056-11"></a>  <span class="l l-Scalar l-Scalar-Plain">nginx</span><span class="p p-Indicator">:</span>
-<a name="rest_code_1c55510c066c4a1da89cf46235b22056-12"></a>    <span class="l l-Scalar l-Scalar-Plain">image</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">nginx</span>
-<a name="rest_code_1c55510c066c4a1da89cf46235b22056-13"></a>    <span class="l l-Scalar l-Scalar-Plain">depends_on</span><span class="p p-Indicator">:</span>
-<a name="rest_code_1c55510c066c4a1da89cf46235b22056-14"></a>      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">init</span>
-<a name="rest_code_1c55510c066c4a1da89cf46235b22056-15"></a>    <span class="l l-Scalar l-Scalar-Plain">volumes_from</span><span class="p p-Indicator">:</span>
-<a name="rest_code_1c55510c066c4a1da89cf46235b22056-16"></a>      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">init</span>
-<a name="rest_code_1c55510c066c4a1da89cf46235b22056-17"></a>    <span class="l l-Scalar l-Scalar-Plain">ports</span><span class="p p-Indicator">:</span>
-<a name="rest_code_1c55510c066c4a1da89cf46235b22056-18"></a>      <span class="p p-Indicator">-</span> <span class="s">"80:80"</span>
+<pre class="code yaml"><a name="rest_code_b7fdb1dbd5fe4709845f3c252e5724bd-1"></a><span class="l l-Scalar l-Scalar-Plain">version</span><span class="p p-Indicator">:</span> <span class="s">'2'</span>
+<a name="rest_code_b7fdb1dbd5fe4709845f3c252e5724bd-2"></a>
+<a name="rest_code_b7fdb1dbd5fe4709845f3c252e5724bd-3"></a><span class="l l-Scalar l-Scalar-Plain">services</span><span class="p p-Indicator">:</span>
+<a name="rest_code_b7fdb1dbd5fe4709845f3c252e5724bd-4"></a>
+<a name="rest_code_b7fdb1dbd5fe4709845f3c252e5724bd-5"></a>  <span class="l l-Scalar l-Scalar-Plain">init</span><span class="p p-Indicator">:</span>
+<a name="rest_code_b7fdb1dbd5fe4709845f3c252e5724bd-6"></a>    <span class="l l-Scalar l-Scalar-Plain">image</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">busybox</span>
+<a name="rest_code_b7fdb1dbd5fe4709845f3c252e5724bd-7"></a>    <span class="l l-Scalar l-Scalar-Plain">command</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">wget -O /usr/share/nginx/html/duck.jpg http://i.imgur.com/Yy3hrM1.jpg</span>
+<a name="rest_code_b7fdb1dbd5fe4709845f3c252e5724bd-8"></a>    <span class="l l-Scalar l-Scalar-Plain">volumes</span><span class="p p-Indicator">:</span>
+<a name="rest_code_b7fdb1dbd5fe4709845f3c252e5724bd-9"></a>      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">/usr/share/nginx/html</span>
+<a name="rest_code_b7fdb1dbd5fe4709845f3c252e5724bd-10"></a>
+<a name="rest_code_b7fdb1dbd5fe4709845f3c252e5724bd-11"></a>  <span class="l l-Scalar l-Scalar-Plain">nginx</span><span class="p p-Indicator">:</span>
+<a name="rest_code_b7fdb1dbd5fe4709845f3c252e5724bd-12"></a>    <span class="l l-Scalar l-Scalar-Plain">image</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">nginx</span>
+<a name="rest_code_b7fdb1dbd5fe4709845f3c252e5724bd-13"></a>    <span class="l l-Scalar l-Scalar-Plain">depends_on</span><span class="p p-Indicator">:</span>
+<a name="rest_code_b7fdb1dbd5fe4709845f3c252e5724bd-14"></a>      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">init</span>
+<a name="rest_code_b7fdb1dbd5fe4709845f3c252e5724bd-15"></a>    <span class="l l-Scalar l-Scalar-Plain">volumes_from</span><span class="p p-Indicator">:</span>
+<a name="rest_code_b7fdb1dbd5fe4709845f3c252e5724bd-16"></a>      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">init</span>
+<a name="rest_code_b7fdb1dbd5fe4709845f3c252e5724bd-17"></a>    <span class="l l-Scalar l-Scalar-Plain">ports</span><span class="p p-Indicator">:</span>
+<a name="rest_code_b7fdb1dbd5fe4709845f3c252e5724bd-18"></a>      <span class="p p-Indicator">-</span> <span class="s">"80:80"</span>
 </pre>
 <p>The <tt class="docutils literal">volumes_from</tt> option (<tt class="docutils literal"><span class="pre">--volumes-from</span></tt> in <tt class="docutils literal">docker run</tt>) mounts the
 directories from the specified data volume containers (in this case <tt class="docutils literal">init</tt>),
 which downloads and saves the image to <tt class="docutils literal">/usr/share/nginx/html/</tt>.</p>
-<pre class="code console"><a name="rest_code_953a830b527f4e40b5e183a15c9c44bf-1"></a><span class="gp">$</span> docker-compose up
-<a name="rest_code_953a830b527f4e40b5e183a15c9c44bf-2"></a><span class="go">Starting desktop_init_1</span>
-<a name="rest_code_953a830b527f4e40b5e183a15c9c44bf-3"></a><span class="go">Starting desktop_nginx_1</span>
-<a name="rest_code_953a830b527f4e40b5e183a15c9c44bf-4"></a><span class="go">Attaching to desktop_init_1, desktop_nginx_1</span>
-<a name="rest_code_953a830b527f4e40b5e183a15c9c44bf-5"></a><span class="go">init_1   | Connecting to i.imgur.com (103.245.222.193:80)</span>
-<a name="rest_code_953a830b527f4e40b5e183a15c9c44bf-6"></a><span class="go">init_1   | duck.jpg             100% |*******************************|   134k  0:00:00 ETA</span>
-<a name="rest_code_953a830b527f4e40b5e183a15c9c44bf-7"></a><span class="go">init_1   |</span>
-<a name="rest_code_953a830b527f4e40b5e183a15c9c44bf-8"></a><span class="go">desktop_init_1 exited with code 0</span>
-<a name="rest_code_953a830b527f4e40b5e183a15c9c44bf-9"></a><span class="go">nginx_1  | 192.168.99.1 - - [25/Aug/2016:07:08:57 +0000] "GET /duck.jpg HTTP/1.1" 200 137479 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.106 Safari/537.36" "-"</span>
+<pre class="code console"><a name="rest_code_db9c52d6fc304a8899fc52834fbcf881-1"></a><span class="gp">$</span> docker-compose up
+<a name="rest_code_db9c52d6fc304a8899fc52834fbcf881-2"></a><span class="go">Starting desktop_init_1</span>
+<a name="rest_code_db9c52d6fc304a8899fc52834fbcf881-3"></a><span class="go">Starting desktop_nginx_1</span>
+<a name="rest_code_db9c52d6fc304a8899fc52834fbcf881-4"></a><span class="go">Attaching to desktop_init_1, desktop_nginx_1</span>
+<a name="rest_code_db9c52d6fc304a8899fc52834fbcf881-5"></a><span class="go">init_1   | Connecting to i.imgur.com (103.245.222.193:80)</span>
+<a name="rest_code_db9c52d6fc304a8899fc52834fbcf881-6"></a><span class="go">init_1   | duck.jpg             100% |*******************************|   134k  0:00:00 ETA</span>
+<a name="rest_code_db9c52d6fc304a8899fc52834fbcf881-7"></a><span class="go">init_1   |</span>
+<a name="rest_code_db9c52d6fc304a8899fc52834fbcf881-8"></a><span class="go">desktop_init_1 exited with code 0</span>
+<a name="rest_code_db9c52d6fc304a8899fc52834fbcf881-9"></a><span class="go">nginx_1  | 192.168.99.1 - - [25/Aug/2016:07:08:57 +0000] "GET /duck.jpg HTTP/1.1" 200 137479 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.106 Safari/537.36" "-"</span>
 </pre>
 <p>You should now be able to see said ducks at <tt class="docutils literal"><span class="pre">http://$(docker-machine</span> <span class="pre">ip):80/duck.jpg</span></tt>.</p>
 <img alt="../../images/docker-nginx-duck.png" class="align-center" src="../../images/docker-nginx-duck.png">
@@ -185,49 +185,49 @@ which downloads and saves the image to <tt class="docutils literal">/usr/share/n
 <p><tt class="docutils literal"><span class="pre">pod.alpha.kubernetes.io/init-containers</span></tt></p>
 <div class="section" id="nginx-deployment-yaml">
 <h3>nginx-deployment.yaml</h3>
-<pre class="code yaml"><a name="rest_code_6fb7f52448024832b8ac9293be53c434-1"></a><span class="l l-Scalar l-Scalar-Plain">apiVersion</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">extensions/v1beta1</span>
-<a name="rest_code_6fb7f52448024832b8ac9293be53c434-2"></a><span class="l l-Scalar l-Scalar-Plain">kind</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">Deployment</span>
-<a name="rest_code_6fb7f52448024832b8ac9293be53c434-3"></a><span class="l l-Scalar l-Scalar-Plain">metadata</span><span class="p p-Indicator">:</span>
-<a name="rest_code_6fb7f52448024832b8ac9293be53c434-4"></a>  <span class="l l-Scalar l-Scalar-Plain">labels</span><span class="p p-Indicator">:</span>
-<a name="rest_code_6fb7f52448024832b8ac9293be53c434-5"></a>    <span class="l l-Scalar l-Scalar-Plain">run</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">nginx</span>
-<a name="rest_code_6fb7f52448024832b8ac9293be53c434-6"></a>  <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">nginx</span>
-<a name="rest_code_6fb7f52448024832b8ac9293be53c434-7"></a><span class="l l-Scalar l-Scalar-Plain">spec</span><span class="p p-Indicator">:</span>
-<a name="rest_code_6fb7f52448024832b8ac9293be53c434-8"></a>  <span class="l l-Scalar l-Scalar-Plain">replicas</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
-<a name="rest_code_6fb7f52448024832b8ac9293be53c434-9"></a>  <span class="l l-Scalar l-Scalar-Plain">selector</span><span class="p p-Indicator">:</span>
-<a name="rest_code_6fb7f52448024832b8ac9293be53c434-10"></a>    <span class="l l-Scalar l-Scalar-Plain">matchLabels</span><span class="p p-Indicator">:</span>
-<a name="rest_code_6fb7f52448024832b8ac9293be53c434-11"></a>      <span class="l l-Scalar l-Scalar-Plain">run</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">nginx</span>
-<a name="rest_code_6fb7f52448024832b8ac9293be53c434-12"></a>  <span class="l l-Scalar l-Scalar-Plain">template</span><span class="p p-Indicator">:</span>
-<a name="rest_code_6fb7f52448024832b8ac9293be53c434-13"></a>    <span class="l l-Scalar l-Scalar-Plain">metadata</span><span class="p p-Indicator">:</span>
-<a name="rest_code_6fb7f52448024832b8ac9293be53c434-14"></a>      <span class="l l-Scalar l-Scalar-Plain">labels</span><span class="p p-Indicator">:</span>
-<a name="rest_code_6fb7f52448024832b8ac9293be53c434-15"></a>        <span class="l l-Scalar l-Scalar-Plain">run</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">nginx</span>
-<a name="rest_code_6fb7f52448024832b8ac9293be53c434-16"></a>      <span class="l l-Scalar l-Scalar-Plain">annotations</span><span class="p p-Indicator">:</span>
-<a name="rest_code_6fb7f52448024832b8ac9293be53c434-17"></a>        <span class="l l-Scalar l-Scalar-Plain">pod.alpha.kubernetes.io/init-containers</span><span class="p p-Indicator">:</span> <span class="s">'[</span>
-<a name="rest_code_6fb7f52448024832b8ac9293be53c434-18"></a>            <span class="s">{</span>
-<a name="rest_code_6fb7f52448024832b8ac9293be53c434-19"></a>                <span class="s">"name":</span><span class="nv"> </span><span class="s">"init",</span>
-<a name="rest_code_6fb7f52448024832b8ac9293be53c434-20"></a>                <span class="s">"image":</span><span class="nv"> </span><span class="s">"busybox",</span>
-<a name="rest_code_6fb7f52448024832b8ac9293be53c434-21"></a>                <span class="s">"command":</span><span class="nv"> </span><span class="s">[</span>
-<a name="rest_code_6fb7f52448024832b8ac9293be53c434-22"></a>                  <span class="s">"wget",</span><span class="nv"> </span><span class="s">"-O",</span><span class="nv"> </span><span class="s">"/data/duck.jpg",</span><span class="nv"> </span><span class="s">"http://i.imgur.com/Yy3hrM1.jpg"</span>
-<a name="rest_code_6fb7f52448024832b8ac9293be53c434-23"></a>                <span class="s">],</span>
-<a name="rest_code_6fb7f52448024832b8ac9293be53c434-24"></a>                <span class="s">"volumeMounts":</span><span class="nv"> </span><span class="s">[</span>
-<a name="rest_code_6fb7f52448024832b8ac9293be53c434-25"></a>                    <span class="s">{</span>
-<a name="rest_code_6fb7f52448024832b8ac9293be53c434-26"></a>                        <span class="s">"name":</span><span class="nv"> </span><span class="s">"data",</span>
-<a name="rest_code_6fb7f52448024832b8ac9293be53c434-27"></a>                        <span class="s">"mountPath":</span><span class="nv"> </span><span class="s">"/data"</span>
-<a name="rest_code_6fb7f52448024832b8ac9293be53c434-28"></a>                    <span class="s">}</span>
-<a name="rest_code_6fb7f52448024832b8ac9293be53c434-29"></a>                <span class="s">]</span>
-<a name="rest_code_6fb7f52448024832b8ac9293be53c434-30"></a>            <span class="s">}</span>
-<a name="rest_code_6fb7f52448024832b8ac9293be53c434-31"></a>        <span class="s">]'</span>
-<a name="rest_code_6fb7f52448024832b8ac9293be53c434-32"></a>    <span class="l l-Scalar l-Scalar-Plain">spec</span><span class="p p-Indicator">:</span>
-<a name="rest_code_6fb7f52448024832b8ac9293be53c434-33"></a>      <span class="l l-Scalar l-Scalar-Plain">containers</span><span class="p p-Indicator">:</span>
-<a name="rest_code_6fb7f52448024832b8ac9293be53c434-34"></a>      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">image</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">nginx</span>
-<a name="rest_code_6fb7f52448024832b8ac9293be53c434-35"></a>        <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">nginx</span>
-<a name="rest_code_6fb7f52448024832b8ac9293be53c434-36"></a>        <span class="l l-Scalar l-Scalar-Plain">ports</span><span class="p p-Indicator">:</span>
-<a name="rest_code_6fb7f52448024832b8ac9293be53c434-37"></a>        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">containerPort</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">80</span>
-<a name="rest_code_6fb7f52448024832b8ac9293be53c434-38"></a>        <span class="l l-Scalar l-Scalar-Plain">volumeMounts</span><span class="p p-Indicator">:</span>
-<a name="rest_code_6fb7f52448024832b8ac9293be53c434-39"></a>        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">data</span>
-<a name="rest_code_6fb7f52448024832b8ac9293be53c434-40"></a>          <span class="l l-Scalar l-Scalar-Plain">mountPath</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">/usr/share/nginx/html</span>
-<a name="rest_code_6fb7f52448024832b8ac9293be53c434-41"></a>      <span class="l l-Scalar l-Scalar-Plain">volumes</span><span class="p p-Indicator">:</span>
-<a name="rest_code_6fb7f52448024832b8ac9293be53c434-42"></a>      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">data</span>
-<a name="rest_code_6fb7f52448024832b8ac9293be53c434-43"></a>        <span class="l l-Scalar l-Scalar-Plain">emptyDir</span><span class="p p-Indicator">:</span>  <span class="p p-Indicator">{}</span>
+<pre class="code yaml"><a name="rest_code_78754c10257241cd9e1a55f3d553d4b3-1"></a><span class="l l-Scalar l-Scalar-Plain">apiVersion</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">extensions/v1beta1</span>
+<a name="rest_code_78754c10257241cd9e1a55f3d553d4b3-2"></a><span class="l l-Scalar l-Scalar-Plain">kind</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">Deployment</span>
+<a name="rest_code_78754c10257241cd9e1a55f3d553d4b3-3"></a><span class="l l-Scalar l-Scalar-Plain">metadata</span><span class="p p-Indicator">:</span>
+<a name="rest_code_78754c10257241cd9e1a55f3d553d4b3-4"></a>  <span class="l l-Scalar l-Scalar-Plain">labels</span><span class="p p-Indicator">:</span>
+<a name="rest_code_78754c10257241cd9e1a55f3d553d4b3-5"></a>    <span class="l l-Scalar l-Scalar-Plain">run</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">nginx</span>
+<a name="rest_code_78754c10257241cd9e1a55f3d553d4b3-6"></a>  <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">nginx</span>
+<a name="rest_code_78754c10257241cd9e1a55f3d553d4b3-7"></a><span class="l l-Scalar l-Scalar-Plain">spec</span><span class="p p-Indicator">:</span>
+<a name="rest_code_78754c10257241cd9e1a55f3d553d4b3-8"></a>  <span class="l l-Scalar l-Scalar-Plain">replicas</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
+<a name="rest_code_78754c10257241cd9e1a55f3d553d4b3-9"></a>  <span class="l l-Scalar l-Scalar-Plain">selector</span><span class="p p-Indicator">:</span>
+<a name="rest_code_78754c10257241cd9e1a55f3d553d4b3-10"></a>    <span class="l l-Scalar l-Scalar-Plain">matchLabels</span><span class="p p-Indicator">:</span>
+<a name="rest_code_78754c10257241cd9e1a55f3d553d4b3-11"></a>      <span class="l l-Scalar l-Scalar-Plain">run</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">nginx</span>
+<a name="rest_code_78754c10257241cd9e1a55f3d553d4b3-12"></a>  <span class="l l-Scalar l-Scalar-Plain">template</span><span class="p p-Indicator">:</span>
+<a name="rest_code_78754c10257241cd9e1a55f3d553d4b3-13"></a>    <span class="l l-Scalar l-Scalar-Plain">metadata</span><span class="p p-Indicator">:</span>
+<a name="rest_code_78754c10257241cd9e1a55f3d553d4b3-14"></a>      <span class="l l-Scalar l-Scalar-Plain">labels</span><span class="p p-Indicator">:</span>
+<a name="rest_code_78754c10257241cd9e1a55f3d553d4b3-15"></a>        <span class="l l-Scalar l-Scalar-Plain">run</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">nginx</span>
+<a name="rest_code_78754c10257241cd9e1a55f3d553d4b3-16"></a>      <span class="l l-Scalar l-Scalar-Plain">annotations</span><span class="p p-Indicator">:</span>
+<a name="rest_code_78754c10257241cd9e1a55f3d553d4b3-17"></a>        <span class="l l-Scalar l-Scalar-Plain">pod.alpha.kubernetes.io/init-containers</span><span class="p p-Indicator">:</span> <span class="s">'[</span>
+<a name="rest_code_78754c10257241cd9e1a55f3d553d4b3-18"></a>            <span class="s">{</span>
+<a name="rest_code_78754c10257241cd9e1a55f3d553d4b3-19"></a>                <span class="s">"name":</span><span class="nv"> </span><span class="s">"init",</span>
+<a name="rest_code_78754c10257241cd9e1a55f3d553d4b3-20"></a>                <span class="s">"image":</span><span class="nv"> </span><span class="s">"busybox",</span>
+<a name="rest_code_78754c10257241cd9e1a55f3d553d4b3-21"></a>                <span class="s">"command":</span><span class="nv"> </span><span class="s">[</span>
+<a name="rest_code_78754c10257241cd9e1a55f3d553d4b3-22"></a>                  <span class="s">"wget",</span><span class="nv"> </span><span class="s">"-O",</span><span class="nv"> </span><span class="s">"/data/duck.jpg",</span><span class="nv"> </span><span class="s">"http://i.imgur.com/Yy3hrM1.jpg"</span>
+<a name="rest_code_78754c10257241cd9e1a55f3d553d4b3-23"></a>                <span class="s">],</span>
+<a name="rest_code_78754c10257241cd9e1a55f3d553d4b3-24"></a>                <span class="s">"volumeMounts":</span><span class="nv"> </span><span class="s">[</span>
+<a name="rest_code_78754c10257241cd9e1a55f3d553d4b3-25"></a>                    <span class="s">{</span>
+<a name="rest_code_78754c10257241cd9e1a55f3d553d4b3-26"></a>                        <span class="s">"name":</span><span class="nv"> </span><span class="s">"data",</span>
+<a name="rest_code_78754c10257241cd9e1a55f3d553d4b3-27"></a>                        <span class="s">"mountPath":</span><span class="nv"> </span><span class="s">"/data"</span>
+<a name="rest_code_78754c10257241cd9e1a55f3d553d4b3-28"></a>                    <span class="s">}</span>
+<a name="rest_code_78754c10257241cd9e1a55f3d553d4b3-29"></a>                <span class="s">]</span>
+<a name="rest_code_78754c10257241cd9e1a55f3d553d4b3-30"></a>            <span class="s">}</span>
+<a name="rest_code_78754c10257241cd9e1a55f3d553d4b3-31"></a>        <span class="s">]'</span>
+<a name="rest_code_78754c10257241cd9e1a55f3d553d4b3-32"></a>    <span class="l l-Scalar l-Scalar-Plain">spec</span><span class="p p-Indicator">:</span>
+<a name="rest_code_78754c10257241cd9e1a55f3d553d4b3-33"></a>      <span class="l l-Scalar l-Scalar-Plain">containers</span><span class="p p-Indicator">:</span>
+<a name="rest_code_78754c10257241cd9e1a55f3d553d4b3-34"></a>      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">image</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">nginx</span>
+<a name="rest_code_78754c10257241cd9e1a55f3d553d4b3-35"></a>        <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">nginx</span>
+<a name="rest_code_78754c10257241cd9e1a55f3d553d4b3-36"></a>        <span class="l l-Scalar l-Scalar-Plain">ports</span><span class="p p-Indicator">:</span>
+<a name="rest_code_78754c10257241cd9e1a55f3d553d4b3-37"></a>        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">containerPort</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">80</span>
+<a name="rest_code_78754c10257241cd9e1a55f3d553d4b3-38"></a>        <span class="l l-Scalar l-Scalar-Plain">volumeMounts</span><span class="p p-Indicator">:</span>
+<a name="rest_code_78754c10257241cd9e1a55f3d553d4b3-39"></a>        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">data</span>
+<a name="rest_code_78754c10257241cd9e1a55f3d553d4b3-40"></a>          <span class="l l-Scalar l-Scalar-Plain">mountPath</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">/usr/share/nginx/html</span>
+<a name="rest_code_78754c10257241cd9e1a55f3d553d4b3-41"></a>      <span class="l l-Scalar l-Scalar-Plain">volumes</span><span class="p p-Indicator">:</span>
+<a name="rest_code_78754c10257241cd9e1a55f3d553d4b3-42"></a>      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">data</span>
+<a name="rest_code_78754c10257241cd9e1a55f3d553d4b3-43"></a>        <span class="l l-Scalar l-Scalar-Plain">emptyDir</span><span class="p p-Indicator">:</span>  <span class="p p-Indicator">{}</span>
 </pre>
 </div>
 </div>
@@ -244,7 +244,7 @@ which downloads and saves the image to <tt class="docutils literal">/usr/share/n
                         <div id="disqus_thread"></div>
         <script>
         var disqus_shortname ="ltiao",
-            disqus_url="http://louistiao.me/posts/kubernetes-new-init-containers-feature-is-more-powerful-than-dockers-volumes-from-option/",
+            disqus_url="http://tiao.io/posts/kubernetes-new-init-containers-feature-is-more-powerful-than-dockers-volumes-from-option/",
         disqus_title="Kubernetes' new init containers feature is more powerful than Docker's --volumes-from option",
         disqus_identifier="cache/content/posts/kubernetes-new-init-containers-feature-is-more-powerful-than-dockers-volumes-from-option.html",
         disqus_config = function () {

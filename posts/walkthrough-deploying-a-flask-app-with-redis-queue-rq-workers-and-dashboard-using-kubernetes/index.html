@@ -14,7 +14,7 @@ article: http://ogp.me/ns/article#
 <meta name="theme-color" content="#5670d4">
 <meta name="generator" content="Nikola (getnikola.com)">
 <link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
-<link rel="canonical" href="http://louistiao.me/posts/walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes/">
+<link rel="canonical" href="http://tiao.io/posts/walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes/">
 <link rel="icon" href="../../favicon_16x16.ico" sizes="16x16">
 <link rel="icon" href="../../favicon_32x32.ico" sizes="32x32">
 <link rel="icon" href="../../favicon_256x256.ico" sizes="256x256">
@@ -47,7 +47,7 @@ MathJax.Hub.Config({
 <link rel="next" href="../notebooks/save-matplotlib-animations-as-gifs/" title="Save Matplotlib Animations as GIFs" type="text/html">
 <meta property="og:site_name" content="Louis Tiao">
 <meta property="og:title" content="Walkthrough: Deploying a Flask app with Redis Queue (RQ) Workers and D">
-<meta property="og:url" content="http://louistiao.me/posts/walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes/">
+<meta property="og:url" content="http://tiao.io/posts/walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes/">
 <meta property="og:description" content="In this article, we walkthrough the steps to deploy a simple Flask app together
 with Redis Queue (RQ), a minimalistic job queue built on Redis, using
 Kubernetes to provision and manage the necessary d">
@@ -81,7 +81,7 @@ Kubernetes to provision and manage the necessary d">
 
           
         </li>
-</ul></nav><a href="http://louistiao.me/">
+</ul></nav><a href="http://tiao.io/">
 
         <h3 class="text-muted">
           <span id="blog-title">Louis Tiao</span>
@@ -178,14 +178,14 @@ you should specify <tt class="docutils literal">LoadBalancer</tt> as the service
 for more efficient development workflows, since it saves you having to wait ~10
 minutes for load balancers to come alive, as is the case with AWS EC2. Let's go
 ahead and get started by bringing up our local Kubernetes cluster:</p>
-<pre class="code console"><a name="rest_code_69844b98d6374293ae02f89c12e8b5c7-1"></a><span class="gp">$</span> minikube start
-<a name="rest_code_69844b98d6374293ae02f89c12e8b5c7-2"></a><span class="go">Starting local Kubernetes cluster...</span>
-<a name="rest_code_69844b98d6374293ae02f89c12e8b5c7-3"></a><span class="go">Kubernetes is available at https://192.168.99.101:443.</span>
+<pre class="code console"><a name="rest_code_b7b0c6098bee4487bd7b831c73cd8635-1"></a><span class="gp">$</span> minikube start
+<a name="rest_code_b7b0c6098bee4487bd7b831c73cd8635-2"></a><span class="go">Starting local Kubernetes cluster...</span>
+<a name="rest_code_b7b0c6098bee4487bd7b831c73cd8635-3"></a><span class="go">Kubernetes is available at https://192.168.99.101:443.</span>
 </pre>
 <p>Let's create and navigate to the directory for the files relevant to this
 deployment:</p>
-<pre class="code console"><a name="rest_code_ec03299cbde3437ca47f8eb5e69cf7b8-1"></a><span class="gp">$</span> mkdir flask-redis-queue
-<a name="rest_code_ec03299cbde3437ca47f8eb5e69cf7b8-2"></a><span class="gp">$</span> <span class="nb">cd</span> flask-redis-queue
+<pre class="code console"><a name="rest_code_d6f40d859c40466a8dfeb2c4d5d0702b-1"></a><span class="gp">$</span> mkdir flask-redis-queue
+<a name="rest_code_d6f40d859c40466a8dfeb2c4d5d0702b-2"></a><span class="gp">$</span> <span class="nb">cd</span> flask-redis-queue
 </pre>
 <p>This guide assumes some familiarity with Flask integrated with RQ and will
 focus more on provisioning the various components using Docker and Kubernetes.
@@ -196,320 +196,320 @@ series provides a good starting point and should get you up to speed.</p>
 <h2><a class="toc-backref" href="#id5">2   Deploy the Redis master</a></h2>
 <div class="section" id="redis-master-deployment-yaml">
 <h3><a class="toc-backref" href="#id6">2.1   redis-master-deployment.yaml</a></h3>
-<pre class="code console"><a name="rest_code_de621f1040d84e54a398ea95a2db8d47-1"></a><span class="gp">$</span> kubectl run redis-master --image<span class="o">=</span>redis --replicas<span class="o">=</span><span class="m">1</span> --port<span class="o">=</span><span class="m">6379</span> <span class="se">\</span>
-<a name="rest_code_de621f1040d84e54a398ea95a2db8d47-2"></a>&gt;                          --labels<span class="o">=</span><span class="s1">'app=redis,role=master,tier=backend'</span> <span class="se">\</span>
-<a name="rest_code_de621f1040d84e54a398ea95a2db8d47-3"></a>&gt;                          --requests<span class="o">=</span><span class="s1">'cpu=100m,memory=100Mi'</span> <span class="se">\</span>
-<a name="rest_code_de621f1040d84e54a398ea95a2db8d47-4"></a>&gt;                          --dry-run --output<span class="o">=</span>yaml &gt; redis-master-deployment.yaml
+<pre class="code console"><a name="rest_code_0917c582d09447fea6150f06acfb5e21-1"></a><span class="gp">$</span> kubectl run redis-master --image<span class="o">=</span>redis --replicas<span class="o">=</span><span class="m">1</span> --port<span class="o">=</span><span class="m">6379</span> <span class="se">\</span>
+<a name="rest_code_0917c582d09447fea6150f06acfb5e21-2"></a>&gt;                          --labels<span class="o">=</span><span class="s1">'app=redis,role=master,tier=backend'</span> <span class="se">\</span>
+<a name="rest_code_0917c582d09447fea6150f06acfb5e21-3"></a>&gt;                          --requests<span class="o">=</span><span class="s1">'cpu=100m,memory=100Mi'</span> <span class="se">\</span>
+<a name="rest_code_0917c582d09447fea6150f06acfb5e21-4"></a>&gt;                          --dry-run --output<span class="o">=</span>yaml &gt; redis-master-deployment.yaml
 </pre>
-<pre class="code yaml"><a name="rest_code_421fb8bb5c664e6fb8692c9da5b25b26-1"></a><span class="l l-Scalar l-Scalar-Plain">apiVersion</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">extensions/v1beta1</span>
-<a name="rest_code_421fb8bb5c664e6fb8692c9da5b25b26-2"></a><span class="l l-Scalar l-Scalar-Plain">kind</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">Deployment</span>
-<a name="rest_code_421fb8bb5c664e6fb8692c9da5b25b26-3"></a><span class="l l-Scalar l-Scalar-Plain">metadata</span><span class="p p-Indicator">:</span>
-<a name="rest_code_421fb8bb5c664e6fb8692c9da5b25b26-4"></a>  <span class="l l-Scalar l-Scalar-Plain">creationTimestamp</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
-<a name="rest_code_421fb8bb5c664e6fb8692c9da5b25b26-5"></a>  <span class="l l-Scalar l-Scalar-Plain">labels</span><span class="p p-Indicator">:</span>
-<a name="rest_code_421fb8bb5c664e6fb8692c9da5b25b26-6"></a>    <span class="l l-Scalar l-Scalar-Plain">app</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">redis</span>
-<a name="rest_code_421fb8bb5c664e6fb8692c9da5b25b26-7"></a>    <span class="l l-Scalar l-Scalar-Plain">role</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">master</span>
-<a name="rest_code_421fb8bb5c664e6fb8692c9da5b25b26-8"></a>    <span class="l l-Scalar l-Scalar-Plain">tier</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">backend</span>
-<a name="rest_code_421fb8bb5c664e6fb8692c9da5b25b26-9"></a>  <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">redis-master</span>
-<a name="rest_code_421fb8bb5c664e6fb8692c9da5b25b26-10"></a><span class="l l-Scalar l-Scalar-Plain">spec</span><span class="p p-Indicator">:</span>
-<a name="rest_code_421fb8bb5c664e6fb8692c9da5b25b26-11"></a>  <span class="l l-Scalar l-Scalar-Plain">replicas</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
-<a name="rest_code_421fb8bb5c664e6fb8692c9da5b25b26-12"></a>  <span class="l l-Scalar l-Scalar-Plain">selector</span><span class="p p-Indicator">:</span>
-<a name="rest_code_421fb8bb5c664e6fb8692c9da5b25b26-13"></a>    <span class="l l-Scalar l-Scalar-Plain">matchLabels</span><span class="p p-Indicator">:</span>
-<a name="rest_code_421fb8bb5c664e6fb8692c9da5b25b26-14"></a>      <span class="l l-Scalar l-Scalar-Plain">app</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">redis</span>
-<a name="rest_code_421fb8bb5c664e6fb8692c9da5b25b26-15"></a>      <span class="l l-Scalar l-Scalar-Plain">role</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">master</span>
-<a name="rest_code_421fb8bb5c664e6fb8692c9da5b25b26-16"></a>      <span class="l l-Scalar l-Scalar-Plain">tier</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">backend</span>
-<a name="rest_code_421fb8bb5c664e6fb8692c9da5b25b26-17"></a>  <span class="l l-Scalar l-Scalar-Plain">strategy</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{}</span>
-<a name="rest_code_421fb8bb5c664e6fb8692c9da5b25b26-18"></a>  <span class="l l-Scalar l-Scalar-Plain">template</span><span class="p p-Indicator">:</span>
-<a name="rest_code_421fb8bb5c664e6fb8692c9da5b25b26-19"></a>    <span class="l l-Scalar l-Scalar-Plain">metadata</span><span class="p p-Indicator">:</span>
-<a name="rest_code_421fb8bb5c664e6fb8692c9da5b25b26-20"></a>      <span class="l l-Scalar l-Scalar-Plain">creationTimestamp</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
-<a name="rest_code_421fb8bb5c664e6fb8692c9da5b25b26-21"></a>      <span class="l l-Scalar l-Scalar-Plain">labels</span><span class="p p-Indicator">:</span>
-<a name="rest_code_421fb8bb5c664e6fb8692c9da5b25b26-22"></a>        <span class="l l-Scalar l-Scalar-Plain">app</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">redis</span>
-<a name="rest_code_421fb8bb5c664e6fb8692c9da5b25b26-23"></a>        <span class="l l-Scalar l-Scalar-Plain">role</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">master</span>
-<a name="rest_code_421fb8bb5c664e6fb8692c9da5b25b26-24"></a>        <span class="l l-Scalar l-Scalar-Plain">tier</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">backend</span>
-<a name="rest_code_421fb8bb5c664e6fb8692c9da5b25b26-25"></a>    <span class="l l-Scalar l-Scalar-Plain">spec</span><span class="p p-Indicator">:</span>
-<a name="rest_code_421fb8bb5c664e6fb8692c9da5b25b26-26"></a>      <span class="l l-Scalar l-Scalar-Plain">containers</span><span class="p p-Indicator">:</span>
-<a name="rest_code_421fb8bb5c664e6fb8692c9da5b25b26-27"></a>      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">image</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">redis</span>
-<a name="rest_code_421fb8bb5c664e6fb8692c9da5b25b26-28"></a>        <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">redis-master</span>
-<a name="rest_code_421fb8bb5c664e6fb8692c9da5b25b26-29"></a>        <span class="l l-Scalar l-Scalar-Plain">ports</span><span class="p p-Indicator">:</span>
-<a name="rest_code_421fb8bb5c664e6fb8692c9da5b25b26-30"></a>        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">containerPort</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">6379</span>
-<a name="rest_code_421fb8bb5c664e6fb8692c9da5b25b26-31"></a>        <span class="l l-Scalar l-Scalar-Plain">resources</span><span class="p p-Indicator">:</span>
-<a name="rest_code_421fb8bb5c664e6fb8692c9da5b25b26-32"></a>          <span class="l l-Scalar l-Scalar-Plain">requests</span><span class="p p-Indicator">:</span>
-<a name="rest_code_421fb8bb5c664e6fb8692c9da5b25b26-33"></a>            <span class="l l-Scalar l-Scalar-Plain">cpu</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">100m</span>
-<a name="rest_code_421fb8bb5c664e6fb8692c9da5b25b26-34"></a>            <span class="l l-Scalar l-Scalar-Plain">memory</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">100Mi</span>
-<a name="rest_code_421fb8bb5c664e6fb8692c9da5b25b26-35"></a><span class="l l-Scalar l-Scalar-Plain">status</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{}</span>
+<pre class="code yaml"><a name="rest_code_51a160aac0d1411985f3bfe6751a6389-1"></a><span class="l l-Scalar l-Scalar-Plain">apiVersion</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">extensions/v1beta1</span>
+<a name="rest_code_51a160aac0d1411985f3bfe6751a6389-2"></a><span class="l l-Scalar l-Scalar-Plain">kind</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">Deployment</span>
+<a name="rest_code_51a160aac0d1411985f3bfe6751a6389-3"></a><span class="l l-Scalar l-Scalar-Plain">metadata</span><span class="p p-Indicator">:</span>
+<a name="rest_code_51a160aac0d1411985f3bfe6751a6389-4"></a>  <span class="l l-Scalar l-Scalar-Plain">creationTimestamp</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
+<a name="rest_code_51a160aac0d1411985f3bfe6751a6389-5"></a>  <span class="l l-Scalar l-Scalar-Plain">labels</span><span class="p p-Indicator">:</span>
+<a name="rest_code_51a160aac0d1411985f3bfe6751a6389-6"></a>    <span class="l l-Scalar l-Scalar-Plain">app</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">redis</span>
+<a name="rest_code_51a160aac0d1411985f3bfe6751a6389-7"></a>    <span class="l l-Scalar l-Scalar-Plain">role</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">master</span>
+<a name="rest_code_51a160aac0d1411985f3bfe6751a6389-8"></a>    <span class="l l-Scalar l-Scalar-Plain">tier</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">backend</span>
+<a name="rest_code_51a160aac0d1411985f3bfe6751a6389-9"></a>  <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">redis-master</span>
+<a name="rest_code_51a160aac0d1411985f3bfe6751a6389-10"></a><span class="l l-Scalar l-Scalar-Plain">spec</span><span class="p p-Indicator">:</span>
+<a name="rest_code_51a160aac0d1411985f3bfe6751a6389-11"></a>  <span class="l l-Scalar l-Scalar-Plain">replicas</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
+<a name="rest_code_51a160aac0d1411985f3bfe6751a6389-12"></a>  <span class="l l-Scalar l-Scalar-Plain">selector</span><span class="p p-Indicator">:</span>
+<a name="rest_code_51a160aac0d1411985f3bfe6751a6389-13"></a>    <span class="l l-Scalar l-Scalar-Plain">matchLabels</span><span class="p p-Indicator">:</span>
+<a name="rest_code_51a160aac0d1411985f3bfe6751a6389-14"></a>      <span class="l l-Scalar l-Scalar-Plain">app</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">redis</span>
+<a name="rest_code_51a160aac0d1411985f3bfe6751a6389-15"></a>      <span class="l l-Scalar l-Scalar-Plain">role</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">master</span>
+<a name="rest_code_51a160aac0d1411985f3bfe6751a6389-16"></a>      <span class="l l-Scalar l-Scalar-Plain">tier</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">backend</span>
+<a name="rest_code_51a160aac0d1411985f3bfe6751a6389-17"></a>  <span class="l l-Scalar l-Scalar-Plain">strategy</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{}</span>
+<a name="rest_code_51a160aac0d1411985f3bfe6751a6389-18"></a>  <span class="l l-Scalar l-Scalar-Plain">template</span><span class="p p-Indicator">:</span>
+<a name="rest_code_51a160aac0d1411985f3bfe6751a6389-19"></a>    <span class="l l-Scalar l-Scalar-Plain">metadata</span><span class="p p-Indicator">:</span>
+<a name="rest_code_51a160aac0d1411985f3bfe6751a6389-20"></a>      <span class="l l-Scalar l-Scalar-Plain">creationTimestamp</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
+<a name="rest_code_51a160aac0d1411985f3bfe6751a6389-21"></a>      <span class="l l-Scalar l-Scalar-Plain">labels</span><span class="p p-Indicator">:</span>
+<a name="rest_code_51a160aac0d1411985f3bfe6751a6389-22"></a>        <span class="l l-Scalar l-Scalar-Plain">app</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">redis</span>
+<a name="rest_code_51a160aac0d1411985f3bfe6751a6389-23"></a>        <span class="l l-Scalar l-Scalar-Plain">role</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">master</span>
+<a name="rest_code_51a160aac0d1411985f3bfe6751a6389-24"></a>        <span class="l l-Scalar l-Scalar-Plain">tier</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">backend</span>
+<a name="rest_code_51a160aac0d1411985f3bfe6751a6389-25"></a>    <span class="l l-Scalar l-Scalar-Plain">spec</span><span class="p p-Indicator">:</span>
+<a name="rest_code_51a160aac0d1411985f3bfe6751a6389-26"></a>      <span class="l l-Scalar l-Scalar-Plain">containers</span><span class="p p-Indicator">:</span>
+<a name="rest_code_51a160aac0d1411985f3bfe6751a6389-27"></a>      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">image</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">redis</span>
+<a name="rest_code_51a160aac0d1411985f3bfe6751a6389-28"></a>        <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">redis-master</span>
+<a name="rest_code_51a160aac0d1411985f3bfe6751a6389-29"></a>        <span class="l l-Scalar l-Scalar-Plain">ports</span><span class="p p-Indicator">:</span>
+<a name="rest_code_51a160aac0d1411985f3bfe6751a6389-30"></a>        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">containerPort</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">6379</span>
+<a name="rest_code_51a160aac0d1411985f3bfe6751a6389-31"></a>        <span class="l l-Scalar l-Scalar-Plain">resources</span><span class="p p-Indicator">:</span>
+<a name="rest_code_51a160aac0d1411985f3bfe6751a6389-32"></a>          <span class="l l-Scalar l-Scalar-Plain">requests</span><span class="p p-Indicator">:</span>
+<a name="rest_code_51a160aac0d1411985f3bfe6751a6389-33"></a>            <span class="l l-Scalar l-Scalar-Plain">cpu</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">100m</span>
+<a name="rest_code_51a160aac0d1411985f3bfe6751a6389-34"></a>            <span class="l l-Scalar l-Scalar-Plain">memory</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">100Mi</span>
+<a name="rest_code_51a160aac0d1411985f3bfe6751a6389-35"></a><span class="l l-Scalar l-Scalar-Plain">status</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{}</span>
 </pre>
-<pre class="code console"><a name="rest_code_887ba50513a64557b2944a1d4d04319d-1"></a><span class="gp">$</span> kubectl create -f redis-master-deployment.yaml
-<a name="rest_code_887ba50513a64557b2944a1d4d04319d-2"></a><span class="go">deployment "redis-master" created</span>
+<pre class="code console"><a name="rest_code_f4d97179b9e444ecb5f1dbe92ec90a09-1"></a><span class="gp">$</span> kubectl create -f redis-master-deployment.yaml
+<a name="rest_code_f4d97179b9e444ecb5f1dbe92ec90a09-2"></a><span class="go">deployment "redis-master" created</span>
 </pre>
 </div>
 <div class="section" id="redis-master-service-yaml">
 <h3><a class="toc-backref" href="#id7">2.2   redis-master-service.yaml</a></h3>
-<pre class="code console"><a name="rest_code_3ce6d99389754d33a1bbec5f0b1326f7-1"></a><span class="gp">$</span> kubectl expose deployment redis-master --selector<span class="o">=</span><span class="s1">'app=redis,role=master,tier=backend'</span> <span class="se">\</span>
-<a name="rest_code_3ce6d99389754d33a1bbec5f0b1326f7-2"></a>&gt;                                        --dry-run --output<span class="o">=</span>yaml &gt; redis-master-service.yaml
+<pre class="code console"><a name="rest_code_4093dfce241945298e0387018c4c3eee-1"></a><span class="gp">$</span> kubectl expose deployment redis-master --selector<span class="o">=</span><span class="s1">'app=redis,role=master,tier=backend'</span> <span class="se">\</span>
+<a name="rest_code_4093dfce241945298e0387018c4c3eee-2"></a>&gt;                                        --dry-run --output<span class="o">=</span>yaml &gt; redis-master-service.yaml
 </pre>
-<pre class="code yaml"><a name="rest_code_7463153bf3494b1cb9411bd3c6db066a-1"></a><span class="l l-Scalar l-Scalar-Plain">apiVersion</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">v1</span>
-<a name="rest_code_7463153bf3494b1cb9411bd3c6db066a-2"></a><span class="l l-Scalar l-Scalar-Plain">kind</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">Service</span>
-<a name="rest_code_7463153bf3494b1cb9411bd3c6db066a-3"></a><span class="l l-Scalar l-Scalar-Plain">metadata</span><span class="p p-Indicator">:</span>
-<a name="rest_code_7463153bf3494b1cb9411bd3c6db066a-4"></a>  <span class="l l-Scalar l-Scalar-Plain">creationTimestamp</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
-<a name="rest_code_7463153bf3494b1cb9411bd3c6db066a-5"></a>  <span class="l l-Scalar l-Scalar-Plain">labels</span><span class="p p-Indicator">:</span>
-<a name="rest_code_7463153bf3494b1cb9411bd3c6db066a-6"></a>    <span class="l l-Scalar l-Scalar-Plain">app</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">redis</span>
-<a name="rest_code_7463153bf3494b1cb9411bd3c6db066a-7"></a>    <span class="l l-Scalar l-Scalar-Plain">role</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">master</span>
-<a name="rest_code_7463153bf3494b1cb9411bd3c6db066a-8"></a>    <span class="l l-Scalar l-Scalar-Plain">tier</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">backend</span>
-<a name="rest_code_7463153bf3494b1cb9411bd3c6db066a-9"></a>  <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">redis-master</span>
-<a name="rest_code_7463153bf3494b1cb9411bd3c6db066a-10"></a><span class="l l-Scalar l-Scalar-Plain">spec</span><span class="p p-Indicator">:</span>
-<a name="rest_code_7463153bf3494b1cb9411bd3c6db066a-11"></a>  <span class="l l-Scalar l-Scalar-Plain">ports</span><span class="p p-Indicator">:</span>
-<a name="rest_code_7463153bf3494b1cb9411bd3c6db066a-12"></a>  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">port</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">6379</span>
-<a name="rest_code_7463153bf3494b1cb9411bd3c6db066a-13"></a>    <span class="l l-Scalar l-Scalar-Plain">protocol</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">TCP</span>
-<a name="rest_code_7463153bf3494b1cb9411bd3c6db066a-14"></a>    <span class="l l-Scalar l-Scalar-Plain">targetPort</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">6379</span>
-<a name="rest_code_7463153bf3494b1cb9411bd3c6db066a-15"></a>  <span class="l l-Scalar l-Scalar-Plain">selector</span><span class="p p-Indicator">:</span>
-<a name="rest_code_7463153bf3494b1cb9411bd3c6db066a-16"></a>    <span class="l l-Scalar l-Scalar-Plain">app</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">redis</span>
-<a name="rest_code_7463153bf3494b1cb9411bd3c6db066a-17"></a>    <span class="l l-Scalar l-Scalar-Plain">role</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">master</span>
-<a name="rest_code_7463153bf3494b1cb9411bd3c6db066a-18"></a>    <span class="l l-Scalar l-Scalar-Plain">tier</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">backend</span>
-<a name="rest_code_7463153bf3494b1cb9411bd3c6db066a-19"></a><span class="l l-Scalar l-Scalar-Plain">status</span><span class="p p-Indicator">:</span>
-<a name="rest_code_7463153bf3494b1cb9411bd3c6db066a-20"></a>  <span class="l l-Scalar l-Scalar-Plain">loadBalancer</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{}</span>
+<pre class="code yaml"><a name="rest_code_79af1bf0202046a68d465fd6a99ffe16-1"></a><span class="l l-Scalar l-Scalar-Plain">apiVersion</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">v1</span>
+<a name="rest_code_79af1bf0202046a68d465fd6a99ffe16-2"></a><span class="l l-Scalar l-Scalar-Plain">kind</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">Service</span>
+<a name="rest_code_79af1bf0202046a68d465fd6a99ffe16-3"></a><span class="l l-Scalar l-Scalar-Plain">metadata</span><span class="p p-Indicator">:</span>
+<a name="rest_code_79af1bf0202046a68d465fd6a99ffe16-4"></a>  <span class="l l-Scalar l-Scalar-Plain">creationTimestamp</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
+<a name="rest_code_79af1bf0202046a68d465fd6a99ffe16-5"></a>  <span class="l l-Scalar l-Scalar-Plain">labels</span><span class="p p-Indicator">:</span>
+<a name="rest_code_79af1bf0202046a68d465fd6a99ffe16-6"></a>    <span class="l l-Scalar l-Scalar-Plain">app</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">redis</span>
+<a name="rest_code_79af1bf0202046a68d465fd6a99ffe16-7"></a>    <span class="l l-Scalar l-Scalar-Plain">role</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">master</span>
+<a name="rest_code_79af1bf0202046a68d465fd6a99ffe16-8"></a>    <span class="l l-Scalar l-Scalar-Plain">tier</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">backend</span>
+<a name="rest_code_79af1bf0202046a68d465fd6a99ffe16-9"></a>  <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">redis-master</span>
+<a name="rest_code_79af1bf0202046a68d465fd6a99ffe16-10"></a><span class="l l-Scalar l-Scalar-Plain">spec</span><span class="p p-Indicator">:</span>
+<a name="rest_code_79af1bf0202046a68d465fd6a99ffe16-11"></a>  <span class="l l-Scalar l-Scalar-Plain">ports</span><span class="p p-Indicator">:</span>
+<a name="rest_code_79af1bf0202046a68d465fd6a99ffe16-12"></a>  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">port</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">6379</span>
+<a name="rest_code_79af1bf0202046a68d465fd6a99ffe16-13"></a>    <span class="l l-Scalar l-Scalar-Plain">protocol</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">TCP</span>
+<a name="rest_code_79af1bf0202046a68d465fd6a99ffe16-14"></a>    <span class="l l-Scalar l-Scalar-Plain">targetPort</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">6379</span>
+<a name="rest_code_79af1bf0202046a68d465fd6a99ffe16-15"></a>  <span class="l l-Scalar l-Scalar-Plain">selector</span><span class="p p-Indicator">:</span>
+<a name="rest_code_79af1bf0202046a68d465fd6a99ffe16-16"></a>    <span class="l l-Scalar l-Scalar-Plain">app</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">redis</span>
+<a name="rest_code_79af1bf0202046a68d465fd6a99ffe16-17"></a>    <span class="l l-Scalar l-Scalar-Plain">role</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">master</span>
+<a name="rest_code_79af1bf0202046a68d465fd6a99ffe16-18"></a>    <span class="l l-Scalar l-Scalar-Plain">tier</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">backend</span>
+<a name="rest_code_79af1bf0202046a68d465fd6a99ffe16-19"></a><span class="l l-Scalar l-Scalar-Plain">status</span><span class="p p-Indicator">:</span>
+<a name="rest_code_79af1bf0202046a68d465fd6a99ffe16-20"></a>  <span class="l l-Scalar l-Scalar-Plain">loadBalancer</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{}</span>
 </pre>
-<pre class="code console"><a name="rest_code_293458a5c30241d8ac088964356e7175-1"></a><span class="gp">$</span> kubectl create -f redis-master-service.yaml
-<a name="rest_code_293458a5c30241d8ac088964356e7175-2"></a><span class="go">service "redis-master" created</span>
+<pre class="code console"><a name="rest_code_4287861ed74242bfbba24de5e1136e16-1"></a><span class="gp">$</span> kubectl create -f redis-master-service.yaml
+<a name="rest_code_4287861ed74242bfbba24de5e1136e16-2"></a><span class="go">service "redis-master" created</span>
 </pre>
 </div>
 </div>
 <div class="section" id="deploy-the-flask-web-app">
 <h2><a class="toc-backref" href="#id8">3   Deploy the Flask web app</a></h2>
-<pre class="code console"><a name="rest_code_349840349b9b4fd082f854f9c7a517a3-1"></a><span class="gp">$</span> mkdir web-flask
+<pre class="code console"><a name="rest_code_2f7c290a6e524045a81ac77593955b48-1"></a><span class="gp">$</span> mkdir web-flask
 </pre>
 <div class="section" id="requirements-txt">
 <h3><a class="toc-backref" href="#id9">3.1   requirements.txt</a></h3>
-<pre class="code console"><a name="rest_code_47274c7676984277957a0bb5e367c21f-1"></a><span class="gp">$</span> cat &gt; web-flask/requirements.txt
-<a name="rest_code_47274c7676984277957a0bb5e367c21f-2"></a><span class="go">flask</span>
-<a name="rest_code_47274c7676984277957a0bb5e367c21f-3"></a><span class="go">redis</span>
-<a name="rest_code_47274c7676984277957a0bb5e367c21f-4"></a><span class="go">rq</span>
+<pre class="code console"><a name="rest_code_7fc5ba6e37c94650882039c5d1c6a741-1"></a><span class="gp">$</span> cat &gt; web-flask/requirements.txt
+<a name="rest_code_7fc5ba6e37c94650882039c5d1c6a741-2"></a><span class="go">flask</span>
+<a name="rest_code_7fc5ba6e37c94650882039c5d1c6a741-3"></a><span class="go">redis</span>
+<a name="rest_code_7fc5ba6e37c94650882039c5d1c6a741-4"></a><span class="go">rq</span>
 </pre>
 </div>
 <div class="section" id="settings-py">
 <h3><a class="toc-backref" href="#id10">3.2   settings.py</a></h3>
-<pre class="code console"><a name="rest_code_c046498f85114d2d92cc9e716bbac192-1"></a><span class="gp">$</span> <span class="nv">$EDITOR</span> web-flask/settings.py
+<pre class="code console"><a name="rest_code_61129238fdfd44209ed887134cc4489e-1"></a><span class="gp">$</span> <span class="nv">$EDITOR</span> web-flask/settings.py
 </pre>
-<pre class="code python"><a name="rest_code_1379171973824e3fb5401bf1fd4096d1-1"></a><span class="kn">import</span> <span class="nn">os</span>
-<a name="rest_code_1379171973824e3fb5401bf1fd4096d1-2"></a>
-<a name="rest_code_1379171973824e3fb5401bf1fd4096d1-3"></a><span class="n">REDIS_HOST</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'REDIS_MASTER_SERVICE_HOST'</span><span class="p">]</span> \
-<a name="rest_code_1379171973824e3fb5401bf1fd4096d1-4"></a>          <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'GET_HOSTS_FROM'</span><span class="p">,</span> <span class="s1">''</span><span class="p">)</span> <span class="o">==</span> <span class="s1">'env'</span> <span class="k">else</span> <span class="s1">'redis-master'</span>
-<a name="rest_code_1379171973824e3fb5401bf1fd4096d1-5"></a><span class="n">REDIS_PORT</span> <span class="o">=</span> <span class="mi">6379</span>
+<pre class="code python"><a name="rest_code_9a63203e5cfd4e0cbd929388a558c033-1"></a><span class="kn">import</span> <span class="nn">os</span>
+<a name="rest_code_9a63203e5cfd4e0cbd929388a558c033-2"></a>
+<a name="rest_code_9a63203e5cfd4e0cbd929388a558c033-3"></a><span class="n">REDIS_HOST</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'REDIS_MASTER_SERVICE_HOST'</span><span class="p">]</span> \
+<a name="rest_code_9a63203e5cfd4e0cbd929388a558c033-4"></a>          <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'GET_HOSTS_FROM'</span><span class="p">,</span> <span class="s1">''</span><span class="p">)</span> <span class="o">==</span> <span class="s1">'env'</span> <span class="k">else</span> <span class="s1">'redis-master'</span>
+<a name="rest_code_9a63203e5cfd4e0cbd929388a558c033-5"></a><span class="n">REDIS_PORT</span> <span class="o">=</span> <span class="mi">6379</span>
 </pre>
 </div>
 <div class="section" id="app-py">
 <h3><a class="toc-backref" href="#id11">3.3   app.py</a></h3>
-<pre class="code console"><a name="rest_code_29754538d69640759b9fe7e5af937d1d-1"></a><span class="gp">$</span> <span class="nv">$EDITOR</span> web-flask/app.py
+<pre class="code console"><a name="rest_code_afd6e904b7ac490588498f795ccff7f8-1"></a><span class="gp">$</span> <span class="nv">$EDITOR</span> web-flask/app.py
 </pre>
-<pre class="code python"><a name="rest_code_1721a34a44dc4f4cb0fab4f03c7117a9-1"></a><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span><span class="p">,</span> <span class="n">jsonify</span><span class="p">,</span> <span class="n">request</span>
-<a name="rest_code_1721a34a44dc4f4cb0fab4f03c7117a9-2"></a><span class="kn">from</span> <span class="nn">redis</span> <span class="kn">import</span> <span class="n">StrictRedis</span>
-<a name="rest_code_1721a34a44dc4f4cb0fab4f03c7117a9-3"></a><span class="kn">from</span> <span class="nn">rq</span> <span class="kn">import</span> <span class="n">Queue</span>
-<a name="rest_code_1721a34a44dc4f4cb0fab4f03c7117a9-4"></a>
-<a name="rest_code_1721a34a44dc4f4cb0fab4f03c7117a9-5"></a><span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">randrange</span>
-<a name="rest_code_1721a34a44dc4f4cb0fab4f03c7117a9-6"></a>
-<a name="rest_code_1721a34a44dc4f4cb0fab4f03c7117a9-7"></a><span class="kn">from</span> <span class="nn">settings</span> <span class="kn">import</span> <span class="n">REDIS_HOST</span><span class="p">,</span> <span class="n">REDIS_PORT</span>
-<a name="rest_code_1721a34a44dc4f4cb0fab4f03c7117a9-8"></a>
-<a name="rest_code_1721a34a44dc4f4cb0fab4f03c7117a9-9"></a>
-<a name="rest_code_1721a34a44dc4f4cb0fab4f03c7117a9-10"></a><span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
-<a name="rest_code_1721a34a44dc4f4cb0fab4f03c7117a9-11"></a>
-<a name="rest_code_1721a34a44dc4f4cb0fab4f03c7117a9-12"></a><span class="n">q</span> <span class="o">=</span> <span class="n">Queue</span><span class="p">(</span><span class="n">connection</span><span class="o">=</span><span class="n">StrictRedis</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="n">REDIS_HOST</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">REDIS_PORT</span><span class="p">))</span>
-<a name="rest_code_1721a34a44dc4f4cb0fab4f03c7117a9-13"></a>
-<a name="rest_code_1721a34a44dc4f4cb0fab4f03c7117a9-14"></a>
-<a name="rest_code_1721a34a44dc4f4cb0fab4f03c7117a9-15"></a><span class="nd">@app.route</span><span class="p">(</span><span class="s1">'/'</span><span class="p">)</span>
-<a name="rest_code_1721a34a44dc4f4cb0fab4f03c7117a9-16"></a><span class="k">def</span> <span class="nf">get_randrange</span><span class="p">():</span>
-<a name="rest_code_1721a34a44dc4f4cb0fab4f03c7117a9-17"></a>
-<a name="rest_code_1721a34a44dc4f4cb0fab4f03c7117a9-18"></a>    <span class="k">if</span> <span class="s1">'stop'</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="p">:</span>
-<a name="rest_code_1721a34a44dc4f4cb0fab4f03c7117a9-19"></a>
-<a name="rest_code_1721a34a44dc4f4cb0fab4f03c7117a9-20"></a>        <span class="n">stop</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'stop'</span><span class="p">))</span>
-<a name="rest_code_1721a34a44dc4f4cb0fab4f03c7117a9-21"></a>        <span class="n">start</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'start'</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
-<a name="rest_code_1721a34a44dc4f4cb0fab4f03c7117a9-22"></a>        <span class="n">step</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'step'</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-<a name="rest_code_1721a34a44dc4f4cb0fab4f03c7117a9-23"></a>
-<a name="rest_code_1721a34a44dc4f4cb0fab4f03c7117a9-24"></a>        <span class="n">job</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">enqueue</span><span class="p">(</span><span class="n">randrange</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">result_ttl</span><span class="o">=</span><span class="mi">5000</span><span class="p">)</span>
-<a name="rest_code_1721a34a44dc4f4cb0fab4f03c7117a9-25"></a>
-<a name="rest_code_1721a34a44dc4f4cb0fab4f03c7117a9-26"></a>        <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">job_id</span><span class="o">=</span><span class="n">job</span><span class="o">.</span><span class="n">get_id</span><span class="p">())</span>
-<a name="rest_code_1721a34a44dc4f4cb0fab4f03c7117a9-27"></a>
-<a name="rest_code_1721a34a44dc4f4cb0fab4f03c7117a9-28"></a>    <span class="k">return</span> <span class="s1">'Stop value not specified!'</span><span class="p">,</span> <span class="mi">400</span>
-<a name="rest_code_1721a34a44dc4f4cb0fab4f03c7117a9-29"></a>
-<a name="rest_code_1721a34a44dc4f4cb0fab4f03c7117a9-30"></a>
-<a name="rest_code_1721a34a44dc4f4cb0fab4f03c7117a9-31"></a><span class="nd">@app.route</span><span class="p">(</span><span class="s2">"/results"</span><span class="p">)</span>
-<a name="rest_code_1721a34a44dc4f4cb0fab4f03c7117a9-32"></a><span class="nd">@app.route</span><span class="p">(</span><span class="s2">"/results/&lt;string:job_id&gt;"</span><span class="p">)</span>
-<a name="rest_code_1721a34a44dc4f4cb0fab4f03c7117a9-33"></a><span class="k">def</span> <span class="nf">get_results</span><span class="p">(</span><span class="n">job_id</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-<a name="rest_code_1721a34a44dc4f4cb0fab4f03c7117a9-34"></a>
-<a name="rest_code_1721a34a44dc4f4cb0fab4f03c7117a9-35"></a>    <span class="k">if</span> <span class="n">job_id</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-<a name="rest_code_1721a34a44dc4f4cb0fab4f03c7117a9-36"></a>        <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">queued_job_ids</span><span class="o">=</span><span class="n">q</span><span class="o">.</span><span class="n">job_ids</span><span class="p">)</span>
-<a name="rest_code_1721a34a44dc4f4cb0fab4f03c7117a9-37"></a>
-<a name="rest_code_1721a34a44dc4f4cb0fab4f03c7117a9-38"></a>    <span class="n">job</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">fetch_job</span><span class="p">(</span><span class="n">job_id</span><span class="p">)</span>
-<a name="rest_code_1721a34a44dc4f4cb0fab4f03c7117a9-39"></a>
-<a name="rest_code_1721a34a44dc4f4cb0fab4f03c7117a9-40"></a>    <span class="k">if</span> <span class="n">job</span><span class="o">.</span><span class="n">is_failed</span><span class="p">:</span>
-<a name="rest_code_1721a34a44dc4f4cb0fab4f03c7117a9-41"></a>        <span class="k">return</span> <span class="s1">'Job has failed!'</span><span class="p">,</span> <span class="mi">400</span>
-<a name="rest_code_1721a34a44dc4f4cb0fab4f03c7117a9-42"></a>
-<a name="rest_code_1721a34a44dc4f4cb0fab4f03c7117a9-43"></a>    <span class="k">if</span> <span class="n">job</span><span class="o">.</span><span class="n">is_finished</span><span class="p">:</span>
-<a name="rest_code_1721a34a44dc4f4cb0fab4f03c7117a9-44"></a>        <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="n">job</span><span class="o">.</span><span class="n">result</span><span class="p">)</span>
-<a name="rest_code_1721a34a44dc4f4cb0fab4f03c7117a9-45"></a>
-<a name="rest_code_1721a34a44dc4f4cb0fab4f03c7117a9-46"></a>    <span class="k">return</span> <span class="s1">'Job has not finished!'</span><span class="p">,</span> <span class="mi">202</span>
-<a name="rest_code_1721a34a44dc4f4cb0fab4f03c7117a9-47"></a>
-<a name="rest_code_1721a34a44dc4f4cb0fab4f03c7117a9-48"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">'__main__'</span><span class="p">:</span>
-<a name="rest_code_1721a34a44dc4f4cb0fab4f03c7117a9-49"></a>    <span class="c1"># Start server</span>
-<a name="rest_code_1721a34a44dc4f4cb0fab4f03c7117a9-50"></a>    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s1">'0.0.0.0'</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">8080</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<pre class="code python"><a name="rest_code_f746c15c43e640fb8857f8a7e9ee3dfc-1"></a><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span><span class="p">,</span> <span class="n">jsonify</span><span class="p">,</span> <span class="n">request</span>
+<a name="rest_code_f746c15c43e640fb8857f8a7e9ee3dfc-2"></a><span class="kn">from</span> <span class="nn">redis</span> <span class="kn">import</span> <span class="n">StrictRedis</span>
+<a name="rest_code_f746c15c43e640fb8857f8a7e9ee3dfc-3"></a><span class="kn">from</span> <span class="nn">rq</span> <span class="kn">import</span> <span class="n">Queue</span>
+<a name="rest_code_f746c15c43e640fb8857f8a7e9ee3dfc-4"></a>
+<a name="rest_code_f746c15c43e640fb8857f8a7e9ee3dfc-5"></a><span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">randrange</span>
+<a name="rest_code_f746c15c43e640fb8857f8a7e9ee3dfc-6"></a>
+<a name="rest_code_f746c15c43e640fb8857f8a7e9ee3dfc-7"></a><span class="kn">from</span> <span class="nn">settings</span> <span class="kn">import</span> <span class="n">REDIS_HOST</span><span class="p">,</span> <span class="n">REDIS_PORT</span>
+<a name="rest_code_f746c15c43e640fb8857f8a7e9ee3dfc-8"></a>
+<a name="rest_code_f746c15c43e640fb8857f8a7e9ee3dfc-9"></a>
+<a name="rest_code_f746c15c43e640fb8857f8a7e9ee3dfc-10"></a><span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<a name="rest_code_f746c15c43e640fb8857f8a7e9ee3dfc-11"></a>
+<a name="rest_code_f746c15c43e640fb8857f8a7e9ee3dfc-12"></a><span class="n">q</span> <span class="o">=</span> <span class="n">Queue</span><span class="p">(</span><span class="n">connection</span><span class="o">=</span><span class="n">StrictRedis</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="n">REDIS_HOST</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">REDIS_PORT</span><span class="p">))</span>
+<a name="rest_code_f746c15c43e640fb8857f8a7e9ee3dfc-13"></a>
+<a name="rest_code_f746c15c43e640fb8857f8a7e9ee3dfc-14"></a>
+<a name="rest_code_f746c15c43e640fb8857f8a7e9ee3dfc-15"></a><span class="nd">@app.route</span><span class="p">(</span><span class="s1">'/'</span><span class="p">)</span>
+<a name="rest_code_f746c15c43e640fb8857f8a7e9ee3dfc-16"></a><span class="k">def</span> <span class="nf">get_randrange</span><span class="p">():</span>
+<a name="rest_code_f746c15c43e640fb8857f8a7e9ee3dfc-17"></a>
+<a name="rest_code_f746c15c43e640fb8857f8a7e9ee3dfc-18"></a>    <span class="k">if</span> <span class="s1">'stop'</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="p">:</span>
+<a name="rest_code_f746c15c43e640fb8857f8a7e9ee3dfc-19"></a>
+<a name="rest_code_f746c15c43e640fb8857f8a7e9ee3dfc-20"></a>        <span class="n">stop</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'stop'</span><span class="p">))</span>
+<a name="rest_code_f746c15c43e640fb8857f8a7e9ee3dfc-21"></a>        <span class="n">start</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'start'</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+<a name="rest_code_f746c15c43e640fb8857f8a7e9ee3dfc-22"></a>        <span class="n">step</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'step'</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<a name="rest_code_f746c15c43e640fb8857f8a7e9ee3dfc-23"></a>
+<a name="rest_code_f746c15c43e640fb8857f8a7e9ee3dfc-24"></a>        <span class="n">job</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">enqueue</span><span class="p">(</span><span class="n">randrange</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">result_ttl</span><span class="o">=</span><span class="mi">5000</span><span class="p">)</span>
+<a name="rest_code_f746c15c43e640fb8857f8a7e9ee3dfc-25"></a>
+<a name="rest_code_f746c15c43e640fb8857f8a7e9ee3dfc-26"></a>        <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">job_id</span><span class="o">=</span><span class="n">job</span><span class="o">.</span><span class="n">get_id</span><span class="p">())</span>
+<a name="rest_code_f746c15c43e640fb8857f8a7e9ee3dfc-27"></a>
+<a name="rest_code_f746c15c43e640fb8857f8a7e9ee3dfc-28"></a>    <span class="k">return</span> <span class="s1">'Stop value not specified!'</span><span class="p">,</span> <span class="mi">400</span>
+<a name="rest_code_f746c15c43e640fb8857f8a7e9ee3dfc-29"></a>
+<a name="rest_code_f746c15c43e640fb8857f8a7e9ee3dfc-30"></a>
+<a name="rest_code_f746c15c43e640fb8857f8a7e9ee3dfc-31"></a><span class="nd">@app.route</span><span class="p">(</span><span class="s2">"/results"</span><span class="p">)</span>
+<a name="rest_code_f746c15c43e640fb8857f8a7e9ee3dfc-32"></a><span class="nd">@app.route</span><span class="p">(</span><span class="s2">"/results/&lt;string:job_id&gt;"</span><span class="p">)</span>
+<a name="rest_code_f746c15c43e640fb8857f8a7e9ee3dfc-33"></a><span class="k">def</span> <span class="nf">get_results</span><span class="p">(</span><span class="n">job_id</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<a name="rest_code_f746c15c43e640fb8857f8a7e9ee3dfc-34"></a>
+<a name="rest_code_f746c15c43e640fb8857f8a7e9ee3dfc-35"></a>    <span class="k">if</span> <span class="n">job_id</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+<a name="rest_code_f746c15c43e640fb8857f8a7e9ee3dfc-36"></a>        <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">queued_job_ids</span><span class="o">=</span><span class="n">q</span><span class="o">.</span><span class="n">job_ids</span><span class="p">)</span>
+<a name="rest_code_f746c15c43e640fb8857f8a7e9ee3dfc-37"></a>
+<a name="rest_code_f746c15c43e640fb8857f8a7e9ee3dfc-38"></a>    <span class="n">job</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">fetch_job</span><span class="p">(</span><span class="n">job_id</span><span class="p">)</span>
+<a name="rest_code_f746c15c43e640fb8857f8a7e9ee3dfc-39"></a>
+<a name="rest_code_f746c15c43e640fb8857f8a7e9ee3dfc-40"></a>    <span class="k">if</span> <span class="n">job</span><span class="o">.</span><span class="n">is_failed</span><span class="p">:</span>
+<a name="rest_code_f746c15c43e640fb8857f8a7e9ee3dfc-41"></a>        <span class="k">return</span> <span class="s1">'Job has failed!'</span><span class="p">,</span> <span class="mi">400</span>
+<a name="rest_code_f746c15c43e640fb8857f8a7e9ee3dfc-42"></a>
+<a name="rest_code_f746c15c43e640fb8857f8a7e9ee3dfc-43"></a>    <span class="k">if</span> <span class="n">job</span><span class="o">.</span><span class="n">is_finished</span><span class="p">:</span>
+<a name="rest_code_f746c15c43e640fb8857f8a7e9ee3dfc-44"></a>        <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="n">job</span><span class="o">.</span><span class="n">result</span><span class="p">)</span>
+<a name="rest_code_f746c15c43e640fb8857f8a7e9ee3dfc-45"></a>
+<a name="rest_code_f746c15c43e640fb8857f8a7e9ee3dfc-46"></a>    <span class="k">return</span> <span class="s1">'Job has not finished!'</span><span class="p">,</span> <span class="mi">202</span>
+<a name="rest_code_f746c15c43e640fb8857f8a7e9ee3dfc-47"></a>
+<a name="rest_code_f746c15c43e640fb8857f8a7e9ee3dfc-48"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">'__main__'</span><span class="p">:</span>
+<a name="rest_code_f746c15c43e640fb8857f8a7e9ee3dfc-49"></a>    <span class="c1"># Start server</span>
+<a name="rest_code_f746c15c43e640fb8857f8a7e9ee3dfc-50"></a>    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s1">'0.0.0.0'</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">8080</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </pre>
 </div>
 <div class="section" id="dockerfile">
 <h3><a class="toc-backref" href="#id12">3.4   Dockerfile</a></h3>
-<pre class="code console"><a name="rest_code_d01dae22526a4859b40006a339a48446-1"></a><span class="gp">$</span> <span class="nv">$EDITOR</span> web-flask/Dockerfile
+<pre class="code console"><a name="rest_code_afbdb2f0033048fc92f379992b590b2a-1"></a><span class="gp">$</span> <span class="nv">$EDITOR</span> web-flask/Dockerfile
 </pre>
 <div class="admonition attention">
 <p class="first admonition-title">Attention!</p>
 <p class="last">Not suitable for production!</p>
 </div>
-<pre class="code docker"><a name="rest_code_4ec23d7b0fdf4f21a40ecc7b1965d1df-1"></a><span class="k">FROM</span><span class="s"> python:3.5.1-onbuild</span>
-<a name="rest_code_4ec23d7b0fdf4f21a40ecc7b1965d1df-2"></a>
-<a name="rest_code_4ec23d7b0fdf4f21a40ecc7b1965d1df-3"></a><span class="k">EXPOSE</span><span class="s"> 8080</span>
-<a name="rest_code_4ec23d7b0fdf4f21a40ecc7b1965d1df-4"></a><span class="k">CMD</span><span class="s"> ["python", "app.py"]</span>
+<pre class="code docker"><a name="rest_code_f77aba9c13344cc2b492248dc45ef5f6-1"></a><span class="k">FROM</span><span class="s"> python:3.5.1-onbuild</span>
+<a name="rest_code_f77aba9c13344cc2b492248dc45ef5f6-2"></a>
+<a name="rest_code_f77aba9c13344cc2b492248dc45ef5f6-3"></a><span class="k">EXPOSE</span><span class="s"> 8080</span>
+<a name="rest_code_f77aba9c13344cc2b492248dc45ef5f6-4"></a><span class="k">CMD</span><span class="s"> ["python", "app.py"]</span>
 </pre>
-<pre class="code console"><a name="rest_code_fb7b90d7eb5348ebac25a57ea751289c-1"></a><span class="gp">$</span> docker build -t tiao/web-flask-rq:v1 web-flask
+<pre class="code console"><a name="rest_code_6a986e2cdd024b4bab084c8f98d377ba-1"></a><span class="gp">$</span> docker build -t tiao/web-flask-rq:v1 web-flask
 </pre>
-<pre class="code console"><a name="rest_code_14c9a717dbd54c39a9a5fad808944009-1"></a><span class="gp">$</span> kubectl run web-flask --image<span class="o">=</span>tiao/web-flask-rq:v1 --replicas<span class="o">=</span><span class="m">1</span> --port<span class="o">=</span><span class="m">8080</span> <span class="se">\</span>
-<a name="rest_code_14c9a717dbd54c39a9a5fad808944009-2"></a>&gt;                       --labels<span class="o">=</span><span class="s1">'app=flask,tier=frontend'</span> <span class="se">\</span>
-<a name="rest_code_14c9a717dbd54c39a9a5fad808944009-3"></a>&gt;                       --requests<span class="o">=</span><span class="s1">'cpu=100m,memory=100Mi'</span> <span class="se">\</span>
-<a name="rest_code_14c9a717dbd54c39a9a5fad808944009-4"></a>&gt;                       --env<span class="o">=</span><span class="s2">"GET_HOSTS_FROM=dns"</span> <span class="se">\</span>
-<a name="rest_code_14c9a717dbd54c39a9a5fad808944009-5"></a>&gt;                       --dry-run --output<span class="o">=</span>yaml &gt; web-flask-deployment.yaml
+<pre class="code console"><a name="rest_code_bd1e1cce785c4adbafecbe2488054325-1"></a><span class="gp">$</span> kubectl run web-flask --image<span class="o">=</span>tiao/web-flask-rq:v1 --replicas<span class="o">=</span><span class="m">1</span> --port<span class="o">=</span><span class="m">8080</span> <span class="se">\</span>
+<a name="rest_code_bd1e1cce785c4adbafecbe2488054325-2"></a>&gt;                       --labels<span class="o">=</span><span class="s1">'app=flask,tier=frontend'</span> <span class="se">\</span>
+<a name="rest_code_bd1e1cce785c4adbafecbe2488054325-3"></a>&gt;                       --requests<span class="o">=</span><span class="s1">'cpu=100m,memory=100Mi'</span> <span class="se">\</span>
+<a name="rest_code_bd1e1cce785c4adbafecbe2488054325-4"></a>&gt;                       --env<span class="o">=</span><span class="s2">"GET_HOSTS_FROM=dns"</span> <span class="se">\</span>
+<a name="rest_code_bd1e1cce785c4adbafecbe2488054325-5"></a>&gt;                       --dry-run --output<span class="o">=</span>yaml &gt; web-flask-deployment.yaml
 </pre>
 </div>
 <div class="section" id="web-flask-deployment-yaml">
 <h3><a class="toc-backref" href="#id13">3.5   web-flask-deployment.yaml</a></h3>
-<pre class="code yaml"><a name="rest_code_17f506884de9440298682d49f091b3f4-1"></a><span class="l l-Scalar l-Scalar-Plain">apiVersion</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">extensions/v1beta1</span>
-<a name="rest_code_17f506884de9440298682d49f091b3f4-2"></a><span class="l l-Scalar l-Scalar-Plain">kind</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">Deployment</span>
-<a name="rest_code_17f506884de9440298682d49f091b3f4-3"></a><span class="l l-Scalar l-Scalar-Plain">metadata</span><span class="p p-Indicator">:</span>
-<a name="rest_code_17f506884de9440298682d49f091b3f4-4"></a>  <span class="l l-Scalar l-Scalar-Plain">creationTimestamp</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
-<a name="rest_code_17f506884de9440298682d49f091b3f4-5"></a>  <span class="l l-Scalar l-Scalar-Plain">labels</span><span class="p p-Indicator">:</span>
-<a name="rest_code_17f506884de9440298682d49f091b3f4-6"></a>    <span class="l l-Scalar l-Scalar-Plain">app</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">flask</span>
-<a name="rest_code_17f506884de9440298682d49f091b3f4-7"></a>    <span class="l l-Scalar l-Scalar-Plain">tier</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">frontend</span>
-<a name="rest_code_17f506884de9440298682d49f091b3f4-8"></a>  <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">web-flask</span>
-<a name="rest_code_17f506884de9440298682d49f091b3f4-9"></a><span class="l l-Scalar l-Scalar-Plain">spec</span><span class="p p-Indicator">:</span>
-<a name="rest_code_17f506884de9440298682d49f091b3f4-10"></a>  <span class="l l-Scalar l-Scalar-Plain">replicas</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
-<a name="rest_code_17f506884de9440298682d49f091b3f4-11"></a>  <span class="l l-Scalar l-Scalar-Plain">selector</span><span class="p p-Indicator">:</span>
-<a name="rest_code_17f506884de9440298682d49f091b3f4-12"></a>    <span class="l l-Scalar l-Scalar-Plain">matchLabels</span><span class="p p-Indicator">:</span>
-<a name="rest_code_17f506884de9440298682d49f091b3f4-13"></a>      <span class="l l-Scalar l-Scalar-Plain">app</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">flask</span>
-<a name="rest_code_17f506884de9440298682d49f091b3f4-14"></a>      <span class="l l-Scalar l-Scalar-Plain">tier</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">frontend</span>
-<a name="rest_code_17f506884de9440298682d49f091b3f4-15"></a>  <span class="l l-Scalar l-Scalar-Plain">strategy</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{}</span>
-<a name="rest_code_17f506884de9440298682d49f091b3f4-16"></a>  <span class="l l-Scalar l-Scalar-Plain">template</span><span class="p p-Indicator">:</span>
-<a name="rest_code_17f506884de9440298682d49f091b3f4-17"></a>    <span class="l l-Scalar l-Scalar-Plain">metadata</span><span class="p p-Indicator">:</span>
-<a name="rest_code_17f506884de9440298682d49f091b3f4-18"></a>      <span class="l l-Scalar l-Scalar-Plain">creationTimestamp</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
-<a name="rest_code_17f506884de9440298682d49f091b3f4-19"></a>      <span class="l l-Scalar l-Scalar-Plain">labels</span><span class="p p-Indicator">:</span>
-<a name="rest_code_17f506884de9440298682d49f091b3f4-20"></a>        <span class="l l-Scalar l-Scalar-Plain">app</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">flask</span>
-<a name="rest_code_17f506884de9440298682d49f091b3f4-21"></a>        <span class="l l-Scalar l-Scalar-Plain">tier</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">frontend</span>
-<a name="rest_code_17f506884de9440298682d49f091b3f4-22"></a>    <span class="l l-Scalar l-Scalar-Plain">spec</span><span class="p p-Indicator">:</span>
-<a name="rest_code_17f506884de9440298682d49f091b3f4-23"></a>      <span class="l l-Scalar l-Scalar-Plain">containers</span><span class="p p-Indicator">:</span>
-<a name="rest_code_17f506884de9440298682d49f091b3f4-24"></a>      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">env</span><span class="p p-Indicator">:</span>
-<a name="rest_code_17f506884de9440298682d49f091b3f4-25"></a>        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">GET_HOSTS_FROM</span>
-<a name="rest_code_17f506884de9440298682d49f091b3f4-26"></a>          <span class="l l-Scalar l-Scalar-Plain">value</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">dns</span>
-<a name="rest_code_17f506884de9440298682d49f091b3f4-27"></a>        <span class="l l-Scalar l-Scalar-Plain">image</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">tiao/web-flask-rq:v1</span>
-<a name="rest_code_17f506884de9440298682d49f091b3f4-28"></a>        <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">web-flask</span>
-<a name="rest_code_17f506884de9440298682d49f091b3f4-29"></a>        <span class="l l-Scalar l-Scalar-Plain">ports</span><span class="p p-Indicator">:</span>
-<a name="rest_code_17f506884de9440298682d49f091b3f4-30"></a>        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">containerPort</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">8080</span>
-<a name="rest_code_17f506884de9440298682d49f091b3f4-31"></a>        <span class="l l-Scalar l-Scalar-Plain">resources</span><span class="p p-Indicator">:</span>
-<a name="rest_code_17f506884de9440298682d49f091b3f4-32"></a>          <span class="l l-Scalar l-Scalar-Plain">requests</span><span class="p p-Indicator">:</span>
-<a name="rest_code_17f506884de9440298682d49f091b3f4-33"></a>            <span class="l l-Scalar l-Scalar-Plain">cpu</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">100m</span>
-<a name="rest_code_17f506884de9440298682d49f091b3f4-34"></a>            <span class="l l-Scalar l-Scalar-Plain">memory</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">100Mi</span>
-<a name="rest_code_17f506884de9440298682d49f091b3f4-35"></a><span class="l l-Scalar l-Scalar-Plain">status</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{}</span>
+<pre class="code yaml"><a name="rest_code_4aea25dc24304e8fb05ce424a5c993ff-1"></a><span class="l l-Scalar l-Scalar-Plain">apiVersion</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">extensions/v1beta1</span>
+<a name="rest_code_4aea25dc24304e8fb05ce424a5c993ff-2"></a><span class="l l-Scalar l-Scalar-Plain">kind</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">Deployment</span>
+<a name="rest_code_4aea25dc24304e8fb05ce424a5c993ff-3"></a><span class="l l-Scalar l-Scalar-Plain">metadata</span><span class="p p-Indicator">:</span>
+<a name="rest_code_4aea25dc24304e8fb05ce424a5c993ff-4"></a>  <span class="l l-Scalar l-Scalar-Plain">creationTimestamp</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
+<a name="rest_code_4aea25dc24304e8fb05ce424a5c993ff-5"></a>  <span class="l l-Scalar l-Scalar-Plain">labels</span><span class="p p-Indicator">:</span>
+<a name="rest_code_4aea25dc24304e8fb05ce424a5c993ff-6"></a>    <span class="l l-Scalar l-Scalar-Plain">app</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">flask</span>
+<a name="rest_code_4aea25dc24304e8fb05ce424a5c993ff-7"></a>    <span class="l l-Scalar l-Scalar-Plain">tier</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">frontend</span>
+<a name="rest_code_4aea25dc24304e8fb05ce424a5c993ff-8"></a>  <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">web-flask</span>
+<a name="rest_code_4aea25dc24304e8fb05ce424a5c993ff-9"></a><span class="l l-Scalar l-Scalar-Plain">spec</span><span class="p p-Indicator">:</span>
+<a name="rest_code_4aea25dc24304e8fb05ce424a5c993ff-10"></a>  <span class="l l-Scalar l-Scalar-Plain">replicas</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
+<a name="rest_code_4aea25dc24304e8fb05ce424a5c993ff-11"></a>  <span class="l l-Scalar l-Scalar-Plain">selector</span><span class="p p-Indicator">:</span>
+<a name="rest_code_4aea25dc24304e8fb05ce424a5c993ff-12"></a>    <span class="l l-Scalar l-Scalar-Plain">matchLabels</span><span class="p p-Indicator">:</span>
+<a name="rest_code_4aea25dc24304e8fb05ce424a5c993ff-13"></a>      <span class="l l-Scalar l-Scalar-Plain">app</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">flask</span>
+<a name="rest_code_4aea25dc24304e8fb05ce424a5c993ff-14"></a>      <span class="l l-Scalar l-Scalar-Plain">tier</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">frontend</span>
+<a name="rest_code_4aea25dc24304e8fb05ce424a5c993ff-15"></a>  <span class="l l-Scalar l-Scalar-Plain">strategy</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{}</span>
+<a name="rest_code_4aea25dc24304e8fb05ce424a5c993ff-16"></a>  <span class="l l-Scalar l-Scalar-Plain">template</span><span class="p p-Indicator">:</span>
+<a name="rest_code_4aea25dc24304e8fb05ce424a5c993ff-17"></a>    <span class="l l-Scalar l-Scalar-Plain">metadata</span><span class="p p-Indicator">:</span>
+<a name="rest_code_4aea25dc24304e8fb05ce424a5c993ff-18"></a>      <span class="l l-Scalar l-Scalar-Plain">creationTimestamp</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
+<a name="rest_code_4aea25dc24304e8fb05ce424a5c993ff-19"></a>      <span class="l l-Scalar l-Scalar-Plain">labels</span><span class="p p-Indicator">:</span>
+<a name="rest_code_4aea25dc24304e8fb05ce424a5c993ff-20"></a>        <span class="l l-Scalar l-Scalar-Plain">app</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">flask</span>
+<a name="rest_code_4aea25dc24304e8fb05ce424a5c993ff-21"></a>        <span class="l l-Scalar l-Scalar-Plain">tier</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">frontend</span>
+<a name="rest_code_4aea25dc24304e8fb05ce424a5c993ff-22"></a>    <span class="l l-Scalar l-Scalar-Plain">spec</span><span class="p p-Indicator">:</span>
+<a name="rest_code_4aea25dc24304e8fb05ce424a5c993ff-23"></a>      <span class="l l-Scalar l-Scalar-Plain">containers</span><span class="p p-Indicator">:</span>
+<a name="rest_code_4aea25dc24304e8fb05ce424a5c993ff-24"></a>      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">env</span><span class="p p-Indicator">:</span>
+<a name="rest_code_4aea25dc24304e8fb05ce424a5c993ff-25"></a>        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">GET_HOSTS_FROM</span>
+<a name="rest_code_4aea25dc24304e8fb05ce424a5c993ff-26"></a>          <span class="l l-Scalar l-Scalar-Plain">value</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">dns</span>
+<a name="rest_code_4aea25dc24304e8fb05ce424a5c993ff-27"></a>        <span class="l l-Scalar l-Scalar-Plain">image</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">tiao/web-flask-rq:v1</span>
+<a name="rest_code_4aea25dc24304e8fb05ce424a5c993ff-28"></a>        <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">web-flask</span>
+<a name="rest_code_4aea25dc24304e8fb05ce424a5c993ff-29"></a>        <span class="l l-Scalar l-Scalar-Plain">ports</span><span class="p p-Indicator">:</span>
+<a name="rest_code_4aea25dc24304e8fb05ce424a5c993ff-30"></a>        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">containerPort</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">8080</span>
+<a name="rest_code_4aea25dc24304e8fb05ce424a5c993ff-31"></a>        <span class="l l-Scalar l-Scalar-Plain">resources</span><span class="p p-Indicator">:</span>
+<a name="rest_code_4aea25dc24304e8fb05ce424a5c993ff-32"></a>          <span class="l l-Scalar l-Scalar-Plain">requests</span><span class="p p-Indicator">:</span>
+<a name="rest_code_4aea25dc24304e8fb05ce424a5c993ff-33"></a>            <span class="l l-Scalar l-Scalar-Plain">cpu</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">100m</span>
+<a name="rest_code_4aea25dc24304e8fb05ce424a5c993ff-34"></a>            <span class="l l-Scalar l-Scalar-Plain">memory</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">100Mi</span>
+<a name="rest_code_4aea25dc24304e8fb05ce424a5c993ff-35"></a><span class="l l-Scalar l-Scalar-Plain">status</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{}</span>
 </pre>
-<pre class="code console"><a name="rest_code_1694f31583c04e5fad8eb1073b8ce124-1"></a><span class="gp">$</span> kubectl create -f web-flask-deployment.yaml
-<a name="rest_code_1694f31583c04e5fad8eb1073b8ce124-2"></a><span class="go">deployment "web-flask" created</span>
+<pre class="code console"><a name="rest_code_352673ce881e49d7951fa58e180ba5ba-1"></a><span class="gp">$</span> kubectl create -f web-flask-deployment.yaml
+<a name="rest_code_352673ce881e49d7951fa58e180ba5ba-2"></a><span class="go">deployment "web-flask" created</span>
 </pre>
-<pre class="code console"><a name="rest_code_80dfa51efbc847228c3d40a5b59ea91c-1"></a><span class="gp">$</span> kubectl expose deployment web-flask --selector<span class="o">=</span><span class="s1">'app=flask,tier=frontend'</span> --type<span class="o">=</span>NodePort <span class="se">\</span>
-<a name="rest_code_80dfa51efbc847228c3d40a5b59ea91c-2"></a>&gt;                                     --dry-run --output<span class="o">=</span>yaml &gt; web-flask-service.yaml
+<pre class="code console"><a name="rest_code_f017fd2d737944ecbdb4412dc41ec4c2-1"></a><span class="gp">$</span> kubectl expose deployment web-flask --selector<span class="o">=</span><span class="s1">'app=flask,tier=frontend'</span> --type<span class="o">=</span>NodePort <span class="se">\</span>
+<a name="rest_code_f017fd2d737944ecbdb4412dc41ec4c2-2"></a>&gt;                                     --dry-run --output<span class="o">=</span>yaml &gt; web-flask-service.yaml
 </pre>
 </div>
 <div class="section" id="web-flask-service-yaml">
 <h3><a class="toc-backref" href="#id14">3.6   web-flask-service.yaml</a></h3>
-<pre class="code yaml"><a name="rest_code_942252e8c3f944b58dd095e2fa6f80fc-1"></a><span class="l l-Scalar l-Scalar-Plain">apiVersion</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">v1</span>
-<a name="rest_code_942252e8c3f944b58dd095e2fa6f80fc-2"></a><span class="l l-Scalar l-Scalar-Plain">kind</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">Service</span>
-<a name="rest_code_942252e8c3f944b58dd095e2fa6f80fc-3"></a><span class="l l-Scalar l-Scalar-Plain">metadata</span><span class="p p-Indicator">:</span>
-<a name="rest_code_942252e8c3f944b58dd095e2fa6f80fc-4"></a>  <span class="l l-Scalar l-Scalar-Plain">creationTimestamp</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
-<a name="rest_code_942252e8c3f944b58dd095e2fa6f80fc-5"></a>  <span class="l l-Scalar l-Scalar-Plain">labels</span><span class="p p-Indicator">:</span>
-<a name="rest_code_942252e8c3f944b58dd095e2fa6f80fc-6"></a>    <span class="l l-Scalar l-Scalar-Plain">app</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">flask</span>
-<a name="rest_code_942252e8c3f944b58dd095e2fa6f80fc-7"></a>    <span class="l l-Scalar l-Scalar-Plain">tier</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">frontend</span>
-<a name="rest_code_942252e8c3f944b58dd095e2fa6f80fc-8"></a>  <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">web-flask</span>
-<a name="rest_code_942252e8c3f944b58dd095e2fa6f80fc-9"></a><span class="l l-Scalar l-Scalar-Plain">spec</span><span class="p p-Indicator">:</span>
-<a name="rest_code_942252e8c3f944b58dd095e2fa6f80fc-10"></a>  <span class="l l-Scalar l-Scalar-Plain">ports</span><span class="p p-Indicator">:</span>
-<a name="rest_code_942252e8c3f944b58dd095e2fa6f80fc-11"></a>  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">port</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">8080</span>
-<a name="rest_code_942252e8c3f944b58dd095e2fa6f80fc-12"></a>    <span class="l l-Scalar l-Scalar-Plain">protocol</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">TCP</span>
-<a name="rest_code_942252e8c3f944b58dd095e2fa6f80fc-13"></a>    <span class="l l-Scalar l-Scalar-Plain">targetPort</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">8080</span>
-<a name="rest_code_942252e8c3f944b58dd095e2fa6f80fc-14"></a>  <span class="l l-Scalar l-Scalar-Plain">selector</span><span class="p p-Indicator">:</span>
-<a name="rest_code_942252e8c3f944b58dd095e2fa6f80fc-15"></a>    <span class="l l-Scalar l-Scalar-Plain">app</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">flask</span>
-<a name="rest_code_942252e8c3f944b58dd095e2fa6f80fc-16"></a>    <span class="l l-Scalar l-Scalar-Plain">tier</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">frontend</span>
-<a name="rest_code_942252e8c3f944b58dd095e2fa6f80fc-17"></a>  <span class="l l-Scalar l-Scalar-Plain">type</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">NodePort</span>
-<a name="rest_code_942252e8c3f944b58dd095e2fa6f80fc-18"></a><span class="l l-Scalar l-Scalar-Plain">status</span><span class="p p-Indicator">:</span>
-<a name="rest_code_942252e8c3f944b58dd095e2fa6f80fc-19"></a>  <span class="l l-Scalar l-Scalar-Plain">loadBalancer</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{}</span>
+<pre class="code yaml"><a name="rest_code_63df54b25b01476fad5ff494851ab9ef-1"></a><span class="l l-Scalar l-Scalar-Plain">apiVersion</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">v1</span>
+<a name="rest_code_63df54b25b01476fad5ff494851ab9ef-2"></a><span class="l l-Scalar l-Scalar-Plain">kind</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">Service</span>
+<a name="rest_code_63df54b25b01476fad5ff494851ab9ef-3"></a><span class="l l-Scalar l-Scalar-Plain">metadata</span><span class="p p-Indicator">:</span>
+<a name="rest_code_63df54b25b01476fad5ff494851ab9ef-4"></a>  <span class="l l-Scalar l-Scalar-Plain">creationTimestamp</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
+<a name="rest_code_63df54b25b01476fad5ff494851ab9ef-5"></a>  <span class="l l-Scalar l-Scalar-Plain">labels</span><span class="p p-Indicator">:</span>
+<a name="rest_code_63df54b25b01476fad5ff494851ab9ef-6"></a>    <span class="l l-Scalar l-Scalar-Plain">app</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">flask</span>
+<a name="rest_code_63df54b25b01476fad5ff494851ab9ef-7"></a>    <span class="l l-Scalar l-Scalar-Plain">tier</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">frontend</span>
+<a name="rest_code_63df54b25b01476fad5ff494851ab9ef-8"></a>  <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">web-flask</span>
+<a name="rest_code_63df54b25b01476fad5ff494851ab9ef-9"></a><span class="l l-Scalar l-Scalar-Plain">spec</span><span class="p p-Indicator">:</span>
+<a name="rest_code_63df54b25b01476fad5ff494851ab9ef-10"></a>  <span class="l l-Scalar l-Scalar-Plain">ports</span><span class="p p-Indicator">:</span>
+<a name="rest_code_63df54b25b01476fad5ff494851ab9ef-11"></a>  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">port</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">8080</span>
+<a name="rest_code_63df54b25b01476fad5ff494851ab9ef-12"></a>    <span class="l l-Scalar l-Scalar-Plain">protocol</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">TCP</span>
+<a name="rest_code_63df54b25b01476fad5ff494851ab9ef-13"></a>    <span class="l l-Scalar l-Scalar-Plain">targetPort</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">8080</span>
+<a name="rest_code_63df54b25b01476fad5ff494851ab9ef-14"></a>  <span class="l l-Scalar l-Scalar-Plain">selector</span><span class="p p-Indicator">:</span>
+<a name="rest_code_63df54b25b01476fad5ff494851ab9ef-15"></a>    <span class="l l-Scalar l-Scalar-Plain">app</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">flask</span>
+<a name="rest_code_63df54b25b01476fad5ff494851ab9ef-16"></a>    <span class="l l-Scalar l-Scalar-Plain">tier</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">frontend</span>
+<a name="rest_code_63df54b25b01476fad5ff494851ab9ef-17"></a>  <span class="l l-Scalar l-Scalar-Plain">type</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">NodePort</span>
+<a name="rest_code_63df54b25b01476fad5ff494851ab9ef-18"></a><span class="l l-Scalar l-Scalar-Plain">status</span><span class="p p-Indicator">:</span>
+<a name="rest_code_63df54b25b01476fad5ff494851ab9ef-19"></a>  <span class="l l-Scalar l-Scalar-Plain">loadBalancer</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{}</span>
 </pre>
-<pre class="code console"><a name="rest_code_6a928f35456a46c08711dfdf0d97ac4a-1"></a><span class="gp">$</span> kubectl create -f web-flask-service.yaml
-<a name="rest_code_6a928f35456a46c08711dfdf0d97ac4a-2"></a><span class="go">You have exposed your service on an external port on all nodes in your</span>
-<a name="rest_code_6a928f35456a46c08711dfdf0d97ac4a-3"></a><span class="go">cluster.  If you want to expose this service to the external internet, you may</span>
-<a name="rest_code_6a928f35456a46c08711dfdf0d97ac4a-4"></a><span class="go">need to set up firewall rules for the service port(s) (tcp:30321) to serve traffic.</span>
-<a name="rest_code_6a928f35456a46c08711dfdf0d97ac4a-5"></a>
-<a name="rest_code_6a928f35456a46c08711dfdf0d97ac4a-6"></a><span class="go">See http://releases.k8s.io/release-1.2/docs/user-guide/services-firewalls.md for more details.</span>
-<a name="rest_code_6a928f35456a46c08711dfdf0d97ac4a-7"></a><span class="go">service "web-flask" created</span>
+<pre class="code console"><a name="rest_code_b7c648bc3fe444d2aacccdf99ffc5eeb-1"></a><span class="gp">$</span> kubectl create -f web-flask-service.yaml
+<a name="rest_code_b7c648bc3fe444d2aacccdf99ffc5eeb-2"></a><span class="go">You have exposed your service on an external port on all nodes in your</span>
+<a name="rest_code_b7c648bc3fe444d2aacccdf99ffc5eeb-3"></a><span class="go">cluster.  If you want to expose this service to the external internet, you may</span>
+<a name="rest_code_b7c648bc3fe444d2aacccdf99ffc5eeb-4"></a><span class="go">need to set up firewall rules for the service port(s) (tcp:30321) to serve traffic.</span>
+<a name="rest_code_b7c648bc3fe444d2aacccdf99ffc5eeb-5"></a>
+<a name="rest_code_b7c648bc3fe444d2aacccdf99ffc5eeb-6"></a><span class="go">See http://releases.k8s.io/release-1.2/docs/user-guide/services-firewalls.md for more details.</span>
+<a name="rest_code_b7c648bc3fe444d2aacccdf99ffc5eeb-7"></a><span class="go">service "web-flask" created</span>
 </pre>
 </div>
 </div>
 <div class="section" id="deploy-the-redis-queue-rq-workers">
 <h2><a class="toc-backref" href="#id15">4   Deploy the Redis Queue (RQ) workers</a></h2>
-<pre class="code console"><a name="rest_code_6dbde0f3e4494020970bbe0ecc03b197-1"></a><span class="gp">$</span> mkdir rq-worker
+<pre class="code console"><a name="rest_code_d1a823c1dca544dca7546091e9b0cd79-1"></a><span class="gp">$</span> mkdir rq-worker
 </pre>
 <div class="section" id="id1">
 <h3><a class="toc-backref" href="#id16">4.1   Dockerfile</a></h3>
-<pre class="code docker"><a name="rest_code_c73f4143df9948b5bb288a4775ef6b80-1"></a><span class="k">FROM</span><span class="s"> tiao/web-flask-rq:v1</span>
-<a name="rest_code_c73f4143df9948b5bb288a4775ef6b80-2"></a>
-<a name="rest_code_c73f4143df9948b5bb288a4775ef6b80-3"></a><span class="k">CMD</span><span class="s"> ["rq", "worker", "--config", "settings"]</span>
+<pre class="code docker"><a name="rest_code_ffa63658ba1546c099b5b7841a4a4579-1"></a><span class="k">FROM</span><span class="s"> tiao/web-flask-rq:v1</span>
+<a name="rest_code_ffa63658ba1546c099b5b7841a4a4579-2"></a>
+<a name="rest_code_ffa63658ba1546c099b5b7841a4a4579-3"></a><span class="k">CMD</span><span class="s"> ["rq", "worker", "--config", "settings"]</span>
 </pre>
-<pre class="code console"><a name="rest_code_06e7168c67bf49568e51b9a64de6040f-1"></a><span class="gp">$</span> docker build -t tiao/rq-worker:v1 rq-worker
+<pre class="code console"><a name="rest_code_bd7d1defdf6349b6bbe70309cb7304bc-1"></a><span class="gp">$</span> docker build -t tiao/rq-worker:v1 rq-worker
 </pre>
-<pre class="code console"><a name="rest_code_554e83be7a1a491ba24f92a76758c36a-1"></a><span class="gp">$</span> kubectl run rq-worker --image<span class="o">=</span>tiao/rq-worker:v1 --replicas<span class="o">=</span><span class="m">5</span> <span class="se">\</span>
-<a name="rest_code_554e83be7a1a491ba24f92a76758c36a-2"></a>&gt;                       --labels<span class="o">=</span><span class="s2">"app=rq,role=worker,tier=backend"</span> <span class="se">\</span>
-<a name="rest_code_554e83be7a1a491ba24f92a76758c36a-3"></a>&gt;                       --requests<span class="o">=</span><span class="s2">"cpu=100m,memory=100Mi"</span> <span class="se">\</span>
-<a name="rest_code_554e83be7a1a491ba24f92a76758c36a-4"></a>&gt;                       --env<span class="o">=</span><span class="s2">"GET_HOSTS_FROM=dns"</span> <span class="se">\</span>
-<a name="rest_code_554e83be7a1a491ba24f92a76758c36a-5"></a>&gt;                       --dry-run --output<span class="o">=</span>yaml &gt; rq-worker-deployment.yaml
+<pre class="code console"><a name="rest_code_43bde9be51e3439caae815a8b655ac74-1"></a><span class="gp">$</span> kubectl run rq-worker --image<span class="o">=</span>tiao/rq-worker:v1 --replicas<span class="o">=</span><span class="m">5</span> <span class="se">\</span>
+<a name="rest_code_43bde9be51e3439caae815a8b655ac74-2"></a>&gt;                       --labels<span class="o">=</span><span class="s2">"app=rq,role=worker,tier=backend"</span> <span class="se">\</span>
+<a name="rest_code_43bde9be51e3439caae815a8b655ac74-3"></a>&gt;                       --requests<span class="o">=</span><span class="s2">"cpu=100m,memory=100Mi"</span> <span class="se">\</span>
+<a name="rest_code_43bde9be51e3439caae815a8b655ac74-4"></a>&gt;                       --env<span class="o">=</span><span class="s2">"GET_HOSTS_FROM=dns"</span> <span class="se">\</span>
+<a name="rest_code_43bde9be51e3439caae815a8b655ac74-5"></a>&gt;                       --dry-run --output<span class="o">=</span>yaml &gt; rq-worker-deployment.yaml
 </pre>
 </div>
 <div class="section" id="rq-worker-deployment-yaml">
 <h3><a class="toc-backref" href="#id17">4.2   rq-worker-deployment.yaml</a></h3>
-<pre class="code yaml"><a name="rest_code_3ee821db8b2e42539088ec51134015e4-1"></a><span class="l l-Scalar l-Scalar-Plain">apiVersion</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">extensions/v1beta1</span>
-<a name="rest_code_3ee821db8b2e42539088ec51134015e4-2"></a><span class="l l-Scalar l-Scalar-Plain">kind</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">Deployment</span>
-<a name="rest_code_3ee821db8b2e42539088ec51134015e4-3"></a><span class="l l-Scalar l-Scalar-Plain">metadata</span><span class="p p-Indicator">:</span>
-<a name="rest_code_3ee821db8b2e42539088ec51134015e4-4"></a>  <span class="l l-Scalar l-Scalar-Plain">creationTimestamp</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
-<a name="rest_code_3ee821db8b2e42539088ec51134015e4-5"></a>  <span class="l l-Scalar l-Scalar-Plain">labels</span><span class="p p-Indicator">:</span>
-<a name="rest_code_3ee821db8b2e42539088ec51134015e4-6"></a>    <span class="l l-Scalar l-Scalar-Plain">app</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">redis</span>
-<a name="rest_code_3ee821db8b2e42539088ec51134015e4-7"></a>    <span class="l l-Scalar l-Scalar-Plain">role</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">worker</span>
-<a name="rest_code_3ee821db8b2e42539088ec51134015e4-8"></a>    <span class="l l-Scalar l-Scalar-Plain">tier</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">backend</span>
-<a name="rest_code_3ee821db8b2e42539088ec51134015e4-9"></a>  <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">rq-worker</span>
-<a name="rest_code_3ee821db8b2e42539088ec51134015e4-10"></a><span class="l l-Scalar l-Scalar-Plain">spec</span><span class="p p-Indicator">:</span>
-<a name="rest_code_3ee821db8b2e42539088ec51134015e4-11"></a>  <span class="l l-Scalar l-Scalar-Plain">replicas</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">5</span>
-<a name="rest_code_3ee821db8b2e42539088ec51134015e4-12"></a>  <span class="l l-Scalar l-Scalar-Plain">selector</span><span class="p p-Indicator">:</span>
-<a name="rest_code_3ee821db8b2e42539088ec51134015e4-13"></a>    <span class="l l-Scalar l-Scalar-Plain">matchLabels</span><span class="p p-Indicator">:</span>
-<a name="rest_code_3ee821db8b2e42539088ec51134015e4-14"></a>      <span class="l l-Scalar l-Scalar-Plain">app</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">redis</span>
-<a name="rest_code_3ee821db8b2e42539088ec51134015e4-15"></a>      <span class="l l-Scalar l-Scalar-Plain">role</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">worker</span>
-<a name="rest_code_3ee821db8b2e42539088ec51134015e4-16"></a>      <span class="l l-Scalar l-Scalar-Plain">tier</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">backend</span>
-<a name="rest_code_3ee821db8b2e42539088ec51134015e4-17"></a>  <span class="l l-Scalar l-Scalar-Plain">strategy</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{}</span>
-<a name="rest_code_3ee821db8b2e42539088ec51134015e4-18"></a>  <span class="l l-Scalar l-Scalar-Plain">template</span><span class="p p-Indicator">:</span>
-<a name="rest_code_3ee821db8b2e42539088ec51134015e4-19"></a>    <span class="l l-Scalar l-Scalar-Plain">metadata</span><span class="p p-Indicator">:</span>
-<a name="rest_code_3ee821db8b2e42539088ec51134015e4-20"></a>      <span class="l l-Scalar l-Scalar-Plain">creationTimestamp</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
-<a name="rest_code_3ee821db8b2e42539088ec51134015e4-21"></a>      <span class="l l-Scalar l-Scalar-Plain">labels</span><span class="p p-Indicator">:</span>
-<a name="rest_code_3ee821db8b2e42539088ec51134015e4-22"></a>        <span class="l l-Scalar l-Scalar-Plain">app</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">redis</span>
-<a name="rest_code_3ee821db8b2e42539088ec51134015e4-23"></a>        <span class="l l-Scalar l-Scalar-Plain">role</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">worker</span>
-<a name="rest_code_3ee821db8b2e42539088ec51134015e4-24"></a>        <span class="l l-Scalar l-Scalar-Plain">tier</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">backend</span>
-<a name="rest_code_3ee821db8b2e42539088ec51134015e4-25"></a>    <span class="l l-Scalar l-Scalar-Plain">spec</span><span class="p p-Indicator">:</span>
-<a name="rest_code_3ee821db8b2e42539088ec51134015e4-26"></a>      <span class="l l-Scalar l-Scalar-Plain">containers</span><span class="p p-Indicator">:</span>
-<a name="rest_code_3ee821db8b2e42539088ec51134015e4-27"></a>      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">env</span><span class="p p-Indicator">:</span>
-<a name="rest_code_3ee821db8b2e42539088ec51134015e4-28"></a>        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">GET_HOSTS_FROM</span>
-<a name="rest_code_3ee821db8b2e42539088ec51134015e4-29"></a>          <span class="l l-Scalar l-Scalar-Plain">value</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">dns</span>
-<a name="rest_code_3ee821db8b2e42539088ec51134015e4-30"></a>        <span class="l l-Scalar l-Scalar-Plain">image</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">tiao/rq-worker:v1</span>
-<a name="rest_code_3ee821db8b2e42539088ec51134015e4-31"></a>        <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">rq-worker</span>
-<a name="rest_code_3ee821db8b2e42539088ec51134015e4-32"></a>        <span class="l l-Scalar l-Scalar-Plain">resources</span><span class="p p-Indicator">:</span>
-<a name="rest_code_3ee821db8b2e42539088ec51134015e4-33"></a>          <span class="l l-Scalar l-Scalar-Plain">requests</span><span class="p p-Indicator">:</span>
-<a name="rest_code_3ee821db8b2e42539088ec51134015e4-34"></a>            <span class="l l-Scalar l-Scalar-Plain">cpu</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">100m</span>
-<a name="rest_code_3ee821db8b2e42539088ec51134015e4-35"></a>            <span class="l l-Scalar l-Scalar-Plain">memory</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">100Mi</span>
-<a name="rest_code_3ee821db8b2e42539088ec51134015e4-36"></a><span class="l l-Scalar l-Scalar-Plain">status</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{}</span>
+<pre class="code yaml"><a name="rest_code_4be9e32c5ee941e7b9c5e6500144216a-1"></a><span class="l l-Scalar l-Scalar-Plain">apiVersion</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">extensions/v1beta1</span>
+<a name="rest_code_4be9e32c5ee941e7b9c5e6500144216a-2"></a><span class="l l-Scalar l-Scalar-Plain">kind</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">Deployment</span>
+<a name="rest_code_4be9e32c5ee941e7b9c5e6500144216a-3"></a><span class="l l-Scalar l-Scalar-Plain">metadata</span><span class="p p-Indicator">:</span>
+<a name="rest_code_4be9e32c5ee941e7b9c5e6500144216a-4"></a>  <span class="l l-Scalar l-Scalar-Plain">creationTimestamp</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
+<a name="rest_code_4be9e32c5ee941e7b9c5e6500144216a-5"></a>  <span class="l l-Scalar l-Scalar-Plain">labels</span><span class="p p-Indicator">:</span>
+<a name="rest_code_4be9e32c5ee941e7b9c5e6500144216a-6"></a>    <span class="l l-Scalar l-Scalar-Plain">app</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">redis</span>
+<a name="rest_code_4be9e32c5ee941e7b9c5e6500144216a-7"></a>    <span class="l l-Scalar l-Scalar-Plain">role</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">worker</span>
+<a name="rest_code_4be9e32c5ee941e7b9c5e6500144216a-8"></a>    <span class="l l-Scalar l-Scalar-Plain">tier</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">backend</span>
+<a name="rest_code_4be9e32c5ee941e7b9c5e6500144216a-9"></a>  <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">rq-worker</span>
+<a name="rest_code_4be9e32c5ee941e7b9c5e6500144216a-10"></a><span class="l l-Scalar l-Scalar-Plain">spec</span><span class="p p-Indicator">:</span>
+<a name="rest_code_4be9e32c5ee941e7b9c5e6500144216a-11"></a>  <span class="l l-Scalar l-Scalar-Plain">replicas</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">5</span>
+<a name="rest_code_4be9e32c5ee941e7b9c5e6500144216a-12"></a>  <span class="l l-Scalar l-Scalar-Plain">selector</span><span class="p p-Indicator">:</span>
+<a name="rest_code_4be9e32c5ee941e7b9c5e6500144216a-13"></a>    <span class="l l-Scalar l-Scalar-Plain">matchLabels</span><span class="p p-Indicator">:</span>
+<a name="rest_code_4be9e32c5ee941e7b9c5e6500144216a-14"></a>      <span class="l l-Scalar l-Scalar-Plain">app</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">redis</span>
+<a name="rest_code_4be9e32c5ee941e7b9c5e6500144216a-15"></a>      <span class="l l-Scalar l-Scalar-Plain">role</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">worker</span>
+<a name="rest_code_4be9e32c5ee941e7b9c5e6500144216a-16"></a>      <span class="l l-Scalar l-Scalar-Plain">tier</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">backend</span>
+<a name="rest_code_4be9e32c5ee941e7b9c5e6500144216a-17"></a>  <span class="l l-Scalar l-Scalar-Plain">strategy</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{}</span>
+<a name="rest_code_4be9e32c5ee941e7b9c5e6500144216a-18"></a>  <span class="l l-Scalar l-Scalar-Plain">template</span><span class="p p-Indicator">:</span>
+<a name="rest_code_4be9e32c5ee941e7b9c5e6500144216a-19"></a>    <span class="l l-Scalar l-Scalar-Plain">metadata</span><span class="p p-Indicator">:</span>
+<a name="rest_code_4be9e32c5ee941e7b9c5e6500144216a-20"></a>      <span class="l l-Scalar l-Scalar-Plain">creationTimestamp</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
+<a name="rest_code_4be9e32c5ee941e7b9c5e6500144216a-21"></a>      <span class="l l-Scalar l-Scalar-Plain">labels</span><span class="p p-Indicator">:</span>
+<a name="rest_code_4be9e32c5ee941e7b9c5e6500144216a-22"></a>        <span class="l l-Scalar l-Scalar-Plain">app</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">redis</span>
+<a name="rest_code_4be9e32c5ee941e7b9c5e6500144216a-23"></a>        <span class="l l-Scalar l-Scalar-Plain">role</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">worker</span>
+<a name="rest_code_4be9e32c5ee941e7b9c5e6500144216a-24"></a>        <span class="l l-Scalar l-Scalar-Plain">tier</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">backend</span>
+<a name="rest_code_4be9e32c5ee941e7b9c5e6500144216a-25"></a>    <span class="l l-Scalar l-Scalar-Plain">spec</span><span class="p p-Indicator">:</span>
+<a name="rest_code_4be9e32c5ee941e7b9c5e6500144216a-26"></a>      <span class="l l-Scalar l-Scalar-Plain">containers</span><span class="p p-Indicator">:</span>
+<a name="rest_code_4be9e32c5ee941e7b9c5e6500144216a-27"></a>      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">env</span><span class="p p-Indicator">:</span>
+<a name="rest_code_4be9e32c5ee941e7b9c5e6500144216a-28"></a>        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">GET_HOSTS_FROM</span>
+<a name="rest_code_4be9e32c5ee941e7b9c5e6500144216a-29"></a>          <span class="l l-Scalar l-Scalar-Plain">value</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">dns</span>
+<a name="rest_code_4be9e32c5ee941e7b9c5e6500144216a-30"></a>        <span class="l l-Scalar l-Scalar-Plain">image</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">tiao/rq-worker:v1</span>
+<a name="rest_code_4be9e32c5ee941e7b9c5e6500144216a-31"></a>        <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">rq-worker</span>
+<a name="rest_code_4be9e32c5ee941e7b9c5e6500144216a-32"></a>        <span class="l l-Scalar l-Scalar-Plain">resources</span><span class="p p-Indicator">:</span>
+<a name="rest_code_4be9e32c5ee941e7b9c5e6500144216a-33"></a>          <span class="l l-Scalar l-Scalar-Plain">requests</span><span class="p p-Indicator">:</span>
+<a name="rest_code_4be9e32c5ee941e7b9c5e6500144216a-34"></a>            <span class="l l-Scalar l-Scalar-Plain">cpu</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">100m</span>
+<a name="rest_code_4be9e32c5ee941e7b9c5e6500144216a-35"></a>            <span class="l l-Scalar l-Scalar-Plain">memory</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">100Mi</span>
+<a name="rest_code_4be9e32c5ee941e7b9c5e6500144216a-36"></a><span class="l l-Scalar l-Scalar-Plain">status</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{}</span>
 </pre>
-<pre class="code console"><a name="rest_code_056ef5d455b24008aa84f2b0eb1ebf6d-1"></a><span class="gp">$</span> kubectl create -f rq-worker-deployment.yaml
-<a name="rest_code_056ef5d455b24008aa84f2b0eb1ebf6d-2"></a><span class="go">deployment "rq-worker" created</span>
+<pre class="code console"><a name="rest_code_26d46724105d4f7994a532368ae18f03-1"></a><span class="gp">$</span> kubectl create -f rq-worker-deployment.yaml
+<a name="rest_code_26d46724105d4f7994a532368ae18f03-2"></a><span class="go">deployment "rq-worker" created</span>
 </pre>
 </div>
 </div>
@@ -517,218 +517,218 @@ series provides a good starting point and should get you up to speed.</p>
 <h2><a class="toc-backref" href="#id18">5   Testing it out</a></h2>
 <p>We make make use of <a class="reference external" href="http://kubernetes.io/docs/user-guide/jsonpath/">JSONPath support</a>
 in the <tt class="docutils literal">kubectl</tt> tool to query the <tt class="docutils literal">NodePort</tt> for our <tt class="docutils literal"><span class="pre">web-flask</span></tt> service:</p>
-<pre class="code console"><a name="rest_code_db65b7f3ed67444192d7d8f775d22a13-1"></a><span class="gp">$</span> kubectl get service web-flask --output<span class="o">=</span><span class="s1">'jsonpath={.spec.ports[0].NodePort}'</span>
-<a name="rest_code_db65b7f3ed67444192d7d8f775d22a13-2"></a><span class="go">30321%</span>
-<a name="rest_code_db65b7f3ed67444192d7d8f775d22a13-3"></a><span class="gp">$</span> <span class="nv">port</span><span class="o">=</span><span class="k">$(</span>kubectl get service web-flask --output<span class="o">=</span><span class="s1">'jsonpath={.spec.ports[0].NodePort}'</span><span class="k">)</span>
+<pre class="code console"><a name="rest_code_00637d3a04124cb5a0093476c0115461-1"></a><span class="gp">$</span> kubectl get service web-flask --output<span class="o">=</span><span class="s1">'jsonpath={.spec.ports[0].NodePort}'</span>
+<a name="rest_code_00637d3a04124cb5a0093476c0115461-2"></a><span class="go">30321%</span>
+<a name="rest_code_00637d3a04124cb5a0093476c0115461-3"></a><span class="gp">$</span> <span class="nv">port</span><span class="o">=</span><span class="k">$(</span>kubectl get service web-flask --output<span class="o">=</span><span class="s1">'jsonpath={.spec.ports[0].NodePort}'</span><span class="k">)</span>
 </pre>
 <p>We construct the address for ease of reference later on:</p>
-<pre class="code console"><a name="rest_code_b904f0e72976418eaf894f797fb5aeb2-1"></a><span class="gp">$</span> <span class="nv">address</span><span class="o">=</span><span class="s2">"</span><span class="k">$(</span>minikube ip<span class="k">)</span><span class="s2">:</span><span class="nv">$port</span><span class="s2">"</span>
-<a name="rest_code_b904f0e72976418eaf894f797fb5aeb2-2"></a><span class="gp">$</span> <span class="nb">echo</span> <span class="nv">$address</span>
-<a name="rest_code_b904f0e72976418eaf894f797fb5aeb2-3"></a><span class="go">192.168.99.101:31637</span>
+<pre class="code console"><a name="rest_code_efb612308296496ba2cfe300739ce9a4-1"></a><span class="gp">$</span> <span class="nv">address</span><span class="o">=</span><span class="s2">"</span><span class="k">$(</span>minikube ip<span class="k">)</span><span class="s2">:</span><span class="nv">$port</span><span class="s2">"</span>
+<a name="rest_code_efb612308296496ba2cfe300739ce9a4-2"></a><span class="gp">$</span> <span class="nb">echo</span> <span class="nv">$address</span>
+<a name="rest_code_efb612308296496ba2cfe300739ce9a4-3"></a><span class="go">192.168.99.101:31637</span>
 </pre>
-<pre class="code console"><a name="rest_code_6de7e79b6ce746e692fc020e7d4cbeef-1"></a><span class="gp">$</span> open <span class="s2">"http://</span><span class="si">${</span><span class="nv">address</span><span class="si">}</span><span class="s2">/?start=23&amp;stop=31"</span>
+<pre class="code console"><a name="rest_code_603ce6b81dcf446084b2512b505cb422-1"></a><span class="gp">$</span> open <span class="s2">"http://</span><span class="si">${</span><span class="nv">address</span><span class="si">}</span><span class="s2">/?start=23&amp;stop=31"</span>
 </pre>
-<img alt="../../images/flask-rq-job.png" class="align-center" src="../../images/flask-rq-job.png"><pre class="code console"><a name="rest_code_ca5741a3d35f42ad949e78c94a97da95-1"></a><span class="gp">$</span> curl <span class="s2">"http://</span><span class="si">${</span><span class="nv">address</span><span class="si">}</span><span class="s2">/?start=41&amp;stop=45"</span>
-<a name="rest_code_ca5741a3d35f42ad949e78c94a97da95-2"></a><span class="go">{</span>
-<a name="rest_code_ca5741a3d35f42ad949e78c94a97da95-3"></a><span class="go">  "job_id": "cc31bdcd-ad31-41ce-b516-2b90cd92f2a1"</span>
-<a name="rest_code_ca5741a3d35f42ad949e78c94a97da95-4"></a><span class="go">}</span>
-<a name="rest_code_ca5741a3d35f42ad949e78c94a97da95-5"></a><span class="gp">$</span> curl <span class="s2">"http://</span><span class="si">${</span><span class="nv">address</span><span class="si">}</span><span class="s2">/?start=41&amp;stop=45"</span> <span class="p">|</span> jq <span class="s1">'.job_id'</span>
-<a name="rest_code_ca5741a3d35f42ad949e78c94a97da95-6"></a><span class="go">"cc31bdcd-ad31-41ce-b516-2b90cd92f2a1"</span>
+<img alt="../../images/flask-rq-job.png" class="align-center" src="../../images/flask-rq-job.png"><pre class="code console"><a name="rest_code_2b21455e12534a3597a51ce269e5e39d-1"></a><span class="gp">$</span> curl <span class="s2">"http://</span><span class="si">${</span><span class="nv">address</span><span class="si">}</span><span class="s2">/?start=41&amp;stop=45"</span>
+<a name="rest_code_2b21455e12534a3597a51ce269e5e39d-2"></a><span class="go">{</span>
+<a name="rest_code_2b21455e12534a3597a51ce269e5e39d-3"></a><span class="go">  "job_id": "cc31bdcd-ad31-41ce-b516-2b90cd92f2a1"</span>
+<a name="rest_code_2b21455e12534a3597a51ce269e5e39d-4"></a><span class="go">}</span>
+<a name="rest_code_2b21455e12534a3597a51ce269e5e39d-5"></a><span class="gp">$</span> curl <span class="s2">"http://</span><span class="si">${</span><span class="nv">address</span><span class="si">}</span><span class="s2">/?start=41&amp;stop=45"</span> <span class="p">|</span> jq <span class="s1">'.job_id'</span>
+<a name="rest_code_2b21455e12534a3597a51ce269e5e39d-6"></a><span class="go">"cc31bdcd-ad31-41ce-b516-2b90cd92f2a1"</span>
 </pre>
-<pre class="code console"><a name="rest_code_e4ffe1b57784408080b1f9333a0ff40a-1"></a><span class="gp">$</span> curl <span class="s2">"http://</span><span class="si">${</span><span class="nv">address</span><span class="si">}</span><span class="s2">/results/cc31bdcd-ad31-41ce-b516-2b90cd92f2a1"</span>
-<a name="rest_code_e4ffe1b57784408080b1f9333a0ff40a-2"></a><span class="go">{</span>
-<a name="rest_code_e4ffe1b57784408080b1f9333a0ff40a-3"></a><span class="go">  "result": 43</span>
-<a name="rest_code_e4ffe1b57784408080b1f9333a0ff40a-4"></a><span class="go">}</span>
-<a name="rest_code_e4ffe1b57784408080b1f9333a0ff40a-5"></a><span class="gp">$</span> curl <span class="s2">"http://</span><span class="si">${</span><span class="nv">address</span><span class="si">}</span><span class="s2">/results/cc31bdcd-ad31-41ce-b516-2b90cd92f2a1"</span> <span class="p">|</span> jq <span class="s1">'.result'</span>
-<a name="rest_code_e4ffe1b57784408080b1f9333a0ff40a-6"></a><span class="go">43</span>
+<pre class="code console"><a name="rest_code_14b2b6c8164b425c8eb4abe643a1f79f-1"></a><span class="gp">$</span> curl <span class="s2">"http://</span><span class="si">${</span><span class="nv">address</span><span class="si">}</span><span class="s2">/results/cc31bdcd-ad31-41ce-b516-2b90cd92f2a1"</span>
+<a name="rest_code_14b2b6c8164b425c8eb4abe643a1f79f-2"></a><span class="go">{</span>
+<a name="rest_code_14b2b6c8164b425c8eb4abe643a1f79f-3"></a><span class="go">  "result": 43</span>
+<a name="rest_code_14b2b6c8164b425c8eb4abe643a1f79f-4"></a><span class="go">}</span>
+<a name="rest_code_14b2b6c8164b425c8eb4abe643a1f79f-5"></a><span class="gp">$</span> curl <span class="s2">"http://</span><span class="si">${</span><span class="nv">address</span><span class="si">}</span><span class="s2">/results/cc31bdcd-ad31-41ce-b516-2b90cd92f2a1"</span> <span class="p">|</span> jq <span class="s1">'.result'</span>
+<a name="rest_code_14b2b6c8164b425c8eb4abe643a1f79f-6"></a><span class="go">43</span>
 </pre>
-<pre class="code console"><a name="rest_code_6d6021c61e884e3ebafa49f96b72af1b-1"></a><span class="gp">$</span> curl <span class="s2">"http://</span><span class="si">${</span><span class="nv">address</span><span class="si">}</span><span class="s2">/?start=53&amp;stop=45"</span> <span class="p">|</span> jq <span class="s1">'.job_id'</span>
-<a name="rest_code_6d6021c61e884e3ebafa49f96b72af1b-2"></a><span class="go">"252b14a4-4a9e-45eb-8834-9e2078fb94ed"</span>
-<a name="rest_code_6d6021c61e884e3ebafa49f96b72af1b-3"></a><span class="gp">$</span> curl <span class="s2">"http://</span><span class="si">${</span><span class="nv">address</span><span class="si">}</span><span class="s2">/results/252b14a4-4a9e-45eb-8834-9e2078fb94ed"</span>
-<a name="rest_code_6d6021c61e884e3ebafa49f96b72af1b-4"></a><span class="go">Job has failed!%</span>
+<pre class="code console"><a name="rest_code_f8fd6aa383ef4a18b2fc7afa327fe935-1"></a><span class="gp">$</span> curl <span class="s2">"http://</span><span class="si">${</span><span class="nv">address</span><span class="si">}</span><span class="s2">/?start=53&amp;stop=45"</span> <span class="p">|</span> jq <span class="s1">'.job_id'</span>
+<a name="rest_code_f8fd6aa383ef4a18b2fc7afa327fe935-2"></a><span class="go">"252b14a4-4a9e-45eb-8834-9e2078fb94ed"</span>
+<a name="rest_code_f8fd6aa383ef4a18b2fc7afa327fe935-3"></a><span class="gp">$</span> curl <span class="s2">"http://</span><span class="si">${</span><span class="nv">address</span><span class="si">}</span><span class="s2">/results/252b14a4-4a9e-45eb-8834-9e2078fb94ed"</span>
+<a name="rest_code_f8fd6aa383ef4a18b2fc7afa327fe935-4"></a><span class="go">Job has failed!%</span>
 </pre>
 </div>
 <div class="section" id="rq-dashboard-optional">
 <h2><a class="toc-backref" href="#id19">6   RQ Dashboard (Optional)</a></h2>
-<pre class="code console"><a name="rest_code_ec2866fadb0047d6beb0db23c022249f-1"></a><span class="gp">$</span> mkdir rq-dashboard
+<pre class="code console"><a name="rest_code_08da65f1b7e64ce680cdb258b27545ee-1"></a><span class="gp">$</span> mkdir rq-dashboard
 </pre>
 <div class="section" id="id2">
 <h3><a class="toc-backref" href="#id20">6.1   requirements.txt</a></h3>
-<pre class="code console"><a name="rest_code_0189132ecd4e4ffeb59a98259c3e7144-1"></a><span class="gp">$</span> <span class="nb">echo</span> rq-dashboard &gt; rq-dashboard/requirements.txt
+<pre class="code console"><a name="rest_code_880c255c93a04cd08be0a9a8db5ff981-1"></a><span class="gp">$</span> <span class="nb">echo</span> rq-dashboard &gt; rq-dashboard/requirements.txt
 </pre>
 </div>
 <div class="section" id="id3">
 <h3><a class="toc-backref" href="#id21">6.2   Dockerfile</a></h3>
-<pre class="code console"><a name="rest_code_733cc413fd7b4b749e297ce659248d85-1"></a><span class="gp">$</span> <span class="nv">$EDITOR</span> rq-dashboard/Dockerfile
+<pre class="code console"><a name="rest_code_50411a9eb87f4ddeabef57e333188fb6-1"></a><span class="gp">$</span> <span class="nv">$EDITOR</span> rq-dashboard/Dockerfile
 </pre>
-<pre class="code docker"><a name="rest_code_257c0b30bc0542caa572928279106599-1"></a><span class="k">FROM</span><span class="s"> python:3.5.1-onbuild</span>
-<a name="rest_code_257c0b30bc0542caa572928279106599-2"></a>
-<a name="rest_code_257c0b30bc0542caa572928279106599-3"></a><span class="k">EXPOSE</span><span class="s"> 9181</span>
-<a name="rest_code_257c0b30bc0542caa572928279106599-4"></a><span class="k">CMD</span><span class="s"> ["rq-dashboard", "--port", "9181", \</span>
-<a name="rest_code_257c0b30bc0542caa572928279106599-5"></a>                     <span class="s2">"--redis-host"</span>, <span class="s2">"redis-master"</span>, <span class="se">\</span>
-<a name="rest_code_257c0b30bc0542caa572928279106599-6"></a>                     <span class="s2">"--redis-port"</span>, <span class="s2">"6379"</span><span class="o">]</span>
+<pre class="code docker"><a name="rest_code_2b65445cfc8543ec85b766ec28cf4346-1"></a><span class="k">FROM</span><span class="s"> python:3.5.1-onbuild</span>
+<a name="rest_code_2b65445cfc8543ec85b766ec28cf4346-2"></a>
+<a name="rest_code_2b65445cfc8543ec85b766ec28cf4346-3"></a><span class="k">EXPOSE</span><span class="s"> 9181</span>
+<a name="rest_code_2b65445cfc8543ec85b766ec28cf4346-4"></a><span class="k">CMD</span><span class="s"> ["rq-dashboard", "--port", "9181", \</span>
+<a name="rest_code_2b65445cfc8543ec85b766ec28cf4346-5"></a>                     <span class="s2">"--redis-host"</span>, <span class="s2">"redis-master"</span>, <span class="se">\</span>
+<a name="rest_code_2b65445cfc8543ec85b766ec28cf4346-6"></a>                     <span class="s2">"--redis-port"</span>, <span class="s2">"6379"</span><span class="o">]</span>
 </pre>
-<pre class="code console"><a name="rest_code_4ed4a9aaefd8402193898d2b031c8e57-1"></a><span class="gp">$</span> docker build -t tiao/rq-dashboard:v1 rq-dashboard
+<pre class="code console"><a name="rest_code_141be1527c334c06b44a77b1aaf7b9c6-1"></a><span class="gp">$</span> docker build -t tiao/rq-dashboard:v1 rq-dashboard
 </pre>
-<pre class="code console"><a name="rest_code_1feeee87309c404180aed2dae51ace04-1"></a><span class="gp">$</span> kubectl run rq-dashboard --image<span class="o">=</span>tiao/rq-dashboard:v1 --replicas<span class="o">=</span><span class="m">1</span> --port<span class="o">=</span><span class="m">9181</span> <span class="se">\</span>
-<a name="rest_code_1feeee87309c404180aed2dae51ace04-2"></a>&gt;                          --labels<span class="o">=</span><span class="s1">'app=rq,role=dashboard,tier=frontend'</span> <span class="se">\</span>
-<a name="rest_code_1feeee87309c404180aed2dae51ace04-3"></a>&gt;                          --requests<span class="o">=</span><span class="s1">'cpu=100m,memory=100Mi'</span> <span class="se">\</span>
-<a name="rest_code_1feeee87309c404180aed2dae51ace04-4"></a>&gt;                          --env<span class="o">=</span><span class="s2">"GET_HOSTS_FROM=env"</span> <span class="se">\</span>
-<a name="rest_code_1feeee87309c404180aed2dae51ace04-5"></a>&gt;                          --dry-run --output<span class="o">=</span>yaml &gt; rq-dashboard-deployment.yaml
+<pre class="code console"><a name="rest_code_8fed9f5e979941d082d5fed049ca1725-1"></a><span class="gp">$</span> kubectl run rq-dashboard --image<span class="o">=</span>tiao/rq-dashboard:v1 --replicas<span class="o">=</span><span class="m">1</span> --port<span class="o">=</span><span class="m">9181</span> <span class="se">\</span>
+<a name="rest_code_8fed9f5e979941d082d5fed049ca1725-2"></a>&gt;                          --labels<span class="o">=</span><span class="s1">'app=rq,role=dashboard,tier=frontend'</span> <span class="se">\</span>
+<a name="rest_code_8fed9f5e979941d082d5fed049ca1725-3"></a>&gt;                          --requests<span class="o">=</span><span class="s1">'cpu=100m,memory=100Mi'</span> <span class="se">\</span>
+<a name="rest_code_8fed9f5e979941d082d5fed049ca1725-4"></a>&gt;                          --env<span class="o">=</span><span class="s2">"GET_HOSTS_FROM=env"</span> <span class="se">\</span>
+<a name="rest_code_8fed9f5e979941d082d5fed049ca1725-5"></a>&gt;                          --dry-run --output<span class="o">=</span>yaml &gt; rq-dashboard-deployment.yaml
 </pre>
 </div>
 <div class="section" id="rq-dashboard-deployment-yaml">
 <h3><a class="toc-backref" href="#id22">6.3   rq-dashboard-deployment.yaml</a></h3>
-<pre class="code yaml"><a name="rest_code_0cdf079b1f3a4fc3b4d55aafbcc92999-1"></a><span class="l l-Scalar l-Scalar-Plain">apiVersion</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">extensions/v1beta1</span>
-<a name="rest_code_0cdf079b1f3a4fc3b4d55aafbcc92999-2"></a><span class="l l-Scalar l-Scalar-Plain">kind</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">Deployment</span>
-<a name="rest_code_0cdf079b1f3a4fc3b4d55aafbcc92999-3"></a><span class="l l-Scalar l-Scalar-Plain">metadata</span><span class="p p-Indicator">:</span>
-<a name="rest_code_0cdf079b1f3a4fc3b4d55aafbcc92999-4"></a>  <span class="l l-Scalar l-Scalar-Plain">creationTimestamp</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
-<a name="rest_code_0cdf079b1f3a4fc3b4d55aafbcc92999-5"></a>  <span class="l l-Scalar l-Scalar-Plain">labels</span><span class="p p-Indicator">:</span>
-<a name="rest_code_0cdf079b1f3a4fc3b4d55aafbcc92999-6"></a>    <span class="l l-Scalar l-Scalar-Plain">app</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">rq</span>
-<a name="rest_code_0cdf079b1f3a4fc3b4d55aafbcc92999-7"></a>    <span class="l l-Scalar l-Scalar-Plain">role</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">dashboard</span>
-<a name="rest_code_0cdf079b1f3a4fc3b4d55aafbcc92999-8"></a>    <span class="l l-Scalar l-Scalar-Plain">tier</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">frontend</span>
-<a name="rest_code_0cdf079b1f3a4fc3b4d55aafbcc92999-9"></a>  <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">rq-dashboard</span>
-<a name="rest_code_0cdf079b1f3a4fc3b4d55aafbcc92999-10"></a><span class="l l-Scalar l-Scalar-Plain">spec</span><span class="p p-Indicator">:</span>
-<a name="rest_code_0cdf079b1f3a4fc3b4d55aafbcc92999-11"></a>  <span class="l l-Scalar l-Scalar-Plain">replicas</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
-<a name="rest_code_0cdf079b1f3a4fc3b4d55aafbcc92999-12"></a>  <span class="l l-Scalar l-Scalar-Plain">selector</span><span class="p p-Indicator">:</span>
-<a name="rest_code_0cdf079b1f3a4fc3b4d55aafbcc92999-13"></a>    <span class="l l-Scalar l-Scalar-Plain">matchLabels</span><span class="p p-Indicator">:</span>
-<a name="rest_code_0cdf079b1f3a4fc3b4d55aafbcc92999-14"></a>      <span class="l l-Scalar l-Scalar-Plain">app</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">rq</span>
-<a name="rest_code_0cdf079b1f3a4fc3b4d55aafbcc92999-15"></a>      <span class="l l-Scalar l-Scalar-Plain">role</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">dashboard</span>
-<a name="rest_code_0cdf079b1f3a4fc3b4d55aafbcc92999-16"></a>      <span class="l l-Scalar l-Scalar-Plain">tier</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">frontend</span>
-<a name="rest_code_0cdf079b1f3a4fc3b4d55aafbcc92999-17"></a>  <span class="l l-Scalar l-Scalar-Plain">strategy</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{}</span>
-<a name="rest_code_0cdf079b1f3a4fc3b4d55aafbcc92999-18"></a>  <span class="l l-Scalar l-Scalar-Plain">template</span><span class="p p-Indicator">:</span>
-<a name="rest_code_0cdf079b1f3a4fc3b4d55aafbcc92999-19"></a>    <span class="l l-Scalar l-Scalar-Plain">metadata</span><span class="p p-Indicator">:</span>
-<a name="rest_code_0cdf079b1f3a4fc3b4d55aafbcc92999-20"></a>      <span class="l l-Scalar l-Scalar-Plain">creationTimestamp</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
-<a name="rest_code_0cdf079b1f3a4fc3b4d55aafbcc92999-21"></a>      <span class="l l-Scalar l-Scalar-Plain">labels</span><span class="p p-Indicator">:</span>
-<a name="rest_code_0cdf079b1f3a4fc3b4d55aafbcc92999-22"></a>        <span class="l l-Scalar l-Scalar-Plain">app</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">rq</span>
-<a name="rest_code_0cdf079b1f3a4fc3b4d55aafbcc92999-23"></a>        <span class="l l-Scalar l-Scalar-Plain">role</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">dashboard</span>
-<a name="rest_code_0cdf079b1f3a4fc3b4d55aafbcc92999-24"></a>        <span class="l l-Scalar l-Scalar-Plain">tier</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">frontend</span>
-<a name="rest_code_0cdf079b1f3a4fc3b4d55aafbcc92999-25"></a>    <span class="l l-Scalar l-Scalar-Plain">spec</span><span class="p p-Indicator">:</span>
-<a name="rest_code_0cdf079b1f3a4fc3b4d55aafbcc92999-26"></a>      <span class="l l-Scalar l-Scalar-Plain">containers</span><span class="p p-Indicator">:</span>
-<a name="rest_code_0cdf079b1f3a4fc3b4d55aafbcc92999-27"></a>      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">env</span><span class="p p-Indicator">:</span>
-<a name="rest_code_0cdf079b1f3a4fc3b4d55aafbcc92999-28"></a>        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">GET_HOSTS_FROM</span>
-<a name="rest_code_0cdf079b1f3a4fc3b4d55aafbcc92999-29"></a>          <span class="l l-Scalar l-Scalar-Plain">value</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">env</span>
-<a name="rest_code_0cdf079b1f3a4fc3b4d55aafbcc92999-30"></a>        <span class="l l-Scalar l-Scalar-Plain">image</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">tiao/rq-dashboard:v1</span>
-<a name="rest_code_0cdf079b1f3a4fc3b4d55aafbcc92999-31"></a>        <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">rq-dashboard</span>
-<a name="rest_code_0cdf079b1f3a4fc3b4d55aafbcc92999-32"></a>        <span class="l l-Scalar l-Scalar-Plain">ports</span><span class="p p-Indicator">:</span>
-<a name="rest_code_0cdf079b1f3a4fc3b4d55aafbcc92999-33"></a>        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">containerPort</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">9181</span>
-<a name="rest_code_0cdf079b1f3a4fc3b4d55aafbcc92999-34"></a>        <span class="l l-Scalar l-Scalar-Plain">resources</span><span class="p p-Indicator">:</span>
-<a name="rest_code_0cdf079b1f3a4fc3b4d55aafbcc92999-35"></a>          <span class="l l-Scalar l-Scalar-Plain">requests</span><span class="p p-Indicator">:</span>
-<a name="rest_code_0cdf079b1f3a4fc3b4d55aafbcc92999-36"></a>            <span class="l l-Scalar l-Scalar-Plain">cpu</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">100m</span>
-<a name="rest_code_0cdf079b1f3a4fc3b4d55aafbcc92999-37"></a>            <span class="l l-Scalar l-Scalar-Plain">memory</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">100Mi</span>
-<a name="rest_code_0cdf079b1f3a4fc3b4d55aafbcc92999-38"></a><span class="l l-Scalar l-Scalar-Plain">status</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{}</span>
+<pre class="code yaml"><a name="rest_code_fde34bbc3224412eafa947a3e52e5398-1"></a><span class="l l-Scalar l-Scalar-Plain">apiVersion</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">extensions/v1beta1</span>
+<a name="rest_code_fde34bbc3224412eafa947a3e52e5398-2"></a><span class="l l-Scalar l-Scalar-Plain">kind</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">Deployment</span>
+<a name="rest_code_fde34bbc3224412eafa947a3e52e5398-3"></a><span class="l l-Scalar l-Scalar-Plain">metadata</span><span class="p p-Indicator">:</span>
+<a name="rest_code_fde34bbc3224412eafa947a3e52e5398-4"></a>  <span class="l l-Scalar l-Scalar-Plain">creationTimestamp</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
+<a name="rest_code_fde34bbc3224412eafa947a3e52e5398-5"></a>  <span class="l l-Scalar l-Scalar-Plain">labels</span><span class="p p-Indicator">:</span>
+<a name="rest_code_fde34bbc3224412eafa947a3e52e5398-6"></a>    <span class="l l-Scalar l-Scalar-Plain">app</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">rq</span>
+<a name="rest_code_fde34bbc3224412eafa947a3e52e5398-7"></a>    <span class="l l-Scalar l-Scalar-Plain">role</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">dashboard</span>
+<a name="rest_code_fde34bbc3224412eafa947a3e52e5398-8"></a>    <span class="l l-Scalar l-Scalar-Plain">tier</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">frontend</span>
+<a name="rest_code_fde34bbc3224412eafa947a3e52e5398-9"></a>  <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">rq-dashboard</span>
+<a name="rest_code_fde34bbc3224412eafa947a3e52e5398-10"></a><span class="l l-Scalar l-Scalar-Plain">spec</span><span class="p p-Indicator">:</span>
+<a name="rest_code_fde34bbc3224412eafa947a3e52e5398-11"></a>  <span class="l l-Scalar l-Scalar-Plain">replicas</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
+<a name="rest_code_fde34bbc3224412eafa947a3e52e5398-12"></a>  <span class="l l-Scalar l-Scalar-Plain">selector</span><span class="p p-Indicator">:</span>
+<a name="rest_code_fde34bbc3224412eafa947a3e52e5398-13"></a>    <span class="l l-Scalar l-Scalar-Plain">matchLabels</span><span class="p p-Indicator">:</span>
+<a name="rest_code_fde34bbc3224412eafa947a3e52e5398-14"></a>      <span class="l l-Scalar l-Scalar-Plain">app</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">rq</span>
+<a name="rest_code_fde34bbc3224412eafa947a3e52e5398-15"></a>      <span class="l l-Scalar l-Scalar-Plain">role</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">dashboard</span>
+<a name="rest_code_fde34bbc3224412eafa947a3e52e5398-16"></a>      <span class="l l-Scalar l-Scalar-Plain">tier</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">frontend</span>
+<a name="rest_code_fde34bbc3224412eafa947a3e52e5398-17"></a>  <span class="l l-Scalar l-Scalar-Plain">strategy</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{}</span>
+<a name="rest_code_fde34bbc3224412eafa947a3e52e5398-18"></a>  <span class="l l-Scalar l-Scalar-Plain">template</span><span class="p p-Indicator">:</span>
+<a name="rest_code_fde34bbc3224412eafa947a3e52e5398-19"></a>    <span class="l l-Scalar l-Scalar-Plain">metadata</span><span class="p p-Indicator">:</span>
+<a name="rest_code_fde34bbc3224412eafa947a3e52e5398-20"></a>      <span class="l l-Scalar l-Scalar-Plain">creationTimestamp</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
+<a name="rest_code_fde34bbc3224412eafa947a3e52e5398-21"></a>      <span class="l l-Scalar l-Scalar-Plain">labels</span><span class="p p-Indicator">:</span>
+<a name="rest_code_fde34bbc3224412eafa947a3e52e5398-22"></a>        <span class="l l-Scalar l-Scalar-Plain">app</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">rq</span>
+<a name="rest_code_fde34bbc3224412eafa947a3e52e5398-23"></a>        <span class="l l-Scalar l-Scalar-Plain">role</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">dashboard</span>
+<a name="rest_code_fde34bbc3224412eafa947a3e52e5398-24"></a>        <span class="l l-Scalar l-Scalar-Plain">tier</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">frontend</span>
+<a name="rest_code_fde34bbc3224412eafa947a3e52e5398-25"></a>    <span class="l l-Scalar l-Scalar-Plain">spec</span><span class="p p-Indicator">:</span>
+<a name="rest_code_fde34bbc3224412eafa947a3e52e5398-26"></a>      <span class="l l-Scalar l-Scalar-Plain">containers</span><span class="p p-Indicator">:</span>
+<a name="rest_code_fde34bbc3224412eafa947a3e52e5398-27"></a>      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">env</span><span class="p p-Indicator">:</span>
+<a name="rest_code_fde34bbc3224412eafa947a3e52e5398-28"></a>        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">GET_HOSTS_FROM</span>
+<a name="rest_code_fde34bbc3224412eafa947a3e52e5398-29"></a>          <span class="l l-Scalar l-Scalar-Plain">value</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">env</span>
+<a name="rest_code_fde34bbc3224412eafa947a3e52e5398-30"></a>        <span class="l l-Scalar l-Scalar-Plain">image</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">tiao/rq-dashboard:v1</span>
+<a name="rest_code_fde34bbc3224412eafa947a3e52e5398-31"></a>        <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">rq-dashboard</span>
+<a name="rest_code_fde34bbc3224412eafa947a3e52e5398-32"></a>        <span class="l l-Scalar l-Scalar-Plain">ports</span><span class="p p-Indicator">:</span>
+<a name="rest_code_fde34bbc3224412eafa947a3e52e5398-33"></a>        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">containerPort</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">9181</span>
+<a name="rest_code_fde34bbc3224412eafa947a3e52e5398-34"></a>        <span class="l l-Scalar l-Scalar-Plain">resources</span><span class="p p-Indicator">:</span>
+<a name="rest_code_fde34bbc3224412eafa947a3e52e5398-35"></a>          <span class="l l-Scalar l-Scalar-Plain">requests</span><span class="p p-Indicator">:</span>
+<a name="rest_code_fde34bbc3224412eafa947a3e52e5398-36"></a>            <span class="l l-Scalar l-Scalar-Plain">cpu</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">100m</span>
+<a name="rest_code_fde34bbc3224412eafa947a3e52e5398-37"></a>            <span class="l l-Scalar l-Scalar-Plain">memory</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">100Mi</span>
+<a name="rest_code_fde34bbc3224412eafa947a3e52e5398-38"></a><span class="l l-Scalar l-Scalar-Plain">status</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{}</span>
 </pre>
-<pre class="code console"><a name="rest_code_a3b3451fb7524047a948c6d5b69bfc8b-1"></a><span class="gp">$</span> kubectl create -f rq-dashboard-deployment.yaml
-<a name="rest_code_a3b3451fb7524047a948c6d5b69bfc8b-2"></a><span class="go">deployment "rq-dashboard" created</span>
+<pre class="code console"><a name="rest_code_2e833d7dd4ad454bad5a62380da8af63-1"></a><span class="gp">$</span> kubectl create -f rq-dashboard-deployment.yaml
+<a name="rest_code_2e833d7dd4ad454bad5a62380da8af63-2"></a><span class="go">deployment "rq-dashboard" created</span>
 </pre>
-<pre class="code console"><a name="rest_code_b746b9485b24481292a30f613a9844ac-1"></a><span class="gp">$</span> kubectl expose deployment rq-dashboard --selector<span class="o">=</span><span class="s1">'app=rq,role=dashboard,tier=frontend'</span> --type<span class="o">=</span>NodePort <span class="se">\</span>
-<a name="rest_code_b746b9485b24481292a30f613a9844ac-2"></a>&gt;                                        --dry-run --output<span class="o">=</span>yaml &gt; rq-dashboard-service.yaml
+<pre class="code console"><a name="rest_code_d88f1157c4754d1fb659f2eda8bb0f57-1"></a><span class="gp">$</span> kubectl expose deployment rq-dashboard --selector<span class="o">=</span><span class="s1">'app=rq,role=dashboard,tier=frontend'</span> --type<span class="o">=</span>NodePort <span class="se">\</span>
+<a name="rest_code_d88f1157c4754d1fb659f2eda8bb0f57-2"></a>&gt;                                        --dry-run --output<span class="o">=</span>yaml &gt; rq-dashboard-service.yaml
 </pre>
 </div>
 <div class="section" id="rq-dashboard-service-yaml">
 <h3><a class="toc-backref" href="#id23">6.4   rq-dashboard-service.yaml</a></h3>
-<pre class="code yaml"><a name="rest_code_0c3c294f026641ef9744d9a8c9ee9444-1"></a><span class="l l-Scalar l-Scalar-Plain">apiVersion</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">v1</span>
-<a name="rest_code_0c3c294f026641ef9744d9a8c9ee9444-2"></a><span class="l l-Scalar l-Scalar-Plain">kind</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">Service</span>
-<a name="rest_code_0c3c294f026641ef9744d9a8c9ee9444-3"></a><span class="l l-Scalar l-Scalar-Plain">metadata</span><span class="p p-Indicator">:</span>
-<a name="rest_code_0c3c294f026641ef9744d9a8c9ee9444-4"></a>  <span class="l l-Scalar l-Scalar-Plain">creationTimestamp</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
-<a name="rest_code_0c3c294f026641ef9744d9a8c9ee9444-5"></a>  <span class="l l-Scalar l-Scalar-Plain">labels</span><span class="p p-Indicator">:</span>
-<a name="rest_code_0c3c294f026641ef9744d9a8c9ee9444-6"></a>    <span class="l l-Scalar l-Scalar-Plain">app</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">rq</span>
-<a name="rest_code_0c3c294f026641ef9744d9a8c9ee9444-7"></a>    <span class="l l-Scalar l-Scalar-Plain">role</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">dashboard</span>
-<a name="rest_code_0c3c294f026641ef9744d9a8c9ee9444-8"></a>    <span class="l l-Scalar l-Scalar-Plain">tier</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">frontend</span>
-<a name="rest_code_0c3c294f026641ef9744d9a8c9ee9444-9"></a>  <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">rq-dashboard</span>
-<a name="rest_code_0c3c294f026641ef9744d9a8c9ee9444-10"></a><span class="l l-Scalar l-Scalar-Plain">spec</span><span class="p p-Indicator">:</span>
-<a name="rest_code_0c3c294f026641ef9744d9a8c9ee9444-11"></a>  <span class="l l-Scalar l-Scalar-Plain">ports</span><span class="p p-Indicator">:</span>
-<a name="rest_code_0c3c294f026641ef9744d9a8c9ee9444-12"></a>  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">port</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">9181</span>
-<a name="rest_code_0c3c294f026641ef9744d9a8c9ee9444-13"></a>    <span class="l l-Scalar l-Scalar-Plain">protocol</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">TCP</span>
-<a name="rest_code_0c3c294f026641ef9744d9a8c9ee9444-14"></a>    <span class="l l-Scalar l-Scalar-Plain">targetPort</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">9181</span>
-<a name="rest_code_0c3c294f026641ef9744d9a8c9ee9444-15"></a>  <span class="l l-Scalar l-Scalar-Plain">selector</span><span class="p p-Indicator">:</span>
-<a name="rest_code_0c3c294f026641ef9744d9a8c9ee9444-16"></a>    <span class="l l-Scalar l-Scalar-Plain">app</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">rq</span>
-<a name="rest_code_0c3c294f026641ef9744d9a8c9ee9444-17"></a>    <span class="l l-Scalar l-Scalar-Plain">role</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">dashboard</span>
-<a name="rest_code_0c3c294f026641ef9744d9a8c9ee9444-18"></a>    <span class="l l-Scalar l-Scalar-Plain">tier</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">frontend</span>
-<a name="rest_code_0c3c294f026641ef9744d9a8c9ee9444-19"></a>  <span class="l l-Scalar l-Scalar-Plain">type</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">NodePort</span>
-<a name="rest_code_0c3c294f026641ef9744d9a8c9ee9444-20"></a><span class="l l-Scalar l-Scalar-Plain">status</span><span class="p p-Indicator">:</span>
-<a name="rest_code_0c3c294f026641ef9744d9a8c9ee9444-21"></a>  <span class="l l-Scalar l-Scalar-Plain">loadBalancer</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{}</span>
+<pre class="code yaml"><a name="rest_code_87bf638c24984a39aa052af0f7014092-1"></a><span class="l l-Scalar l-Scalar-Plain">apiVersion</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">v1</span>
+<a name="rest_code_87bf638c24984a39aa052af0f7014092-2"></a><span class="l l-Scalar l-Scalar-Plain">kind</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">Service</span>
+<a name="rest_code_87bf638c24984a39aa052af0f7014092-3"></a><span class="l l-Scalar l-Scalar-Plain">metadata</span><span class="p p-Indicator">:</span>
+<a name="rest_code_87bf638c24984a39aa052af0f7014092-4"></a>  <span class="l l-Scalar l-Scalar-Plain">creationTimestamp</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
+<a name="rest_code_87bf638c24984a39aa052af0f7014092-5"></a>  <span class="l l-Scalar l-Scalar-Plain">labels</span><span class="p p-Indicator">:</span>
+<a name="rest_code_87bf638c24984a39aa052af0f7014092-6"></a>    <span class="l l-Scalar l-Scalar-Plain">app</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">rq</span>
+<a name="rest_code_87bf638c24984a39aa052af0f7014092-7"></a>    <span class="l l-Scalar l-Scalar-Plain">role</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">dashboard</span>
+<a name="rest_code_87bf638c24984a39aa052af0f7014092-8"></a>    <span class="l l-Scalar l-Scalar-Plain">tier</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">frontend</span>
+<a name="rest_code_87bf638c24984a39aa052af0f7014092-9"></a>  <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">rq-dashboard</span>
+<a name="rest_code_87bf638c24984a39aa052af0f7014092-10"></a><span class="l l-Scalar l-Scalar-Plain">spec</span><span class="p p-Indicator">:</span>
+<a name="rest_code_87bf638c24984a39aa052af0f7014092-11"></a>  <span class="l l-Scalar l-Scalar-Plain">ports</span><span class="p p-Indicator">:</span>
+<a name="rest_code_87bf638c24984a39aa052af0f7014092-12"></a>  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">port</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">9181</span>
+<a name="rest_code_87bf638c24984a39aa052af0f7014092-13"></a>    <span class="l l-Scalar l-Scalar-Plain">protocol</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">TCP</span>
+<a name="rest_code_87bf638c24984a39aa052af0f7014092-14"></a>    <span class="l l-Scalar l-Scalar-Plain">targetPort</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">9181</span>
+<a name="rest_code_87bf638c24984a39aa052af0f7014092-15"></a>  <span class="l l-Scalar l-Scalar-Plain">selector</span><span class="p p-Indicator">:</span>
+<a name="rest_code_87bf638c24984a39aa052af0f7014092-16"></a>    <span class="l l-Scalar l-Scalar-Plain">app</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">rq</span>
+<a name="rest_code_87bf638c24984a39aa052af0f7014092-17"></a>    <span class="l l-Scalar l-Scalar-Plain">role</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">dashboard</span>
+<a name="rest_code_87bf638c24984a39aa052af0f7014092-18"></a>    <span class="l l-Scalar l-Scalar-Plain">tier</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">frontend</span>
+<a name="rest_code_87bf638c24984a39aa052af0f7014092-19"></a>  <span class="l l-Scalar l-Scalar-Plain">type</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">NodePort</span>
+<a name="rest_code_87bf638c24984a39aa052af0f7014092-20"></a><span class="l l-Scalar l-Scalar-Plain">status</span><span class="p p-Indicator">:</span>
+<a name="rest_code_87bf638c24984a39aa052af0f7014092-21"></a>  <span class="l l-Scalar l-Scalar-Plain">loadBalancer</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{}</span>
 </pre>
-<pre class="code console"><a name="rest_code_17b4a04776b04bbdad2b4f887c2be02e-1"></a><span class="gp">$</span> kubectl create -f rq-dashboard-service.yaml
-<a name="rest_code_17b4a04776b04bbdad2b4f887c2be02e-2"></a><span class="go">You have exposed your service on an external port on all nodes in your</span>
-<a name="rest_code_17b4a04776b04bbdad2b4f887c2be02e-3"></a><span class="go">cluster.  If you want to expose this service to the external internet, you may</span>
-<a name="rest_code_17b4a04776b04bbdad2b4f887c2be02e-4"></a><span class="go">need to set up firewall rules for the service port(s) (tcp:30645) to serve traffic.</span>
-<a name="rest_code_17b4a04776b04bbdad2b4f887c2be02e-5"></a>
-<a name="rest_code_17b4a04776b04bbdad2b4f887c2be02e-6"></a><span class="go">See http://releases.k8s.io/release-1.2/docs/user-guide/services-firewalls.md for more details.</span>
-<a name="rest_code_17b4a04776b04bbdad2b4f887c2be02e-7"></a><span class="go">service "rq-dashboard" created</span>
+<pre class="code console"><a name="rest_code_d148ceeafbba4067a5eaba4fd800b7f1-1"></a><span class="gp">$</span> kubectl create -f rq-dashboard-service.yaml
+<a name="rest_code_d148ceeafbba4067a5eaba4fd800b7f1-2"></a><span class="go">You have exposed your service on an external port on all nodes in your</span>
+<a name="rest_code_d148ceeafbba4067a5eaba4fd800b7f1-3"></a><span class="go">cluster.  If you want to expose this service to the external internet, you may</span>
+<a name="rest_code_d148ceeafbba4067a5eaba4fd800b7f1-4"></a><span class="go">need to set up firewall rules for the service port(s) (tcp:30645) to serve traffic.</span>
+<a name="rest_code_d148ceeafbba4067a5eaba4fd800b7f1-5"></a>
+<a name="rest_code_d148ceeafbba4067a5eaba4fd800b7f1-6"></a><span class="go">See http://releases.k8s.io/release-1.2/docs/user-guide/services-firewalls.md for more details.</span>
+<a name="rest_code_d148ceeafbba4067a5eaba4fd800b7f1-7"></a><span class="go">service "rq-dashboard" created</span>
 </pre>
-<pre class="code console"><a name="rest_code_db6a0a32819045ae9fe76610c97db437-1"></a><span class="gp">$</span> open <span class="s2">"http://</span><span class="k">$(</span>minikube ip<span class="k">)</span><span class="s2">:</span><span class="k">$(</span>kubectl get service rq-dashboard --output<span class="o">=</span><span class="s1">'jsonpath={.spec.ports[0].NodePort}'</span><span class="k">)</span><span class="s2">"</span>
+<pre class="code console"><a name="rest_code_c9877c6d9f64455ca7ac41f1d05aa410-1"></a><span class="gp">$</span> open <span class="s2">"http://</span><span class="k">$(</span>minikube ip<span class="k">)</span><span class="s2">:</span><span class="k">$(</span>kubectl get service rq-dashboard --output<span class="o">=</span><span class="s1">'jsonpath={.spec.ports[0].NodePort}'</span><span class="k">)</span><span class="s2">"</span>
 </pre>
 <a class="reference external image-reference" href="../../images/rq-dashboard-failed.png"><img alt="../../images/rq-dashboard-failed.thumbnail.png" class="align-center" src="../../images/rq-dashboard-failed.thumbnail.png"></a>
-<pre class="code console"><a name="rest_code_8e19fd733a094a60a35a2609224b0f3c-1"></a><span class="gp">$</span> kubectl get pods
-<a name="rest_code_8e19fd733a094a60a35a2609224b0f3c-2"></a><span class="go">NAME                            READY     STATUS    RESTARTS   AGE</span>
-<a name="rest_code_8e19fd733a094a60a35a2609224b0f3c-3"></a><span class="go">redis-master-2576299852-iwf15   1/1       Running   0          52m</span>
-<a name="rest_code_8e19fd733a094a60a35a2609224b0f3c-4"></a><span class="go">rq-dashboard-1288919851-n10qs   1/1       Running   0          20m</span>
-<a name="rest_code_8e19fd733a094a60a35a2609224b0f3c-5"></a><span class="go">rq-worker-3416405364-bekby      1/1       Running   0          45m</span>
-<a name="rest_code_8e19fd733a094a60a35a2609224b0f3c-6"></a><span class="go">rq-worker-3416405364-cecxu      1/1       Running   0          45m</span>
-<a name="rest_code_8e19fd733a094a60a35a2609224b0f3c-7"></a><span class="go">rq-worker-3416405364-lnxha      1/1       Running   0          45m</span>
-<a name="rest_code_8e19fd733a094a60a35a2609224b0f3c-8"></a><span class="go">rq-worker-3416405364-nc474      1/1       Running   0          45m</span>
-<a name="rest_code_8e19fd733a094a60a35a2609224b0f3c-9"></a><span class="go">rq-worker-3416405364-ztmuq      1/1       Running   0          45m</span>
-<a name="rest_code_8e19fd733a094a60a35a2609224b0f3c-10"></a><span class="go">web-flask-338777398-21dli       1/1       Running   0          47m</span>
+<pre class="code console"><a name="rest_code_397ebdf16b3745129c5e053905168937-1"></a><span class="gp">$</span> kubectl get pods
+<a name="rest_code_397ebdf16b3745129c5e053905168937-2"></a><span class="go">NAME                            READY     STATUS    RESTARTS   AGE</span>
+<a name="rest_code_397ebdf16b3745129c5e053905168937-3"></a><span class="go">redis-master-2576299852-iwf15   1/1       Running   0          52m</span>
+<a name="rest_code_397ebdf16b3745129c5e053905168937-4"></a><span class="go">rq-dashboard-1288919851-n10qs   1/1       Running   0          20m</span>
+<a name="rest_code_397ebdf16b3745129c5e053905168937-5"></a><span class="go">rq-worker-3416405364-bekby      1/1       Running   0          45m</span>
+<a name="rest_code_397ebdf16b3745129c5e053905168937-6"></a><span class="go">rq-worker-3416405364-cecxu      1/1       Running   0          45m</span>
+<a name="rest_code_397ebdf16b3745129c5e053905168937-7"></a><span class="go">rq-worker-3416405364-lnxha      1/1       Running   0          45m</span>
+<a name="rest_code_397ebdf16b3745129c5e053905168937-8"></a><span class="go">rq-worker-3416405364-nc474      1/1       Running   0          45m</span>
+<a name="rest_code_397ebdf16b3745129c5e053905168937-9"></a><span class="go">rq-worker-3416405364-ztmuq      1/1       Running   0          45m</span>
+<a name="rest_code_397ebdf16b3745129c5e053905168937-10"></a><span class="go">web-flask-338777398-21dli       1/1       Running   0          47m</span>
 </pre>
 </div>
 <div class="section" id="alternative-solution-integrate-the-dashboard-in-our-flask-app">
 <h3><a class="toc-backref" href="#id24">6.5   Alternative Solution: Integrate the Dashboard in our Flask app</a></h3>
-<pre class="code diff"><a name="rest_code_807c4df0e32948f6b7e32baf7034f8cf-1"></a><span class="gh">diff --git a/web-flask/app.py b/web-flask/app.py</span>
-<a name="rest_code_807c4df0e32948f6b7e32baf7034f8cf-2"></a><span class="gh">index af6ec48..ec7c1cd 100644</span>
-<a name="rest_code_807c4df0e32948f6b7e32baf7034f8cf-3"></a><span class="gd">--- a/web-flask/app.py</span>
-<a name="rest_code_807c4df0e32948f6b7e32baf7034f8cf-4"></a><span class="gi">+++ b/web-flask/app.py</span>
-<a name="rest_code_807c4df0e32948f6b7e32baf7034f8cf-5"></a><span class="gu">@@ -4,12 +4,16 @@ from rq import Queue</span>
-<a name="rest_code_807c4df0e32948f6b7e32baf7034f8cf-6"></a>
-<a name="rest_code_807c4df0e32948f6b7e32baf7034f8cf-7"></a> from random import randrange
-<a name="rest_code_807c4df0e32948f6b7e32baf7034f8cf-8"></a>
-<a name="rest_code_807c4df0e32948f6b7e32baf7034f8cf-9"></a><span class="gd">-from settings import REDIS_HOST, REDIS_PORT</span>
-<a name="rest_code_807c4df0e32948f6b7e32baf7034f8cf-10"></a><span class="gd">-</span>
-<a name="rest_code_807c4df0e32948f6b7e32baf7034f8cf-11"></a><span class="gi">+import rq_dashboard</span>
-<a name="rest_code_807c4df0e32948f6b7e32baf7034f8cf-12"></a><span class="gi">+import settings</span>
-<a name="rest_code_807c4df0e32948f6b7e32baf7034f8cf-13"></a>
-<a name="rest_code_807c4df0e32948f6b7e32baf7034f8cf-14"></a> app = Flask(__name__)
-<a name="rest_code_807c4df0e32948f6b7e32baf7034f8cf-15"></a><span class="gi">+app.config.from_object(rq_dashboard.default_settings)</span>
-<a name="rest_code_807c4df0e32948f6b7e32baf7034f8cf-16"></a><span class="gi">+app.config.from_object(settings)</span>
-<a name="rest_code_807c4df0e32948f6b7e32baf7034f8cf-17"></a><span class="gi">+app.register_blueprint(rq_dashboard.blueprint, url_prefix='/dashboard')</span>
-<a name="rest_code_807c4df0e32948f6b7e32baf7034f8cf-18"></a>
-<a name="rest_code_807c4df0e32948f6b7e32baf7034f8cf-19"></a><span class="gd">-q = Queue(connection=StrictRedis(host=REDIS_HOST, port=REDIS_PORT))</span>
-<a name="rest_code_807c4df0e32948f6b7e32baf7034f8cf-20"></a><span class="gi">+q = Queue(connection=StrictRedis(host=settings.REDIS_HOST,</span>
-<a name="rest_code_807c4df0e32948f6b7e32baf7034f8cf-21"></a><span class="gi">+                                 port=settings.REDIS_PORT))</span>
+<pre class="code diff"><a name="rest_code_343d9298f7be4fe39d769b2726cf9063-1"></a><span class="gh">diff --git a/web-flask/app.py b/web-flask/app.py</span>
+<a name="rest_code_343d9298f7be4fe39d769b2726cf9063-2"></a><span class="gh">index af6ec48..ec7c1cd 100644</span>
+<a name="rest_code_343d9298f7be4fe39d769b2726cf9063-3"></a><span class="gd">--- a/web-flask/app.py</span>
+<a name="rest_code_343d9298f7be4fe39d769b2726cf9063-4"></a><span class="gi">+++ b/web-flask/app.py</span>
+<a name="rest_code_343d9298f7be4fe39d769b2726cf9063-5"></a><span class="gu">@@ -4,12 +4,16 @@ from rq import Queue</span>
+<a name="rest_code_343d9298f7be4fe39d769b2726cf9063-6"></a>
+<a name="rest_code_343d9298f7be4fe39d769b2726cf9063-7"></a> from random import randrange
+<a name="rest_code_343d9298f7be4fe39d769b2726cf9063-8"></a>
+<a name="rest_code_343d9298f7be4fe39d769b2726cf9063-9"></a><span class="gd">-from settings import REDIS_HOST, REDIS_PORT</span>
+<a name="rest_code_343d9298f7be4fe39d769b2726cf9063-10"></a><span class="gd">-</span>
+<a name="rest_code_343d9298f7be4fe39d769b2726cf9063-11"></a><span class="gi">+import rq_dashboard</span>
+<a name="rest_code_343d9298f7be4fe39d769b2726cf9063-12"></a><span class="gi">+import settings</span>
+<a name="rest_code_343d9298f7be4fe39d769b2726cf9063-13"></a>
+<a name="rest_code_343d9298f7be4fe39d769b2726cf9063-14"></a> app = Flask(__name__)
+<a name="rest_code_343d9298f7be4fe39d769b2726cf9063-15"></a><span class="gi">+app.config.from_object(rq_dashboard.default_settings)</span>
+<a name="rest_code_343d9298f7be4fe39d769b2726cf9063-16"></a><span class="gi">+app.config.from_object(settings)</span>
+<a name="rest_code_343d9298f7be4fe39d769b2726cf9063-17"></a><span class="gi">+app.register_blueprint(rq_dashboard.blueprint, url_prefix='/dashboard')</span>
+<a name="rest_code_343d9298f7be4fe39d769b2726cf9063-18"></a>
+<a name="rest_code_343d9298f7be4fe39d769b2726cf9063-19"></a><span class="gd">-q = Queue(connection=StrictRedis(host=REDIS_HOST, port=REDIS_PORT))</span>
+<a name="rest_code_343d9298f7be4fe39d769b2726cf9063-20"></a><span class="gi">+q = Queue(connection=StrictRedis(host=settings.REDIS_HOST,</span>
+<a name="rest_code_343d9298f7be4fe39d769b2726cf9063-21"></a><span class="gi">+                                 port=settings.REDIS_PORT))</span>
 </pre>
-<pre class="code diff"><a name="rest_code_4414895f08a5488194c1c429867f2293-1"></a><span class="gh">diff --git a/web-flask/requirements.txt b/web-flask/requirements.txt</span>
-<a name="rest_code_4414895f08a5488194c1c429867f2293-2"></a><span class="gh">index 17dba2a..fcb5d58 100644</span>
-<a name="rest_code_4414895f08a5488194c1c429867f2293-3"></a><span class="gd">--- a/web-flask/requirements.txt</span>
-<a name="rest_code_4414895f08a5488194c1c429867f2293-4"></a><span class="gi">+++ b/web-flask/requirements.txt</span>
-<a name="rest_code_4414895f08a5488194c1c429867f2293-5"></a><span class="gu">@@ -1,3 +1,4 @@</span>
-<a name="rest_code_4414895f08a5488194c1c429867f2293-6"></a> flask
-<a name="rest_code_4414895f08a5488194c1c429867f2293-7"></a> redis
-<a name="rest_code_4414895f08a5488194c1c429867f2293-8"></a> rq
-<a name="rest_code_4414895f08a5488194c1c429867f2293-9"></a><span class="gi">+rq-dashboard</span>
+<pre class="code diff"><a name="rest_code_e859350ce88b4a188a09b18069450215-1"></a><span class="gh">diff --git a/web-flask/requirements.txt b/web-flask/requirements.txt</span>
+<a name="rest_code_e859350ce88b4a188a09b18069450215-2"></a><span class="gh">index 17dba2a..fcb5d58 100644</span>
+<a name="rest_code_e859350ce88b4a188a09b18069450215-3"></a><span class="gd">--- a/web-flask/requirements.txt</span>
+<a name="rest_code_e859350ce88b4a188a09b18069450215-4"></a><span class="gi">+++ b/web-flask/requirements.txt</span>
+<a name="rest_code_e859350ce88b4a188a09b18069450215-5"></a><span class="gu">@@ -1,3 +1,4 @@</span>
+<a name="rest_code_e859350ce88b4a188a09b18069450215-6"></a> flask
+<a name="rest_code_e859350ce88b4a188a09b18069450215-7"></a> redis
+<a name="rest_code_e859350ce88b4a188a09b18069450215-8"></a> rq
+<a name="rest_code_e859350ce88b4a188a09b18069450215-9"></a><span class="gi">+rq-dashboard</span>
 </pre>
-<pre class="code console"><a name="rest_code_dac971cb0b02482dbe3029a8bbc233de-1"></a><span class="gp">$</span> docker build -t tiao/web-flask-rq:v2 web-flask
+<pre class="code console"><a name="rest_code_be18d00d26214fd1a43ec63292005305-1"></a><span class="gp">$</span> docker build -t tiao/web-flask-rq:v2 web-flask
 </pre>
-<pre class="code diff"><a name="rest_code_fbae31a5862a49d9affbab6fc8f418f9-1"></a><span class="gh">diff --git a/web-flask-deployment.yaml b/web-flask-deployment.yaml</span>
-<a name="rest_code_fbae31a5862a49d9affbab6fc8f418f9-2"></a><span class="gh">index a4524e6..2dc5356 100644</span>
-<a name="rest_code_fbae31a5862a49d9affbab6fc8f418f9-3"></a><span class="gd">--- a/web-flask-deployment.yaml</span>
-<a name="rest_code_fbae31a5862a49d9affbab6fc8f418f9-4"></a><span class="gi">+++ b/web-flask-deployment.yaml</span>
-<a name="rest_code_fbae31a5862a49d9affbab6fc8f418f9-5"></a><span class="gu">@@ -24,7 +24,7 @@ spec:</span>
-<a name="rest_code_fbae31a5862a49d9affbab6fc8f418f9-6"></a>       - env:
-<a name="rest_code_fbae31a5862a49d9affbab6fc8f418f9-7"></a>         - name: GET_HOSTS_FROM
-<a name="rest_code_fbae31a5862a49d9affbab6fc8f418f9-8"></a>           value: dns
-<a name="rest_code_fbae31a5862a49d9affbab6fc8f418f9-9"></a><span class="gd">-        image: tiao/web-flask-rq:v1</span>
-<a name="rest_code_fbae31a5862a49d9affbab6fc8f418f9-10"></a><span class="gi">+        image: tiao/web-flask-rq:v2</span>
-<a name="rest_code_fbae31a5862a49d9affbab6fc8f418f9-11"></a>         name: web-flask
-<a name="rest_code_fbae31a5862a49d9affbab6fc8f418f9-12"></a>         ports:
-<a name="rest_code_fbae31a5862a49d9affbab6fc8f418f9-13"></a>         - containerPort: 8080
+<pre class="code diff"><a name="rest_code_7be2e8bc8f1b40bfaa8676d69b1d3599-1"></a><span class="gh">diff --git a/web-flask-deployment.yaml b/web-flask-deployment.yaml</span>
+<a name="rest_code_7be2e8bc8f1b40bfaa8676d69b1d3599-2"></a><span class="gh">index a4524e6..2dc5356 100644</span>
+<a name="rest_code_7be2e8bc8f1b40bfaa8676d69b1d3599-3"></a><span class="gd">--- a/web-flask-deployment.yaml</span>
+<a name="rest_code_7be2e8bc8f1b40bfaa8676d69b1d3599-4"></a><span class="gi">+++ b/web-flask-deployment.yaml</span>
+<a name="rest_code_7be2e8bc8f1b40bfaa8676d69b1d3599-5"></a><span class="gu">@@ -24,7 +24,7 @@ spec:</span>
+<a name="rest_code_7be2e8bc8f1b40bfaa8676d69b1d3599-6"></a>       - env:
+<a name="rest_code_7be2e8bc8f1b40bfaa8676d69b1d3599-7"></a>         - name: GET_HOSTS_FROM
+<a name="rest_code_7be2e8bc8f1b40bfaa8676d69b1d3599-8"></a>           value: dns
+<a name="rest_code_7be2e8bc8f1b40bfaa8676d69b1d3599-9"></a><span class="gd">-        image: tiao/web-flask-rq:v1</span>
+<a name="rest_code_7be2e8bc8f1b40bfaa8676d69b1d3599-10"></a><span class="gi">+        image: tiao/web-flask-rq:v2</span>
+<a name="rest_code_7be2e8bc8f1b40bfaa8676d69b1d3599-11"></a>         name: web-flask
+<a name="rest_code_7be2e8bc8f1b40bfaa8676d69b1d3599-12"></a>         ports:
+<a name="rest_code_7be2e8bc8f1b40bfaa8676d69b1d3599-13"></a>         - containerPort: 8080
 </pre>
-<pre class="code console"><a name="rest_code_0ccf3ddd52d644208fc015f3d24bbd21-1"></a><span class="gp">$</span> kubectl apply -f web-flask-deployment.yaml
-<a name="rest_code_0ccf3ddd52d644208fc015f3d24bbd21-2"></a><span class="go">deployment "web-flask" configured</span>
+<pre class="code console"><a name="rest_code_a34dc02bb89b4b65b80ebd45df71a724-1"></a><span class="gp">$</span> kubectl apply -f web-flask-deployment.yaml
+<a name="rest_code_a34dc02bb89b4b65b80ebd45df71a724-2"></a><span class="go">deployment "web-flask" configured</span>
 </pre>
-<pre class="code console"><a name="rest_code_de429bc4d07f460983d381ba8f081f9f-1"></a><span class="gp">$</span> kubectl get deployment web-flask --output<span class="o">=</span><span class="s1">'jsonpath={.spec.template.spec.containers[*].image}'</span>
-<a name="rest_code_de429bc4d07f460983d381ba8f081f9f-2"></a><span class="gp">tiao/web-flask-rq:v2%</span>
+<pre class="code console"><a name="rest_code_31277d46ff25424fbbc5d85bdba43798-1"></a><span class="gp">$</span> kubectl get deployment web-flask --output<span class="o">=</span><span class="s1">'jsonpath={.spec.template.spec.containers[*].image}'</span>
+<a name="rest_code_31277d46ff25424fbbc5d85bdba43798-2"></a><span class="gp">tiao/web-flask-rq:v2%</span>
 </pre>
-<pre class="code console"><a name="rest_code_13c03b5aa44d440f8a0fd80373f138a2-1"></a><span class="gp">$</span> open <span class="s2">"http://</span><span class="si">${</span><span class="nv">address</span><span class="si">}</span><span class="s2">/dashboard"</span>
+<pre class="code console"><a name="rest_code_e5ae227f72b647bda56e5897b4e00555-1"></a><span class="gp">$</span> open <span class="s2">"http://</span><span class="si">${</span><span class="nv">address</span><span class="si">}</span><span class="s2">/dashboard"</span>
 </pre>
 <a class="reference external image-reference" href="../../images/rq-dashboard-failed-flask.png"><img alt="../../images/rq-dashboard-failed-flask.thumbnail.png" class="align-center" src="../../images/rq-dashboard-failed-flask.thumbnail.png"></a>
 </div>
@@ -755,7 +755,7 @@ in the <tt class="docutils literal">kubectl</tt> tool to query the <tt class="do
                         <div id="disqus_thread"></div>
         <script>
         var disqus_shortname ="ltiao",
-            disqus_url="http://louistiao.me/posts/walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes/",
+            disqus_url="http://tiao.io/posts/walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes/",
         disqus_title="Walkthrough: Deploying a Flask app with Redis Queue (RQ) Workers and Dashboard using Kubernetes",
         disqus_identifier="cache/content/posts/walkthrough-deploying-a-flask-app-with-redis-queue-rq-workers-and-dashboard-using-kubernetes.html",
         disqus_config = function () {

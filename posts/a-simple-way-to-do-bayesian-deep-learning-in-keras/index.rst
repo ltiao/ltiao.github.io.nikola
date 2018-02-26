@@ -1,7 +1,7 @@
 .. title: A simple way to do Bayesian Deep Learning in Keras
 .. slug: a-simple-way-to-do-bayesian-deep-learning-in-keras
 .. date: 2018-01-20 22:47:57 UTC+11:00
-.. tags: bayesian, variational inference, keras, tensorflow, python, deep learning, representation learning, mathjax
+.. tags: bayesian, variational inference, keras, tensorflow, python, deep learning, representation learning, mathjax, draft
 .. category: machine learning
 .. link: 
 .. description: 

@@ -93,89 +93,7 @@ MathJax.Hub.Config({
             </p>
 
     </header><div class="postindex">
-    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="a-simple-way-to-do-bayesian-deep-learning-in-keras/" class="u-url">A simple way to do Bayesian Deep Learning in Keras</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
-                Louis Tiao
-            </span></p>
-            <p class="dateline"><a href="a-simple-way-to-do-bayesian-deep-learning-in-keras/" rel="bookmark"><time class="published dt-published" datetime="2018-01-20T22:47:57+11:00" title="2018-01-20 22:47">2018-01-20 22:47</time></a></p>
-                <p class="commentline">            <a href="a-simple-way-to-do-bayesian-deep-learning-in-keras/#disqus_thread" data-disqus-identifier="cache/content/posts/a-simple-way-to-do-bayesian-deep-learning-in-keras.html">Comments</a>
-
-
-        </p>
-</div>
-    </header><div class="p-summary entry-summary">
-    <div>
-<div class="section" id="posterior-distribution-over-weights">
-<h2>Posterior distribution over weights</h2>
-<p>We approximate the full posterior distribution over the weights of the layer
-using variational inference. We do this by specifying a <em>variational distribution</em>
-which we use to approximate the exact posterior. The variational distribution of
-choice here is a simple diagonal Gaussian. The parameters of the variational
-distribution are called <em>variational parameters</em> and consist of the mean and
-standard deviation of the layer's weights. They are the parameters of the Keras
-layer, which we add with <tt class="docutils literal">self.add_weight</tt> (kind of a bad name). We don't take
-advantage of the option to add regularizer as we will add the KL directly to the
-loss ourselves later.</p>
-<pre class="code python"><a name="rest_code_6ad72ac267c5493f9379bef924b7f39f-1"></a><span class="bp">self</span><span class="o">.</span><span class="n">kernel_loc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_weight</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">input_dim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">),</span>
-<a name="rest_code_6ad72ac267c5493f9379bef924b7f39f-2"></a>                                  <span class="n">name</span><span class="o">=</span><span class="s1">'kernel_loc'</span><span class="p">)</span>
-<a name="rest_code_6ad72ac267c5493f9379bef924b7f39f-3"></a><span class="bp">self</span><span class="o">.</span><span class="n">kernel_scale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_weight</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">input_dim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">),</span>
-<a name="rest_code_6ad72ac267c5493f9379bef924b7f39f-4"></a>                                    <span class="n">name</span><span class="o">=</span><span class="s1">'kernel_scale'</span><span class="p">)</span>
-<a name="rest_code_6ad72ac267c5493f9379bef924b7f39f-5"></a>
-<a name="rest_code_6ad72ac267c5493f9379bef924b7f39f-6"></a><span class="bp">self</span><span class="o">.</span><span class="n">kernel</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel_loc</span><span class="p">,</span>
-<a name="rest_code_6ad72ac267c5493f9379bef924b7f39f-7"></a>                                      <span class="n">scale</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel_scale</span><span class="p">)</span>
-<a name="rest_code_6ad72ac267c5493f9379bef924b7f39f-8"></a>
-<a name="rest_code_6ad72ac267c5493f9379bef924b7f39f-9"></a><span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_bias</span><span class="p">:</span>
-<a name="rest_code_6ad72ac267c5493f9379bef924b7f39f-10"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">bias_loc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_weight</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">,),</span>
-<a name="rest_code_6ad72ac267c5493f9379bef924b7f39f-11"></a>                                    <span class="n">name</span><span class="o">=</span><span class="s1">'bias_loc'</span><span class="p">)</span>
-<a name="rest_code_6ad72ac267c5493f9379bef924b7f39f-12"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">bias_scale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_weight</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">,),</span>
-<a name="rest_code_6ad72ac267c5493f9379bef924b7f39f-13"></a>                                      <span class="n">name</span><span class="o">=</span><span class="s1">'bias_scale'</span><span class="p">)</span>
-<a name="rest_code_6ad72ac267c5493f9379bef924b7f39f-14"></a>
-<a name="rest_code_6ad72ac267c5493f9379bef924b7f39f-15"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">bias</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bias_loc</span><span class="p">,</span>
-<a name="rest_code_6ad72ac267c5493f9379bef924b7f39f-16"></a>                                        <span class="n">scale</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bias_scale</span><span class="p">)</span>
-<a name="rest_code_6ad72ac267c5493f9379bef924b7f39f-17"></a><span class="k">else</span><span class="p">:</span>
-<a name="rest_code_6ad72ac267c5493f9379bef924b7f39f-18"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">bias</span> <span class="o">=</span> <span class="bp">None</span>
-</pre>
-</div>
-<div class="section" id="prior-distribution">
-<h2>Prior distribution</h2>
-<pre class="code python"><a name="rest_code_510c0bb1250a4aa5a75ede24ea9c59c7-1"></a><span class="k">if</span> <span class="n">kernel_prior</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-<a name="rest_code_510c0bb1250a4aa5a75ede24ea9c59c7-2"></a>    <span class="n">kernel_prior</span> <span class="o">=</span> <span class="n">Normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1.</span><span class="p">)</span>
-<a name="rest_code_510c0bb1250a4aa5a75ede24ea9c59c7-3"></a>
-<a name="rest_code_510c0bb1250a4aa5a75ede24ea9c59c7-4"></a><span class="k">if</span> <span class="n">bias_prior</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-<a name="rest_code_510c0bb1250a4aa5a75ede24ea9c59c7-5"></a>    <span class="n">bias_prior</span> <span class="o">=</span> <span class="n">Normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1.</span><span class="p">)</span>
-<a name="rest_code_510c0bb1250a4aa5a75ede24ea9c59c7-6"></a>
-<a name="rest_code_510c0bb1250a4aa5a75ede24ea9c59c7-7"></a><span class="bp">self</span><span class="o">.</span><span class="n">kernel_prior</span> <span class="o">=</span> <span class="n">kernel_prior</span>
-<a name="rest_code_510c0bb1250a4aa5a75ede24ea9c59c7-8"></a><span class="bp">self</span><span class="o">.</span><span class="n">bias_prior</span> <span class="o">=</span> <span class="n">bias_prior</span>
-</pre>
-</div>
-<div class="section" id="kl-divergence">
-<h2>KL Divergence</h2>
-<pre class="code python"><a name="rest_code_03aa2ffefc97437ea6324dac6e51414c-1"></a><span class="bp">self</span><span class="o">.</span><span class="n">add_loss</span><span class="p">(</span><span class="n">kl_divergence</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel_posterior</span><span class="p">,</span>
-<a name="rest_code_03aa2ffefc97437ea6324dac6e51414c-2"></a>                            <span class="bp">self</span><span class="o">.</span><span class="n">kernel_prior</span><span class="p">))</span>
-<a name="rest_code_03aa2ffefc97437ea6324dac6e51414c-3"></a>
-<a name="rest_code_03aa2ffefc97437ea6324dac6e51414c-4"></a><span class="bp">self</span><span class="o">.</span><span class="n">add_loss</span><span class="p">(</span><span class="n">kl_divergence</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bias_posterior</span><span class="p">,</span>
-<a name="rest_code_03aa2ffefc97437ea6324dac6e51414c-5"></a>                            <span class="bp">self</span><span class="o">.</span><span class="n">bias_prior</span><span class="p">))</span>
-</pre>
-<p>In a <a class="reference external" href="implementing-variational-autoencoders-in-keras-beyond-the-quickstart-tutorial/">previous post</a>,
-I demonstrated how to leverage Keras' modular design to implement variational
-autoencoders in a way that makes it easy to tweak hyperparameters, adapt to it
-to other related models, and extend it to the more sophisticated methods
-proposed in the current research.</p>
-<p>Recall that we optimize the generally intractable evidence lower bound (ELBO)
-using reparameterization gradients, which approximates the expectation of
-gradients with Monte Carlo (MC) samples. In their original paper, Kingma and
-Welling (2014) <a class="footnote-reference" href="a-simple-way-to-do-bayesian-deep-learning-in-keras/#kingma2014" id="id1">[1]</a> remark that an MC sample size of 1 is adequate for
-a sufficiently large batch size (~100). Obviously, this is highly dependent on
-the problem (more specifically the likelihood). In general, it is important to
-experiment with different MC sample sizes and observe the various effects it
-has on training stability. In this short post, we demonstrate how to tweak the
-MC sample size under our basic framework.</p>
-<p class="more"><a href="a-simple-way-to-do-bayesian-deep-learning-in-keras/">Read more…</a></p>
-</div>
-</div>
-    </div>
-    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="using-negative-log-likelihoods-of-tensorflow-distributions-as-keras-losses/" class="u-url">Using negative log-likelihoods of TensorFlow Distributions as Keras losses</a></h1>
+    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="using-negative-log-likelihoods-of-tensorflow-distributions-as-keras-losses/" class="u-url">Using negative log-likelihoods of TensorFlow Distributions as Keras losses</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
                 Louis Tiao
@@ -710,6 +628,45 @@ instantiated by a Deployment — this time, with three replicas.</blockquote>
 changes - the UI would remain mostly the same, and the actual interaction with
 the redis master/slaves is quite trivial.</p>
 <p class="more"><a href="re-implementing-the-kubernetes-guestbook-example-with-flask-and-nginx/">Read more…</a></p>
+</div>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="a-better-approach-for-initializing-new-nikola-themes-since-v775/" class="u-url">A Better Approach For Initializing New Nikola Themes (since v7.7.5)</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                Louis Tiao
+            </span></p>
+            <p class="dateline"><a href="a-better-approach-for-initializing-new-nikola-themes-since-v775/" rel="bookmark"><time class="published dt-published" datetime="2016-05-18T12:20:24+10:00" title="2016-05-18 12:20">2016-05-18 12:20</time></a></p>
+                <p class="commentline">            <a href="a-better-approach-for-initializing-new-nikola-themes-since-v775/#disqus_thread" data-disqus-identifier="cache/content/posts/a-better-approach-for-initializing-new-nikola-themes-since-v775.html">Comments</a>
+
+
+        </p>
+</div>
+    </header><div class="p-summary entry-summary">
+    <div>
+<p>A few months ago, I wrote a post on <a class="reference external" href="creating-a-nikola-theme-with-sass-compiled-bootstrap/">Creating a Nikola theme with Sass-compiled Bootstrap</a>.
+Since then, <a class="reference external" href="https://getnikola.com/changes.html#new-in-v7-7-5">Nikola 7.7.5</a> has added several new features which makes it less
+tedious to get started with your custom theme.</p>
+<div class="section" id="initializing-the-theme">
+<h2>Initializing the Theme</h2>
+<p>First, I initialize a theme named <tt class="docutils literal">tiao</tt>, which automatically creates the
+necessary directories and files for me.</p>
+<pre class="code console"><a name="rest_code_c0d3f4543e8b4825894ef3ebf78506d5-1"></a><span class="gp">$</span> nikola theme --new<span class="o">=</span>tiao --engine<span class="o">=</span>jinja --parent<span class="o">=</span>bootstrap3-jinja
+<a name="rest_code_c0d3f4543e8b4825894ef3ebf78506d5-2"></a><span class="go">[2016-05-18T02:29:49Z] INFO: theme: Creating theme tiao with parent bootstrap3-jinja and engine jinja in themes/tiao</span>
+<a name="rest_code_c0d3f4543e8b4825894ef3ebf78506d5-3"></a><span class="go">[2016-05-18T02:29:49Z] INFO: theme: Created directory themes/tiao</span>
+<a name="rest_code_c0d3f4543e8b4825894ef3ebf78506d5-4"></a><span class="go">[2016-05-18T02:29:49Z] INFO: theme: Created file themes/tiao/parent</span>
+<a name="rest_code_c0d3f4543e8b4825894ef3ebf78506d5-5"></a><span class="go">[2016-05-18T02:29:49Z] INFO: theme: Created file themes/tiao/engine</span>
+<a name="rest_code_c0d3f4543e8b4825894ef3ebf78506d5-6"></a><span class="go">[2016-05-18T02:29:49Z] INFO: theme: Theme themes/tiao created successfully.</span>
+<a name="rest_code_c0d3f4543e8b4825894ef3ebf78506d5-7"></a><span class="go">[2016-05-18T02:29:49Z] NOTICE: theme: Remember to set THEME="tiao" in conf.py to use this theme.</span>
+<a name="rest_code_c0d3f4543e8b4825894ef3ebf78506d5-8"></a>
+<a name="rest_code_c0d3f4543e8b4825894ef3ebf78506d5-9"></a><span class="gp">$</span> tree themes/tiao
+<a name="rest_code_c0d3f4543e8b4825894ef3ebf78506d5-10"></a><span class="go">themes/tiao</span>
+<a name="rest_code_c0d3f4543e8b4825894ef3ebf78506d5-11"></a><span class="go">├── engine</span>
+<a name="rest_code_c0d3f4543e8b4825894ef3ebf78506d5-12"></a><span class="go">└── parent</span>
+<a name="rest_code_c0d3f4543e8b4825894ef3ebf78506d5-13"></a>
+<a name="rest_code_c0d3f4543e8b4825894ef3ebf78506d5-14"></a><span class="go">0 directories, 2 files</span>
+</pre>
+<p class="more"><a href="a-better-approach-for-initializing-new-nikola-themes-since-v775/">Read more…</a></p>
+</div>
 </div>
     </div>
     </article>

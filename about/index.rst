@@ -9,7 +9,7 @@
 
 .. image:: http://www.gravatar.com/avatar/3a282cbe067184bb333ee4010a29db19?s=150
    :align: right
-   :class: img-thumbnail
+   :class: img-thumbnail float-right
 
 Hi. My name is Louis. I am a budding machine learning research scientist and a 
 current PhD candidate at the `University of Sydney`_ under `Fabio Ramos`_. 
@@ -36,9 +36,6 @@ projects`_, you'll either find me shooting hoops at the gym, or on the mats
 training in the beautiful art of `Brazilian jiu jitsu`_.
 
 -----
-
-Check out my :doc:`projects <projects>` for the things I've built and my 
-:doc:`dev stack <development-stack>` for what I love to build things with.
 
 .. _Fabio Ramos: http://sydney.edu.au/engineering/people/fabio.ramos.php
 .. _Richard Nock: http://users.cecs.anu.edu.au/~rnock/

@@ -7,9 +7,11 @@
 .. description: 
 .. type: text
 
-If you would like to get in touch, you can connect with me on LinkedIn_, or 
-follow me on Twitter_ and GitHub_. To reach me directly you can email me at 
-`l..@me.com`_.
+.. topic:: Contact
+
+   If you would like to get in touch, you can connect with me on LinkedIn_, or 
+   follow me on Twitter_ and GitHub_. To reach me directly you can email me at 
+   `l..@me.com`_.
 
 .. _LinkedIn: http://www.linkedin.com/in/ltiao
 .. _GitHub: http://github.com/ltiao

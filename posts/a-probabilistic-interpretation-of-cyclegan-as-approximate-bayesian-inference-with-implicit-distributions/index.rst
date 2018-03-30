@@ -1,7 +1,7 @@
 .. title: A Probabilistic Interpretation of CycleGAN as Approximate Bayesian Inference with Implicit Distributions
 .. slug: a-probabilistic-interpretation-of-cyclegan-as-approximate-bayesian-inference-with-implicit-distributions
 .. date: 2017-12-01 13:15:43 UTC+11:00
-.. tags: 
+.. tags: draft
 .. category: 
 .. link: 
 .. description: 

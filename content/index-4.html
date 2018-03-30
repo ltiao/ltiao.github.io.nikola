@@ -12,6 +12,7 @@ article: http://ogp.me/ns/article#
 <link href="../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
 <link href="../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
 <link href="../assets/css/override_nikola_ipython.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
 <meta name="theme-color" content="#5670d4">
 <meta name="generator" content="Nikola (getnikola.com)">
 <link rel="alternate" type="application/rss+xml" title="RSS" href="../rss.xml">
@@ -111,6 +112,8 @@ MathJax.Hub.Config({
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
+<p><strong>UPDATE (March 2018):</strong> For a more modern solution that uses an interactive JavaScript widget, please go to my new post: <a href="../posts/notebooks/embedding-matplotlib-animations-in-jupyter-as-interactive-javascript-widgets">Embedding Matplotlib Animations in Jupyter as Interactive JavaScript Widgets</a>.</p>
+<hr>
 <p>In his blog post <a href="http://jakevdp.github.io/blog/2013/05/12/embedding-matplotlib-animations/">Embedding Matplotlib Animations in IPython Notebooks</a>, Jake VanderPlas presents a slick hack for embedding Matplotlib Animations in IPython Notebooks, which involves writing it as a video to a <a href="https://docs.python.org/2/library/tempfile.html">tempfile</a>, and then re-encoding it in Base64 as a HTML5 Video.</p>
 <p>Unfortunately (or rather fortunately), this hack has been largely rendered obsolete by the heavy development efforts dedicated to both Matplotlib and IPython Notebook (<a href="https://blog.jupyter.org/2015/08/12/first-release-of-jupyter/">since renamed to Jupyter Notebook</a>) in recent years. In particular, <a href="http://matplotlib.org/users/whats_new.html#new-in-matplotlib-1-5">Matplotlib 1.5.1</a> now <a href="http://matplotlib.org/users/whats_new.html#display-hook-for-animations-in-the-ipython-notebook">supports inline display of animations in the notebook</a> with the <code>to_html5_video</code> method, which converts the animation to an h264 encoded video and embeddeds it directly in the notebook.</p>
 <p>In this notebook, we reproduce Jake VanderPlas' blog post with this new feature.</p>
@@ -136,27 +139,27 @@ MathJax.Hub.Config({
     <div>
 <p>So you develop on Mac OS X (10.11) and have installed the external
 dependencies (<a class="reference external" href="https://trac.osgeo.org/geos/">geos</a> 3.5.0, <a class="reference external" href="https://trac.osgeo.org/proj/">proj</a> 4.9.2) of <a class="reference external" href="http://scitools.org.uk/cartopy/">Cartopy</a> with <a class="reference external" href="http://brew.sh/">Homebrew</a>:</p>
-<pre class="code console"><a name="rest_code_f7f577081c3c43b4911ee94234b600fc-1"></a><span class="gp">$</span> brew install geos
-<a name="rest_code_f7f577081c3c43b4911ee94234b600fc-2"></a><span class="gp">$</span> brew install proj
+<pre class="code console"><a name="rest_code_e92612d9fa464583addf29dd7de0d2c3-1"></a><span class="gp">$</span> brew install geos
+<a name="rest_code_e92612d9fa464583addf29dd7de0d2c3-2"></a><span class="gp">$</span> brew install proj
 </pre>
 <p>Moreover, you have created a <tt class="docutils literal">virtualenv</tt> and installed the Python
 dependencies (Cython, NumPy):</p>
-<pre class="code console"><a name="rest_code_e72b2011fec642a29d1953ff50257cca-1"></a><span class="gp">$</span> mkvirtualenv cartopy_venv
-<a name="rest_code_e72b2011fec642a29d1953ff50257cca-2"></a><span class="gp">(cartopy_venv)$</span> pip install cython
-<a name="rest_code_e72b2011fec642a29d1953ff50257cca-3"></a><span class="gp">(cartopy_venv)$</span> pip install numpy
+<pre class="code console"><a name="rest_code_f8add3516268492aae5fa15c3fa50364-1"></a><span class="gp">$</span> mkvirtualenv cartopy_venv
+<a name="rest_code_f8add3516268492aae5fa15c3fa50364-2"></a><span class="gp">(cartopy_venv)$</span> pip install cython
+<a name="rest_code_f8add3516268492aae5fa15c3fa50364-3"></a><span class="gp">(cartopy_venv)$</span> pip install numpy
 </pre>
 <p>Yet, when you finally go install Cartopy, you still encounter the following
 seemingly inexplicable error:</p>
-<pre class="code console"><a name="rest_code_ece04acb2e334153aef89727c06ae0a5-1"></a><span class="gp">(cartopy_venv)$</span> pip install cartopy
-<a name="rest_code_ece04acb2e334153aef89727c06ae0a5-2"></a><span class="go">[...]</span>
-<a name="rest_code_ece04acb2e334153aef89727c06ae0a5-3"></a><span class="go">clang -fno-strict-aliasing -fno-common -dynamic -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk/System/Library/Frameworks/Tk.framework/Versions/8.5/Headers -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I/usr/local/Cellar/python/2.7.11/Frameworks/Python.framework/Versions/2.7/include -I./lib/cartopy -I-I/usr/local/Cellar/proj/4.9.2/include -I/usr/local/Cellar/geos/3.5.0/include -I/usr/local/Cellar/python/2.7.11/Frameworks/Python.framework/Versions/2.7/include/python2.7 -c lib/cartopy/trace.cpp -o build/temp.macosx-10.11-x86_64-2.7/lib/cartopy/trace.o</span>
-<a name="rest_code_ece04acb2e334153aef89727c06ae0a5-4"></a><span class="go">lib/cartopy/trace.cpp:249:10: fatal error: 'proj_api.h' file not found</span>
-<a name="rest_code_ece04acb2e334153aef89727c06ae0a5-5"></a><span class="gp">#</span>include <span class="s2">"proj_api.h"</span>
-<a name="rest_code_ece04acb2e334153aef89727c06ae0a5-6"></a><span class="go">         ^</span>
-<a name="rest_code_ece04acb2e334153aef89727c06ae0a5-7"></a><span class="go">1 error generated.</span>
-<a name="rest_code_ece04acb2e334153aef89727c06ae0a5-8"></a><span class="go">error: command 'clang' failed with exit status 1</span>
-<a name="rest_code_ece04acb2e334153aef89727c06ae0a5-9"></a>
-<a name="rest_code_ece04acb2e334153aef89727c06ae0a5-10"></a><span class="go">----------------------------------------</span>
+<pre class="code console"><a name="rest_code_6e2a527baaaf4cf987417e8e8d8d26ae-1"></a><span class="gp">(cartopy_venv)$</span> pip install cartopy
+<a name="rest_code_6e2a527baaaf4cf987417e8e8d8d26ae-2"></a><span class="go">[...]</span>
+<a name="rest_code_6e2a527baaaf4cf987417e8e8d8d26ae-3"></a><span class="go">clang -fno-strict-aliasing -fno-common -dynamic -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk/System/Library/Frameworks/Tk.framework/Versions/8.5/Headers -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I/usr/local/Cellar/python/2.7.11/Frameworks/Python.framework/Versions/2.7/include -I./lib/cartopy -I-I/usr/local/Cellar/proj/4.9.2/include -I/usr/local/Cellar/geos/3.5.0/include -I/usr/local/Cellar/python/2.7.11/Frameworks/Python.framework/Versions/2.7/include/python2.7 -c lib/cartopy/trace.cpp -o build/temp.macosx-10.11-x86_64-2.7/lib/cartopy/trace.o</span>
+<a name="rest_code_6e2a527baaaf4cf987417e8e8d8d26ae-4"></a><span class="go">lib/cartopy/trace.cpp:249:10: fatal error: 'proj_api.h' file not found</span>
+<a name="rest_code_6e2a527baaaf4cf987417e8e8d8d26ae-5"></a><span class="gp">#</span>include <span class="s2">"proj_api.h"</span>
+<a name="rest_code_6e2a527baaaf4cf987417e8e8d8d26ae-6"></a><span class="go">         ^</span>
+<a name="rest_code_6e2a527baaaf4cf987417e8e8d8d26ae-7"></a><span class="go">1 error generated.</span>
+<a name="rest_code_6e2a527baaaf4cf987417e8e8d8d26ae-8"></a><span class="go">error: command 'clang' failed with exit status 1</span>
+<a name="rest_code_6e2a527baaaf4cf987417e8e8d8d26ae-9"></a>
+<a name="rest_code_6e2a527baaaf4cf987417e8e8d8d26ae-10"></a><span class="go">----------------------------------------</span>
 </pre>
 <p class="more"><a href="../posts/installing-cartopy-on-mac-osx-1011/">Read more…</a></p>
 </div>
@@ -176,7 +179,7 @@ seemingly inexplicable error:</p>
     <div>
 <p>For most, keeping Nikola up-to-date is usually a simple matter of running
 something like:</p>
-<pre class="code console"><a name="rest_code_f938ea7189e54bdfb70b3014d07653dd-1"></a><span class="gp">$</span> pip install --upgrade nikola
+<pre class="code console"><a name="rest_code_6431504dc53d4ab9a6e6e15aaf062378-1"></a><span class="gp">$</span> pip install --upgrade nikola
 </pre>
 <p>The same goes for its dependencies. However, one important thing that can get
 overlooked is the Nikola configuration file for your site (the <tt class="docutils literal">conf.py</tt> file
@@ -202,23 +205,23 @@ updated with each major Nikola release.</p>
 <h2>Switching to Zsh</h2>
 <p>First I created a <a class="reference external" href="https://github.com/ltiao/oh-my-zsh">fork</a> of <a class="reference external" href="https://github.com/robbyrussell/oh-my-zsh">Oh My Zsh</a> and added it as a submodule to my
 existing <a class="reference external" href="https://github.com/ltiao/dotfiles">dotfiles repository</a> under a directory named <tt class="docutils literal"><span class="pre">.oh-my-zsh</span></tt>:</p>
-<pre class="code console"><a name="rest_code_78e4de1bee324d27873d392dbcfa1624-1"></a><span class="gp">$</span> <span class="nb">cd</span> <span class="nv">$HOME</span>/Dropbox/dotfiles
-<a name="rest_code_78e4de1bee324d27873d392dbcfa1624-2"></a><span class="gp">$</span> git submodule add https://github.com/ltiao/oh-my-zsh.git .oh-my-zsh
+<pre class="code console"><a name="rest_code_3451183277c84127a1914bea3e6ad609-1"></a><span class="gp">$</span> <span class="nb">cd</span> <span class="nv">$HOME</span>/Dropbox/dotfiles
+<a name="rest_code_3451183277c84127a1914bea3e6ad609-2"></a><span class="gp">$</span> git submodule add https://github.com/ltiao/oh-my-zsh.git .oh-my-zsh
 </pre>
 <p>Since my dotfiles repo is a fork of <a class="reference external" href="https://github.com/mathiasbynens/dotfiles">Mathias Bynen's dotfiles</a>, which is
 primarily for <tt class="docutils literal">bash</tt>, there shouldn't be any conflicts. In fact, we should
 be able to switch seamlessly between using <tt class="docutils literal">zsh</tt> and <tt class="docutils literal">bash</tt> as the default
 shell.</p>
-<pre class="code console"><a name="rest_code_83cf024f5ee14b9dadecc46c5e50e44f-1"></a><span class="gp">$</span> cp .oh-my-zsh/templates/zshrc.zsh-template .zshrc
-<a name="rest_code_83cf024f5ee14b9dadecc46c5e50e44f-2"></a><span class="gp">$</span> vim .zshrc
+<pre class="code console"><a name="rest_code_6837ab38b1044afd934b6b37a9e58725-1"></a><span class="gp">$</span> cp .oh-my-zsh/templates/zshrc.zsh-template .zshrc
+<a name="rest_code_6837ab38b1044afd934b6b37a9e58725-2"></a><span class="gp">$</span> vim .zshrc
 </pre>
-<pre class="code bash"><a name="rest_code_35073f53840c42ef90fa0af75fb2b4f4-1"></a><span class="nb">export</span> <span class="nv">ZSH</span><span class="o">=</span><span class="nv">$HOME</span>/Dropbox/dotfiles/.oh-my-zsh
+<pre class="code bash"><a name="rest_code_141801de98e24407a8e40e23a8c602c2-1"></a><span class="nb">export</span> <span class="nv">ZSH</span><span class="o">=</span><span class="nv">$HOME</span>/Dropbox/dotfiles/.oh-my-zsh
 </pre>
 <p>Add or modify files in <tt class="docutils literal"><span class="pre">.oh-my-zsh/custom</span></tt></p>
 <p>Commit and push</p>
-<pre class="code console"><a name="rest_code_869a5d8967ed44babbc06af028d407d4-1"></a><span class="gp">$</span> stow --simulate --verbose<span class="o">=</span><span class="m">1</span> --ignore<span class="o">=</span><span class="s1">'(gitmodules|oh-my-zsh)'</span> --dir<span class="o">=</span>/Users/ltiao/Dropbox dotfiles
-<a name="rest_code_869a5d8967ed44babbc06af028d407d4-2"></a><span class="gp">$</span> stow --verbose<span class="o">=</span><span class="m">1</span> --ignore<span class="o">=</span><span class="s1">'(gitmodules|oh-my-zsh)'</span> --dir<span class="o">=</span>/Users/ltiao/Dropbox dotfiles
-<a name="rest_code_869a5d8967ed44babbc06af028d407d4-3"></a><span class="gp">$</span> chsh -s /bin/zsh
+<pre class="code console"><a name="rest_code_804b472b37cb46749e53e57d5f798624-1"></a><span class="gp">$</span> stow --simulate --verbose<span class="o">=</span><span class="m">1</span> --ignore<span class="o">=</span><span class="s1">'(gitmodules|oh-my-zsh)'</span> --dir<span class="o">=</span>/Users/ltiao/Dropbox dotfiles
+<a name="rest_code_804b472b37cb46749e53e57d5f798624-2"></a><span class="gp">$</span> stow --verbose<span class="o">=</span><span class="m">1</span> --ignore<span class="o">=</span><span class="s1">'(gitmodules|oh-my-zsh)'</span> --dir<span class="o">=</span>/Users/ltiao/Dropbox dotfiles
+<a name="rest_code_804b472b37cb46749e53e57d5f798624-3"></a><span class="gp">$</span> chsh -s /bin/zsh
 </pre>
 </div>
 <div class="section" id="switching-to-iterm2">
@@ -232,10 +235,10 @@ shell.</p>
 </li>
 <li>
 <p class="first"><a class="reference external" href="https://github.com/altercation/solarized/tree/master/iterm2-colors-solarized">Solarized Dark</a>:</p>
-<pre class="code console"><a name="rest_code_95a16c30717d4029b3e3cedb12c8be2d-1"></a><span class="gp">$</span> curl -o <span class="s2">"Solarized Dark.itermcolors"</span> https://raw.githubusercontent.com/altercation/solarized/master/iterm2-colors-solarized/Solarized%20Dark.itermcolors
+<pre class="code console"><a name="rest_code_79a85a0e191b423d89b2da4f7fc5bf5c-1"></a><span class="gp">$</span> curl -o <span class="s2">"Solarized Dark.itermcolors"</span> https://raw.githubusercontent.com/altercation/solarized/master/iterm2-colors-solarized/Solarized%20Dark.itermcolors
 </pre>
 <p><a class="reference external" href="http://colorsublime.com/theme/Tomorrow_Night_Eighties">Tomorrow Night Eighties</a>:</p>
-<pre class="code console"><a name="rest_code_ac6311c480d04451a5b56a4bfd901bf7-1"></a><span class="gp">$</span> curl -o <span class="s2">"Tomorrow Night Eighties.itermcolors"</span> https://raw.githubusercontent.com/chriskempson/tomorrow-theme/master/iTerm2/Tomorrow%20Night%20Eighties.itermcolors
+<pre class="code console"><a name="rest_code_8b192019e2124ad3b88e26c6efc3bfb8-1"></a><span class="gp">$</span> curl -o <span class="s2">"Tomorrow Night Eighties.itermcolors"</span> https://raw.githubusercontent.com/chriskempson/tomorrow-theme/master/iTerm2/Tomorrow%20Night%20Eighties.itermcolors
 </pre>
 </li>
 </ol>
@@ -247,10 +250,10 @@ shell.</p>
 <div class="section" id="themes">
 <h2>Themes</h2>
 <p><a class="reference external" href="https://github.com/caiogondim/bullet-train-oh-my-zsh-theme">Bullet Train for oh-my-zsh</a></p>
-<pre class="code console"><a name="rest_code_c87d89c46f934e82aff3f6f8a9c27a9c-1"></a><span class="gp">$</span> <span class="nb">cd</span> .oh-my-zsh/custom/themes/
-<a name="rest_code_c87d89c46f934e82aff3f6f8a9c27a9c-2"></a><span class="gp">$</span> curl -O https://raw.githubusercontent.com/caiogondim/bullet-train-oh-my-zsh-theme/master/bullet-train.zsh-theme
+<pre class="code console"><a name="rest_code_1287ca3987a34597b3d4dcd927efaebf-1"></a><span class="gp">$</span> <span class="nb">cd</span> .oh-my-zsh/custom/themes/
+<a name="rest_code_1287ca3987a34597b3d4dcd927efaebf-2"></a><span class="gp">$</span> curl -O https://raw.githubusercontent.com/caiogondim/bullet-train-oh-my-zsh-theme/master/bullet-train.zsh-theme
 </pre>
-<pre class="code bash"><a name="rest_code_dcd5260893084c3c9ad197ec7b6b67c3-1"></a><span class="nv">ZSH_THEME</span><span class="o">=</span><span class="s2">"bullet-train"</span>
+<pre class="code bash"><a name="rest_code_42dc133ad30c49198c3017e1ed5eb8b9-1"></a><span class="nv">ZSH_THEME</span><span class="o">=</span><span class="s2">"bullet-train"</span>
 </pre>
 </div>
 <div class="section" id="powerline-compatible-fonts">
@@ -398,19 +401,19 @@ We just have to instead prepend the  argument we propagated to
     </header><div class="p-summary entry-summary">
     <div>
 <p>Create a file, let's call it <tt class="docutils literal">cors_http_server.py</tt>, with the code below:</p>
-<pre class="code python"><a name="rest_code_16331bd714e94e51be2a764b568754cb-1"></a><span class="ch">#! /usr/bin/env python</span>
-<a name="rest_code_16331bd714e94e51be2a764b568754cb-2"></a>
-<a name="rest_code_16331bd714e94e51be2a764b568754cb-3"></a><span class="kn">from</span> <span class="nn">SimpleHTTPServer</span> <span class="kn">import</span> <span class="n">SimpleHTTPRequestHandler</span><span class="p">,</span> <span class="n">test</span>
-<a name="rest_code_16331bd714e94e51be2a764b568754cb-4"></a>
-<a name="rest_code_16331bd714e94e51be2a764b568754cb-5"></a>
-<a name="rest_code_16331bd714e94e51be2a764b568754cb-6"></a><span class="k">class</span> <span class="nc">CORSHTTPRequestHandler</span><span class="p">(</span><span class="n">SimpleHTTPRequestHandler</span><span class="p">):</span>
-<a name="rest_code_16331bd714e94e51be2a764b568754cb-7"></a>
-<a name="rest_code_16331bd714e94e51be2a764b568754cb-8"></a>    <span class="k">def</span> <span class="nf">end_headers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<a name="rest_code_16331bd714e94e51be2a764b568754cb-9"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">send_header</span><span class="p">(</span><span class="s1">'Access-Control-Allow-Origin'</span><span class="p">,</span> <span class="s1">'*'</span><span class="p">)</span>
-<a name="rest_code_16331bd714e94e51be2a764b568754cb-10"></a>        <span class="nb">super</span><span class="p">(</span><span class="n">CORSHTTPRequestHandler</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">end_headers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-<a name="rest_code_16331bd714e94e51be2a764b568754cb-11"></a>
-<a name="rest_code_16331bd714e94e51be2a764b568754cb-12"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">'__main__'</span><span class="p">:</span>
-<a name="rest_code_16331bd714e94e51be2a764b568754cb-13"></a>    <span class="n">test</span><span class="p">(</span><span class="n">HandlerClass</span><span class="o">=</span><span class="n">CORSHTTPRequestHandler</span><span class="p">)</span>
+<pre class="code python"><a name="rest_code_1e65f69bdd4b4f69934c23aa216e6e6c-1"></a><span class="ch">#! /usr/bin/env python</span>
+<a name="rest_code_1e65f69bdd4b4f69934c23aa216e6e6c-2"></a>
+<a name="rest_code_1e65f69bdd4b4f69934c23aa216e6e6c-3"></a><span class="kn">from</span> <span class="nn">SimpleHTTPServer</span> <span class="kn">import</span> <span class="n">SimpleHTTPRequestHandler</span><span class="p">,</span> <span class="n">test</span>
+<a name="rest_code_1e65f69bdd4b4f69934c23aa216e6e6c-4"></a>
+<a name="rest_code_1e65f69bdd4b4f69934c23aa216e6e6c-5"></a>
+<a name="rest_code_1e65f69bdd4b4f69934c23aa216e6e6c-6"></a><span class="k">class</span> <span class="nc">CORSHTTPRequestHandler</span><span class="p">(</span><span class="n">SimpleHTTPRequestHandler</span><span class="p">):</span>
+<a name="rest_code_1e65f69bdd4b4f69934c23aa216e6e6c-7"></a>
+<a name="rest_code_1e65f69bdd4b4f69934c23aa216e6e6c-8"></a>    <span class="k">def</span> <span class="nf">end_headers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<a name="rest_code_1e65f69bdd4b4f69934c23aa216e6e6c-9"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">send_header</span><span class="p">(</span><span class="s1">'Access-Control-Allow-Origin'</span><span class="p">,</span> <span class="s1">'*'</span><span class="p">)</span>
+<a name="rest_code_1e65f69bdd4b4f69934c23aa216e6e6c-10"></a>        <span class="nb">super</span><span class="p">(</span><span class="n">CORSHTTPRequestHandler</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">end_headers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+<a name="rest_code_1e65f69bdd4b4f69934c23aa216e6e6c-11"></a>
+<a name="rest_code_1e65f69bdd4b4f69934c23aa216e6e6c-12"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">'__main__'</span><span class="p">:</span>
+<a name="rest_code_1e65f69bdd4b4f69934c23aa216e6e6c-13"></a>    <span class="n">test</span><span class="p">(</span><span class="n">HandlerClass</span><span class="o">=</span><span class="n">CORSHTTPRequestHandler</span><span class="p">)</span>
 </pre>
 <p class="more"><a href="../posts/python-simplehttpserver-recipe-enable-cors/">Read more…</a></p>
 </div>
@@ -432,12 +435,12 @@ We just have to instead prepend the  argument we propagated to
 Scrapy and Nikola. If you are a Mac OSX user, it's highly likely that you have
 encountered the following error when trying to install <tt class="docutils literal">lxml</tt> or its
 dependants with <tt class="docutils literal">pip</tt>:</p>
-<pre class="code console"><a name="rest_code_dd1c7bed0de14675844fe246737c0573-1"></a><span class="go">In file included from src/lxml/lxml.etree.c:346:</span>
-<a name="rest_code_dd1c7bed0de14675844fe246737c0573-2"></a><span class="gp">$</span>WORKON_HOME/venv_name/build/lxml/src/lxml/includes/etree_defs.h:9:10: fatal error: <span class="s1">'libxml/xmlversion.h'</span> file not found
-<a name="rest_code_dd1c7bed0de14675844fe246737c0573-3"></a><span class="gp">#</span>include <span class="s2">"libxml/xmlversion.h"</span>
-<a name="rest_code_dd1c7bed0de14675844fe246737c0573-4"></a><span class="go">         ^</span>
-<a name="rest_code_dd1c7bed0de14675844fe246737c0573-5"></a><span class="go">1 error generated.</span>
-<a name="rest_code_dd1c7bed0de14675844fe246737c0573-6"></a><span class="go">error: command 'clang' failed with exit status 1</span>
+<pre class="code console"><a name="rest_code_00ec67bbe16f40c0a5d2a61b49b6385d-1"></a><span class="go">In file included from src/lxml/lxml.etree.c:346:</span>
+<a name="rest_code_00ec67bbe16f40c0a5d2a61b49b6385d-2"></a><span class="gp">$</span>WORKON_HOME/venv_name/build/lxml/src/lxml/includes/etree_defs.h:9:10: fatal error: <span class="s1">'libxml/xmlversion.h'</span> file not found
+<a name="rest_code_00ec67bbe16f40c0a5d2a61b49b6385d-3"></a><span class="gp">#</span>include <span class="s2">"libxml/xmlversion.h"</span>
+<a name="rest_code_00ec67bbe16f40c0a5d2a61b49b6385d-4"></a><span class="go">         ^</span>
+<a name="rest_code_00ec67bbe16f40c0a5d2a61b49b6385d-5"></a><span class="go">1 error generated.</span>
+<a name="rest_code_00ec67bbe16f40c0a5d2a61b49b6385d-6"></a><span class="go">error: command 'clang' failed with exit status 1</span>
 </pre>
 <p class="more"><a href="../posts/installing-lxml-on-mac-osx-1011-inside-a-virtualenv-with-pip/">Read more…</a></p>
 </div>

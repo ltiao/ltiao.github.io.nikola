@@ -11,6 +11,7 @@ article: http://ogp.me/ns/article#
 <link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/override_nikola_ipython.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
 <meta name="theme-color" content="#5670d4">
 <meta name="generator" content="Nikola (getnikola.com)">
 <link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
@@ -134,45 +135,45 @@ standard deviation of the layer's weights. They are the parameters of the Keras
 layer, which we add with <tt class="docutils literal">self.add_weight</tt> (kind of a bad name). We don't take
 advantage of the option to add regularizer as we will add the KL directly to the
 loss ourselves later.</p>
-<pre class="code python"><a name="rest_code_43ff4eb4614a4c6a840426122b2e41df-1"></a><span class="bp">self</span><span class="o">.</span><span class="n">kernel_loc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_weight</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">input_dim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">),</span>
-<a name="rest_code_43ff4eb4614a4c6a840426122b2e41df-2"></a>                                  <span class="n">name</span><span class="o">=</span><span class="s1">'kernel_loc'</span><span class="p">)</span>
-<a name="rest_code_43ff4eb4614a4c6a840426122b2e41df-3"></a><span class="bp">self</span><span class="o">.</span><span class="n">kernel_scale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_weight</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">input_dim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">),</span>
-<a name="rest_code_43ff4eb4614a4c6a840426122b2e41df-4"></a>                                    <span class="n">name</span><span class="o">=</span><span class="s1">'kernel_scale'</span><span class="p">)</span>
-<a name="rest_code_43ff4eb4614a4c6a840426122b2e41df-5"></a>
-<a name="rest_code_43ff4eb4614a4c6a840426122b2e41df-6"></a><span class="bp">self</span><span class="o">.</span><span class="n">kernel</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel_loc</span><span class="p">,</span>
-<a name="rest_code_43ff4eb4614a4c6a840426122b2e41df-7"></a>                                      <span class="n">scale</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel_scale</span><span class="p">)</span>
-<a name="rest_code_43ff4eb4614a4c6a840426122b2e41df-8"></a>
-<a name="rest_code_43ff4eb4614a4c6a840426122b2e41df-9"></a><span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_bias</span><span class="p">:</span>
-<a name="rest_code_43ff4eb4614a4c6a840426122b2e41df-10"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">bias_loc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_weight</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">,),</span>
-<a name="rest_code_43ff4eb4614a4c6a840426122b2e41df-11"></a>                                    <span class="n">name</span><span class="o">=</span><span class="s1">'bias_loc'</span><span class="p">)</span>
-<a name="rest_code_43ff4eb4614a4c6a840426122b2e41df-12"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">bias_scale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_weight</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">,),</span>
-<a name="rest_code_43ff4eb4614a4c6a840426122b2e41df-13"></a>                                      <span class="n">name</span><span class="o">=</span><span class="s1">'bias_scale'</span><span class="p">)</span>
-<a name="rest_code_43ff4eb4614a4c6a840426122b2e41df-14"></a>
-<a name="rest_code_43ff4eb4614a4c6a840426122b2e41df-15"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">bias</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bias_loc</span><span class="p">,</span>
-<a name="rest_code_43ff4eb4614a4c6a840426122b2e41df-16"></a>                                        <span class="n">scale</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bias_scale</span><span class="p">)</span>
-<a name="rest_code_43ff4eb4614a4c6a840426122b2e41df-17"></a><span class="k">else</span><span class="p">:</span>
-<a name="rest_code_43ff4eb4614a4c6a840426122b2e41df-18"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">bias</span> <span class="o">=</span> <span class="bp">None</span>
+<pre class="code python"><a name="rest_code_413ade2c19f94bf2860578dab4bbcb27-1"></a><span class="bp">self</span><span class="o">.</span><span class="n">kernel_loc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_weight</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">input_dim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">),</span>
+<a name="rest_code_413ade2c19f94bf2860578dab4bbcb27-2"></a>                                  <span class="n">name</span><span class="o">=</span><span class="s1">'kernel_loc'</span><span class="p">)</span>
+<a name="rest_code_413ade2c19f94bf2860578dab4bbcb27-3"></a><span class="bp">self</span><span class="o">.</span><span class="n">kernel_scale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_weight</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">input_dim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">),</span>
+<a name="rest_code_413ade2c19f94bf2860578dab4bbcb27-4"></a>                                    <span class="n">name</span><span class="o">=</span><span class="s1">'kernel_scale'</span><span class="p">)</span>
+<a name="rest_code_413ade2c19f94bf2860578dab4bbcb27-5"></a>
+<a name="rest_code_413ade2c19f94bf2860578dab4bbcb27-6"></a><span class="bp">self</span><span class="o">.</span><span class="n">kernel</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel_loc</span><span class="p">,</span>
+<a name="rest_code_413ade2c19f94bf2860578dab4bbcb27-7"></a>                                      <span class="n">scale</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel_scale</span><span class="p">)</span>
+<a name="rest_code_413ade2c19f94bf2860578dab4bbcb27-8"></a>
+<a name="rest_code_413ade2c19f94bf2860578dab4bbcb27-9"></a><span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_bias</span><span class="p">:</span>
+<a name="rest_code_413ade2c19f94bf2860578dab4bbcb27-10"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">bias_loc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_weight</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">,),</span>
+<a name="rest_code_413ade2c19f94bf2860578dab4bbcb27-11"></a>                                    <span class="n">name</span><span class="o">=</span><span class="s1">'bias_loc'</span><span class="p">)</span>
+<a name="rest_code_413ade2c19f94bf2860578dab4bbcb27-12"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">bias_scale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_weight</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">,),</span>
+<a name="rest_code_413ade2c19f94bf2860578dab4bbcb27-13"></a>                                      <span class="n">name</span><span class="o">=</span><span class="s1">'bias_scale'</span><span class="p">)</span>
+<a name="rest_code_413ade2c19f94bf2860578dab4bbcb27-14"></a>
+<a name="rest_code_413ade2c19f94bf2860578dab4bbcb27-15"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">bias</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bias_loc</span><span class="p">,</span>
+<a name="rest_code_413ade2c19f94bf2860578dab4bbcb27-16"></a>                                        <span class="n">scale</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bias_scale</span><span class="p">)</span>
+<a name="rest_code_413ade2c19f94bf2860578dab4bbcb27-17"></a><span class="k">else</span><span class="p">:</span>
+<a name="rest_code_413ade2c19f94bf2860578dab4bbcb27-18"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">bias</span> <span class="o">=</span> <span class="bp">None</span>
 </pre>
 </div>
 <div class="section" id="prior-distribution">
 <h2>Prior distribution</h2>
-<pre class="code python"><a name="rest_code_0b053f3fb97744da8b3d1813131a56af-1"></a><span class="k">if</span> <span class="n">kernel_prior</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-<a name="rest_code_0b053f3fb97744da8b3d1813131a56af-2"></a>    <span class="n">kernel_prior</span> <span class="o">=</span> <span class="n">Normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1.</span><span class="p">)</span>
-<a name="rest_code_0b053f3fb97744da8b3d1813131a56af-3"></a>
-<a name="rest_code_0b053f3fb97744da8b3d1813131a56af-4"></a><span class="k">if</span> <span class="n">bias_prior</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-<a name="rest_code_0b053f3fb97744da8b3d1813131a56af-5"></a>    <span class="n">bias_prior</span> <span class="o">=</span> <span class="n">Normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1.</span><span class="p">)</span>
-<a name="rest_code_0b053f3fb97744da8b3d1813131a56af-6"></a>
-<a name="rest_code_0b053f3fb97744da8b3d1813131a56af-7"></a><span class="bp">self</span><span class="o">.</span><span class="n">kernel_prior</span> <span class="o">=</span> <span class="n">kernel_prior</span>
-<a name="rest_code_0b053f3fb97744da8b3d1813131a56af-8"></a><span class="bp">self</span><span class="o">.</span><span class="n">bias_prior</span> <span class="o">=</span> <span class="n">bias_prior</span>
+<pre class="code python"><a name="rest_code_a31108b2bd8946f59549ca80377efbce-1"></a><span class="k">if</span> <span class="n">kernel_prior</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+<a name="rest_code_a31108b2bd8946f59549ca80377efbce-2"></a>    <span class="n">kernel_prior</span> <span class="o">=</span> <span class="n">Normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1.</span><span class="p">)</span>
+<a name="rest_code_a31108b2bd8946f59549ca80377efbce-3"></a>
+<a name="rest_code_a31108b2bd8946f59549ca80377efbce-4"></a><span class="k">if</span> <span class="n">bias_prior</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+<a name="rest_code_a31108b2bd8946f59549ca80377efbce-5"></a>    <span class="n">bias_prior</span> <span class="o">=</span> <span class="n">Normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1.</span><span class="p">)</span>
+<a name="rest_code_a31108b2bd8946f59549ca80377efbce-6"></a>
+<a name="rest_code_a31108b2bd8946f59549ca80377efbce-7"></a><span class="bp">self</span><span class="o">.</span><span class="n">kernel_prior</span> <span class="o">=</span> <span class="n">kernel_prior</span>
+<a name="rest_code_a31108b2bd8946f59549ca80377efbce-8"></a><span class="bp">self</span><span class="o">.</span><span class="n">bias_prior</span> <span class="o">=</span> <span class="n">bias_prior</span>
 </pre>
 </div>
 <div class="section" id="kl-divergence">
 <h2>KL Divergence</h2>
-<pre class="code python"><a name="rest_code_2859b82c5b2f4fcfb557a308f4dac6a0-1"></a><span class="bp">self</span><span class="o">.</span><span class="n">add_loss</span><span class="p">(</span><span class="n">kl_divergence</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel_posterior</span><span class="p">,</span>
-<a name="rest_code_2859b82c5b2f4fcfb557a308f4dac6a0-2"></a>                            <span class="bp">self</span><span class="o">.</span><span class="n">kernel_prior</span><span class="p">))</span>
-<a name="rest_code_2859b82c5b2f4fcfb557a308f4dac6a0-3"></a>
-<a name="rest_code_2859b82c5b2f4fcfb557a308f4dac6a0-4"></a><span class="bp">self</span><span class="o">.</span><span class="n">add_loss</span><span class="p">(</span><span class="n">kl_divergence</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bias_posterior</span><span class="p">,</span>
-<a name="rest_code_2859b82c5b2f4fcfb557a308f4dac6a0-5"></a>                            <span class="bp">self</span><span class="o">.</span><span class="n">bias_prior</span><span class="p">))</span>
+<pre class="code python"><a name="rest_code_02b57448dde84bb7b0a93ffa1d0fb95f-1"></a><span class="bp">self</span><span class="o">.</span><span class="n">add_loss</span><span class="p">(</span><span class="n">kl_divergence</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel_posterior</span><span class="p">,</span>
+<a name="rest_code_02b57448dde84bb7b0a93ffa1d0fb95f-2"></a>                            <span class="bp">self</span><span class="o">.</span><span class="n">kernel_prior</span><span class="p">))</span>
+<a name="rest_code_02b57448dde84bb7b0a93ffa1d0fb95f-3"></a>
+<a name="rest_code_02b57448dde84bb7b0a93ffa1d0fb95f-4"></a><span class="bp">self</span><span class="o">.</span><span class="n">add_loss</span><span class="p">(</span><span class="n">kl_divergence</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bias_posterior</span><span class="p">,</span>
+<a name="rest_code_02b57448dde84bb7b0a93ffa1d0fb95f-5"></a>                            <span class="bp">self</span><span class="o">.</span><span class="n">bias_prior</span><span class="p">))</span>
 </pre>
 <p>In a <a class="reference external" href="../implementing-variational-autoencoders-in-keras-beyond-the-quickstart-tutorial/">previous post</a>,
 I demonstrated how to leverage Keras' modular design to implement variational
@@ -193,7 +194,7 @@ MC sample size under our basic framework.</p>
 <h3>Layer broadcasting</h3>
 <p>Thanks to broadcasting, the changes required are very minimal, but have vast
 implications. The change we make is as simple as:</p>
-<pre class="code python"><a name="rest_code_08dce019a1c6444388e6f0a4bb06cb7d-1"></a><span class="n">eps</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">mc_samples</span><span class="p">,</span> <span class="n">latent_dim</span><span class="p">))</span>
+<pre class="code python"><a name="rest_code_f874aac60564419f95355f3d3e53a3d9-1"></a><span class="n">eps</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">mc_samples</span><span class="p">,</span> <span class="n">latent_dim</span><span class="p">))</span>
 </pre>
 <p>That is, we make the shape of the noise from the base distribution
 <tt class="docutils literal">(batch_size, mc_samples, latent_dim)</tt>. This is equivalent to drawing
@@ -228,15 +229,15 @@ This is illustrated in the figure below.</p>
 <p>Exactly as before, we specify the output of the variational autoencoder as the
 output of the latent variable <tt class="docutils literal">z</tt> fed through some generative model (a deep
 latent Gaussian model),</p>
-<pre class="code python"><a name="rest_code_9ae3ea5e34b445b8a90f6bdc0884aff1-1"></a><span class="n">decoder</span> <span class="o">=</span> <span class="n">Sequential</span><span class="p">([</span>
-<a name="rest_code_9ae3ea5e34b445b8a90f6bdc0884aff1-2"></a>    <span class="n">Dense</span><span class="p">(</span><span class="n">intermediate_dim</span><span class="p">,</span> <span class="n">input_dim</span><span class="o">=</span><span class="n">latent_dim</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'relu'</span><span class="p">),</span>
-<a name="rest_code_9ae3ea5e34b445b8a90f6bdc0884aff1-3"></a>    <span class="n">Dense</span><span class="p">(</span><span class="n">original_dim</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'sigmoid'</span><span class="p">)</span>
-<a name="rest_code_9ae3ea5e34b445b8a90f6bdc0884aff1-4"></a><span class="p">])</span>
-<a name="rest_code_9ae3ea5e34b445b8a90f6bdc0884aff1-5"></a>
-<a name="rest_code_9ae3ea5e34b445b8a90f6bdc0884aff1-6"></a><span class="n">x_mean</span> <span class="o">=</span> <span class="n">decoder</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
-<a name="rest_code_9ae3ea5e34b445b8a90f6bdc0884aff1-7"></a>
-<a name="rest_code_9ae3ea5e34b445b8a90f6bdc0884aff1-8"></a><span class="n">vae</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">eps</span><span class="p">],</span> <span class="n">outputs</span><span class="o">=</span><span class="n">x_mean</span><span class="p">)</span>
-<a name="rest_code_9ae3ea5e34b445b8a90f6bdc0884aff1-9"></a><span class="n">vae</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">optimizer</span><span class="o">=</span><span class="s1">'rmsprop'</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="n">nll</span><span class="p">)</span>
+<pre class="code python"><a name="rest_code_e189bfca13e34f7fad4debdf18a4e089-1"></a><span class="n">decoder</span> <span class="o">=</span> <span class="n">Sequential</span><span class="p">([</span>
+<a name="rest_code_e189bfca13e34f7fad4debdf18a4e089-2"></a>    <span class="n">Dense</span><span class="p">(</span><span class="n">intermediate_dim</span><span class="p">,</span> <span class="n">input_dim</span><span class="o">=</span><span class="n">latent_dim</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'relu'</span><span class="p">),</span>
+<a name="rest_code_e189bfca13e34f7fad4debdf18a4e089-3"></a>    <span class="n">Dense</span><span class="p">(</span><span class="n">original_dim</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'sigmoid'</span><span class="p">)</span>
+<a name="rest_code_e189bfca13e34f7fad4debdf18a4e089-4"></a><span class="p">])</span>
+<a name="rest_code_e189bfca13e34f7fad4debdf18a4e089-5"></a>
+<a name="rest_code_e189bfca13e34f7fad4debdf18a4e089-6"></a><span class="n">x_mean</span> <span class="o">=</span> <span class="n">decoder</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+<a name="rest_code_e189bfca13e34f7fad4debdf18a4e089-7"></a>
+<a name="rest_code_e189bfca13e34f7fad4debdf18a4e089-8"></a><span class="n">vae</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">eps</span><span class="p">],</span> <span class="n">outputs</span><span class="o">=</span><span class="n">x_mean</span><span class="p">)</span>
+<a name="rest_code_e189bfca13e34f7fad4debdf18a4e089-9"></a><span class="n">vae</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">optimizer</span><span class="o">=</span><span class="s1">'rmsprop'</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="n">nll</span><span class="p">)</span>
 </pre>
 <p>Note the specification of <tt class="docutils literal">input_dim=latent_dim</tt>. It tells this and all
 subsequent layers to operate only on this dimension. Hence, <em>for each observation</em>,
@@ -272,30 +273,30 @@ approximate posterior distribution, we require the latter.</p>
 broadcast with the shape of our output, namely
 <tt class="docutils literal">(n_samples, mc_samples, original_dim)</tt>.
 This is easily achieved by adding a dimension to the target array with</p>
-<pre class="code python"><a name="rest_code_95e893fd1d1f4628ad22aca1ec344d23-1"></a><span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<pre class="code python"><a name="rest_code_86bccd0ea00b42459782cb7aad522fd9-1"></a><span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 </pre>
 <p>which has shape <tt class="docutils literal">(n_samples, 1, original_dim)</tt>. Now the loss function can
 broadcast this with the model output to yield <tt class="docutils literal">(n_samples, mc_samples)</tt> loss
 values. Methods like <tt class="docutils literal">fit</tt> and <tt class="docutils literal">evaluate</tt> will automatically aggregate this
 into a single scalar loss value, e.g.</p>
-<pre class="code pycon"><a name="rest_code_a84db09703304699b686cfeda6b69c98-1"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">vae</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span>
-<a name="rest_code_a84db09703304699b686cfeda6b69c98-2"></a><span class="gp">... </span>             <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
-<a name="rest_code_a84db09703304699b686cfeda6b69c98-3"></a><span class="gp">... </span>             <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">)</span>
-<a name="rest_code_a84db09703304699b686cfeda6b69c98-4"></a><span class="go">10000/10000 [==============================] - 0s 43us/step</span>
-<a name="rest_code_a84db09703304699b686cfeda6b69c98-5"></a><span class="go">543.99742309570308</span>
+<pre class="code pycon"><a name="rest_code_dc035af2c7c4401db3ba77103a26f1f2-1"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">vae</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span>
+<a name="rest_code_dc035af2c7c4401db3ba77103a26f1f2-2"></a><span class="gp">... </span>             <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+<a name="rest_code_dc035af2c7c4401db3ba77103a26f1f2-3"></a><span class="gp">... </span>             <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">)</span>
+<a name="rest_code_dc035af2c7c4401db3ba77103a26f1f2-4"></a><span class="go">10000/10000 [==============================] - 0s 43us/step</span>
+<a name="rest_code_dc035af2c7c4401db3ba77103a26f1f2-5"></a><span class="go">543.99742309570308</span>
 </pre>
 <p>Finally, fitting the model simply consists of:</p>
-<pre class="code python"><a name="rest_code_4a0705def2134a2fbf215d3146956d7e-1"></a><span class="n">vae</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
-<a name="rest_code_4a0705def2134a2fbf215d3146956d7e-2"></a>    <span class="n">x_train</span><span class="p">,</span>
-<a name="rest_code_4a0705def2134a2fbf215d3146956d7e-3"></a>    <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
-<a name="rest_code_4a0705def2134a2fbf215d3146956d7e-4"></a>    <span class="n">shuffle</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
-<a name="rest_code_4a0705def2134a2fbf215d3146956d7e-5"></a>    <span class="n">epochs</span><span class="o">=</span><span class="n">epochs</span><span class="p">,</span>
-<a name="rest_code_4a0705def2134a2fbf215d3146956d7e-6"></a>    <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
-<a name="rest_code_4a0705def2134a2fbf215d3146956d7e-7"></a>    <span class="n">validation_data</span><span class="o">=</span><span class="p">(</span>
-<a name="rest_code_4a0705def2134a2fbf215d3146956d7e-8"></a>        <span class="n">x_test</span><span class="p">,</span>
-<a name="rest_code_4a0705def2134a2fbf215d3146956d7e-9"></a>        <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<a name="rest_code_4a0705def2134a2fbf215d3146956d7e-10"></a>    <span class="p">)</span>
-<a name="rest_code_4a0705def2134a2fbf215d3146956d7e-11"></a><span class="p">)</span>
+<pre class="code python"><a name="rest_code_aebc0014469344908644e4b6a1267db7-1"></a><span class="n">vae</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+<a name="rest_code_aebc0014469344908644e4b6a1267db7-2"></a>    <span class="n">x_train</span><span class="p">,</span>
+<a name="rest_code_aebc0014469344908644e4b6a1267db7-3"></a>    <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+<a name="rest_code_aebc0014469344908644e4b6a1267db7-4"></a>    <span class="n">shuffle</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+<a name="rest_code_aebc0014469344908644e4b6a1267db7-5"></a>    <span class="n">epochs</span><span class="o">=</span><span class="n">epochs</span><span class="p">,</span>
+<a name="rest_code_aebc0014469344908644e4b6a1267db7-6"></a>    <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
+<a name="rest_code_aebc0014469344908644e4b6a1267db7-7"></a>    <span class="n">validation_data</span><span class="o">=</span><span class="p">(</span>
+<a name="rest_code_aebc0014469344908644e4b6a1267db7-8"></a>        <span class="n">x_test</span><span class="p">,</span>
+<a name="rest_code_aebc0014469344908644e4b6a1267db7-9"></a>        <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<a name="rest_code_aebc0014469344908644e4b6a1267db7-10"></a>    <span class="p">)</span>
+<a name="rest_code_aebc0014469344908644e4b6a1267db7-11"></a><span class="p">)</span>
 </pre>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
@@ -303,11 +304,11 @@ into a single scalar loss value, e.g.</p>
 constraint on the targets and the predicted outputs to have <em>exactly</em> the
 same shape. This is not a showstopper, since we can just tile the array
 across the MC sample dimension/channel,</p>
-<pre class="code python"><a name="rest_code_aceaed886e2d47b1bc78aa4695fae28d-1"></a><span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
-<a name="rest_code_aceaed886e2d47b1bc78aa4695fae28d-2"></a>        <span class="n">reps</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">mc_samples</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<pre class="code python"><a name="rest_code_69e0ccf877c041a0a9b6776d895ac4d5-1"></a><span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+<a name="rest_code_69e0ccf877c041a0a9b6776d895ac4d5-2"></a>        <span class="n">reps</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">mc_samples</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
 </pre>
 <p>or equivalently,</p>
-<pre class="code python"><a name="rest_code_b90ee5a98a1e4145b62557fef620dbad-1"></a><span class="n">np</span><span class="o">.</span><span class="n">rollaxis</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">reps</span><span class="o">=</span><span class="p">(</span><span class="n">mc_samples</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<pre class="code python"><a name="rest_code_e7d90660959446288b787504c917ce5b-1"></a><span class="n">np</span><span class="o">.</span><span class="n">rollaxis</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">reps</span><span class="o">=</span><span class="p">(</span><span class="n">mc_samples</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 </pre>
 <p class="last">This is neither as slick nor as space efficient, but it gets the job done.</p>
 </div>
@@ -317,17 +318,17 @@ across the MC sample dimension/channel,</p>
 <p>Let's choose an arbitrary observation from the test set and feed it through
 our autoencoder model <tt class="docutils literal">vae</tt>. This yields <tt class="docutils literal">mc_samples=25</tt> samples from the
 predictive distribution over reconstructions.</p>
-<pre class="code pycon"><a name="rest_code_dc69510c151943329a105a3737414bc9-1"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">x_test</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># choose arbitrary observation</span>
-<a name="rest_code_dc69510c151943329a105a3737414bc9-2"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">recons</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">vae</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span>
-<a name="rest_code_dc69510c151943329a105a3737414bc9-3"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">recons</span><span class="o">.</span><span class="n">shape</span>
-<a name="rest_code_dc69510c151943329a105a3737414bc9-4"></a><span class="go">(25, 784)</span>
+<pre class="code pycon"><a name="rest_code_7de6a4b99cda473d968e9a76a0910dfd-1"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">x_test</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># choose arbitrary observation</span>
+<a name="rest_code_7de6a4b99cda473d968e9a76a0910dfd-2"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">recons</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">vae</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span>
+<a name="rest_code_7de6a4b99cda473d968e9a76a0910dfd-3"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">recons</span><span class="o">.</span><span class="n">shape</span>
+<a name="rest_code_7de6a4b99cda473d968e9a76a0910dfd-4"></a><span class="go">(25, 784)</span>
 </pre>
 <p>We can visualize these:</p>
-<pre class="code python"><a name="rest_code_31f26c05408d4f578bcc205b68d61574-1"></a><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
-<a name="rest_code_31f26c05408d4f578bcc205b68d61574-2"></a><span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">28</span><span class="p">,</span> <span class="mi">28</span><span class="p">),</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">'gray'</span><span class="p">)</span>
-<a name="rest_code_31f26c05408d4f578bcc205b68d61574-3"></a><span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">block</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">recons</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">28</span><span class="p">)))),</span>
-<a name="rest_code_31f26c05408d4f578bcc205b68d61574-4"></a>           <span class="n">cmap</span><span class="o">=</span><span class="s1">'gray'</span><span class="p">)</span>
-<a name="rest_code_31f26c05408d4f578bcc205b68d61574-5"></a><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<pre class="code python"><a name="rest_code_1cc5ab9f44ca4b69a7f1db0494345f36-1"></a><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<a name="rest_code_1cc5ab9f44ca4b69a7f1db0494345f36-2"></a><span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">28</span><span class="p">,</span> <span class="mi">28</span><span class="p">),</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">'gray'</span><span class="p">)</span>
+<a name="rest_code_1cc5ab9f44ca4b69a7f1db0494345f36-3"></a><span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">block</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">recons</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">28</span><span class="p">)))),</span>
+<a name="rest_code_1cc5ab9f44ca4b69a7f1db0494345f36-4"></a>           <span class="n">cmap</span><span class="o">=</span><span class="s1">'gray'</span><span class="p">)</span>
+<a name="rest_code_1cc5ab9f44ca4b69a7f1db0494345f36-5"></a><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre>
 <p>The output of this is shown in the figure below. You may need to squint closely
 to see that the sampled reconstructions are different to each other.</p>
@@ -335,12 +336,12 @@ to see that the sampled reconstructions are different to each other.</p>
 <img alt="../../images/vae/mc_samples_reconstructions.png" src="../../images/vae/mc_samples_reconstructions.png" style="width: 600px;"><p class="caption">5x5 grid reconstructions for a given observation.</p>
 </div>
 <p>As a sanity check,</p>
-<pre class="code pycon"><a name="rest_code_b978734605314145ab66ed228bbf0120-1"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">recons</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">recons</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-<a name="rest_code_b978734605314145ab66ed228bbf0120-2"></a><span class="go">False</span>
-<a name="rest_code_b978734605314145ab66ed228bbf0120-3"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">recons</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">==</span> <span class="n">recons</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<a name="rest_code_b978734605314145ab66ed228bbf0120-4"></a><span class="go">array([False, False, False, False, False, False, False, False, False, False,</span>
-<a name="rest_code_b978734605314145ab66ed228bbf0120-5"></a><span class="go">       False, False, False, False, False, False, False, False, False, False,</span>
-<a name="rest_code_b978734605314145ab66ed228bbf0120-6"></a><span class="go">       False, False, False, False], dtype=bool)</span>
+<pre class="code pycon"><a name="rest_code_0fabb9865c70463d956fad0fcd4aa594-1"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">recons</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">recons</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<a name="rest_code_0fabb9865c70463d956fad0fcd4aa594-2"></a><span class="go">False</span>
+<a name="rest_code_0fabb9865c70463d956fad0fcd4aa594-3"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">recons</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">==</span> <span class="n">recons</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<a name="rest_code_0fabb9865c70463d956fad0fcd4aa594-4"></a><span class="go">array([False, False, False, False, False, False, False, False, False, False,</span>
+<a name="rest_code_0fabb9865c70463d956fad0fcd4aa594-5"></a><span class="go">       False, False, False, False, False, False, False, False, False, False,</span>
+<a name="rest_code_0fabb9865c70463d956fad0fcd4aa594-6"></a><span class="go">       False, False, False, False], dtype=bool)</span>
 </pre>
 </div>
 <div class="section" id="summary">

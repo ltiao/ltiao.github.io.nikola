@@ -9,7 +9,7 @@
 
 .. image:: http://www.gravatar.com/avatar/3a282cbe067184bb333ee4010a29db19?s=150
    :align: right
-   :class: img-thumbnail float-right
+   :class: img-thumbnail
 
 Hi. My name is Louis. I am a budding machine learning research scientist and a 
 current PhD candidate at the `University of Sydney`_ under `Fabio Ramos`_. 
